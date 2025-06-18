@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập - Quản lý quán cafe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-200 via-purple-300 to-purple-400 min-h-screen flex items-center justify-center">
+
+<div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl">
+    <h1 class="text-3xl font-bold text-center text-purple-700 mb-2">Quản Lý Quán Cafe ☕</h1>
+    <p class="text-center text-sm text-gray-500 mb-6">Vui lòng đăng nhập để tiếp tục</p>
+
+    <!-- Thông báo lỗi -->
+    <div th:if="${error}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+        <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/login}" method="post" th:object="${loginRequest}" class="space-y-5">
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Tên đăng nhập</label>
+            <input type="text" id="username" th:field="*{username}" name="username" required
+                   class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu</label>
+            <input type="password" id="password" th:field="*{password}" name="password" required
+                   class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <button type="submit"
+                class="w-full bg-purple-600 text-white font-bold py-2 rounded-lg hover:bg-purple-700 transition">
+            Đăng nhập
+        </button>
+    </form>
+</div>
+
+</body>
+</html>
