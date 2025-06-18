@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div
+      th:fragment="profile-content"
+      class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-lg border border-purple-200 p-8"
+    >
+      <div class="bg-white border-2 border-purple-200 rounded-xl p-8 shadow-md">
+        <h2
+          class="text-2xl font-bold text-purple-800 mb-8 text-center flex items-center justify-center"
+        >
+          <i data-lucide="user-circle" class="w-7 h-7 mr-3 text-purple-600"></i>
+          Trang cá nhân
+        </h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Thông tin cá nhân bên trái -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Họ và tên + Chức vụ -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                <label
+                  class="block text-sm font-semibold text-purple-700 mb-2 flex items-center"
+                >
+                  <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                  Họ và tên:
+                </label>
+                <span
+                  class="text-lg font-bold text-purple-900"
+                  th:text="${session.userInfo?.hoTen ?: 'Lê Văn Thê'}"
+                  >Lê Văn Thê</span
+                >
+              </div>
+              <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                <label
+                  class="block text-sm font-semibold text-purple-700 mb-2 flex items-center"
+                >
+                  <i data-lucide="briefcase" class="w-4 h-4 mr-2"></i>
+                  Chức vụ:
+                </label>
+                <span
+                  class="text-lg font-bold text-purple-900"
+                  th:text="${session.userInfo?.chucVu ?: 'Nhân viên pha chế'}"
+                  >Nhân viên pha chế</span
+                >
+              </div>
+            </div>
+
+            <!-- Địa chỉ -->
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+              <label
+                class="block text-sm font-semibold text-purple-700 mb-2 flex items-center"
+              >
+                <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                Địa chỉ:
+              </label>
+              <span
+                class="text-lg text-purple-800"
+                th:text="${session.userInfo?.diaChi ?: '12 Ngô Quyền, tp Đà Nẵng'}"
+                >12 Ngô Quyền, tp Đà Nẵng</span
+              >
+            </div>
+
+            <!-- Số điện thoại + Lương -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                <label
+                  class="block text-sm font-semibold text-purple-700 mb-2 flex items-center"
+                >
+                  <i data-lucide="phone" class="w-4 h-4 mr-2"></i>
+                  Số điện thoại:
+                </label>
+                <span
+                  class="text-lg text-purple-800"
+                  th:text="${session.userInfo?.soDienThoai ?: '0945423984'}"
+                  >0945423984</span
+                >
+              </div>
+              <div
+                class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200"
+              >
+                <label
+                  class="block text-sm font-semibold text-green-700 mb-2 flex items-center"
+                >
+                  <i data-lucide="dollar-sign" class="w-4 h-4 mr-2"></i>
+                  Lương:
+                </label>
+                <span class="text-lg font-bold text-green-700">
+                  <span
+                    th:if="${session.userInfo?.luong}"
+                    th:text="${#numbers.formatDecimal(session.userInfo.luong, 0, 'COMMA', 3, 'POINT')} + ' VNĐ'"
+                  ></span>
+                  <span th:unless="${session.userInfo?.luong}"
+                    >5.000.000 VNĐ</span
+                  >
+                </span>
+              </div>
+            </div>
+
+            <!-- Thông tin đăng nhập -->
+            <div class="border-t-2 border-purple-200 pt-6 mt-8">
+              <h3
+                class="text-lg font-semibold text-purple-800 mb-4 flex items-center"
+              >
+                <i data-lucide="key" class="w-5 h-5 mr-2"></i>
+                Thông tin đăng nhập
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <label
+                    class="block text-sm font-semibold text-blue-700 mb-2 flex items-center"
+                  >
+                    <i data-lucide="user-check" class="w-4 h-4 mr-2"></i>
+                    Tên đăng nhập:
+                  </label>
+                  <span
+                    class="text-lg font-medium text-blue-800"
+                    th:text="${session.userInfo?.tenDangNhap ?: 'vanthe14'}"
+                    >vanthe14</span
+                  >
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label
+                    class="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+                  >
+                    <i data-lucide="lock" class="w-4 h-4 mr-2"></i>
+                    Mật khẩu:
+                  </label>
+                  <span class="text-lg text-gray-600 font-mono">••••••••</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút chỉnh sửa -->
+            <div class="flex justify-center mt-8">
+              <button
+                class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-8 py-3 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center"
+              >
+                <i data-lucide="edit" class="w-5 h-5 mr-2"></i>
+                Chỉnh sửa thông tin
+              </button>
+            </div>
+          </div>
+
+          <!-- Ảnh đại diện bên phải -->
+          <div class="flex flex-col items-center justify-between">
+            <div
+              class="bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-300 rounded-xl p-6 shadow-lg"
+            >
+              <div
+                class="w-32 h-40 bg-gradient-to-br from-purple-200 to-purple-300 border-2 border-purple-400 rounded-lg flex items-center justify-center mb-4 shadow-inner"
+              >
+                <div class="text-center">
+                  <!-- Icon người dùng placeholder -->
+                  <div
+                    class="w-20 h-20 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center shadow-lg"
+                  >
+                    <i data-lucide="user" class="w-12 h-12 text-white"></i>
+                  </div>
+                  <span class="text-sm text-purple-700 font-medium"
+                    >Ảnh đại diện</span
+                  >
+                </div>
+              </div>
+
+              <!-- Nút upload ảnh -->
+              <button
+                class="w-full bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center mb-4"
+              >
+                <i data-lucide="camera" class="w-4 h-4 mr-2"></i>
+                Đổi ảnh
+              </button>
+            </div>
+
+            <!-- Nút đăng xuất -->
+            <div class="mt-6">
+              <a
+                href="/logout"
+                class="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span>Đăng xuất</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

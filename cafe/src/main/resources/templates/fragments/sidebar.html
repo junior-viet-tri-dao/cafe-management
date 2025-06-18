@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <aside
+      th:fragment="sidebar"
+      class="sidebar w-64 bg-white shadow-sm border-r border-purple-200 min-h-screen relative"
+    >
+      <nav class="p-4">
+        <ul class="space-y-2">
+          <!-- Trang chủ -->
+          <li>
+            <button
+              onclick="showTab('home')"
+              class="sidebar-item active w-full text-left px-4 py-3 text-purple-700 bg-purple-200 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="home" class="w-5 h-5"></i>
+              <span>Trang chủ</span>
+            </button>
+          </li>
+
+          <!-- Trang cá nhân -->
+          <li>
+            <button
+              onclick="showTab('profile')"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="user" class="w-5 h-5"></i>
+              <span>Trang cá nhân</span>
+            </button>
+          </li>
+
+          <!-- Quản lý nhân viên với dropdown -->
+          <li>
+            <button
+              onclick="toggleEmployeeMenu()"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center justify-between employee-main-button"
+            >
+              <div class="flex items-center space-x-3">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span>Quản lý nhân viên</span>
+              </div>
+              <i
+                data-lucide="chevron-right"
+                class="w-4 h-4 transition-transform duration-200"
+                id="employee-chevron"
+              ></i>
+            </button>
+
+            <!-- Submenu cho nhân viên -->
+            <div id="employee-submenu" class="hidden ml-4 mt-2 space-y-1">
+              <button
+                onclick="showEmployeeTab('list')"
+                class="employee-submenu-item w-full text-left px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3 text-sm"
+              >
+                <i data-lucide="list" class="w-4 h-4"></i>
+                <span>Xem danh sách nhân viên</span>
+              </button>
+
+              <button
+                onclick="showEmployeeTab('add')"
+                class="employee-submenu-item w-full text-left px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3 text-sm"
+              >
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>Thêm nhân viên</span>
+              </button>
+
+              <button
+                onclick="showEmployeeTab('edit')"
+                class="employee-submenu-item w-full text-left px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3 text-sm"
+              >
+                <i data-lucide="user-check" class="w-4 h-4"></i>
+                <span>Chỉnh sửa nhân viên</span>
+              </button>
+
+              <button
+                onclick="showEmployeeTab('delete')"
+                class="employee-submenu-item w-full text-left px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3 text-sm"
+              >
+                <i data-lucide="user-minus" class="w-4 h-4"></i>
+                <span>Xóa nhân viên</span>
+              </button>
+
+              <button
+                onclick="showEmployeeTab('search')"
+                class="employee-submenu-item w-full text-left px-4 py-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3 text-sm"
+              >
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span>Tìm kiếm</span>
+              </button>
+            </div>
+          </li>
+
+          <!-- Các menu khác... -->
+          <li>
+            <button
+              onclick="showTab('sales')"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+              <span>Bán hàng</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onclick="showTab('inventory')"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="package" class="w-5 h-5"></i>
+              <span>Kho hàng</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onclick="showTab('marketing')"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="megaphone" class="w-5 h-5"></i>
+              <span>Marketing</span>
+            </button>
+          </li>
+
+          <li>
+            <button
+              onclick="showTab('reports')"
+              class="sidebar-item w-full text-left px-4 py-3 text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-3"
+            >
+              <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+              <span>Báo cáo</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- About button at bottom -->
+      <div class="absolute bottom-4 left-4 right-4">
+        <button
+          onclick="showTab('about')"
+          class="w-full px-4 py-3 text-purple-700 border border-purple-300 rounded-lg hover:bg-purple-100 transition-colors flex items-center justify-center space-x-2"
+        >
+          <i data-lucide="info" class="w-5 h-5"></i>
+          <span>Giới thiệu</span>
+        </button>
+      </div>
+    </aside>
+  </body>
+</html>

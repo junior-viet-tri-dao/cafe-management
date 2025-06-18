@@ -24,7 +24,14 @@ public class TaiKhoanController {
     }
 
     @GetMapping("/home")
-    public String home(Model model) {
+    public String home(Model model, HttpSession session) {
+        // Kiểm tra đăng nhập
+        if (session.getAttribute("isLoggedIn") == null || !(Boolean) session.getAttribute("isLoggedIn")) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("pageTitle", "Trang chủ - Quản lý quán cà phê");
+        model.addAttribute("content", "home");
         return "home";
     }
 
