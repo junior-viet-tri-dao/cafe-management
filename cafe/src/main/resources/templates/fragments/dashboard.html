@@ -1,106 +1,165 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
+  <body>
+    <!-- Dashboard Statistics -->
+    <div th:fragment="dashboard-stats" class="mb-8">
+      <!-- Dashboard Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-purple-800 mb-2">Dashboard</h1>
+        <p class="text-purple-600">Tổng quan hoạt động quán cà phê</p>
+      </div>
 
-<!-- Dashboard Cards -->
-<div th:fragment="dashboard-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-6 rounded-lg dashboard-card">
-        <div class="flex items-center justify-between">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div
+          class="bg-gradient-to-r from-purple-100 to-purple-200 p-6 rounded-lg dashboard-card"
+        >
+          <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-semibold text-purple-800 mb-2">Doanh thu hôm nay</h3>
-                <p class="text-2xl font-bold text-purple-900">2.5M VNĐ</p>
+              <h3 class="font-semibold text-purple-800 mb-2">Tổng doanh thu</h3>
+              <p
+                class="text-2xl font-bold text-purple-900"
+                th:text="${#numbers.formatCurrency(totalRevenue)}"
+              >
+                25,000,000₫
+              </p>
             </div>
             <div class="bg-purple-300 p-3 rounded-full">
-                <i data-lucide="dollar-sign" class="w-8 h-8 text-purple-800"></i>
+              <i data-lucide="dollar-sign" class="w-8 h-8 text-purple-800"></i>
             </div>
+          </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-lg dashboard-card">
-        <div class="flex items-center justify-between">
+        <div
+          class="bg-gradient-to-r from-blue-100 to-blue-200 p-6 rounded-lg dashboard-card"
+        >
+          <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-semibold text-blue-800 mb-2">Đơn hàng</h3>
-                <p class="text-2xl font-bold text-blue-900">45</p>
+              <h3 class="font-semibold text-blue-800 mb-2">Đơn hàng</h3>
+              <p
+                class="text-2xl font-bold text-blue-900"
+                th:text="${totalOrders}"
+              >
+                45
+              </p>
             </div>
             <div class="bg-blue-300 p-3 rounded-full">
-                <i data-lucide="shopping-cart" class="w-8 h-8 text-blue-800"></i>
+              <i data-lucide="shopping-cart" class="w-8 h-8 text-blue-800"></i>
             </div>
+          </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-lg dashboard-card">
-        <div class="flex items-center justify-between">
+        <div
+          class="bg-gradient-to-r from-green-100 to-green-200 p-6 rounded-lg dashboard-card"
+        >
+          <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-semibold text-green-800 mb-2">Sản phẩm</h3>
-                <p class="text-2xl font-bold text-green-900">25</p>
+              <h3 class="font-semibold text-green-800 mb-2">Sản phẩm</h3>
+              <p
+                class="text-2xl font-bold text-green-900"
+                th:text="${totalCustomers}"
+              >
+                25
+              </p>
             </div>
             <div class="bg-green-300 p-3 rounded-full">
-                <i data-lucide="coffee" class="w-8 h-8 text-green-800"></i>
+              <i data-lucide="coffee" class="w-8 h-8 text-green-800"></i>
             </div>
+          </div>
         </div>
-    </div>
 
-    <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-6 rounded-lg dashboard-card">
-        <div class="flex items-center justify-between">
+        <div
+          class="bg-gradient-to-r from-orange-100 to-orange-200 p-6 rounded-lg dashboard-card"
+        >
+          <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-semibold text-orange-800 mb-2">Nhân viên</h3>
-                <p class="text-2xl font-bold text-orange-900">12</p>
+              <h3 class="font-semibold text-orange-800 mb-2">Nhân viên</h3>
+              <p
+                class="text-2xl font-bold text-orange-900"
+                th:text="${todayOrders}"
+              >
+                12
+              </p>
             </div>
             <div class="bg-orange-300 p-3 rounded-full">
-                <i data-lucide="users" class="w-8 h-8 text-orange-800"></i>
+              <i data-lucide="users" class="w-8 h-8 text-orange-800"></i>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- Recent Orders Table -->
-<div th:fragment="recent-orders" class="mt-8 bg-white rounded-lg shadow-sm border border-purple-200">
-    <div class="p-6">
-        <h3 class="text-lg font-semibold text-purple-800 mb-4">Đơn hàng gần đây</h3>
+    <!-- Recent Orders Table -->
+    <div
+      th:fragment="recent-orders"
+      class="mt-8 bg-white rounded-lg shadow-sm border border-purple-200"
+    >
+      <div class="p-6">
+        <h3 class="text-lg font-semibold text-purple-800 mb-4">
+          Đơn hàng gần đây
+        </h3>
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="border-b border-purple-200">
-                        <th class="text-left py-3 px-4 font-medium text-purple-700">Mã đơn</th>
-                        <th class="text-left py-3 px-4 font-medium text-purple-700">Khách hàng</th>
-                        <th class="text-left py-3 px-4 font-medium text-purple-700">Số tiền</th>
-                        <th class="text-left py-3 px-4 font-medium text-purple-700">Trạng thái</th>
-                        <th class="text-left py-3 px-4 font-medium text-purple-700">Thời gian</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b border-purple-100 hover:bg-purple-50">
-                        <td class="py-3 px-4">#001</td>
-                        <td class="py-3 px-4">Nguyễn Văn A</td>
-                        <td class="py-3 px-4">125,000 VNĐ</td>
-                        <td class="py-3 px-4">
-                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Hoàn thành</span>
-                        </td>
-                        <td class="py-3 px-4">10:30</td>
-                    </tr>
-                    <tr class="border-b border-purple-100 hover:bg-purple-50">
-                        <td class="py-3 px-4">#002</td>
-                        <td class="py-3 px-4">Trần Thị B</td>
-                        <td class="py-3 px-4">95,000 VNĐ</td>
-                        <td class="py-3 px-4">
-                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">Đang xử lý</span>
-                        </td>
-                        <td class="py-3 px-4">11:15</td>
-                    </tr>
-                    <tr class="border-b border-purple-100 hover:bg-purple-50">
-                        <td class="py-3 px-4">#003</td>
-                        <td class="py-3 px-4">Lê Văn C</td>
-                        <td class="py-3 px-4">78,000 VNĐ</td>
-                        <td class="py-3 px-4">
-                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Hoàn thành</span>
-                        </td>
-                        <td class="py-3 px-4">12:00</td>
-                    </tr>
-                </tbody>
-            </table>
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-purple-200">
+                <th class="text-left py-3 px-4 font-medium text-purple-700">
+                  Mã đơn
+                </th>
+                <th class="text-left py-3 px-4 font-medium text-purple-700">
+                  Khách hàng
+                </th>
+                <th class="text-left py-3 px-4 font-medium text-purple-700">
+                  Số tiền
+                </th>
+                <th class="text-left py-3 px-4 font-medium text-purple-700">
+                  Trạng thái
+                </th>
+                <th class="text-left py-3 px-4 font-medium text-purple-700">
+                  Thời gian
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-purple-100 hover:bg-purple-50">
+                <td class="py-3 px-4">#001</td>
+                <td class="py-3 px-4">Nguyễn Văn A</td>
+                <td class="py-3 px-4">125,000 VNĐ</td>
+                <td class="py-3 px-4">
+                  <span
+                    class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm"
+                    >Hoàn thành</span
+                  >
+                </td>
+                <td class="py-3 px-4">10:30</td>
+              </tr>
+              <tr class="border-b border-purple-100 hover:bg-purple-50">
+                <td class="py-3 px-4">#002</td>
+                <td class="py-3 px-4">Trần Thị B</td>
+                <td class="py-3 px-4">95,000 VNĐ</td>
+                <td class="py-3 px-4">
+                  <span
+                    class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm"
+                    >Đang xử lý</span
+                  >
+                </td>
+                <td class="py-3 px-4">11:15</td>
+              </tr>
+              <tr class="border-b border-purple-100 hover:bg-purple-50">
+                <td class="py-3 px-4">#003</td>
+                <td class="py-3 px-4">Lê Văn C</td>
+                <td class="py-3 px-4">78,000 VNĐ</td>
+                <td class="py-3 px-4">
+                  <span
+                    class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm"
+                    >Hoàn thành</span
+                  >
+                </td>
+                <td class="py-3 px-4">12:00</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
-</div>
-
-</body>
+  </body>
 </html>

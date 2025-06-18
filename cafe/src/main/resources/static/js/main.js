@@ -1,6 +1,36 @@
 // Initialize Lucide icons when page loads
 document.addEventListener("DOMContentLoaded", function () {
-  lucide.createIcons();
+  // Initialize Lucide icons
+  if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+  }
+
+  // Add any other initialization code here
+  console.log("Café Management System loaded successfully!");
+});
+
+// Optional: Add smooth page transitions
+document.addEventListener("DOMContentLoaded", function () {
+  // Add loading animation for navigation links
+  const navLinks = document.querySelectorAll(".sidebar-item");
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", function (e) {
+      // Add loading state
+      const icon = this.querySelector("i");
+      const originalIcon = icon.getAttribute("data-lucide");
+
+      // Show loading spinner briefly
+      icon.setAttribute("data-lucide", "loader-2");
+      icon.classList.add("animate-spin");
+      lucide.createIcons();
+
+      // Allow navigation to proceed normally
+      setTimeout(() => {
+        // This will be reset when the new page loads
+      }, 100);
+    });
+  });
 });
 
 // Tab switching functionality
@@ -65,79 +95,57 @@ function closeEmployeeMenu() {
   if (submenu && !submenu.classList.contains("hidden")) {
     submenu.classList.add("hidden");
     chevron.style.transform = "rotate(0deg)";
-
-    // Reset employee menu button state
-    const employeeButton = chevron.closest(".sidebar-item");
-    if (employeeButton) {
-      employeeButton.classList.remove("bg-purple-200", "active");
-      employeeButton.classList.add("hover:bg-purple-100");
-    }
   }
 }
 
 function showEmployeeTab(subtab) {
-  // Hide all main tabs first
-  const tabs = document.querySelectorAll(".tab-content");
-  tabs.forEach((tab) => tab.classList.add("hidden"));
+  // Hide all employee tab contents
+  const employeeContents = document.querySelectorAll(".employee-tab-content");
+  employeeContents.forEach((content) => content.classList.add("hidden"));
 
-  // Show employee management tab
-  const employeeTab = document.getElementById("employees-tab");
-  if (employeeTab) {
-    employeeTab.classList.remove("hidden");
+  // Show selected employee tab content
+  const selectedContent = document.getElementById(`employee-${subtab}-content`);
+  if (selectedContent) {
+    selectedContent.classList.remove("hidden");
   }
 
-  // Hide all employee subtabs
-  const employeeSubtabs = document.querySelectorAll(".employee-subtab-content");
-  employeeSubtabs.forEach((tab) => tab.classList.add("hidden"));
+  // Update tab button states
+  const tabButtons = document.querySelectorAll(".employee-tab-btn");
+  tabButtons.forEach((btn) => {
+    btn.classList.remove(
+      "active",
+      "text-purple-600",
+      "border-b-2",
+      "border-purple-600"
+    );
+    btn.classList.add("text-gray-500", "hover:text-gray-700");
+  });
 
-  // Show selected employee subtab based on the subtab parameter
-  let targetSubtabId;
-  switch (subtab) {
-    case "list":
-      targetSubtabId = "employee-list-tab";
-      break;
-    case "add":
-      targetSubtabId = "employee-add-tab";
-      break;
-    case "edit":
-      targetSubtabId = "employee-edit-tab";
-      break;
-    case "delete":
-      targetSubtabId = "employee-delete-tab";
-      break;
-    case "search":
-      targetSubtabId = "employee-search-tab";
-      break;
-    default:
-      targetSubtabId = "employee-list-tab";
-  }
-
-  const targetSubtab = document.getElementById(targetSubtabId);
-  if (targetSubtab) {
-    targetSubtab.classList.remove("hidden");
-  }
-
-  // Reset ALL sidebar items (main + submenu)
-  resetAllSidebarItems();
-
-  // Set employee main menu as active
-  const employeeMainButton = document.querySelector(
-    'button[onclick="toggleEmployeeMenu()"]'
+  // Add active class to current tab
+  const activeButton = document.querySelector(
+    `[onclick="showEmployeeTab('${subtab}')"]`
   );
-  if (employeeMainButton) {
-    employeeMainButton.classList.add("bg-purple-200", "active");
-    employeeMainButton.classList.remove("hover:bg-purple-100");
-  }
-
-  // Set active submenu item
-  if (event && event.target) {
-    const submenuItem = event.target.closest(".employee-submenu-item");
-    if (submenuItem) {
-      submenuItem.classList.add("bg-purple-100", "active");
-      submenuItem.classList.remove("hover:bg-purple-100");
-    }
+  if (activeButton) {
+    activeButton.classList.add(
+      "active",
+      "text-purple-600",
+      "border-b-2",
+      "border-purple-600"
+    );
+    activeButton.classList.remove("text-gray-500", "hover:text-gray-700");
   }
 }
+
+// Initialize employee tabs when employees tab is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  // Initialize employee tabs if on employees page
+  const employeeContent = document.querySelector(
+    "[th\\:if=\"${activeTab == 'employees'}\"]"
+  );
+  if (employeeContent && !employeeContent.classList.contains("hidden")) {
+    showEmployeeTab("list");
+  }
+});
 
 // Helper function to reset all sidebar items
 function resetAllSidebarItems() {

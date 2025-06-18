@@ -1,7 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <body>
-    <!-- Employee List Tab -->
+    <!-- Main employees content wrapper -->
+    <div th:fragment="employees-content">
+      <!-- Employee Management Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold text-purple-800 mb-2">
+          Quản lý nhân viên
+        </h1>
+        <p class="text-purple-600">
+          Quản lý thông tin và hoạt động của nhân viên
+        </p>
+      </div>
+
+      <!-- Content based on action -->
+      <div th:if="${employeeAction == 'list'}">
+        <div th:replace="fragments/employee :: employee-list"></div>
+      </div>
+
+      <div th:if="${employeeAction == 'add'}">
+        <div th:replace="fragments/employee :: employee-add"></div>
+      </div>
+
+      <div th:if="${employeeAction == 'edit'}">
+        <div th:replace="fragments/employee :: employee-edit"></div>
+      </div>
+
+      <div th:if="${employeeAction == 'delete'}">
+        <div th:replace="fragments/employee :: employee-delete"></div>
+      </div>
+
+      <div th:if="${employeeAction == 'search'}">
+        <div th:replace="fragments/employee :: employee-search"></div>
+      </div>
+    </div>
+
+    <!-- Keep existing fragments -->
     <div
       th:fragment="employee-list"
       class="employee-subtab-content"
@@ -13,41 +47,6 @@
           Danh sách nhân viên
         </h2>
 
-        <!-- Search and filter bar
-        <div class="mb-6 flex flex-col sm:flex-row gap-4">
-          <div class="flex-1">
-            <div class="relative">
-              <input
-                type="text"
-                placeholder="Tìm kiếm nhân viên..."
-                class="w-full pl-10 pr-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              />
-              <i
-                data-lucide="search"
-                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-purple-400"
-              ></i>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <select
-              class="px-4 py-2 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="">Tất cả chức vụ</option>
-              <option value="manager">Quản lý</option>
-              <option value="staff">Phục vụ bàn</option>
-              <option value="chef">Thu Ngân</option>
-              <option value="cashier">Bảo vệ</option>
-            </select>
-            <button
-              class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
-            >
-              <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
-              Lọc
-            </button>
-          </div>
-        </div> -->
-
-        <!-- Employee table -->
         <div
           class="overflow-x-auto bg-gray-50 rounded-lg border border-gray-200"
         >
@@ -202,34 +201,9 @@
             </tbody>
           </table>
         </div>
-
-        <!-- Pagination
-        <div class="mt-6 flex items-center justify-between">
-          <div class="text-sm text-gray-500">
-            Hiển thị 1-4 trong tổng số 4 nhân viên
-          </div>
-          <div class="flex items-center space-x-2">
-            <button
-              class="px-3 py-1 border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
-              disabled
-            >
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <button class="px-3 py-1 bg-purple-600 text-white rounded">
-              1
-            </button>
-            <button
-              class="px-3 py-1 border border-gray-300 rounded text-gray-500 hover:bg-gray-50"
-              disabled
-            >
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div> -->
       </div>
     </div>
 
-    <!-- Employee Add Tab -->
     <div
       th:fragment="employee-add"
       class="employee-subtab-content hidden"

@@ -1,0 +1,64 @@
+<div th:fragment="about-content">
+    <!-- About Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-purple-800 mb-2">Giới thiệu</h1>
+        <p class="text-purple-600">Thông tin về hệ thống quản lý quán cà phê</p>
+    </div>
+
+    <!-- App Info -->
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-purple-200 mb-6">
+        <div class="text-center mb-8">
+            <div class="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="coffee" class="w-12 h-12 text-purple-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-purple-800 mb-2">Café Management System</h2>
+            <p class="text-purple-600">Hệ thống quản lý quán cà phê toàn diện</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <p class="text-purple-600 text-sm">Phiên bản</p>
+                <p class="text-xl font-semibold text-purple-800" th:text="${appVersion}">1.0.0</p>
+            </div>
+            <div class="text-center">
+                <p class="text-purple-600 text-sm">Ngày phát hành</p>
+                <p class="text-xl font-semibold text-purple-800" th:text="${buildDate}">2025-06-18</p>
+            </div>
+            <div class="text-center">
+                <p class="text-purple-600 text-sm">Phát triển bởi</p>
+                <p class="text-xl font-semibold text-purple-800" th:text="${developer}">Việt Trí Đào</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+        <h3 class="text-lg font-semibold text-purple-800 mb-4">Tính năng chính</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Quản lý nhân viên</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Quản lý bán hàng</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Quản lý kho hàng</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Marketing & khuyến mãi</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Báo cáo & thống kê</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                <span class="text-purple-700">Giao diện thân thiện</span>
+            </div>
+        </div>
+    </div>
+</div>

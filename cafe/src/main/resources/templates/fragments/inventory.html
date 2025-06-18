@@ -1,0 +1,61 @@
+<div th:fragment="inventory-content">
+    <!-- Inventory Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-purple-800 mb-2">Quản lý kho</h1>
+        <p class="text-purple-600">Quản lý hàng hóa và tồn kho</p>
+    </div>
+
+    <!-- Inventory Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-600 text-sm">Tổng sản phẩm</p>
+                    <p class="text-2xl font-bold text-purple-800" th:text="${totalProducts}">50</p>
+                </div>
+                <i data-lucide="package" class="w-8 h-8 text-purple-500"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-600 text-sm">Sắp hết hàng</p>
+                    <p class="text-2xl font-bold text-orange-600" th:text="${lowStockItems}">5</p>
+                </div>
+                <i data-lucide="alert-triangle" class="w-8 h-8 text-orange-500"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-purple-600 text-sm">Hết hàng</p>
+                    <p class="text-2xl font-bold text-red-600" th:text="${outOfStockItems}">2</p>
+                </div>
+                <i data-lucide="x-circle" class="w-8 h-8 text-red-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+            <h3 class="text-lg font-semibold text-purple-800 mb-4">Nhập hàng</h3>
+            <p class="text-purple-600 mb-4">Tạo đơn nhập hàng mới</p>
+            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                Nhập hàng
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-purple-200">
+            <h3 class="text-lg font-semibold text-purple-800 mb-4">Kiểm kê</h3>
+            <p class="text-purple-600 mb-4">Kiểm tra tồn kho</p>
+            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                <i data-lucide="clipboard-check" class="w-4 h-4 inline mr-2"></i>
+                Kiểm kê
+            </button>
+        </div>
+    </div>
+</div>
