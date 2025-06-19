@@ -40,7 +40,29 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
                      """, nativeQuery = true)
        List<NhanVienResponse> getListNhanVien();
 
+       @Query(value = """
+                     SELECT nv.MaNhanVien as maNhanVien,
+                            nv.HoTen as hoTen,
+                            cv.TenChucVu as tenChucVu,
+                            cv.Luong as luong
+                     FROM dbo.NHANVIEN nv
+                     JOIN dbo.CHUCVU cv ON nv.MaChucVu = cv.MaChucVu
+                     WHERE nv.isDeleted = 0
+                     AND LOWER(nv.HoTen) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                     """, nativeQuery = true)
+       List<NhanVienResponse> searchNhanVienByName(@Param("keyword") String keyword);
+
        @Query("SELECT MAX(n.id) FROM NhanVien n")
        Integer findMaxMaNhanVien();
 
+       @Query(value = """
+                     SELECT nv.MaNhanVien as maNhanVien,
+                            nv.HoTen as hoTen,
+                            cv.TenChucVu as tenChucVu,
+                            cv.Luong as luong
+                     FROM dbo.NHANVIEN nv
+                     JOIN dbo.CHUCVU cv ON nv.MaChucVu = cv.MaChucVu
+                     WHERE nv.MaNhanVien = :maNhanVien AND nv.isDeleted = 0
+                     """, nativeQuery = true)
+       NhanVienResponse getNhanVienResponseById(@Param("maNhanVien") Integer maNhanVien);
 }

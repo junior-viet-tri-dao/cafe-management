@@ -12,11 +12,12 @@ public interface NhanVienService {
 
     List<NhanVienResponse> getListNhanVien();
 
+    // Add search method
+    List<NhanVienResponse> searchNhanVienByName(String keyword);
+
     NhanVien getNhanVienById(Integer maNhanVien);
 
-    // Thêm method update
     void updateNhanVien(UpdateNhanVienRequest request);
 
-    // Thêm method khóa nhân viên
     void lockEmployee(Integer maNhanVien);
 }

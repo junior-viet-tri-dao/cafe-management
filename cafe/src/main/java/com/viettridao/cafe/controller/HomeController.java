@@ -28,7 +28,7 @@ public class HomeController extends BaseController {
 
     private final NhanVienService nhanVienService;
     private final ChucVuService chucVuService;
-    private final TaiKhoanService taiKhoanService;
+
     // ============= DASHBOARD =============
 
     @GetMapping("/home")
@@ -71,6 +71,7 @@ public class HomeController extends BaseController {
 
     @GetMapping("/employees")
     public String employeesList(Model model, HttpSession session,
+            @RequestParam(value = "search", required = false) String searchKeyword,
             @RequestParam(value = "success", required = false) String success,
             @RequestParam(value = "error", required = false) String error) {
         if (!isAuthenticated(session)) {
@@ -82,10 +83,32 @@ public class HomeController extends BaseController {
         model.addAttribute("username", session.getAttribute("username"));
 
         try {
-            // Lấy danh sách nhân viên từ database
-            List<NhanVienResponse> employees = nhanVienService.getListNhanVien();
+            List<NhanVienResponse> employees;
+
+            // Check if search keyword is provided
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                employees = nhanVienService.searchNhanVienByName(searchKeyword.trim());
+                model.addAttribute("searchKeyword", searchKeyword.trim());
+
+                // Add search statistics
+                int totalFound = employees != null ? employees.size() : 0;
+                model.addAttribute("searchResultCount", totalFound);
+
+                if (totalFound == 0) {
+                    model.addAttribute("infoMessage",
+                            "Không tìm thấy nhân viên nào với từ khóa: \"" + searchKeyword.trim() + "\"");
+                }
+            } else {
+                employees = nhanVienService.getListNhanVien();
+            }
 
             model.addAttribute("employees", employees);
+
+            // Calculate statistics
+            int totalEmployees = employees != null ? employees.size() : 0;
+            model.addAttribute("totalEmployees", totalEmployees);
+            model.addAttribute("activeEmployees", totalEmployees); // Assuming all are active since isDeleted = 0
+            model.addAttribute("inactiveEmployees", 0);
 
             // Success/error messages
             if (success != null) {
@@ -104,7 +127,7 @@ public class HomeController extends BaseController {
             model.addAttribute("totalEmployees", 0);
             model.addAttribute("activeEmployees", 0);
             model.addAttribute("inactiveEmployees", 0);
-            model.addAttribute("employees", List.of()); // Empty list để tránh lỗi template
+            model.addAttribute("employees", List.of());
         }
 
         return "home";
@@ -358,7 +381,7 @@ public class HomeController extends BaseController {
         // Thêm thông tin về ứng dụng
         model.addAttribute("appVersion", "1.0.0");
         model.addAttribute("buildDate", "2025-06-18");
-        model.addAttribute("developer", "Việt Trí Đào");
+        model.addAttribute("developer", "Việt Trí Đạo");
 
         return "home";
     }

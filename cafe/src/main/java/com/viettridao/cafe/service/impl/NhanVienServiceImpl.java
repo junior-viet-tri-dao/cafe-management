@@ -32,6 +32,15 @@ public class NhanVienServiceImpl implements NhanVienService {
         return nhanVienRepository.getListNhanVien();
     }
 
+    // Add search implementation
+    @Override
+    public List<NhanVienResponse> searchNhanVienByName(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getListNhanVien();
+        }
+        return nhanVienRepository.searchNhanVienByName(keyword.trim());
+    }
+
     @Override
     @Transactional
     public void addNhanVien(AddNhanVienRequest request) {
