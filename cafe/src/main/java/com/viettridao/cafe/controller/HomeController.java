@@ -1,8 +1,8 @@
 package com.viettridao.cafe.controller;
 
+import com.viettridao.cafe.dto.request.AddNhanVienRequest;
 import com.viettridao.cafe.dto.response.NhanVienResponse;
 import com.viettridao.cafe.model.ChucVu;
-import com.viettridao.cafe.model.NhanVien;
 import com.viettridao.cafe.service.ChucVuService;
 import com.viettridao.cafe.service.NhanVienService;
 import jakarta.servlet.http.HttpSession;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -128,11 +127,15 @@ public class HomeController extends BaseController {
         }
 
         List<ChucVu> listChucVu = chucVuService.getListChucVu();
-        System.out.println("------------------List of ChucVu: " + listChucVu);
         model.addAttribute("listChucVu", listChucVu);
         model.addAttribute("activeTab", "employees");
         model.addAttribute("employeeAction", "add");
         model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm object để bind form
+        if (!model.containsAttribute("addNhanVienRequest")) {
+            model.addAttribute("addNhanVienRequest", new AddNhanVienRequest());
+        }
 
         return "home";
     }
@@ -180,18 +183,37 @@ public class HomeController extends BaseController {
     // ========== POST ENDPOINTS FOR EMPLOYEE ACTIONS ==========
 
     @PostMapping("/employees/add")
-    public String employeesAddPost(@ModelAttribute Object request,
+    public String employeesAddPost(@ModelAttribute AddNhanVienRequest request,
             Model model, HttpSession session) {
         if (!isAuthenticated(session)) {
             return "redirect:/";
         }
 
         try {
-            // Logic thêm nhân viên
-            // employeeService.addEmployee(request);
+            // Validate dữ liệu cơ bản
+            if (request.getHoTen() == null || request.getHoTen().trim().isEmpty()) {
+                throw new RuntimeException("Họ tên không được để trống!");
+            }
+
+            if (request.getSoDienThoai() == null || request.getSoDienThoai().trim().isEmpty()) {
+                throw new RuntimeException("Số điện thoại không được để trống!");
+            }
+
+            if (request.getMaChucVu() == null) {
+                throw new RuntimeException("Vui lòng chọn chức vụ!");
+            }
+
+            if (request.getLuong() == null || request.getLuong() <= 0) {
+                throw new RuntimeException("Lương phải lớn hơn 0!");
+            }
+
+            // Thêm nhân viên
+            nhanVienService.addNhanVien(request);
+            System.out.println("---------------------Thêm nhân viên thành công----------------: " + request.getHoTen());
             return "redirect:/employees?success=add";
         } catch (Exception e) {
-            model.addAttribute("error", "Có lỗi xảy ra khi thêm nhân viên");
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("addNhanVienRequest", request);
             return employeesAdd(model, session);
         }
     }

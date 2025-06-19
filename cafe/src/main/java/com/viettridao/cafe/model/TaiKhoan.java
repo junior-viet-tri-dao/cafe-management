@@ -3,6 +3,7 @@ package com.viettridao.cafe.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Nationalized;
@@ -13,11 +14,12 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "TaiKhoan", schema = "dbo")
+@Table(name = "TaiKhoan")
+@Data
 public class TaiKhoan {
     @Id
     @Column(name = "MaTaiKhoan", nullable = false)
-    private Integer id;
+    private Integer id; // Tên field phải là 'id' hoặc tương ứng với getter/setter
 
     @Size(max = 50)
     @NotNull

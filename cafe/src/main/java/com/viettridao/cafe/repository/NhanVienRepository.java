@@ -2,9 +2,11 @@ package com.viettridao.cafe.repository;
 
 import com.viettridao.cafe.dto.response.LoginResponse;
 import com.viettridao.cafe.dto.response.NhanVienResponse;
+import com.viettridao.cafe.model.ChucVu;
 import com.viettridao.cafe.model.NhanVien;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,5 +39,8 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
                      WHERE nv.isDeleted = 0
                      """, nativeQuery = true)
        List<NhanVienResponse> getListNhanVien();
+
+       @Query("SELECT MAX(n.id) FROM NhanVien n")
+       Integer findMaxMaNhanVien();
 
 }
