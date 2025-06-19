@@ -34,7 +34,7 @@ public class NhanVien {
     @NotNull
     @Nationalized
     @Column(name = "HoTen", nullable = false, length = 100)
-    private String hoTen;
+    private String hoTen;   
 
     @Size(max = 15)
     @Nationalized

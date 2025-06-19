@@ -1,7 +1,7 @@
 package com.viettridao.cafe.service.impl;
 
 import com.viettridao.cafe.dto.request.LoginRequest;
-import com.viettridao.cafe.dto.response.ThongTinDangNhapResponse;
+import com.viettridao.cafe.dto.response.LoginResponse;
 import com.viettridao.cafe.repository.NhanVienRepository;
 import com.viettridao.cafe.service.TaiKhoanService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
     private final NhanVienRepository nhanVienRepository;
 
     @Override
-    public ThongTinDangNhapResponse login(LoginRequest loginDTO) {
+    public LoginResponse login(LoginRequest loginDTO) {
         return nhanVienRepository.findThongTinDangNhap(loginDTO.getUsername());
     }
 }

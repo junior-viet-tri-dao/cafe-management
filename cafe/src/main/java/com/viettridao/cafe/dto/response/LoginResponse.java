@@ -1,16 +1,17 @@
 package com.viettridao.cafe.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
-public class ThongTinDangNhapResponse {
+public class LoginResponse {
     private String hoTen;
     private String chucVu;
     private String diaChi;

@@ -1,0 +1,320 @@
+package com.viettridao.cafe.controller;
+
+import com.viettridao.cafe.dto.response.NhanVienResponse;
+import com.viettridao.cafe.model.ChucVu;
+import com.viettridao.cafe.model.NhanVien;
+import com.viettridao.cafe.service.ChucVuService;
+import com.viettridao.cafe.service.NhanVienService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Controller
+@RequiredArgsConstructor
+public class HomeController extends BaseController {
+
+    private final NhanVienService nhanVienService;
+    private final ChucVuService chucVuService;
+    // ============= DASHBOARD =============
+
+    @GetMapping("/home")
+    public String home(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "home");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm dữ liệu cho dashboard
+        model.addAttribute("totalOrders", 150);
+        model.addAttribute("totalRevenue", 25000000);
+        model.addAttribute("totalCustomers", 45);
+        model.addAttribute("todayOrders", 12);
+
+        return "home";
+    }
+
+    @GetMapping("/profile")
+    public String profile(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "profile");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm thông tin profile (thay thế bằng dữ liệu thực)
+        model.addAttribute("fullName", "Nguyễn Văn Admin");
+        model.addAttribute("email", "admin@cafe.com");
+        model.addAttribute("phone", "0123456789");
+        model.addAttribute("position", "Quản lý");
+
+        return "home";
+    }
+
+    // ========== EMPLOYEE MANAGEMENT ENDPOINTS ==========
+
+    @GetMapping("/employees")
+    public String employeesList(Model model, HttpSession session,
+            @RequestParam(value = "success", required = false) String success,
+            @RequestParam(value = "error", required = false) String error) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "employees");
+        model.addAttribute("employeeAction", "list");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        try {
+            // Lấy danh sách nhân viên từ database
+            List<NhanVienResponse> employees = nhanVienService.getListNhanVien();
+
+            // ✅ Thêm logic format ID ở đây
+            List<Map<String, Object>> employeesWithFormattedId = employees.stream()
+                    .map(emp -> {
+                        Map<String, Object> empMap = new HashMap<>();
+                        empMap.put("maNhanVien", emp.getMaNhanVien());
+                        empMap.put("hoTen", emp.getHoTen());
+                        empMap.put("tenChucVu", emp.getChucVu());
+                        empMap.put("luong", emp.getLuong());
+                        empMap.put("formattedId", String.format("NV%03d", emp.getMaNhanVien())); // Format ID
+                        return empMap;
+                    })
+                    .collect(Collectors.toList());
+
+            model.addAttribute("employees", employeesWithFormattedId);
+
+            // Success/error messages
+            if (success != null) {
+                switch (success) {
+                    case "add" -> model.addAttribute("successMessage", "Thêm nhân viên thành công!");
+                    case "edit" -> model.addAttribute("successMessage", "Cập nhật nhân viên thành công!");
+                    case "delete" -> model.addAttribute("successMessage", "Xóa nhân viên thành công!");
+                }
+            }
+            if (error != null) {
+                model.addAttribute("errorMessage", "Có lỗi xảy ra: " + error);
+            }
+
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Không thể tải danh sách nhân viên: " + e.getMessage());
+            model.addAttribute("totalEmployees", 0);
+            model.addAttribute("activeEmployees", 0);
+            model.addAttribute("inactiveEmployees", 0);
+            model.addAttribute("employees", List.of()); // Empty list để tránh lỗi template
+        }
+
+        return "home";
+    }
+
+    @GetMapping("/employees/add")
+    public String employeesAdd(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        List<ChucVu> listChucVu = chucVuService.getListChucVu();
+        System.out.println("------------------List of ChucVu: " + listChucVu);
+        model.addAttribute("listChucVu", listChucVu);
+        model.addAttribute("activeTab", "employees");
+        model.addAttribute("employeeAction", "add");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        return "home";
+    }
+
+    @GetMapping("/employees/edit")
+    public String employeesEdit(Model model, HttpSession session,
+            @RequestParam(value = "id", required = false) Integer id) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "employees");
+        model.addAttribute("employeeAction", "edit");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        return "home";
+    }
+
+    @GetMapping("/employees/delete")
+    public String employeesDelete(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "employees");
+        model.addAttribute("employeeAction", "delete");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        return "home";
+    }
+
+    @GetMapping("/employees/search")
+    public String employeesSearch(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "employees");
+        model.addAttribute("employeeAction", "search");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        return "home";
+    }
+
+    // ========== POST ENDPOINTS FOR EMPLOYEE ACTIONS ==========
+
+    @PostMapping("/employees/add")
+    public String employeesAddPost(@ModelAttribute Object request,
+            Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        try {
+            // Logic thêm nhân viên
+            // employeeService.addEmployee(request);
+            return "redirect:/employees?success=add";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi thêm nhân viên");
+            return employeesAdd(model, session);
+        }
+    }
+
+    @PostMapping("/employees/edit/{id}")
+    public String employeesEditPost(@PathVariable Integer id,
+            @ModelAttribute Object request,
+            Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        try {
+            // Logic sửa nhân viên
+            // employeeService.updateEmployee(id, request);
+            return "redirect:/employees?success=edit";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi cập nhật nhân viên");
+            return employeesEdit(model, session, id);
+        }
+    }
+
+    @PostMapping("/employees/delete/{id}")
+    public String employeesDeletePost(@PathVariable Integer id,
+            Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        try {
+            // Logic xóa nhân viên
+            // employeeService.deleteEmployee(id);
+            return "redirect:/employees?success=delete";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi xóa nhân viên");
+            return employeesDelete(model, session);
+        }
+    }
+
+    // ========== OTHER MODULE ENDPOINTS ==========
+
+    @GetMapping("/sales")
+    public String sales(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "sales");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm dữ liệu bán hàng
+        model.addAttribute("todaySales", 2500000);
+        model.addAttribute("todayOrders", 25);
+        model.addAttribute("avgOrderValue", 100000);
+
+        return "home";
+    }
+
+    @GetMapping("/inventory")
+    public String inventory(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "inventory");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm dữ liệu kho hàng
+        model.addAttribute("totalProducts", 50);
+        model.addAttribute("lowStockItems", 5);
+        model.addAttribute("outOfStockItems", 2);
+
+        return "home";
+    }
+
+    @GetMapping("/marketing")
+    public String marketing(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "marketing");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm dữ liệu marketing
+        model.addAttribute("activeCampaigns", 3);
+        model.addAttribute("totalCustomers", 1200);
+        model.addAttribute("loyaltyMembers", 800);
+
+        return "home";
+    }
+
+    @GetMapping("/reports")
+    public String reports(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "reports");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm dữ liệu báo cáo
+        model.addAttribute("monthlyRevenue", 75000000);
+        model.addAttribute("monthlyOrders", 450);
+        model.addAttribute("growthRate", 15.5);
+
+        return "home";
+    }
+
+    @GetMapping("/about")
+    public String about(Model model, HttpSession session) {
+        if (!isAuthenticated(session)) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("activeTab", "about");
+        model.addAttribute("username", session.getAttribute("username"));
+
+        // Thêm thông tin về ứng dụng
+        model.addAttribute("appVersion", "1.0.0");
+        model.addAttribute("buildDate", "2025-06-18");
+        model.addAttribute("developer", "Việt Trí Đào");
+
+        return "home";
+    }
+}
