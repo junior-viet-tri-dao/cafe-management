@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -202,6 +203,31 @@ public class NhanVienServiceImpl implements NhanVienService {
                 nhanVien.setMaTaiKhoan(newTaiKhoan);
                 System.out.println("Created new account: " + newTaiKhoan.getTenDangNhap());
             }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void lockEmployee(Integer maNhanVien) {
+        try {
+            System.out.println("Service: Locking employee with ID: " + maNhanVien);
+
+            // Tìm nhân viên cần khóa
+            NhanVien nhanVien = nhanVienRepository.findById(maNhanVien)
+                    .orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại!"));
+
+            // Set isDeleted = true (soft delete)
+            nhanVien.setIsDeleted(true);
+
+            // Lưu nhân viên
+            nhanVienRepository.save(nhanVien);
+
+            System.out.println("Successfully locked employee: " + nhanVien.getHoTen() + " (ID: " + maNhanVien + ")");
+
+        } catch (Exception e) {
+            System.err.println("Error locking employee: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi khóa nhân viên: " + e.getMessage());
         }
     }
 }

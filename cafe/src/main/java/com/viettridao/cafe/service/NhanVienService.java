@@ -16,4 +16,7 @@ public interface NhanVienService {
 
     // Thêm method update
     void updateNhanVien(UpdateNhanVienRequest request);
+
+    // Thêm method khóa nhân viên
+    void lockEmployee(Integer maNhanVien);
 }

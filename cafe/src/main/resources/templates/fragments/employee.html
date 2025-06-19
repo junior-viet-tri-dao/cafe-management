@@ -163,13 +163,32 @@
                   >
                 </td>
                 <td class="py-3 px-4 text-center">
-                  <button
-                    class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center mx-auto"
-                    th:onclick="'window.location.href=\'/employees/edit?id=' + ${emp.maNhanVien} + '\''"
-                  >
-                    <i data-lucide="edit" class="w-4 h-4 mr-1"></i>
-                    Sửa
-                  </button>
+                  <div class="flex items-center justify-center space-x-2">
+                    <!-- Nút Sửa -->
+                    <button
+                      class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center"
+                      th:onclick="'window.location.href=\'/employees/edit?id=' + ${emp.maNhanVien} + '\''"
+                    >
+                      <i data-lucide="edit" class="w-4 h-4 mr-1"></i>
+                      Sửa
+                    </button>
+
+                    <!-- Nút Khóa nhân viên - SỬA LẠI ĐƠN GIẢN -->
+                    <form
+                      th:action="@{/employees/lock/{id}(id=${emp.maNhanVien})}"
+                      method="post"
+                      style="display: inline"
+                    >
+                      <button
+                        type="submit"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center"
+                        title="Xóa nhân viên"
+                      >
+                        <i data-lucide="lock" class="w-4 h-4 mr-1"></i>
+                        Xóa
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
 
@@ -606,7 +625,7 @@
     </div>
 
     <!-- Employee Delete Tab -->
-    <div
+    <!-- <div
       th:fragment="employee-delete"
       class="employee-subtab-content hidden"
       id="employee-delete-tab"
@@ -618,10 +637,10 @@
         </h2>
         <p class="text-purple-600">Tính năng đang phát triển...</p>
       </div>
-    </div>
+    </div> -->
 
     <!-- Employee Search Tab -->
-    <div
+    <!-- <div
       th:fragment="employee-search"
       class="employee-subtab-content hidden"
       id="employee-search-tab"
@@ -633,6 +652,150 @@
         </h2>
         <p class="text-purple-600">Tính năng đang phát triển...</p>
       </div>
-    </div>
+    </div> -->
+
+    <!-- Script confirm lock employee - ĐẶT CUỐI FILE -->
+    <script>
+      // Đảm bảo DOM đã load xong
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM loaded, setting up lock buttons...");
+
+        // Tìm tất cả nút khóa
+        const lockButtons = document.querySelectorAll(".lock-employee-btn");
+        console.log("Found lock buttons:", lockButtons.length);
+
+        // Thêm event listener cho từng nút
+        lockButtons.forEach((button, index) => {
+          console.log("Setting up button", index, button);
+
+          button.addEventListener("click", function (e) {
+            e.preventDefault(); // Ngăn form submit mặc định
+
+            const employeeId = this.getAttribute("data-employee-id");
+            const employeeName = this.getAttribute("data-employee-name");
+
+            console.log("Lock button clicked:", employeeId, employeeName);
+
+            if (employeeId && employeeName) {
+              confirmLockEmployee(employeeId, employeeName);
+            } else {
+              console.error("Missing employee data:", {
+                employeeId,
+                employeeName,
+              });
+              alert("Không thể xác định thông tin nhân viên!");
+            }
+          });
+        });
+      });
+
+      function confirmLockEmployee(employeeId, employeeName) {
+        console.log("Showing confirm modal for:", employeeId, employeeName);
+
+        // Xóa modal cũ nếu có
+        const existingModal = document.getElementById("lockEmployeeModal");
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Tạo modal confirm
+        const modalHtml = `
+          <div id="lockEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="closeLockModal()">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onclick="event.stopPropagation()">
+              <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-3 rounded-full mr-4">
+                  <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 6.5c-.77.833-.23 2.5 1.732 2.5z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">Xác nhận khóa nhân viên</h3>
+                  <p class="text-sm text-gray-500">Thao tác này không thể hoàn tác</p>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <p class="text-gray-700">
+                  Bạn có chắc chắn muốn khóa nhân viên <strong class="text-red-600">${employeeName}</strong>?
+                </p>
+                <p class="text-sm text-gray-500 mt-2">
+                  Nhân viên sẽ không thể đăng nhập và không hiển thị trong danh sách hoạt động.
+                </p>
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button
+                  onclick="closeLockModal()"
+                  class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-lg transition-colors font-medium"
+                >
+                  Hủy
+                </button>
+                <button
+                  onclick="lockEmployee(${employeeId})"
+                  class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium flex items-center"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                  Khóa nhân viên
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Thêm modal vào DOM
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+        console.log("Modal added to DOM");
+      }
+
+      function closeLockModal() {
+        console.log("Closing modal...");
+        const modal = document.getElementById("lockEmployeeModal");
+        if (modal) {
+          modal.remove();
+          console.log("Modal removed");
+        }
+      }
+
+      function lockEmployee(employeeId) {
+        console.log("Locking employee:", employeeId);
+
+        // Đóng modal trước
+        closeLockModal();
+
+        // Tạo form để POST request
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/employees/lock/" + employeeId;
+        form.style.display = "none";
+
+        // Thêm CSRF token nếu cần (cho Spring Security)
+        const csrfToken = document.querySelector('meta[name="_csrf"]');
+        if (csrfToken) {
+          const csrfInput = document.createElement("input");
+          csrfInput.type = "hidden";
+          csrfInput.name = "_csrf";
+          csrfInput.value = csrfToken.getAttribute("content");
+          form.appendChild(csrfInput);
+        }
+
+        document.body.appendChild(form);
+        console.log("Submitting form to:", form.action);
+        form.submit();
+      }
+
+      // Function toggle password visibility (existing)
+      function updateSalary() {
+        const select = document.getElementById("chucVuSelect");
+        const luongInput = document.getElementById("luongInput");
+
+        if (select && luongInput && select.value) {
+          const selectedOption = select.options[select.selectedIndex];
+          const salary = selectedOption.getAttribute("data-salary");
+          luongInput.value = salary;
+        }
+      }
+    </script>
   </body>
 </html>

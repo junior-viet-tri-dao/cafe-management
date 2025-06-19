@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -176,19 +176,6 @@ public class HomeController extends BaseController {
         return "home";
     }
 
-    @GetMapping("/employees/search")
-    public String employeesSearch(Model model, HttpSession session) {
-        if (!isAuthenticated(session)) {
-            return "redirect:/";
-        }
-
-        model.addAttribute("activeTab", "employees");
-        model.addAttribute("employeeAction", "search");
-        model.addAttribute("username", session.getAttribute("username"));
-
-        return "home";
-    }
-
     // ========== POST ENDPOINTS FOR EMPLOYEE ACTIONS ==========
 
     @PostMapping("/employees/add")
@@ -265,21 +252,28 @@ public class HomeController extends BaseController {
         }
     }
 
-    @PostMapping("/employees/delete/{id}")
-    public String employeesDeletePost(@PathVariable Integer id,
-            Model model, HttpSession session) {
+    @PostMapping("/employees/lock/{id}")
+    public String lockEmployee(@PathVariable Integer id,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
         if (!isAuthenticated(session)) {
             return "redirect:/";
         }
 
         try {
-            // Logic xóa nhân viên
-            // employeeService.deleteEmployee(id);
-            return "redirect:/employees?success=delete";
+            System.out.println("Attempting to lock employee with ID: " + id);
+            nhanVienService.lockEmployee(id);
+            redirectAttributes.addFlashAttribute("successMessage", "xóa nhân viên thành công!");
+            System.out.println("Successfully locked employee with ID: " + id);
+
         } catch (Exception e) {
-            model.addAttribute("error", "Có lỗi xảy ra khi xóa nhân viên");
-            return employeesDelete(model, session);
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa nhân viên: " + e.getMessage());
+            System.err.println("Error locking employee: " + e.getMessage());
+            e.printStackTrace();
         }
+
+        return "redirect:/employees";
     }
 
     // ========== OTHER MODULE ENDPOINTS ==========
