@@ -8,4 +8,6 @@ public interface TaiKhoanService {
     LoginResponse login(LoginRequest loginDTO);
 
     TaiKhoan createTaiKhoan(String tenDangNhap, String matKhau);
+
+    TaiKhoan findTaiKhoanById(Integer id);
 }

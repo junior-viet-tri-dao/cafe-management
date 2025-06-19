@@ -1,10 +1,14 @@
 package com.viettridao.cafe.controller;
 
 import com.viettridao.cafe.dto.request.AddNhanVienRequest;
+import com.viettridao.cafe.dto.request.UpdateNhanVienRequest;
 import com.viettridao.cafe.dto.response.NhanVienResponse;
 import com.viettridao.cafe.model.ChucVu;
+import com.viettridao.cafe.model.NhanVien;
 import com.viettridao.cafe.service.ChucVuService;
 import com.viettridao.cafe.service.NhanVienService;
+import com.viettridao.cafe.service.TaiKhoanService;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,10 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class HomeController extends BaseController {
 
     private final NhanVienService nhanVienService;
     private final ChucVuService chucVuService;
+    private final TaiKhoanService taiKhoanService;
     // ============= DASHBOARD =============
 
     @GetMapping("/home")
@@ -82,20 +85,7 @@ public class HomeController extends BaseController {
             // Lấy danh sách nhân viên từ database
             List<NhanVienResponse> employees = nhanVienService.getListNhanVien();
 
-            // ✅ Thêm logic format ID ở đây
-            List<Map<String, Object>> employeesWithFormattedId = employees.stream()
-                    .map(emp -> {
-                        Map<String, Object> empMap = new HashMap<>();
-                        empMap.put("maNhanVien", emp.getMaNhanVien());
-                        empMap.put("hoTen", emp.getHoTen());
-                        empMap.put("tenChucVu", emp.getChucVu());
-                        empMap.put("luong", emp.getLuong());
-                        empMap.put("formattedId", String.format("NV%03d", emp.getMaNhanVien())); // Format ID
-                        return empMap;
-                    })
-                    .collect(Collectors.toList());
-
-            model.addAttribute("employees", employeesWithFormattedId);
+            model.addAttribute("employees", employees);
 
             // Success/error messages
             if (success != null) {
@@ -147,11 +137,30 @@ public class HomeController extends BaseController {
             return "redirect:/";
         }
 
-        model.addAttribute("activeTab", "employees");
-        model.addAttribute("employeeAction", "edit");
-        model.addAttribute("username", session.getAttribute("username"));
+        // Kiểm tra ID có được truyền không
+        if (id == null) {
+            return "redirect:/employees?error=missing-id";
+        }
 
-        return "home";
+        try {
+            // Lấy thông tin nhân viên theo ID
+            NhanVien employee = nhanVienService.getNhanVienById(id);
+            System.out.println("Editing employee: " + employee.getHoTen() + " (ID: " + id + ")");
+
+            // Lấy danh sách chức vụ để hiển thị trong dropdown
+            List<ChucVu> listChucVu = chucVuService.getListChucVu();
+
+            model.addAttribute("employee", employee);
+            model.addAttribute("listChucVu", listChucVu);
+            model.addAttribute("activeTab", "employees");
+            model.addAttribute("employeeAction", "edit");
+            model.addAttribute("username", session.getAttribute("username"));
+
+            return "home";
+        } catch (Exception e) {
+            System.err.println("Error loading employee: " + e.getMessage());
+            return "redirect:/employees?error=employee-not-found";
+        }
     }
 
     @GetMapping("/employees/delete")
@@ -220,19 +229,39 @@ public class HomeController extends BaseController {
 
     @PostMapping("/employees/edit/{id}")
     public String employeesEditPost(@PathVariable Integer id,
-            @ModelAttribute Object request,
+            @RequestParam String hoTen,
+            @RequestParam(required = false) String diaChi,
+            @RequestParam Integer maChucVu,
+            @RequestParam String soDienThoai,
+            @RequestParam(required = false) String tenDangNhap,
+            @RequestParam(required = false) String matKhauMoi,
             Model model, HttpSession session) {
+
         if (!isAuthenticated(session)) {
             return "redirect:/";
         }
 
         try {
-            // Logic sửa nhân viên
-            // employeeService.updateEmployee(id, request);
+            // Tạo request object để update nhân viên
+            UpdateNhanVienRequest request = new UpdateNhanVienRequest();
+            request.setMaNhanVien(id);
+            request.setHoTen(hoTen);
+            request.setDiaChi(diaChi);
+            request.setMaChucVu(maChucVu);
+            request.setSoDienThoai(soDienThoai);
+            request.setTenDangNhap(tenDangNhap);
+            request.setMatKhauMoi(matKhauMoi);
+
+            // Gọi service để update
+            nhanVienService.updateNhanVien(request);
+
+            System.out.println("Successfully updated employee with ID: " + id);
             return "redirect:/employees?success=edit";
+
         } catch (Exception e) {
-            model.addAttribute("error", "Có lỗi xảy ra khi cập nhật nhân viên");
-            return employeesEdit(model, session, id);
+            System.err.println("Error updating employee: " + e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/employees/edit?id=" + id + "&error=" + e.getMessage();
         }
     }
 

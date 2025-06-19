@@ -46,4 +46,10 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
 
         return savedTaiKhoan;
     }
+
+    @Override
+    public TaiKhoan findTaiKhoanById(Integer id) {
+        return taiKhoanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TaiKhoan not found with id: " + id));
+    }
 }
