@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách khuyến mãi</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-[#4e342e] mb-6">📢 Danh sách khuyến mãi</h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto border border-gray-300 rounded-lg">
+        <thead class="bg-[#e3f2fd] text-gray-800 text-sm font-bold uppercase">
+        <tr>
+          <th class="px-4 py-2 text-center">Stt</th>
+          <th class="px-4 py-2 text-left">Tên khuyến mãi</th>
+          <th class="px-4 py-2 text-center">Ngày bắt đầu</th>
+          <th class="px-4 py-2 text-center">Ngày kết thúc</th>
+          <th class="px-4 py-2 text-right">% Giảm giá</th>
+          <th class="px-4 py-2 text-center">Thao tác</th>
+        </tr>
+        </thead>
+        <tbody class="text-sm text-gray-700 divide-y divide-gray-100" th:if="${promotions != null}">
+        <tr th:each="promo, iterStat : ${promotions}" class="hover:bg-yellow-50 transition">
+          <td class="px-4 py-2 text-center" th:text="${iterStat.index + 1}">1</td>
+          <td class="px-4 py-2" th:text="${promo.tenKhuyenMai}">Khai trương quán</td>
+          <td class="px-4 py-2 text-center" th:text="${#temporals.format(promo.ngayBatDau, 'dd/MM/yyyy')}">21/01/2015</td>
+          <td class="px-4 py-2 text-center" th:text="${#temporals.format(promo.ngayKetThuc, 'dd/MM/yyyy')}">21/01/2015</td>
+          <td class="px-4 py-2 text-right" th:text="${promo.giaTriGiam} + '%'">50%</td>
+          <td class="px-4 py-2 text-center flex justify-center gap-2">
+            <a th:href="@{/marketing/update/{id}(id=${promo.maKhuyenMai})}"
+               class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+              ✏️ Sửa
+            </a>
+
+            <form th:action="@{/marketing/delete/{id}(id=${promo.maKhuyenMai})}" method="post"
+                  th:id="'deleteForm-' + ${promo.maKhuyenMai}">
+              <button type="button"
+                      th:attr="data-id=${promo.maKhuyenMai}"
+                      class="btn-delete bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+                🗑️ Xóa
+              </button>
+            </form>
+          </td>
+        </tr>
+        </tbody>
+        <tbody th:if="${promotions == null or promotions.size() == 0}">
+        <tr>
+          <td colspan="6" class="text-center text-gray-400 py-6">Không có khuyến mãi nào.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('.btn-delete').forEach(button => {
+      button.addEventListener('click', function () {
+        const id = this.getAttribute('data-id');
+        Swal.fire({
+          title: 'Xác nhận xoá?',
+          text: 'Bạn có chắc muốn xoá khuyến mãi này?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Có',
+          cancelButtonText: 'Không',
+          confirmButtonColor: '#16a34a',
+          cancelButtonColor: '#ef4444'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('deleteForm-' + id).submit();
+          }
+        });
+      });
+    });
+  </script>
+</div>
+</body>
+</html>

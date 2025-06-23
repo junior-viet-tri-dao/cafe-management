@@ -1,15 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Trang chủ</title>
 </head>
 <body>
-Chào mừng ae
-<form th:action="@{/logout}" method="post">
-  <button type="submit" class="px-3 py-1 text-sm text-white bg-red-500 rounded shadow hover:bg-red-600">
-    Đăng xuất
-  </button>
-</form>
+<main layout:fragment="content">
+  <div class="text-center mt-20">
+    <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow">
+      XIN CHÀO, admin !
+    </h2>
+    <p class="mt-4 text-lg text-gray-600">
+      Chúc bạn một ngày quản lý hiệu quả và tràn đầy năng lượng ☕✨
+    </p>
+  </div>
+</main>
 </body>
 </html>
+
+

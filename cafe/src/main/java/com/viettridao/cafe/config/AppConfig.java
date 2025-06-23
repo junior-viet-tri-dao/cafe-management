@@ -14,14 +14,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
     private static final String[] AUTH_WHITELIST = {
-            "/login", "/js/**"
+        "/auth/**", "/js/**"
     };
     private final UserServiceDetail userServiceDetail;
 
@@ -38,7 +37,7 @@ public class AppConfig {
                 .authenticationProvider(authenticationProvider())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutSuccessUrl("/auth/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()

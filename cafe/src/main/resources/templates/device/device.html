@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách thiết bị</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="bg-white shadow-lg rounded-xl p-6">
+    <h2 class="text-2xl font-bold text-[#4e342e] mb-6">🛠️ Danh sách thiết bị</h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 border border-gray-300 rounded-lg">
+        <thead class="bg-[#e0f7fa] text-gray-800 text-sm font-bold uppercase">
+        <tr>
+          <th class="px-4 py-2 text-left">Tên</th>
+          <th class="px-4 py-2 text-left">Ngày mua</th>
+          <th class="px-4 py-2 text-right">Số lượng</th>
+          <th class="px-4 py-2 text-right">Đơn giá</th>
+          <th class="px-4 py-2 text-right">Tổng giá</th>
+          <th class="px-4 py-2 text-center">Thao tác</th>
+        </tr>
+        </thead>
+        <tbody class="text-sm text-gray-700 divide-y divide-gray-100" th:if="${devices != null}">
+        <tr th:each="tb : ${devices}" class="hover:bg-yellow-50 transition duration-150">
+          <td class="px-4 py-2" th:text="${tb.tenThietBi}">Tên thiết bị</td>
+          <td class="px-4 py-2" th:text="${#temporals.format(tb.ngayMua, 'dd/MM/yyyy')}">dd/MM/yyyy</td>
+          <td class="px-4 py-2 text-right" th:text="${tb.soLuong}">0</td>
+          <td class="px-4 py-2 text-right" th:text="${#numbers.formatDecimal(tb.donGiaMua, 0, 'POINT', 0, 'COMMA')}">0</td>
+          <td class="px-4 py-2 text-right"
+              th:text="${#numbers.formatDecimal(tb.soLuong * tb.donGiaMua, 0, 'POINT', 0, 'COMMA')}">
+            0
+          </td>
+          <td class="px-4 py-2 text-center flex justify-center gap-2">
+            <a th:href="@{/device/edit/{id}(id=${tb.maThietBi})}"
+               class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+              ✏️ Sửa
+            </a>
+
+            <form th:action="@{/device/delete/{id}(id=${tb.maThietBi})}" method="post"
+                  th:id="'deleteForm-' + ${tb.maThietBi}">
+              <button type="button"
+                      th:attr="data-id=${tb.maThietBi}"
+                      class="btn-delete bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+                🗑️ Xóa
+              </button>
+            </form>
+          </td>
+
+        </tr>
+        </tbody>
+        <tbody th:if="${devices == null or devices.size() == 0}">
+        <tr>
+          <td colspan="5" class="text-center text-gray-400 py-6">Không có thiết bị nào.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('.btn-delete').forEach(button => {
+      button.addEventListener('click', function () {
+        const id = this.getAttribute('data-id');
+        Swal.fire({
+          title: 'Xác nhận xoá?',
+          text: 'Bạn có chắc muốn xoá thiết bị này?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Có',
+          cancelButtonText: 'Không',
+          confirmButtonColor: '#16a34a',
+          cancelButtonColor: '#ef4444'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('deleteForm-' + id).submit();
+          }
+        });
+      });
+    });
+  </script>
+</div>
+</body>
+</html>

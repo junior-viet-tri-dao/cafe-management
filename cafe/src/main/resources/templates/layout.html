@@ -23,10 +23,10 @@
 
         <div class="flex items-center gap-4">
             <div class="hidden sm:block text-sm text-right">
-                <div class="font-semibold" th:text="${user.username}">Tên đăng nhập</div>
-                <div class="text-gray-300 text-xs" th:text="'Chức vụ: ' + ${user.permission}">Chức vụ</div>
+                <div class="font-semibold" th:text="${user.tenDangNhap}">Tên đăng nhập</div>
+                <div class="text-gray-300 text-xs" th:text="'Chức vụ: ' + ${user.quyenHan}">Chức vụ</div>
             </div>
-            <img th:src="${user.imageUrl}" alt="avatar" class="w-8 h-8 rounded-full border"/>
+            <img th:src="${user.anh}" alt="avatar" class="w-8 h-8 rounded-full border"/>
 
             <form th:action="@{/logout}" method="post">
                 <button type="submit" class="px-3 py-1 text-sm text-white bg-red-500 rounded shadow hover:bg-red-600">
@@ -43,7 +43,7 @@
             <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🏠 Trang chủ</a>
             <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
             <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
-            <div th:if="${user.permission == 'ADMIN'}">
+            <div th:if="${user.quyenHan == 'ADMIN'}">
                 <div x-data="{ open: false }" class="space-y-1">
                     <button @click="open = !open"
                             class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
@@ -118,30 +118,30 @@
                     </div>
 
 
-                    <div x-data="{ openData: false }" class="space-y-1">
-                        <button @click="openData = !openData"
-                                class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                                :class="{ 'bg-gray-200 font-bold': openData }">
-                            💾 Quản lý dữ liệu
-                            <span x-text="openData ? '▲' : '▼'" class="text-sm"></span>
-                        </button>
-                        <div x-show="openData" x-transition class="pl-4 space-y-1">
-                            <a th:href="@{/data/backup}" th:classappend="${currentPath == '/data/backup'} ? 'font-semibold underline'" class="block py-1 hover:underline">Sao lưu dữ liệu</a>
-                            <a th:href="@{/data/restore}" th:classappend="${currentPath == '/data/restore'} ? 'font-semibold underline'" class="block py-1 hover:underline">Khôi phục dữ liệu</a>
-                        </div>
+                <div x-data="{ openData: false }" class="space-y-1">
+                    <button @click="openData = !openData"
+                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
+                            :class="{ 'bg-gray-200 font-bold': openData }">
+                        💾 Quản lý dữ liệu
+                        <span x-text="openData ? '▲' : '▼'" class="text-sm"></span>
+                    </button>
+                    <div x-show="openData" x-transition class="pl-4 space-y-1">
+                        <a th:href="@{/data/backup}" th:classappend="${currentPath == '/data/backup'} ? 'font-semibold underline'" class="block py-1 hover:underline">Sao lưu dữ liệu</a>
+                        <a th:href="@{/data/restore}" th:classappend="${currentPath == '/data/restore'} ? 'font-semibold underline'" class="block py-1 hover:underline">Khôi phục dữ liệu</a>
                     </div>
-
-                    <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
-                    <hr class="my-3">
-                    <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">ℹ️ Giới thiệu</a>
                 </div>
+
+                <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
+                <hr class="my-3">
+                <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">ℹ️ Giới thiệu</a>
             </div>
+        </div>
         </div>
     </aside>
 
     <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
         <div class="text-center mt-20">
-            <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.username}">
+            <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.tenDangNhap}">
             </h2>
             <p class="mt-4 text-lg text-gray-600">
                 Chúc bạn một ngày quản lý hiệu quả và tràn đầy năng lượng ☕✨

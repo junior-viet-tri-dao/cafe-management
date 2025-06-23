@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm khuyến mãi</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="max-w-xl mx-auto bg-white shadow-xl rounded-xl p-8 mt-10">
+    <h2 class="text-2xl font-bold text-blue-800 mb-6">➕ Thêm khuyến mãi</h2>
+
+    <form th:action="@{/marketing/create}" method="post" class="space-y-5">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Tên khuyến mãi:</label>
+        <input type="text" name="tenKhuyenMai" required
+               class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400"
+               placeholder="Nhập tên khuyến mãi...">
+      </div>
+
+      <!-- Ngày bắt đầu -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">Ngày bắt đầu:</label>
+        <div class="relative max-w-sm">
+          <input name="ngayBatDau" id="ngayBatDau" datepicker
+                 type="text" placeholder="Chọn ngày"
+                 class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+          <div class="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" aria-hidden="true" fill="currentColor"
+                 viewBox="0 0 20 20">
+              <path
+                      d="M6 2a1 1 0 011 1v1h6V3a1 1 0 112 0v1h1a2 2 0 012 2v1H3V6a2 2 0 012-2h1V3a1 1 0 011-1zM3 9v7a2 2 0 002 2h10a2 2 0 002-2V9H3zm3 2a1 1 0 012 0v2a1 1 0 11-2 0v-2zm4 0a1 1 0 012 0v2a1 1 0 11-2 0v-2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ngày kết thúc -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">Ngày kết thúc:</label>
+        <div class="relative max-w-sm">
+          <input name="ngayKetThuc" id="ngayKetThuc" datepicker
+                 type="text" placeholder="Chọn ngày"
+                 class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+          <div class="absolute inset-y-0 end-0 flex items-center pe-3.5 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" aria-hidden="true" fill="currentColor"
+                 viewBox="0 0 20 20">
+              <path
+                      d="M6 2a1 1 0 011 1v1h6V3a1 1 0 112 0v1h1a2 2 0 012 2v1H3V6a2 2 0 012-2h1V3a1 1 0 011-1zM3 9v7a2 2 0 002 2h10a2 2 0 002-2V9H3zm3 2a1 1 0 012 0v2a1 1 0 11-2 0v-2zm4 0a1 1 0 012 0v2a1 1 0 11-2 0v-2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phần trăm giảm giá -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">% Giảm giá:</label>
+        <input type="number" name="giaTriGiam" min="1" max="100" required
+               class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400"
+               placeholder="Nhập số phần trăm (VD: 25)">
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-center gap-6 pt-4">
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md transition">
+          ➕ Thêm
+        </button>
+        <a th:href="@{/marketing}"
+           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-md">
+          ❌ Hủy
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>
