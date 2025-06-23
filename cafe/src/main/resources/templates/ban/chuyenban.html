@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chuyển bàn</title>
+</head>
+<body>
+
+<h2>Chuyển bàn</h2>
+
+<!-- Thông báo -->
+<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+<p th:if="${success}" th:text="${success}" style="color:green;"></p>
+
+<form th:action="@{/chuyenban}" method="post">
+    <!-- Bàn đang chuyển -->
+    <input type="hidden" name="banCuId" th:value="${banCuId}" />
+
+    <label>Chuyển đến bàn:</label>
+    <select name="banMoiId" required>
+        <option disabled selected>-- Chọn bàn đích --</option>
+        <option th:each="b : ${dsBan}"
+                th:value="${b.id}"
+                th:if="${b.id} != ${banCuId}"
+                th:text="${b.tenBan + ' (' + b.tinhTrang + ')'}"></option>
+    </select>
+
+    <br><br>
+    <button type="submit">Thực hiện chuyển</button>
+    <a th:href="@{/ban}">Quay lại</a>
+</form>
+
+</body>
+</html>

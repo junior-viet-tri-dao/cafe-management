@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Đặt bàn</title></head>
+<body>
+
+
+<h2 th:text="'Đặt bàn trước cho: ' + ${ban.tenBan}"></h2>
+
+<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+<p th:if="${success}" th:text="${success}" style="color:green;"></p>
+
+
+<form th:action="@{|/datban/${ban.id}|}" method="post" th:object="${datBan}">
+    <label>Tên khách:</label>
+    <input type="text" th:field="*{tenKhach}" required /><br/>
+
+    <label>SĐT:</label>
+    <input type="text" th:field="*{sdt}" required /><br/>
+
+    <label>Ngày:</label>
+    <input type="date" th:field="*{ngay}" required /><br/>
+
+    <label>Giờ:</label>
+    <input type="time" th:field="*{gio}" required /><br/>
+
+    <button type="submit">Đặt bàn</button>
+    <a th:href="@{/ban}">Hủy</a>
+</form>
+</body>
+</html>

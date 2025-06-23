@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Thêm món</title></head>
+<body>
+<h2 th:text="'Thêm món cho bàn: ' + ${ban.tenBan}"></h2>
+
+<form th:action="@{|/thucdon/them/${ban.id}|}" method="post" th:object="${monMoi}">
+    <label>Tên món:</label>
+    <input type="text" th:field="*{tenMon}" required /><br/>
+
+    <label>Số lượng:</label>
+    <input type="number" min="1" th:field="*{soLuong}" required /><br/>
+
+    <label>Giá:</label>
+    <input type="number" min="1000" step="1000" th:field="*{gia}" required /><br/>
+
+    <button type="submit">Lưu</button>
+    <a th:href="@{/ban}">Hủy</a>
+</form>
+</body>
+</html>
