@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách thiết bị</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold text-[#4e342e] mb-6">📋 Danh sách thực đơn</h2>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto border border-gray-300 rounded-lg">
+                <thead class="bg-[#e3f2fd] text-gray-800 text-sm font-bold uppercase">
+                <tr>
+                    <th class="px-4 py-2 text-center">Stt</th>
+                    <th class="px-4 py-2 text-left">Tên món</th>
+                    <th class="px-4 py-2 text-right">Giá tiền</th>
+                    <th class="px-4 py-2 text-center">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700 divide-y divide-gray-100" th:if="${menuItems != null}">
+                <tr th:each="item, iterStat : ${menuItems}" class="hover:bg-yellow-50 transition">
+                    <td class="px-4 py-2 text-center" th:text="${iterStat.index + 1}">1</td>
+                    <td class="px-4 py-2" th:text="${item.tenMon}">Cà phê đen</td>
+                    <td class="px-4 py-2 text-right" th:text="${#numbers.formatDecimal(item.giaTien, 0, 'POINT', 0, 'COMMA')}">6.000</td>
+                    <td class="px-4 py-2 text-center flex justify-center gap-2">
+                        <a th:href="@{/menu/update/{id}(id=${item.maThucDon})}"
+                           class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+                            ✏️ Sửa
+                        </a>
+
+                        <form th:action="@{/menu/delete/{id}(id=${item.maThucDon})}" method="post"
+                              th:id="'deleteForm-' + ${item.maThucDon}">
+                            <button type="button"
+                                    th:attr="data-id=${item.maThucDon}"
+                                    class="btn-delete bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+                                🗑️ Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${menuItems == null or menuItems.size() == 0}">
+                <tr>
+                    <td colspan="3" class="text-center text-gray-400 py-6">Không có món nào trong thực đơn.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.btn-delete').forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                Swal.fire({
+                    title: 'Xác nhận xoá?',
+                    text: 'Bạn có chắc muốn xoá thực đơn này?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Có',
+                    cancelButtonText: 'Không',
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonColor: '#ef4444'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteForm-' + id).submit();
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+
+</body>
+</html>
