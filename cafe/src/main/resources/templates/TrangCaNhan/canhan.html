@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang cá nhân - Phần mềm quản lý cà phê</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Import Google Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* Base styles for the body */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex; /* Use flexbox for overall layout */
+            min-height: 100vh; /* Full viewport height */
+            background-color: #f0f2f5; /* Light grey background */
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 280px; /* Increased width for better text visibility */
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Subtle shadow */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            border-radius: 0.75rem; /* Rounded corners for the sidebar container */
+            margin: 1rem; /* Margin around the sidebar */
+            overflow: hidden; /* Ensures rounded corners apply to children */
+        }
+
+        /* Sidebar title section */
+        .sidebar-title {
+            padding: 1.5rem 1rem;
+            background-color: #3f51b5; /* Deeper blue for the title */
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            border-top-left-radius: 0.75rem; /* Match parent's top-left radius */
+            border-top-right-radius: 0.75rem; /* Match parent's top-right radius */
+        }
+
+        /* Sidebar navigation list */
+        .sidebar-nav ul {
+            list-style: none; /* Remove bullet points */
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Allows nav to take available vertical space */
+        }
+
+        /* Styling for individual navigation links */
+        .sidebar-nav li a {
+            display: block; /* Make the entire link area clickable */
+            padding: 0.85rem 1.5rem; /* Increased padding for better touch targets */
+            color: #333; /* Dark grey text */
+            text-decoration: none; /* Remove underline */
+            transition: background-color 0.2s, color 0.2s; /* Smooth transition on hover */
+            border-radius: 0.5rem; /* Slightly rounded corners for links */
+            margin: 0.25rem 0.75rem; /* Margin for individual links */
+            font-weight: 500; /* Slightly bolder for readability */
+        }
+
+        /* Hover effect for navigation links */
+        .sidebar-nav li a:hover {
+            background-color: #e0e7ff; /* Light blue on hover */
+            color: #3f51b5; /* Deeper blue text on hover */
+        }
+
+        /* Active navigation link styling */
+        .sidebar-nav li a.active {
+            background-color: #c5cae9; /* Active background color */
+            color: #3f51b5; /* Active text color */
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 0 #3f51b5; /* Left border for active link */
+        }
+
+        /* Sidebar footer section */
+        .sidebar-footer {
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee; /* Top border for separation */
+        }
+
+        /* Styling for the footer button */
+        .sidebar-footer button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer; /* Indicate clickable element */
+            font-size: 1rem;
+            transition: background-color 0.2s, border-color 0.2s;
+            color: #555;
+            width: calc(100% - 2rem); /* Full width minus horizontal padding */
+        }
+
+        /* Hover effect for the footer button */
+        .sidebar-footer button:hover {
+            background-color: #e0e0e0;
+            border-color: #bbb;
+        }
+
+        /* Main content area styling */
+        .main-content {
+            flex-grow: 1; /* Allows main content to take remaining space */
+            background-color: #ffffff; /* White background for content area */
+            margin: 1rem; /* Margin around the main content */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            position: relative; /* For header positioning */
+        }
+
+        /* Main content header */
+        .main-content-header {
+            background-color: #bbdefb; /* Lighter blue for header */
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #212121; /* Dark text color */
+            border-bottom: 1px solid #a7d9f7; /* Bottom border for separation */
+            border-top-left-radius: 0.75rem; /* Match parent's top-left radius */
+            border-top-right-radius: 0.75rem; /* Match parent's top-right radius */
+            position: sticky; /* Make header sticky */
+            top: 0;
+            z-index: 10; /* Ensure it stays above other content */
+        }
+
+        /* Form container styling */
+        .form-container {
+            padding: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Space between form elements */
+            margin-top: 1rem; /* Space below the header */
+        }
+
+        /* Form row styling */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-row label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-row input[type="text"],
+        .form-row input[type="number"],
+        .form-row input[type="password"] {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%; /* Full width */
+            box-sizing: border-box; /* Include padding and border in width */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-row input[type="text"]:focus,
+        .form-row input[type="number"]:focus,
+        .form-row input[type="password"]:focus {
+            border-color: #3f51b5;
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-actions button {
+            background-color: #3f51b5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .form-actions button:hover {
+            background-color: #303f9f;
+            transform: translateY(-1px);
+        }
+
+        .form-actions a {
+            display: inline-flex; /* Align text and allow padding */
+            align-items: center;
+            background-color: #e0e0e0;
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .form-actions a:hover {
+            background-color: #d0d0d0;
+        }
+
+        /* Avatar styling */
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem; /* Space below the avatar section */
+        }
+
+        .avatar-image {
+            width: 120px; /* Size of the avatar */
+            height: 120px;
+            border-radius: 0.75rem; /* Make it square with rounded corners */
+            object-fit: cover; /* Ensure image covers the area */
+            border: 4px solid #3f51b5; /* Blue border */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Subtle shadow */
+            margin-bottom: 1rem; /* Space between image and input */
+            /* Add background to show a visual cue when empty */
+            background-color: #ffffff; /* Changed to white background for empty avatar */
+        }
+
+        /* Responsive adjustments for tablets (max-width: 1024px) */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px; /* Slightly reduce sidebar width on tablets */
+            }
+        }
+
+        /* Responsive adjustments for mobile (max-width: 768px) */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* Stack sidebar and main content vertically */
+            }
+            .sidebar {
+                width: auto; /* Auto width for sidebar */
+                margin: 1rem;
+                border-radius: 0.75rem; /* Keep rounded corners */
+            }
+            .sidebar-nav ul {
+                display: flex; /* Make nav items horizontal for better use of space */
+                flex-wrap: wrap; /* Allow items to wrap */
+                justify-content: center; /* Center items */
+            }
+            .sidebar-nav li {
+                flex: 1 1 auto; /* Allow items to grow/shrink, taking full width if needed */
+                min-width: 120px; /* Minimum width for each item */
+            }
+            .sidebar-nav li a {
+                text-align: center;
+                margin: 0.25rem; /* Smaller margin for horizontal layout */
+                padding: 0.75rem 1rem;
+            }
+            .sidebar-footer {
+                padding: 0.75rem;
+            }
+            .sidebar-footer button {
+                width: auto;
+                padding: 0.75rem 1.25rem;
+            }
+            .main-content {
+                margin: 1rem;
+                min-height: 50vh; /* Ensure main content has some height on mobile */
+            }
+            .main-content-header {
+                font-size: 1.2rem;
+                padding: 0.75rem 1.5rem;
+            }
+            .form-container {
+                padding: 1.5rem;
+                margin-top: 0; /* Remove top margin as header is sticky */
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            .avatar-image {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        /* Further responsive adjustments for smaller mobile screens (max-width: 480px) */
+        @media (max-width: 480px) {
+            .sidebar-title {
+                font-size: 1rem;
+                padding: 1rem 0.5rem;
+            }
+            .sidebar-nav li a {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.8rem;
+            }
+            .sidebar-footer button {
+                font-size: 0.9rem;
+                padding: 0.6rem 1rem;
+            }
+            .main-content-header {
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
+            }
+            .form-container {
+                padding: 1rem;
+            }
+            .form-row input {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.8rem;
+            }
+            .form-actions button,
+            .form-actions a {
+                font-size: 0.9rem;
+                padding: 0.6rem 1rem;
+            }
+            .avatar-image {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-title">
+            Phần mềm quản lý cà phê ver 1.0
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <!-- Navigation links with Thymeleaf th:href attributes -->
+                <li><a th:href="@{/home}">Trang chủ</a></li>
+                <li><a th:href="@{/home/canhan}" class="active">Trang cá nhân</a></li>
+                <li><a th:href="@{/nhanvien}">Quản lý nhân viên</a></li>
+                <li><a th:href="@{/ban}">Quản lý bán hàng</a></li>
+                <li><a th:href="@{/thietbi}">Quản lý trang thiết bị</a></li>
+                <li><a th:href="@{/kho}">Quản lý kho hàng</a></li>
+                <li><a th:href="@{/thucdon}">Quản lý thực đơn</a></li>
+                <li><a th:href="@{/marketing}">Quản lý Marketing</a></li>
+                <li><a th:href="@{/ngansach}">Quản lý ngân sách</a></li>
+                <li><a th:href="@{/dulieu}">Quản lý dữ liệu</a></li>
+                <li><a th:href="@{/thongke}">Thống kê, báo cáo</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button>Giới thiệu</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="main-content-header">
+            Trang cá nhân
+        </div>
+        <div class="form-container">
+            <!-- Avatar Section -->
+            <div class="avatar-container">
+                <img id="avatarPreview" src="" alt="Ảnh đại diện" class="avatar-image">
+            </div>
+
+            <form th:action="@{/home/canhan}" th:object="${nv}" method="post">
+                <div class="form-row">
+                    <label for="hoVaTen">Họ và tên:</label>
+                    <input type="text" id="hoVaTen" th:field="*{hoVaTen}" required>
+                </div>
+                <div class="form-row">
+                    <label for="chucVu">Chức vụ:</label>
+                    <input type="text" id="chucVu" th:field="*{chucVu}" required>
+                </div>
+                <div class="form-row">
+                    <label for="diaChi">Địa chỉ:</label>
+                    <input type="text" id="diaChi" th:field="*{diaChi}">
+                </div>
+                <div class="form-row">
+                    <label for="sdt">SĐT:</label>
+                    <input type="text" id="sdt" th:field="*{sdt}" required>
+                </div>
+                <div class="form-row">
+                    <label for="luong">Lương:</label>
+                    <input type="number" id="luong" th:field="*{luong}" required>
+                </div>
+                <div class="form-row">
+                    <label for="user">Tên đăng nhập:</label>
+                    <input type="text" id="user" th:field="*{user}" readonly>
+                </div>
+                <div class="form-row">
+                    <label for="pass">Mật khẩu:</label>
+                   
+                    <input type="password" id="pass" value="********" readonly>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit">Chỉnh sửa</button>
+                    <a th:href="@{/logout}">Đăng xuất</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const avatarPreview = document.getElementById('avatarPreview');
+
+            // Avatar will be empty by default, displaying only the background color
+            // unless a backend (Thymeleaf in this case) explicitly sets an image.
+        });
+    </script>
+</body>
+</html>

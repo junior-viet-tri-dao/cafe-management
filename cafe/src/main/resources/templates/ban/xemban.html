@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Thông tin bàn</title></head>
+<body>
+<h2 th:text="'Thông tin bàn: ' + ${ban.tenBan}"></h2>
+
+<h3>Danh sách món</h3>
+<table border="1">
+    <tr>
+        <th>Tên món</th>
+        <th>Số lượng</th>
+    </tr>
+    <tr th:each="mon : ${dsMon}">
+        <td th:text="${mon.tenMon}"></td>
+        <td th:text="${mon.soLuong}"></td>
+    </tr>
+</table>
+
+<h3>Thông tin đặt trước</h3>
+<div th:if="${datBan != null}">
+    <p><strong>Khách hàng:</strong> <span th:text="${datBan.tenKhach}"></span></p>
+    <p><strong>SĐT:</strong> <span th:text="${datBan.sdt}"></span></p>
+    <p><strong>Ngày:</strong> <span th:text="${datBan.ngay}"></span></p>
+    <p><strong>Giờ:</strong> <span th:text="${datBan.gio}"></span></p>
+</div>
+<div th:if="${datBan == null}">
+    <p>Không có đặt trước.</p>
+</div>
+
+<a th:href="@{/ban}">Quay lại</a>
+</body>
+</html>

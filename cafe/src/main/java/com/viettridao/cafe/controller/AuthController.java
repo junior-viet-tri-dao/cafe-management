@@ -1,41 +1,67 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.service.TaiKhoanService;
-import lombok.RequiredArgsConstructor;
+import com.viettridao.cafe.Service.NhanVienService;
+import com.viettridao.cafe.model.NhanVien;
+import com.viettridao.cafe.model.VaiTro;
+
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequiredArgsConstructor
-@RequestMapping("/auth")
 public class AuthController {
-    private final TaiKhoanService taikhoanService;
+
+    @Autowired
+    private NhanVienService service;
 
     @GetMapping("/login")
-    public String showLoginForm() {
-        return "login";
+    public String loginPage() {
+        return "TrangChu/login"; // View: templates/TrangChu/login.html
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String username,
-                        @RequestParam String password,
-                        RedirectAttributes redirectAttributes) {
-        try {
-            boolean result = taikhoanService.login(username, password);
-            if (result) {
-                redirectAttributes.addFlashAttribute("success", "Đăng nhập thành công!");
-                return "redirect:/home";
-            }
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/auth/login";
+    public String doLogin(@RequestParam String user,
+                          @RequestParam String pass,
+                          HttpSession session,
+                          Model model) {
+
+        // ✅ Kiểm tra rỗng
+        if (user.isBlank() || pass.isBlank()) {
+            model.addAttribute("error", "Không được để trống");
+            return "TrangChu/login";
         }
-        redirectAttributes.addFlashAttribute("error", "Đăng nhập thất bại");
-        return "redirect:/auth/login";
+
+        // ✅ Xác thực tài khoản
+        NhanVien nv = service.login(user, pass);
+        if (nv == null) {
+            model.addAttribute("error", "Sai tên đăng nhập hoặc mật khẩu");
+            return "TrangChu/login";
+        }
+        if (nv.getVaiTro() == null) {
+            model.addAttribute("error", "Tài khoản chưa được gán vai trò. Vui lòng liên hệ quản trị viên.");
+            return "TrangChu/login";
+        }
+        // ✅ Lưu vào session
+        session.setAttribute("nv", nv);
+        session.setAttribute("vaiTro", nv.getVaiTro() != null ? nv.getVaiTro().name() : "");
+
+        // ✅ Phân quyền chuyển hướng
+        if (nv.getVaiTro() == VaiTro.ADMIN) {
+            return "redirect:/home"; // hoặc redirect:/admin/dashboard nếu có
+        } else if (nv.getVaiTro() == VaiTro.NHANVIEN) {
+            return "redirect:/admin/nhanviendashboard";
+        } else {
+            model.addAttribute("error", "Tài khoản chưa được gán vai trò!");
+            return "TrangChu/login";
+        }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
+    }
 }

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Phần mềm quản lý cà phê</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            border-radius: 0.75rem;
+            margin: 1rem;
+            overflow: hidden;
+        }
+        .sidebar-title {
+            padding: 1.5rem 1rem;
+            background-color: #3f51b5;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .sidebar-nav li a {
+            display: block;
+            padding: 0.85rem 1.5rem;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0.75rem;
+            font-weight: 500;
+        }
+        .sidebar-nav li a:hover {
+            background-color: #e0e7ff;
+            color: #3f51b5;
+        }
+        .sidebar-nav li a.active {
+            background-color: #c5cae9;
+            color: #3f51b5;
+            font-weight: 600;
+            box-shadow: inset 3px 0 0 0 #3f51b5;
+        }
+        .sidebar-footer {
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        .sidebar-footer form {
+            margin: 0;
+        }
+        .sidebar-footer button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #555;
+            width: 100%;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .sidebar-footer button:hover {
+            background-color: #e0e0e0;
+            border-color: #bbb;
+        }
+        .main-content {
+            flex-grow: 1;
+            background-color: #e0f7fa;
+            margin: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .main-content-header {
+            background-color: #bbdefb;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #212121;
+            border-bottom: 1px solid #a7d9f7;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        .welcome-message {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5rem;
+            flex-direction: column;
+        }
+        .welcome-message span {
+            color: #3f51b5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-title">
+            Phần mềm quản lý cà phê ver 1.0
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a th:href="@{/home}" class="active">Trang chủ</a></li>
+                <li><a th:href="@{/ban}">Quản lý bán hàng</a></li>
+                <li><a th:href="@{/thietbi}">Quản lý trang thiết bị</a></li>
+                <li><a th:href="@{/kho}">Quản lý kho hàng</a></li>
+                <li><a th:href="@{/thucdon}">Quản lý thực đơn</a></li>
+                <li><a th:href="@{/marketing}">Quản lý Marketing</a></li>
+                <li><a th:href="@{/ngansach}">Quản lý ngân sách</a></li>
+                <li><a th:href="@{/dulieu}">Quản lý dữ liệu</a></li>
+                <li><a th:href="@{/thongke}">Thống kê, báo cáo</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="get">
+                <button type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="main-content-header">
+            Trang chủ
+        </div>
+        <div class="welcome-message">
+            <div>
+                XIN CHÀO, <span th:text="${session.nv.hoVaTen}">Người dùng</span>!
+            </div>
+            <div>
+                <span th:if="${session.vaiTro != ''}">Vai trò: <b th:text="${session.vaiTro}">Vai trò</b></span>
+                <span th:if="${session.vaiTro == ''}" class="text-yellow-500">Chưa được gán vai trò</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
