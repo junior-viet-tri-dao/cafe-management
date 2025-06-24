@@ -1,9 +1,6 @@
 package com.viettridao.cafe.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +11,16 @@ import lombok.Setter;
 public class InvoiceDetailEntity {
     @EmbeddedId
     private InvoiceKey id;
+
+    @ManyToOne
+    @MapsId("idInvoice")
+    @JoinColumn(name = "invoice_id")
+    private InvoiceEntity invoice;
+
+    @ManyToOne
+    @MapsId("idMenuItem")
+    @JoinColumn(name = "menu_item_id")
+    private MenuItemEntity menuItem;
 
     @Column(name = "quantity")
     private Integer quantity;

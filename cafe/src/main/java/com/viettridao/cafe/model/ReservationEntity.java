@@ -1,9 +1,6 @@
 package com.viettridao.cafe.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDate;
@@ -15,6 +12,21 @@ import java.time.LocalDate;
 public class ReservationEntity {
     @EmbeddedId
     private ReservationKey id;
+
+    @ManyToOne
+    @MapsId("idTable")
+    @JoinColumn(name = "table_id")
+    private TableEntity table;
+
+    @ManyToOne
+    @MapsId("idEmployee")
+    @JoinColumn(name = "employee_id")
+    private EmployeeEntity employee;
+
+    @ManyToOne
+    @MapsId("idInvoice")
+    @JoinColumn(name = "invoice_id")
+    private InvoiceEntity invoice;
 
     @Column(name = "customer_name")
     private String customerName;

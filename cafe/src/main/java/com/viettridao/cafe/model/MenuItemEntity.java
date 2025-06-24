@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -22,4 +24,10 @@ public class MenuItemEntity {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)
+    private List<MenuDetailEntity> menuDetails;
+
+    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)
+    private List<InvoiceDetailEntity> invoiceDetails;
 }
