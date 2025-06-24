@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thêm khuyến mãi</title>
+    <script th:src="@{/js/marketing/marketing-create.js}"></script>
+  </head>
+  <body>
+    <div
+      layout:fragment="content"
+      class="relative z-10 min-h-full flex justify-center w-full p-6"
+    >
+      <div class="w-full max-w-4xl">
+        <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-6">
+          <!-- Header -->
+          <h2 class="text-lg font-semibold mb-6 text-center">
+            — Thêm khuyến mãi —
+          </h2>
+
+          <!-- Form -->
+          <form id="promotionForm" class="space-y-6">
+            <!-- Tên khuyến mãi -->
+            <div class="flex items-center gap-4">
+              <label class="block text-sm font-medium min-w-[140px] text-right">
+                Tên khuyến mãi:
+              </label>
+              <input
+                type="text"
+                id="tenKhuyenMai"
+                name="tenKhuyenMai"
+                class="flex-1 max-w-md px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                placeholder="Nhập tên khuyến mãi"
+                required
+              />
+            </div>
+
+            <!-- Ngày bắt đầu -->
+            <div class="flex items-center gap-4">
+              <label class="block text-sm font-medium min-w-[140px] text-right">
+                Ngày bắt đầu:
+              </label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="date"
+                  id="ngayBatDau"
+                  name="ngayBatDau"
+                  class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  required
+                />
+                <button
+                  type="button"
+                  class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
+                >
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Ngày kết thúc -->
+            <div class="flex items-center gap-4">
+              <label class="block text-sm font-medium min-w-[140px] text-right">
+                Ngày kết thúc:
+              </label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="date"
+                  id="ngayKetThuc"
+                  name="ngayKetThuc"
+                  class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  required
+                />
+                <button
+                  type="button"
+                  class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
+                >
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- % giảm giá -->
+            <div class="flex items-center gap-4">
+              <label class="block text-sm font-medium min-w-[140px] text-right">
+                % giảm giá:
+              </label>
+              <div class="flex items-center gap-2">
+                <input
+                  type="number"
+                  id="phanTramGiam"
+                  name="phanTramGiam"
+                  class="w-32 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                  step="1"
+                  required
+                />
+                <span class="text-sm text-gray-600">%</span>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-center space-x-4 pt-6">
+              <button
+                type="submit"
+                class="px-8 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium"
+              >
+                Thêm
+              </button>
+              <button
+                type="button"
+                id="cancelBtn"
+                class="px-8 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
+              >
+                Hủy
+              </button>
+            </div>
+          </form>
+
+          <!-- Loading state -->
+          <div id="loadingState" class="text-center py-4" style="display: none">
+            <div
+              class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"
+            ></div>
+            <p class="mt-2 text-sm text-gray-600">Đang tạo khuyến mãi...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
