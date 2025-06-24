@@ -6,8 +6,8 @@
 >
   <head>
     <meta charset="UTF-8" />
-    <title>Quản lý khuyến mãi</title>
-    <script th:src="@{/js/marketing/marketing.js}"></script>
+    <title>Thống kê, báo cáo</title>
+    <script th:src="@{/js/reports/report.js}"></script>
   </head>
   <body>
     <div
@@ -15,7 +15,369 @@
       class="relative z-10 min-h-full flex justify-center w-full p-6"
     >
       <div class="w-full max-w-7xl">
-        <h1>Đây là trang báo cáo</h1>
+        <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-6">
+          <!-- Header -->
+          <h2 class="text-lg font-semibold mb-6 text-center">
+            — Thống kê, báo cáo —
+          </h2>
+
+          <!-- Report Options -->
+          <div class="mb-6">
+            <div class="flex items-center gap-6 mb-4">
+              <span class="font-medium">Chọn mục:</span>
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="all"
+                    class="w-4 h-4"
+                    checked
+                  />
+                  <span class="text-sm">Tất cả</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="import"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Nhập-xuất</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="inventory"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Nhập</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="sales"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Bán hàng</span>
+                </label>
+              </div>
+            </div>
+            <div class="flex items-center gap-6">
+              <span class="font-medium invisible">Chọn mục:</span>
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="revenue"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Lương</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="staff"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">TT nhân viên</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="export"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Xuất</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="reportType"
+                    value="customer"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">Phi khác</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Range -->
+          <div class="flex items-center gap-4 mb-6">
+            <span class="text-sm font-medium">Từ ngày</span>
+            <div class="flex items-center gap-2">
+              <input
+                type="date"
+                id="fromDate"
+                class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                value="2014-12-23"
+              />
+              <button
+                type="button"
+                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
+              >
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <span class="text-sm font-medium">đến ngày</span>
+            <div class="flex items-center gap-2">
+              <input
+                type="date"
+                id="toDate"
+                class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                value="2014-12-25"
+              />
+              <button
+                type="button"
+                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
+              >
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <button
+              id="viewReportBtn"
+              class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
+            >
+              Xem
+            </button>
+          </div>
+
+          <!-- Report Table -->
+          <div class="border border-gray-400 rounded overflow-hidden mb-6">
+            <!-- Header của bảng -->
+            <div class="grid grid-cols-3 bg-gray-200 border-b border-gray-400">
+              <div
+                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
+              >
+                Ngày
+                <svg
+                  class="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+              <div
+                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
+              >
+                Thu
+                <svg
+                  class="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+              <div class="px-4 py-3 font-medium flex items-center">
+                Chi
+                <svg
+                  class="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Dữ liệu bảng -->
+            <div id="reportTable">
+              <div
+                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
+              >
+                <div class="px-4 py-3 border-r border-gray-300">23/12/2014</div>
+                <div
+                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
+                >
+                  500.000
+                </div>
+                <div class="px-4 py-3 text-red-600 font-medium">1.000.000</div>
+              </div>
+
+              <div
+                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
+              >
+                <div class="px-4 py-3 border-r border-gray-300">24/12/2014</div>
+                <div
+                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
+                >
+                  1.000.000
+                </div>
+                <div class="px-4 py-3 text-red-600 font-medium">200.000</div>
+              </div>
+
+              <div
+                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
+              >
+                <div class="px-4 py-3 border-r border-gray-300">25/12/2014</div>
+                <div
+                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
+                >
+                  1.500.000
+                </div>
+                <div class="px-4 py-3 text-red-600 font-medium">400.000</div>
+              </div>
+
+              <!-- Tổng -->
+              <div
+                class="grid grid-cols-3 bg-gray-100 border-t-2 border-gray-400 font-bold"
+              >
+                <div class="px-4 py-3 border-r border-gray-300">Tổng</div>
+                <div class="px-4 py-3 border-r border-gray-300 text-green-600">
+                  3.000.000
+                </div>
+                <div class="px-4 py-3 text-red-600">1.600.000</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Options -->
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Xuất file -->
+            <div class="border-2 border-gray-400 rounded-lg p-4">
+              <h3 class="font-semibold mb-4 text-center">— Xuất file —</h3>
+              <div class="space-y-3">
+                <div class="text-sm font-medium mb-2">Chọn định dạng:</div>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="exportType"
+                    value="txt"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">.txt - Text File</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="exportType"
+                    value="xls"
+                    class="w-4 h-4"
+                    checked
+                  />
+                  <span class="text-sm">.xls - Excel File</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="exportType"
+                    value="sql"
+                    class="w-4 h-4"
+                  />
+                  <span class="text-sm">.sql - SQL File</span>
+                </label>
+                <div class="pt-2">
+                  <button
+                    id="exportBtn"
+                    class="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium"
+                  >
+                    Xuất file
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- In file -->
+            <div class="border-2 border-gray-400 rounded-lg p-4">
+              <h3 class="font-semibold mb-4 text-center">— In file —</h3>
+              <div class="space-y-3">
+                <div class="flex items-center gap-4">
+                  <span class="text-sm font-medium min-w-[80px]"
+                    >Khổ giấy:</span
+                  >
+                  <select
+                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="A4" selected>A4</option>
+                    <option value="A3">A3</option>
+                    <option value="Letter">Letter</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="text-sm font-medium min-w-[80px]">Máy in:</span>
+                  <select
+                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="hp-laser" selected>Hp Laser</option>
+                    <option value="canon">Canon</option>
+                    <option value="epson">Epson</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="text-sm font-medium min-w-[80px]"
+                    >Số lượng:</span
+                  >
+                  <input
+                    type="number"
+                    value="3"
+                    min="1"
+                    max="100"
+                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div class="pt-2">
+                  <button
+                    id="printBtn"
+                    class="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
+                  >
+                    In
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
