@@ -137,42 +137,41 @@
                 class="bg-white divide-y divide-gray-200"
                 id="employeeTableBody"
               >
-                <!-- Employee Row 1 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                <!-- Render danh sách nhân viên từ backend -->
+                <tr
+                  th:each="employee : ${listEmployee}"
+                  class="hover:bg-gray-50 transition-colors duration-200"
+                >
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        <div
-                          class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium"
-                        >
-                          Đ
-                        </div>
-                      </div>
                       <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">
-                          Đặng Văn Dũng
-                        </div>
-                        <div class="text-sm text-gray-500">
-                          dang.vandung@cafe.com
+                        <div
+                          class="text-sm font-medium text-gray-900"
+                          th:text="${employee.fullName}"
+                        >
+                          Tên nhân viên
                         </div>
                       </div>
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800"
+                      th:text="${employee.position?.positionName ?: 'Chưa xác định'}"
                     >
-                      Quản lý
+                      Chức vụ
                     </span>
                   </td>
                   <td
                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
                   >
-                    10,000,000 ₫
+                    <span th:text="${employee.position.salary} + ' ₫'">
+                      0 ₫
+                    </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
                     <div class="flex items-center justify-center gap-2">
-                      <button
+                      <a
+                        th:href="@{/employee/edit/{id}(id=${employee.id})}"
                         class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
                         title="Sửa"
                       >
@@ -189,8 +188,9 @@
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                           ></path>
                         </svg>
-                      </button>
+                      </a>
                       <button
+                        th:onclick="'deleteEmployee(' + ${employee.id} + ')'"
                         class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
                         title="Xóa"
                       >
@@ -212,227 +212,35 @@
                   </td>
                 </tr>
 
-                <!-- Employee Row 2 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        <div
-                          class="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center text-white font-medium"
-                        >
-                          L
-                        </div>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">
-                          Lê Văn Thế
-                        </div>
-                        <div class="text-sm text-gray-500">
-                          le.vanthe@cafe.com
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Phục vụ bàn
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
-                  >
-                    5,000,000 ₫
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button
-                        class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
-                        title="Sửa"
+                <!-- Hiển thị thông báo khi không có dữ liệu -->
+                <tr th:if="${listEmployee == null or listEmployee.isEmpty()}">
+                  <td colspan="4" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                      <svg
+                        class="w-12 h-12 text-gray-400 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          ></path>
-                        </svg>
-                      </button>
-                      <button
-                        class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
-                        title="Xóa"
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path>
+                      </svg>
+                      <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Chưa có nhân viên nào
+                      </h3>
+                      <p class="text-gray-500 mb-4">
+                        Hãy thêm nhân viên đầu tiên cho quán cafe của bạn
+                      </p>
+                      <a
+                        href="/employee/create"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"
                       >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          ></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Employee Row 3 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        <div
-                          class="h-10 w-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-medium"
-                        >
-                          T
-                        </div>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">
-                          Trần Thị Giang
-                        </div>
-                        <div class="text-sm text-gray-500">
-                          tran.thigiang@cafe.com
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800"
-                    >
-                      Thu ngân
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
-                  >
-                    10,000,000 ₫
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button
-                        class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
-                        title="Sửa"
-                      >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          ></path>
-                        </svg>
-                      </button>
-                      <button
-                        class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
-                        title="Xóa"
-                      >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          ></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Employee Row 4 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 h-10 w-10">
-                        <div
-                          class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-medium"
-                        >
-                          V
-                        </div>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">
-                          Võ Bình Yên
-                        </div>
-                        <div class="text-sm text-gray-500">
-                          vo.binhyen@cafe.com
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800"
-                    >
-                      Bảo vệ
-                    </span>
-                  </td>
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
-                  >
-                    5,000,000 ₫
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <div class="flex items-center justify-center gap-2">
-                      <button
-                        class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
-                        title="Sửa"
-                      >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          ></path>
-                        </svg>
-                      </button>
-                      <button
-                        class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
-                        title="Xóa"
-                      >
-                        <svg
-                          class="h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          ></path>
-                        </svg>
-                      </button>
+                        Thêm nhân viên
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -442,11 +250,16 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-6 flex items-center justify-between">
+        <div
+          class="mt-6 flex items-center justify-between"
+          th:if="${listEmployee != null and !listEmployee.isEmpty()}"
+        >
           <div class="text-sm text-gray-700">
             Hiển thị <span class="font-medium">1</span> đến
-            <span class="font-medium">4</span> trong tổng số
-            <span class="font-medium">4</span> nhân viên
+            <span class="font-medium" th:text="${listEmployee.size()}">0</span>
+            trong tổng số
+            <span class="font-medium" th:text="${listEmployee.size()}">0</span>
+            nhân viên
           </div>
           <div class="flex items-center space-x-2">
             <button
@@ -471,21 +284,25 @@
       </div>
     </div>
 
-    <!-- JavaScript for Search Functionality -->
+    <!-- JavaScript -->
     <script>
+      // Search functionality
       document
         .getElementById("searchInput")
         .addEventListener("input", function (e) {
           const searchTerm = e.target.value.toLowerCase();
-          const tableRows = document.querySelectorAll("#employeeTableBody tr");
+          const tableRows = document.querySelectorAll(
+            "#employeeTableBody tr:not(.no-data)"
+          );
 
           tableRows.forEach((row) => {
-            const employeeName = row
-              .querySelector(".text-sm.font-medium.text-gray-900")
-              .textContent.toLowerCase();
-            const employeeRole = row
-              .querySelector(".inline-flex")
-              .textContent.toLowerCase();
+            const employeeName =
+              row
+                .querySelector(".text-sm.font-medium.text-gray-900")
+                ?.textContent.toLowerCase() || "";
+            const employeeRole =
+              row.querySelector(".inline-flex")?.textContent.toLowerCase() ||
+              "";
 
             if (
               employeeName.includes(searchTerm) ||
@@ -497,6 +314,29 @@
             }
           });
         });
+
+      // Delete employee function
+      function deleteEmployee(employeeId) {
+        if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
+          fetch(`/employee/delete/${employeeId}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                location.reload();
+              } else {
+                alert("Có lỗi xảy ra khi xóa nhân viên");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Có lỗi xảy ra khi xóa nhân viên");
+            });
+        }
+      }
     </script>
   </body>
 </html>

@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "positions")//chucvu
+@Table(name = "positions") // chucvu
 public class PositionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

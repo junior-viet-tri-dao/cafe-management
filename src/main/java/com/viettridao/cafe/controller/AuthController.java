@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController extends BaseController {
     private final AuthService authService;
     private final AccountService accountService;
 
@@ -24,13 +25,19 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestParam String username,
             @RequestParam String password,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
         try {
             boolean result = authService.login(username, password);
 
-            AccountEntity userInfo = accountService.findByUsername(username);
-
             if (result) {
+                AccountEntity userInfo = accountService.findByUsername(username);
+                // Lưu thông tin user vào session
+
+                System.out.println("User info:------------------------------------ "
+                        + userInfo.getEmployee().getPosition().getPositionName());
+                session.setAttribute("user", userInfo);
+                session.setAttribute("isAuthenticated", true);
 
                 redirectAttributes.addFlashAttribute("success", "Đăng nhập thành công!");
                 return "redirect:/home";
@@ -40,6 +47,13 @@ public class AuthController {
             return "redirect:/login";
         }
         redirectAttributes.addFlashAttribute("error", "Đăng nhập thất bại");
+        return "redirect:/login";
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
+        session.invalidate(); // Xóa toàn bộ session
+        redirectAttributes.addFlashAttribute("success", "Đăng xuất thành công!");
         return "redirect:/login";
     }
 }

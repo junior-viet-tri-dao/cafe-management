@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-public class AccountController {
+public class AccountController extends BaseController {
     @GetMapping("/account")
     public String showAccount() {
         return "accounts/account";

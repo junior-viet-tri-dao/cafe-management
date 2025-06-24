@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "accounts") //taikhoan
+@Table(name = "accounts") // taikhoan
 public class AccountEntity implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public class AccountEntity implements Serializable, UserDetails {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private EmployeeEntity employee;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
