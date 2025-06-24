@@ -41,7 +41,7 @@
     <aside class="w-64 bg-white border-r p-4">
         <div class="flex flex-col space-y-2 h-full">
             <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🏠 Trang chủ</a>
-            <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
+            <a th:href="@{/profile}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
             <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
             <div th:if="${user.permission == 'ADMIN'}">
                 <div x-data="{ open: false }" class="space-y-1">

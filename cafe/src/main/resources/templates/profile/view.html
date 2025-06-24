@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang cá nhân</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Form CẬP NHẬT THÔNG TIN -->
+    <form th:action="@{/profile}" th:object="${request}" method="post"
+          class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-6">
+
+        <!-- ✅ Hidden ID để update đúng -->
+        <input type="hidden" th:field="*{id}" />
+
+        <!-- ✅ Đặt hiển thị lỗi BÊN TRONG th:object -->
+        <div th:if="${#fields.hasErrors('*')}">
+            <ul class="text-red-500 text-sm">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Avatar -->
+            <div class="flex flex-col items-center space-y-4">
+                <img th:src="@{${request.imageUrl}}"
+                     onerror="this.onerror=null;this.src='https://via.placeholder.com/100x120';"
+                     alt="avatar"
+                     class="w-36 h-36 rounded-full border-4 border-yellow-600 shadow-md"/>
+
+                <label class="text-sm font-medium text-gray-700">
+                    Link ảnh đại diện:
+                    <input type="text" th:field="*{imageUrl}"
+                           class="mt-1 block w-full text-sm px-3 py-1 border rounded" />
+                </label>
+			    <form th:action="@{/logout}" method="post" class="text-center mt-6">
+			        <button type="submit"
+			                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
+			            🚪 Đăng xuất
+			        </button>
+			    </form>
+            </div>
+            <!-- Thông tin cá nhân -->
+            <div class="md:col-span-2 space-y-4">
+                <h2 class="text-2xl font-bold text-yellow-800 border-b pb-2">Thông tin cá nhân</h2>
+
+                <div class="grid grid-cols-2 gap-4 text-sm">
+
+                    <div>
+                        <label class="font-semibold">Họ và tên:</label>
+                        <input type="text" th:field="*{fullName}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Chức vụ:</label>
+                        <input type="text" th:field="*{position}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="font-semibold">Địa chỉ:</label>
+                        <input type="text" th:field="*{address}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Số điện thoại:</label>
+                        <input type="text" th:field="*{phoneNumber}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Lương:</label>
+                        <input type="text" th:field="*{salary}" class="w-full px-3 py-2 border rounded" />
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Tài khoản:</label>
+                        <input type="text" th:value="${employee.username}"
+                               class="w-full px-3 py-2 border rounded bg-gray-100" readonly />
+                    </div>
+
+                    <div>
+                        <label class="font-semibold">Mật khẩu:</label>
+                        <input type="password" th:value="${employee.password}"
+                               class="w-full px-3 py-2 border rounded bg-gray-100" readonly />
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded font-semibold shadow">
+                        💾 Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
