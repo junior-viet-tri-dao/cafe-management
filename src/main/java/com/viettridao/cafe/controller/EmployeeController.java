@@ -2,8 +2,6 @@ package com.viettridao.cafe.controller;
 
 import java.util.List;
 
-import org.aspectj.weaver.Position;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,10 +27,21 @@ public class EmployeeController {
     private final PositionService positionService;
 
     @GetMapping("/employee")
-    public String showEmployee(Model model) {
-
-        List<EmployeeEntity> employees = employeeService.getAllEmployees();
-
+    public String getEmployeePage(@RequestParam(value = "search", required = false) String searchKeyword, 
+                             Model model) {
+        List<?> employees;
+        
+        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+            // Tìm kiếm nhân viên theo từ khóa
+            employees = employeeService.searchByName(searchKeyword.trim());
+            model.addAttribute("searchKeyword", searchKeyword);
+            model.addAttribute("isSearchResult", true);
+        } else {
+            // Lấy tất cả nhân viên
+            employees = employeeService.getAllEmployees();
+            model.addAttribute("isSearchResult", false);
+        }
+        
         model.addAttribute("listEmployee", employees);
         return "employees/employee";
     }

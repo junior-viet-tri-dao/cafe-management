@@ -17,9 +17,23 @@
         <!-- Header -->
         <div class="mb-6">
           <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            Danh sách nhân viên
+            <span th:if="${isSearchResult}">Kết quả tìm kiếm</span>
+            <span th:unless="${isSearchResult}">Danh sách nhân viên</span>
           </h1>
-          <p class="text-gray-600">Quản lý thông tin nhân viên của quán cafe</p>
+          <p class="text-gray-600" th:if="${isSearchResult}">
+            Tìm thấy
+            <span class="font-semibold" th:text="${listEmployee.size()}"
+              >0</span
+            >
+            nhân viên cho từ khóa "<span
+              class="font-semibold"
+              th:text="${searchKeyword}"
+            ></span
+            >"
+          </p>
+          <p class="text-gray-600" th:unless="${isSearchResult}">
+            Quản lý thông tin nhân viên của quán cafe
+          </p>
         </div>
 
         <!-- Search and Actions Bar -->
@@ -28,29 +42,76 @@
         >
           <!-- Search Box -->
           <div class="relative flex-1 max-w-md">
-            <div
-              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-            >
-              <svg
-                class="h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <form method="GET" action="/employee" class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                ></path>
-              </svg>
-            </div>
-            <input
-              type="text"
-              id="searchInput"
-              class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Tìm kiếm nhân viên..."
-            />
+                <svg
+                  class="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                name="search"
+                id="searchInput"
+                th:value="${searchKeyword}"
+                class="block w-full pl-10 pr-20 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Tìm kiếm nhân viên..."
+              />
+              <div
+                class="absolute inset-y-0 right-0 flex items-center gap-1 pr-2"
+              >
+                <button
+                  type="submit"
+                  class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
+                  title="Tìm kiếm"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </button>
+                <a
+                  th:if="${searchKeyword}"
+                  href="/employee"
+                  class="text-gray-400 hover:text-gray-600 p-1 rounded transition-colors duration-200"
+                  title="Xóa tìm kiếm"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </a>
+              </div>
+            </form>
           </div>
 
           <!-- Add Employee Button -->
@@ -147,7 +208,7 @@
                       <div class="ml-4">
                         <div
                           class="text-sm font-medium text-gray-900"
-                          th:text="${employee.fullName}"
+                          th:text="${isSearchResult ? employee.fullName : employee.fullName}"
                         >
                           Tên nhân viên
                         </div>
@@ -156,7 +217,7 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span
-                      th:text="${employee.position?.positionName ?: 'Chưa xác định'}"
+                      th:text="${isSearchResult ? employee.positionName : (employee.position?.positionName ?: 'Chưa xác định')}"
                     >
                       Chức vụ
                     </span>
@@ -164,14 +225,16 @@
                   <td
                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
                   >
-                    <span th:text="${employee.position.salary} + ' ₫'">
+                    <span
+                      th:text="${isSearchResult ? (employee.salary + ' ₫') : (employee.position.salary + ' ₫')}"
+                    >
                       0 ₫
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
                     <div class="flex items-center justify-center gap-2">
                       <a
-                        th:href="@{/employee/edit/{id}(id=${employee.id})}"
+                        th:href="@{/employee/edit/{id}(id=${isSearchResult ? employee.employeeId : employee.id})}"
                         class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
                         title="Sửa"
                       >
@@ -190,7 +253,7 @@
                         </svg>
                       </a>
                       <button
-                        th:onclick="'deleteEmployee(' + ${employee.id} + ')'"
+                        th:onclick="'deleteEmployee(' + ${isSearchResult ? employee.employeeId : employee.id} + ')'"
                         class="text-red-600 hover:text-red-800 p-1 rounded transition-colors duration-200"
                         title="Xóa"
                       >
@@ -244,6 +307,66 @@
                     </div>
                   </td>
                 </tr>
+
+                <!-- Hiển thị thông báo khi không có kết quả tìm kiếm -->
+                <tr th:if="${listEmployee == null or listEmployee.isEmpty()}">
+                  <td colspan="4" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                      <svg
+                        class="w-12 h-12 text-gray-400 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        ></path>
+                      </svg>
+                      <h3
+                        class="text-lg font-medium text-gray-900 mb-2"
+                        th:if="${isSearchResult}"
+                      >
+                        Không tìm thấy nhân viên nào
+                      </h3>
+                      <h3
+                        class="text-lg font-medium text-gray-900 mb-2"
+                        th:unless="${isSearchResult}"
+                      >
+                        Chưa có nhân viên nào
+                      </h3>
+                      <p class="text-gray-500 mb-4" th:if="${isSearchResult}">
+                        Không có nhân viên nào phù hợp với từ khóa "<span
+                          th:text="${searchKeyword}"
+                        ></span
+                        >"
+                      </p>
+                      <p
+                        class="text-gray-500 mb-4"
+                        th:unless="${isSearchResult}"
+                      >
+                        Hãy thêm nhân viên đầu tiên cho quán cafe của bạn
+                      </p>
+                      <div class="flex gap-2">
+                        <a
+                          th:if="${isSearchResult}"
+                          href="/employee"
+                          class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"
+                        >
+                          Xem tất cả nhân viên
+                        </a>
+                        <a
+                          href="/employee/create"
+                          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"
+                        >
+                          Thêm nhân viên
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -286,35 +409,6 @@
 
     <!-- JavaScript -->
     <script>
-      // Search functionality
-      document
-        .getElementById("searchInput")
-        .addEventListener("input", function (e) {
-          const searchTerm = e.target.value.toLowerCase();
-          const tableRows = document.querySelectorAll(
-            "#employeeTableBody tr:not(.no-data)"
-          );
-
-          tableRows.forEach((row) => {
-            const employeeName =
-              row
-                .querySelector(".text-sm.font-medium.text-gray-900")
-                ?.textContent.toLowerCase() || "";
-            const employeeRole =
-              row.querySelector(".inline-flex")?.textContent.toLowerCase() ||
-              "";
-
-            if (
-              employeeName.includes(searchTerm) ||
-              employeeRole.includes(searchTerm)
-            ) {
-              row.style.display = "";
-            } else {
-              row.style.display = "none";
-            }
-          });
-        });
-
       // Delete employee function
       function deleteEmployee(employeeId) {
         if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {

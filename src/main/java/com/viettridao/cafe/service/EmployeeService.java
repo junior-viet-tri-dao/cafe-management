@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.viettridao.cafe.dto.request.employee.AddEmployeeRequest;
+import com.viettridao.cafe.dto.response.employee.SearchEmployeeResponse;
 import com.viettridao.cafe.model.EmployeeEntity;
 
 public interface EmployeeService {
@@ -13,4 +14,6 @@ public interface EmployeeService {
     EmployeeEntity getEmployeeById(Integer id);
 
     void createEmployee(AddEmployeeRequest request, MultipartFile avatar);
+
+    List<SearchEmployeeResponse> searchByName(String keyword);
 }

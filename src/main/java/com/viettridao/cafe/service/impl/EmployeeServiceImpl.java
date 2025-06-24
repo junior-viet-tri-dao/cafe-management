@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.viettridao.cafe.dto.request.employee.AddEmployeeRequest;
+import com.viettridao.cafe.dto.response.employee.SearchEmployeeResponse;
 import com.viettridao.cafe.model.AccountEntity;
 import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.model.PositionEntity;
@@ -121,14 +122,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             throw new RuntimeException("Số điện thoại không được để trống");
         }
-        
+
         // Loại bỏ khoảng trắng và ký tự đặc biệt
         String cleanPhone = phoneNumber.replaceAll("[\\s\\-\\(\\)]", "");
-        
+
         // Validate định dạng số điện thoại Việt Nam
         if (!cleanPhone.matches("^(\\+84|84|0)(3[2-9]|5[2689]|7[06-9]|8[1-689]|9[0-46-9])\\d{7}$")) {
             throw new RuntimeException("Số điện thoại không đúng định dạng Việt Nam");
         }
+    }
+
+    @Override
+    public List<SearchEmployeeResponse> searchByName(String keyword) {
+        return employeeRepository.searchByName(keyword);
     }
 
 }
