@@ -2,10 +2,10 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Spring Boot-ProjectManagerCafeApplication<cafe>",
+      "name": "Spring Boot-CafeApplication<cafe>",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "mainClass": "com.viettridao.cafe.ProjectManagerCafeApplication",
+      "mainClass": "com.viettridao.cafe.CafeApplication",
       "projectName": "cafe",
       "args": "",
       "envFile": "${workspaceFolder}/.env"

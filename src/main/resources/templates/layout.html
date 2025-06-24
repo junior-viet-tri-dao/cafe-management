@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html
+  lang="vi"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">
+      Cafe Management
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "ocean-blue": "#0ea5e9",
+              "deep-blue": "#0c4a6e",
+              "light-blue": "#e0f2fe",
+              "sky-gradient": "#0284c7",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-slate-50 to-blue-50 text-slate-800 font-sans flex flex-col min-h-screen"
+  >
+    <header
+      class="bg-gradient-to-r from-blue-600 via-sky-600 to-cyan-600 text-white shadow-xl border-b-4 border-blue-200"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
+        <!-- Logo với hiệu ứng đẹp -->
+        <div class="flex items-center gap-3">
+          <div class="bg-white/20 p-2 rounded-full backdrop-blur-sm">
+            <span class="text-2xl">☕</span>
+          </div>
+          <div>
+            <span class="text-2xl font-bold tracking-wide"
+              >Cafe Management</span
+            >
+            <div class="text-blue-100 text-sm">Hệ thống quản lý hiện đại</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div
+            class="hidden sm:block text-sm text-right bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm"
+          >
+            <div class="font-semibold text-white" th:text="${user.username}">
+              Tên đăng nhập
+            </div>
+            <div
+              class="text-blue-100 text-xs"
+              th:text="'Chức vụ: ' + ${user.permission}"
+            >
+              Chức vụ
+            </div>
+          </div>
+          <img
+            th:src="${user.imageUrl}"
+            alt="avatar"
+            class="w-10 h-10 rounded-full border-2 border-white/30 shadow-lg"
+          />
+
+          <form th:action="@{/logout}" method="post">
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+            >
+              <span class="flex items-center gap-2">
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  ></path>
+                </svg>
+                Đăng xuất
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-1">
+      <!-- Sidebar với thiết kế mới -->
+      <aside
+        class="w-72 bg-white shadow-2xl border-r border-blue-100 flex-shrink-0"
+      >
+        <div class="flex flex-col h-full">
+          <!-- Navigation Header -->
+          <div
+            class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 border-b border-blue-100"
+          >
+            <h3 class="text-lg font-semibold text-blue-800">Menu điều hướng</h3>
+            <p class="text-sm text-blue-600">Chọn chức năng bạn muốn sử dụng</p>
+          </div>
+
+          <!-- Navigation Menu -->
+          <div class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <!-- Menu items với design mới -->
+            <a
+              th:href="@{/home}"
+              th:classappend="${currentPath == '/home'} ? 'bg-blue-100 text-blue-800 border-blue-300' : 'hover:bg-blue-50'"
+              class="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-transparent transition-all duration-200 group"
+            >
+              <span class="text-xl group-hover:scale-110 transition-transform"
+                >🏠</span
+              >
+              <span class="font-medium">Trang chủ</span>
+            </a>
+
+            <a
+              th:href="@{/account}"
+              th:classappend="${currentPath == '/account'} ? 'bg-blue-100 text-blue-800 border-blue-300' : 'hover:bg-blue-50'"
+              class="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-transparent transition-all duration-200 group"
+            >
+              <span class="text-xl group-hover:scale-110 transition-transform"
+                >👤</span
+              >
+              <span class="font-medium">Trang cá nhân</span>
+            </a>
+
+            <a
+              th:href="@{/sale}"
+              th:classappend="${currentPath == '/sale'} ? 'bg-blue-100 text-blue-800 border-blue-300' : 'hover:bg-blue-50'"
+              class="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-transparent transition-all duration-200 group"
+            >
+              <span class="text-xl group-hover:scale-110 transition-transform"
+                >💵</span
+              >
+              <span class="font-medium">Quản lý bán hàng</span>
+            </a>
+
+            <!-- Admin Menu -->
+            <div th:if="${user.permission == 'ADMIN'}" class="space-y-2">
+              <div
+                class="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent my-4"
+              ></div>
+
+              <!-- Quản lý nhân viên -->
+              <div x-data="{ open: false }" class="space-y-1">
+                <button
+                  @click="open = !open"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': open }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >👥</span
+                    >
+                    <span class="font-medium">Quản lý nhân viên</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': open }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="open" x-transition class="ml-6 mt-2 space-y-1">
+                  <a
+                    th:href="@{/employee}"
+                    th:classappend="${currentPath == '/employee'} ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' : 'hover:bg-blue-50 hover:text-blue-800'"
+                    class="flex items-center gap-3 py-2.5 px-4 rounded-lg border border-blue-100 transition-all duration-200 group"
+                  >
+                    <div
+                      class="w-2 h-2 rounded-full bg-blue-400 group-hover:bg-blue-500 transition-colors duration-200"
+                    ></div>
+                    <span class="text-sm font-medium">Danh sách nhân viên</span>
+                    <svg
+                      class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      ></path>
+                    </svg>
+                  </a>
+
+                  <a
+                    th:href="@{/employee/create}"
+                    th:classappend="${currentPath == '/employee/create'} ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg' : 'hover:bg-green-50 hover:text-green-800'"
+                    class="flex items-center gap-3 py-2.5 px-4 rounded-lg border border-green-100 transition-all duration-200 group"
+                  >
+                    <div
+                      class="w-2 h-2 rounded-full bg-green-400 group-hover:bg-green-500 transition-colors duration-200"
+                    ></div>
+                    <span class="text-sm font-medium">Thêm nhân viên</span>
+                    <svg
+                      class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      ></path>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Quản lý thiết bị -->
+              <div x-data="{ open: false }" class="space-y-1">
+                <button
+                  @click="open = !open"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': open }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >🛠️</span
+                    >
+                    <span class="font-medium">Quản lý thiết bị</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': open }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="open" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/device}"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Danh sách thiết bị</a
+                  >
+                  <a
+                    th:href="@{/device/create}"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Thêm thiết bị</a
+                  >
+                </div>
+              </div>
+
+              <!-- Quản lý kho hàng -->
+              <div x-data="{ openCommodity: false }" class="space-y-1">
+                <button
+                  @click="openCommodity = !openCommodity"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': openCommodity }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >📦</span
+                    >
+                    <span class="font-medium">Quản lý kho hàng</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': openCommodity }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="openCommodity" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/commodity}"
+                    th:classappend="${currentPath == '/commodity'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Danh sách hàng hóa</a
+                  >
+                  <a
+                    th:href="@{/commodity/create}"
+                    th:classappend="${currentPath == '/commodity/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Nhập hàng hóa</a
+                  >
+                  <a
+                    th:href="@{/commodity/create/export}"
+                    th:classappend="${currentPath == '/commodity/create/export'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Xuất hàng hóa</a
+                  >
+                </div>
+              </div>
+
+              <!-- Quản lý thực đơn -->
+              <div x-data="{ openMenu: false }" class="space-y-1">
+                <button
+                  @click="openMenu = !openMenu"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': openMenu }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >🍽️</span
+                    >
+                    <span class="font-medium">Quản lý thực đơn</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': openMenu }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="openMenu" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/menu}"
+                    th:classappend="${currentPath == '/menu'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Danh sách món</a
+                  >
+                  <a
+                    th:href="@{/menu/create}"
+                    th:classappend="${currentPath == '/menu/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Thêm món</a
+                  >
+                </div>
+              </div>
+
+              <!-- Quản lý Marketing -->
+              <div x-data="{ openMarketing: false }" class="space-y-1">
+                <button
+                  @click="openMarketing = !openMarketing"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': openMarketing }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >📢</span
+                    >
+                    <span class="font-medium">Quản lý Marketing</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': openMarketing }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="openMarketing" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/marketing}"
+                    th:classappend="${currentPath == '/marketing'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Danh sách khuyến mãi</a
+                  >
+                  <a
+                    th:href="@{/marketing/create}"
+                    th:classappend="${currentPath == '/marketing/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Thêm khuyến mãi</a
+                  >
+                </div>
+              </div>
+
+              <!-- Quản lý ngân sách -->
+              <div x-data="{ openBudget: false }" class="space-y-1">
+                <button
+                  @click="openBudget = !openBudget"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': openBudget }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >📊</span
+                    >
+                    <span class="font-medium">Quản lý ngân sách</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': openBudget }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="openBudget" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/budget}"
+                    th:classappend="${currentPath == '/budget'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Xem thu chi</a
+                  >
+                  <a
+                    th:href="@{/budget/create}"
+                    th:classappend="${currentPath == '/budget/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Thêm chi tiêu</a
+                  >
+                </div>
+              </div>
+
+              <!-- Quản lý dữ liệu -->
+              <div x-data="{ openData: false }" class="space-y-1">
+                <button
+                  @click="openData = !openData"
+                  class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
+                  :class="{ 'bg-blue-100 text-blue-800': openData }"
+                >
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="text-xl group-hover:scale-110 transition-transform"
+                      >💾</span
+                    >
+                    <span class="font-medium">Quản lý dữ liệu</span>
+                  </div>
+                  <svg
+                    class="w-5 h-5 transition-transform duration-200"
+                    :class="{ 'rotate-180': openData }"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                  </svg>
+                </button>
+                <div x-show="openData" x-transition class="ml-8 space-y-1">
+                  <a
+                    th:href="@{/data/backup}"
+                    th:classappend="${currentPath == '/data/backup'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Sao lưu dữ liệu</a
+                  >
+                  <a
+                    th:href="@{/data/restore}"
+                    th:classappend="${currentPath == '/data/restore'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
+                    >• Khôi phục dữ liệu</a
+                  >
+                </div>
+              </div>
+
+              <div
+                class="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent my-4"
+              ></div>
+
+              <!-- Thống kê -->
+              <a
+                th:href="@{/report}"
+                th:classappend="${currentPath == '/report'} ? 'bg-blue-100 text-blue-800 border-blue-300' : 'hover:bg-blue-50'"
+                class="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-transparent transition-all duration-200 group"
+              >
+                <span class="text-xl group-hover:scale-110 transition-transform"
+                  >📈</span
+                >
+                <span class="font-medium">Thống kê</span>
+              </a>
+
+              <!-- Giới thiệu -->
+              <a
+                th:href="@{/about}"
+                th:classappend="${currentPath == '/about'} ? 'bg-blue-100 text-blue-800 border-blue-300' : 'hover:bg-blue-50'"
+                class="flex items-center gap-3 py-3 px-4 rounded-xl border-2 border-transparent transition-all duration-200 group"
+              >
+                <span class="text-xl group-hover:scale-110 transition-transform"
+                  >ℹ️</span
+                >
+                <span class="font-medium">Giới thiệu</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main
+        class="flex-1 bg-gradient-to-br from-blue-50/50 to-cyan-50/50 relative overflow-hidden"
+        layout:fragment="content"
+      >
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-cyan-400/20"
+          ></div>
+          <svg
+            class="absolute inset-0 w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <pattern
+                id="grid"
+                width="60"
+                height="60"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 60 0 L 0 0 0 60"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-10 p-12">
+          <div class="text-center">
+            <div
+              class="inline-block p-6 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-blue-100"
+            >
+              <div class="text-6xl mb-4">☕</div>
+              <h2
+                class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4"
+                th:text="'Xin chào, ' + ${user.username}"
+              >
+                Xin chào, User
+              </h2>
+              <p
+                class="text-lg text-slate-600 leading-relaxed max-w-md mx-auto"
+              >
+                Chúc bạn một ngày làm việc hiệu quả và tràn đầy năng lượng! ✨
+              </p>
+              <div class="mt-6 flex justify-center gap-4">
+                <div
+                  class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium"
+                >
+                  🎯 Quản lý thông minh
+                </div>
+                <div
+                  class="bg-cyan-100 text-cyan-800 px-4 py-2 rounded-full text-sm font-medium"
+                >
+                  📊 Báo cáo chi tiết
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      class="bg-gradient-to-r from-slate-800 to-slate-900 text-white border-t-4 border-blue-200"
+    >
+      <div class="max-w-7xl mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-full">
+              <span class="text-lg">☕</span>
+            </div>
+            <div>
+              <div class="font-semibold">Cafe Management System</div>
+              <div class="text-slate-400 text-sm">
+                Hệ thống quản lý quán cafe hiện đại
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-slate-400 text-sm">© 2025 Phát triển bởi</div>
+            <div class="font-semibold text-blue-400">Junior Việt Trí Đạo</div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div th:replace="~{/alert :: alerts}"></div>
+  </body>
+</html>
