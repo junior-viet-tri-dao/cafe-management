@@ -586,14 +586,14 @@
                 </button>
                 <div x-show="openBudget" x-transition class="ml-8 space-y-1">
                   <a
-                    th:href="@{/budget}"
-                    th:classappend="${currentPath == '/budget'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    th:href="@{/expense}"
+                    th:classappend="${currentPath == '/expense'} ? 'font-semibold text-blue-900 bg-blue-100'"
                     class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
                     >• Xem thu chi</a
                   >
                   <a
-                    th:href="@{/budget/create}"
-                    th:classappend="${currentPath == '/budget/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
+                    th:href="@{/expense/create}"
+                    th:classappend="${currentPath == '/expense/create'} ? 'font-semibold text-blue-900 bg-blue-100'"
                     class="block py-2 px-4 text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
                     >• Thêm chi tiêu</a
                   >
