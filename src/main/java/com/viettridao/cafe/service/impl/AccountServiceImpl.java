@@ -20,4 +20,14 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản có username = " + username));
     }
 
+    @Override
+    public boolean existsByUsername(String username) {
+        return accountRepository.existsByUsername(username);
+    }
+
+    @Override
+    public AccountEntity save(AccountEntity account) {
+        return accountRepository.save(account);
+    }
+
 }

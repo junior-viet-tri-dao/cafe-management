@@ -7,9 +7,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.viettridao.cafe.dto.request.employee.AddEmployeeRequest;
 import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.model.PositionEntity;
 import com.viettridao.cafe.service.EmployeeService;
@@ -38,6 +43,33 @@ public class EmployeeController {
 
         model.addAttribute("listPosition", positions);
         return "employees/employee-create";
+    }
+
+    @PostMapping("/employee/create")
+    public String createEmployee(@ModelAttribute AddEmployeeRequest request,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
+            RedirectAttributes redirectAttributes) {
+        try {
+            employeeService.createEmployee(request, avatar);
+            redirectAttributes.addFlashAttribute("success", "Thêm nhân viên thành công!");
+            return "redirect:/employee";
+
+        } catch (RuntimeException e) {
+            String errorMessage = e.getMessage();
+
+            // Xử lý các loại lỗi cụ thể
+            if (errorMessage.contains("số điện thoại")) {
+                redirectAttributes.addFlashAttribute("phoneError", errorMessage);
+            } else if (errorMessage.contains("username")) {
+                redirectAttributes.addFlashAttribute("usernameError", errorMessage);
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + errorMessage);
+            }
+
+            // Trả về dữ liệu đã nhập để không mất thông tin
+            redirectAttributes.addFlashAttribute("employeeData", request);
+            return "redirect:/employee/create";
+        }
     }
 
     @GetMapping("/employee/edit/{id}")
