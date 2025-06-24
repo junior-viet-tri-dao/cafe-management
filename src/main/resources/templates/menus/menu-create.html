@@ -6,8 +6,8 @@
 >
   <head>
     <meta charset="UTF-8" />
-    <title>Chỉnh sửa món</title>
-    <script th:src="@{/js/menu/menu-edit.js}"></script>
+    <title>Thêm món mới</title>
+    <script th:src="@{/js/menu/menu-create.js}"></script>
   </head>
   <body>
     <div
@@ -18,26 +18,11 @@
         <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-6">
           <!-- Header -->
           <h2 class="text-lg font-semibold mb-4 text-center">
-            — Chỉnh sửa danh mục món —
+            — Thêm danh mục món —
           </h2>
 
-          <!-- Loading indicator (ẩn để test) -->
-          <div
-            id="loadingIndicator"
-            class="text-center py-8"
-            style="display: none"
-          >
-            <div
-              class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
-            ></div>
-            <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
-          </div>
-
-          <!-- Form (hiện để test với dữ liệu mẫu) -->
+          <!-- Form -->
           <form id="menuForm" class="space-y-4">
-            <!-- Hidden ID field -->
-            <input type="hidden" id="menuId" name="menuId" value="1" />
-
             <!-- Tên món và Giá tiền -->
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -48,7 +33,6 @@
                   name="tenMon"
                   class="w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                   placeholder="Nhập tên món"
-                  value="Cà phê sữa"
                   required
                 />
               </div>
@@ -60,7 +44,6 @@
                   name="giaTien"
                   class="w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                   placeholder="0"
-                  value="25000"
                   min="0"
                   required
                 />
@@ -84,58 +67,9 @@
                   <div class="px-3 py-2 font-medium">Đơn vị tính ⚬</div>
                 </div>
 
-                <!-- Nội dung bảng với dữ liệu mẫu -->
+                <!-- Nội dung bảng -->
                 <div id="ingredientsList" class="min-h-[120px]">
-                  <!-- Dữ liệu mẫu cà phê sữa -->
-                  <div class="grid grid-cols-3 border-b border-gray-300">
-                    <div class="px-3 py-2 border-r border-gray-300">Cà phê</div>
-                    <div class="px-3 py-2 border-r border-gray-300">15</div>
-                    <div class="px-3 py-2 flex justify-between items-center">
-                      <span>gam</span>
-                      <button
-                        type="button"
-                        onclick="removeIngredient(0)"
-                        class="text-red-500 hover:text-red-700 ml-2"
-                        title="Xóa thành phần"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-3 border-b border-gray-300">
-                    <div class="px-3 py-2 border-r border-gray-300">
-                      Sữa đặc
-                    </div>
-                    <div class="px-3 py-2 border-r border-gray-300">30</div>
-                    <div class="px-3 py-2 flex justify-between items-center">
-                      <span>ml</span>
-                      <button
-                        type="button"
-                        onclick="removeIngredient(1)"
-                        class="text-red-500 hover:text-red-700 ml-2"
-                        title="Xóa thành phần"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-3">
-                    <div class="px-3 py-2 border-r border-gray-300">
-                      Nước nóng
-                    </div>
-                    <div class="px-3 py-2 border-r border-gray-300">150</div>
-                    <div class="px-3 py-2 flex justify-between items-center">
-                      <span>ml</span>
-                      <button
-                        type="button"
-                        onclick="removeIngredient(2)"
-                        class="text-red-500 hover:text-red-700 ml-2"
-                        title="Xóa thành phần"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
+                  <!-- Ingredients sẽ được thêm động bằng JavaScript -->
                 </div>
 
                 <!-- Dòng thêm thành phần -->
@@ -193,9 +127,9 @@
             <div class="flex justify-center space-x-4 pt-4">
               <button
                 type="submit"
-                class="px-8 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 font-medium"
+                class="px-8 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium"
               >
-                Cập nhật món
+                Thêm món
               </button>
               <button
                 type="button"
@@ -206,21 +140,6 @@
               </button>
             </div>
           </form>
-
-          <!-- Error message -->
-          <div
-            id="errorMessage"
-            class="text-center py-8 text-red-600"
-            style="display: none"
-          >
-            <p>Không thể tải thông tin món ăn. Vui lòng thử lại.</p>
-            <button
-              id="retryBtn"
-              class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Thử lại
-            </button>
-          </div>
         </div>
       </div>
     </div>

@@ -1,87 +1,11 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let ingredients = [
-    { name: "Cà phê", amount: 15, unit: "gam" },
-    { name: "Sữa đặc", amount: 30, unit: "ml" },
-    { name: "Nước nóng", amount: 150, unit: "ml" },
-  ];
-  let menuId = null;
+  let ingredients = [];
 
   // Lấy các elements
   const ingredientsList = document.getElementById("ingredientsList");
   const addIngredientBtn = document.getElementById("addIngredientBtn");
   const menuForm = document.getElementById("menuForm");
   const cancelBtn = document.getElementById("cancelBtn");
-  const loadingIndicator = document.getElementById("loadingIndicator");
-  const errorMessage = document.getElementById("errorMessage");
-  const retryBtn = document.getElementById("retryBtn");
-
-  // Lấy menu ID từ URL
-  function getMenuIdFromUrl() {
-    const urlParts = window.location.pathname.split("/");
-    return urlParts[urlParts.length - 1];
-  }
-
-  // Tải thông tin món ăn
-  function loadMenuData() {
-    menuId = getMenuIdFromUrl();
-
-    if (!menuId || menuId === "edit") {
-      showError();
-      return;
-    }
-
-    showLoading();
-
-    fetch(`/api/menus/${menuId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Menu không tồn tại");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        populateForm(data);
-        hideLoading();
-        showForm();
-      })
-      .catch((error) => {
-        console.error("Error loading menu:", error);
-        hideLoading();
-        showError();
-      });
-  }
-
-  // Điền dữ liệu vào form
-  function populateForm(menuData) {
-    document.getElementById("menuId").value = menuData.id;
-    document.getElementById("tenMon").value = menuData.tenMon || "";
-    document.getElementById("giaTien").value = menuData.giaTien || "";
-
-    ingredients = menuData.thanhPhan || [];
-    renderIngredients();
-  }
-
-  // Hiển thị/ẩn các phần tử
-  function showLoading() {
-    loadingIndicator.style.display = "block";
-    menuForm.style.display = "none";
-    errorMessage.style.display = "none";
-  }
-
-  function hideLoading() {
-    loadingIndicator.style.display = "none";
-  }
-
-  function showForm() {
-    menuForm.style.display = "block";
-    errorMessage.style.display = "none";
-  }
-
-  function showError() {
-    loadingIndicator.style.display = "none";
-    menuForm.style.display = "none";
-    errorMessage.style.display = "block";
-  }
 
   // Thêm thành phần
   addIngredientBtn.addEventListener("click", function () {
@@ -170,31 +94,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const tenMon = document.getElementById("tenMon").value.trim();
     const giaTien = document.getElementById("giaTien").value.trim();
-    const id = document.getElementById("menuId").value;
 
     if (!tenMon || !giaTien) {
       alert("Vui lòng điền đầy đủ tên món và giá tiền!");
       return;
     }
 
+    if (ingredients.length === 0) {
+      if (!confirm("Bạn chưa thêm thành phần nào. Bạn có muốn tiếp tục?")) {
+        return;
+      }
+    }
+
     const menuData = {
-      id: id,
       tenMon: tenMon,
       giaTien: parseFloat(giaTien),
       thanhPhan: ingredients,
     };
 
-    console.log("Dữ liệu cập nhật món ăn:", menuData);
-    alert("Cập nhật món thành công! (Demo)");
+    // Gửi dữ liệu lên server
+    saveMenu(menuData);
   });
+
+  // Lưu món ăn
+  function saveMenu(menuData) {
+    console.log("Dữ liệu món ăn:", menuData);
+
+    // TODO: Gửi request đến server
+    fetch("/api/menus", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(menuData),
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Thêm món thành công!");
+          // Reset form
+          resetForm();
+          // Chuyển hướng về danh sách menu
+          window.location.href = "/menus";
+        } else {
+          throw new Error("Lỗi khi thêm món");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Có lỗi xảy ra khi thêm món!");
+      });
+  }
+
+  // Reset form
+  function resetForm() {
+    menuForm.reset();
+    ingredients = [];
+    renderIngredients();
+  }
 
   // Hủy
   cancelBtn.addEventListener("click", function () {
-    if (confirm("Bạn có chắc muốn hủy? Những thay đổi sẽ không được lưu.")) {
-      // window.location.href = '/menus';
-      console.log("Đã hủy chỉnh sửa");
+    if (confirm("Bạn có chắc muốn hủy? Dữ liệu sẽ không được lưu.")) {
+      window.location.href = "/menus";
     }
   });
+
+  // Khởi tạo
+  renderIngredients();
 
   // Enter để thêm thành phần
   ["newIngredientName", "newIngredientAmount", "newIngredientUnit"].forEach(
@@ -207,7 +173,4 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   );
-
-  // Khởi tạo - render dữ liệu có sẵn
-  renderIngredients();
 });
