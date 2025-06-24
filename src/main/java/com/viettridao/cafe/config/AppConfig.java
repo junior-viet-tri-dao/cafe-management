@@ -23,6 +23,7 @@ public class AppConfig {
     private static final String[] AUTH_WHITELIST = {
             "/login", "/js/**"
     };
+
     private final UserServiceDetail userServiceDetail;
 
     @Bean
@@ -41,8 +42,7 @@ public class AppConfig {
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll()
-                );
+                        .permitAll());
 
         return http.build();
     }
