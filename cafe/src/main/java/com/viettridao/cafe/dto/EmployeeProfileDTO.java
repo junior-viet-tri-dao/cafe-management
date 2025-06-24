@@ -5,6 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Lớp DTO (Data Transfer Object) dùng để truyền tải thông tin hồ sơ nhân viên.
+ * Chứa các thuộc tính liên quan đến thông tin cá nhân và tài khoản của nhân
+ * viên.
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

@@ -14,34 +14,46 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Lớp thực thể đại diện cho bảng thiết bị (equipment) trong cơ sở dữ liệu. Chứa
+ * thông tin về thiết bị và mối quan hệ với các bản ghi nhập hàng.
+ */
 @Getter
 @Setter
 @Entity
-@Table(name = "equipment")//thietbi
+@Table(name = "equipment") // Tên bảng trong cơ sở dữ liệu: thietbi
 public class EquipmentEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "equipment_id")
-    private Integer id;
+	// ID duy nhất của thiết bị, tự động tăng
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "equipment_id")
+	private Integer id;
 
-    @Column(name = "equipment_name")
-    private String equipmentName;
+	// Tên của thiết bị, giới hạn 50 ký tự, không được để trống
+	@Column(name = "equipment_name", length = 50, nullable = false)
+	private String equipmentName;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+	// Số lượng thiết bị
+	@Column(name = "quantity")
+	private Integer quantity;
 
-    @Column(name = "notes")
-    private String notes;
+	// Ghi chú về thiết bị, giới hạn 255 ký tự
+	@Column(name = "notes", length = 255)
+	private String notes;
 
-    @Column(name = "purchase_date")
-    private LocalDate purchaseDate;
+	// Ngày mua thiết bị
+	@Column(name = "purchase_date")
+	private LocalDate purchaseDate;
 
-    @Column(name = "purchase_price")
-    private Double purchasePrice;
+	// Giá mua thiết bị
+	@Column(name = "purchase_price")
+	private Double purchasePrice;
 
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
+	// Trạng thái xóa logic của thiết bị (true: đã xóa, false: chưa xóa)
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<ImportEntity> imports;
+	// Mối quan hệ một-nhiều với danh sách nhập hàng (ImportEntity)
+	@OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
+	private List<ImportEntity> imports;
 }

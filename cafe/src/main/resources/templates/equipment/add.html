@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm thiết bị</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+<div th:if="${error}" class="text-red-600 font-semibold mb-4">
+    <p th:text="${error}"></p>
+</div>
+
+    <h2 class="text-2xl font-bold mb-4">Thêm thiết bị</h2>
+
+    <form th:action="@{/equipment/add}" th:object="${request}" method="post"
+          class="bg-white shadow p-6 rounded space-y-4 max-w-xl">
+
+        <div th:if="${#fields.hasErrors('*')}">
+            <ul class="text-red-500 text-sm">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <label>Tên thiết bị:</label>
+        <input type="text" th:field="*{equipmentName}" class="w-full border rounded px-3 py-2"/>
+
+        <label>Ngày mua:</label>
+        <input type="date" th:field="*{purchaseDate}" class="w-full border rounded px-3 py-2"/>
+
+        <label>Số lượng:</label>
+        <input type="number" th:field="*{quantity}" min="1" class="w-full border rounded px-3 py-2"/>
+
+        <label>Đơn giá:</label>
+        <input type="number" th:field="*{purchasePrice}" min="1" step="1000" class="w-full border rounded px-3 py-2"/>
+
+        <div class="flex gap-4 pt-4">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded shadow">Thêm</button>
+            <a th:href="@{/equipment}" class="bg-gray-400 text-white px-4 py-2 rounded shadow">Hủy</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

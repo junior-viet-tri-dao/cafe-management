@@ -16,7 +16,6 @@
         <!-- ✅ Hidden ID để update đúng -->
         <input type="hidden" th:field="*{id}" />
 
-        <!-- ✅ Đặt hiển thị lỗi BÊN TRONG th:object -->
         <div th:if="${#fields.hasErrors('*')}">
             <ul class="text-red-500 text-sm">
                 <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
@@ -69,10 +68,15 @@
                         <input type="text" th:field="*{phoneNumber}" class="w-full px-3 py-2 border rounded" maxlength="20" />
                     </div>
 
-                    <div>
-                        <label class="font-semibold">Lương:</label>
-                        <input type="text" th:field="*{salary}" class="w-full px-3 py-2 border rounded" />
-                    </div>
+                   <div>
+					    <label class="font-semibold">Lương:</label>
+					    <div class="relative">
+					        <input type="number" th:field="*{salary}" min="1000" step="1000"
+					               class="w-full px-3 py-2 border rounded pr-16" />
+					        <span class="absolute right-3 top-2.5 text-gray-500 text-sm">VNĐ</span>
+					    </div>
+					</div>
+
 
                     <div>
                         <label class="font-semibold">Tài khoản:</label>
