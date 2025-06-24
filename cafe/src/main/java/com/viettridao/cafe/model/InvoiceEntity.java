@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,4 +34,10 @@ public class InvoiceEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "promotion_id")
     private PromotionEntity promotion;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    private List<InvoiceDetailEntity> invoiceDetails;
+
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    private List<ReservationEntity> reservations;
 }
