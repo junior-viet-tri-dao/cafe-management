@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Danh sách nhân viên</title>
+    <script th:src="@{/js/menu/menu-edit.js}"></script>
+  </head>
+  <body>
+    <div
+      layout:fragment="content"
+      class="relative z-10 min-h-full flex justify-center w-full"
+    >
+      <div class="w-full max-w-8xl">
+        <h1>Đây là chỉnh sửa danh mục</h1>
+      </div>
+    </div>
+  </body>
+</html>

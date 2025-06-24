@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Danh sách thực đơn</title>
+    <script th:src="@{/js/menu/menu.js}"></script>
+  </head>
+  <body>
+    <div
+      layout:fragment="content"
+      class="relative z-10 min-h-full flex justify-center w-full"
+    >
+      <div class="w-full max-w-8xl">
+        <!-- Header -->
+        <div class="mb-6">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            Danh sách thực đơn
+          </h1>
+          <p class="text-gray-600">
+            Quản lý thực đơn và giá cả các món ăn, đồ uống
+          </p>
+        </div>
+
+        <!-- Actions Bar -->
+        <div
+          class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center"
+        >
+          <!-- Search Box -->
+          <div class="relative flex-1 max-w-md">
+            <form method="GET" action="/menu" class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <svg
+                  class="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                name="search"
+                th:value="${searchKeyword}"
+                class="block w-full pl-10 pr-20 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Tìm kiếm món ăn..."
+              />
+              <div
+                class="absolute inset-y-0 right-0 flex items-center gap-1 pr-2"
+              >
+                <button
+                  type="submit"
+                  class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors duration-200"
+                  title="Tìm kiếm"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </button>
+                <a
+                  th:if="${searchKeyword}"
+                  href="/menu"
+                  class="text-gray-400 hover:text-gray-600 p-1 rounded transition-colors duration-200"
+                  title="Xóa tìm kiếm"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </a>
+              </div>
+            </form>
+          </div>
+
+          <!-- Add Button -->
+          <div class="flex items-center gap-3">
+            <a
+              href="/menu/create"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
+              </svg>
+              Thêm món
+            </a>
+          </div>
+        </div>
+
+        <!-- Menu Table -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"
+                  >
+                    <div class="flex items-center gap-1">
+                      STT
+                      <svg
+                        class="w-3 h-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                        ></path>
+                      </svg>
+                    </div>
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    <div class="flex items-center gap-1">
+                      Tên món
+                      <svg
+                        class="w-3 h-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                        ></path>
+                      </svg>
+                    </div>
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    <div class="flex items-center gap-1">
+                      Giá tiền
+                      <svg
+                        class="w-3 h-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                        ></path>
+                      </svg>
+                    </div>
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32"
+                  >
+                    Thao tác
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                class="bg-white divide-y divide-gray-200"
+                id="menuTableBody"
+              >
+                <!-- Menu Item 1 -->
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="text-sm font-medium text-gray-900">1</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img
+                          class="h-10 w-10 rounded-full object-cover"
+                          src="https://via.placeholder.com/40x40/8B4513/FFFFFF?text=CF"
+                          alt="Cà phê đen"
+                        />
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          Cà phê đen
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          Cà phê truyền thống
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      6.000 VNĐ
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex items-center gap-2">
+                      <!-- Edit Button -->
+                      <a
+                        href="/menu/edit/1"
+                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 rounded-md hover:bg-blue-50"
+                        title="Chỉnh sửa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          ></path>
+                        </svg>
+                      </a>
+                      <!-- Delete Button -->
+                      <button
+                        onclick="deleteMenuItem(1)"
+                        class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-md hover:bg-red-50"
+                        title="Xóa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Menu Item 2 -->
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="text-sm font-medium text-gray-900">2</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img
+                          class="h-10 w-10 rounded-full object-cover"
+                          src="https://via.placeholder.com/40x40/F5DEB3/8B4513?text=CF"
+                          alt="Cà phê sữa"
+                        />
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          Cà phê sữa
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          Cà phê với sữa đặc
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      7.000 VNĐ
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex items-center gap-2">
+                      <!-- Edit Button -->
+                      <a
+                        href="/menu/edit/2"
+                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 rounded-md hover:bg-blue-50"
+                        title="Chỉnh sửa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          ></path>
+                        </svg>
+                      </a>
+                      <!-- Delete Button -->
+                      <button
+                        onclick="deleteMenuItem(2)"
+                        class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-md hover:bg-red-50"
+                        title="Xóa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Menu Item 3 -->
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="text-sm font-medium text-gray-900">3</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img
+                          class="h-10 w-10 rounded-full object-cover"
+                          src="https://via.placeholder.com/40x40/32CD32/FFFFFF?text=ST"
+                          alt="Sinh tố trái cây"
+                        />
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          Sinh tố trái cây
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          Sinh tố tươi mát
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      15.000 VNĐ
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex items-center gap-2">
+                      <!-- Edit Button -->
+                      <a
+                        href="/menu/edit/3"
+                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 rounded-md hover:bg-blue-50"
+                        title="Chỉnh sửa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          ></path>
+                        </svg>
+                      </a>
+                      <!-- Delete Button -->
+                      <button
+                        onclick="deleteMenuItem(3)"
+                        class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-md hover:bg-red-50"
+                        title="Xóa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Menu Item 4 -->
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="text-sm font-medium text-gray-900">4</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                        <img
+                          class="h-10 w-10 rounded-full object-cover"
+                          src="https://via.placeholder.com/40x40/0066CC/FFFFFF?text=PP"
+                          alt="Pepsi"
+                        />
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          Pepsi
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          Nước ngọt có gas
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      7.000 VNĐ
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex items-center gap-2">
+                      <!-- Edit Button -->
+                      <a
+                        href="/menu/edit/4"
+                        class="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2 rounded-md hover:bg-blue-50"
+                        title="Chỉnh sửa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          ></path>
+                        </svg>
+                      </a>
+                      <!-- Delete Button -->
+                      <button
+                        onclick="deleteMenuItem(4)"
+                        class="text-red-600 hover:text-red-900 transition-colors duration-200 p-2 rounded-md hover:bg-red-50"
+                        title="Xóa"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr
+                  th:if="${listMenu == null or listMenu.isEmpty()}"
+                  style="display: none"
+                >
+                  <td colspan="4" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                      <svg
+                        class="w-12 h-12 text-gray-400 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5H7a2 2 0 00-2 2v11a2 2 0 002 2h9a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        ></path>
+                      </svg>
+                      <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        Chưa có món nào
+                      </h3>
+                      <p class="text-gray-500 mb-4">
+                        Bắt đầu bằng cách thêm món đầu tiên vào thực đơn
+                      </p>
+                      <a
+                        href="/menu/add"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"
+                      >
+                        Thêm món mới
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-blue-600">
+              Tổng số món: <span class="font-semibold">4</span>
+            </div>
+            <div class="text-sm text-blue-600">
+              Giá trung bình: <span class="font-semibold">8.750 VNĐ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6 flex items-center justify-between">
+          <div class="text-sm text-gray-700">
+            Hiển thị <span class="font-medium">1</span> đến
+            <span class="font-medium">4</span>
+            trong tổng số
+            <span class="font-medium">4</span>
+            món
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              class="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              disabled
+            >
+              Trước
+            </button>
+            <button
+              class="px-3 py-1 text-sm border border-blue-500 rounded-md bg-blue-500 text-white"
+            >
+              1
+            </button>
+            <button
+              class="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              disabled
+            >
+              Sau
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Delete menu item function
+      function deleteMenuItem(menuId) {
+        if (confirm("Bạn có chắc chắn muốn xóa món này khỏi thực đơn?")) {
+          fetch(`/menu/delete/${menuId}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => {
+              if (response.ok) {
+                location.reload();
+              } else {
+                alert("Có lỗi xảy ra khi xóa món");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Có lỗi xảy ra khi xóa món");
+            });
+        }
+      }
+    </script>
+  </body>
+</html>
