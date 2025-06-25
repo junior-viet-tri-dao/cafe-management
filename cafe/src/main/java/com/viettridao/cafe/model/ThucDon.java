@@ -30,6 +30,6 @@ public class ThucDon {
     @ManyToMany(mappedBy = "listThucDon")
     private List<HangHoa> listHangHoa;
 
-    @OneToMany(mappedBy = "thucDon")
+    @OneToMany(mappedBy = "thucDon", cascade = CascadeType.ALL)
     private List<ThanhPhanThucDon> listThanhPhanThucDon;
 }
