@@ -7,6 +7,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Chỉnh sửa khuyến mãi</title>
+    <!-- Load JavaScript file -->
     <script th:src="@{/js/marketing/marketing-edit.js}"></script>
   </head>
   <body>
@@ -21,141 +22,127 @@
             — Chỉnh sửa khuyến mãi —
           </h2>
 
-          <!-- Loading indicator -->
+          <!-- Success message -->
           <div
-            id="loadingIndicator"
-            class="text-center py-8"
-            style="display: none"
+            th:if="${successMessage}"
+            class="text-center py-4 text-green-600 mb-4"
           >
-            <div
-              class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
-            ></div>
-            <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
+            <p th:text="${successMessage}"></p>
           </div>
 
-          <!-- Error message -->
+          <!-- Error message from server -->
           <div
-            id="errorMessage"
-            class="text-center py-8 text-red-600"
-            style="display: none"
+            th:if="${errorMessage}"
+            class="text-center py-4 text-red-600 mb-4"
           >
-            <p>Không thể tải thông tin khuyến mãi. Vui lòng thử lại.</p>
-            <button
-              id="retryBtn"
-              class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Thử lại
-            </button>
+            <p th:text="${errorMessage}"></p>
           </div>
 
           <!-- Form -->
-          <form id="promotionForm" class="space-y-6">
-            <!-- Hidden ID field -->
-            <input type="hidden" id="promotionId" name="promotionId" />
-
+          <form
+            method="post"
+            th:action="@{/marketing/edit/{id}(id=${promotion.id})}"
+            th:if="${promotion}"
+            class="space-y-6"
+          >
             <!-- Tên khuyến mãi -->
             <div class="flex items-center gap-4">
               <label class="block text-sm font-medium min-w-[140px] text-right">
-                Tên khuyến mãi:
+                Tên khuyến mãi: <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                id="tenKhuyenMai"
-                name="tenKhuyenMai"
+                name="promotionName"
                 class="flex-1 max-w-md px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                 placeholder="Nhập tên khuyến mãi"
-                value="Chào năm mới"
+                th:value="${promotion.promotionName}"
                 required
+                minlength="3"
+                maxlength="100"
               />
             </div>
 
             <!-- Ngày bắt đầu -->
             <div class="flex items-center gap-4">
               <label class="block text-sm font-medium min-w-[140px] text-right">
-                Ngày bắt đầu:
+                Ngày bắt đầu: <span class="text-red-500">*</span>
               </label>
-              <div class="flex items-center gap-2">
-                <input
-                  type="date"
-                  id="ngayBatDau"
-                  name="ngayBatDau"
-                  class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                  value="2014-12-30"
-                  required
-                />
-                <button
-                  type="button"
-                  class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
+              <input
+                type="date"
+                name="startDate"
+                class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                th:value="${#temporals.format(promotion.startDate, 'yyyy-MM-dd')}"
+                required
+              />
             </div>
 
             <!-- Ngày kết thúc -->
             <div class="flex items-center gap-4">
               <label class="block text-sm font-medium min-w-[140px] text-right">
-                Ngày kết thúc:
+                Ngày kết thúc: <span class="text-red-500">*</span>
               </label>
-              <div class="flex items-center gap-2">
-                <input
-                  type="date"
-                  id="ngayKetThuc"
-                  name="ngayKetThuc"
-                  class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                  value="2015-01-02"
-                  required
-                />
-                <button
-                  type="button"
-                  class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
+              <input
+                type="date"
+                name="endDate"
+                class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                th:value="${#temporals.format(promotion.endDate, 'yyyy-MM-dd')}"
+                required
+              />
             </div>
 
             <!-- % giảm giá -->
             <div class="flex items-center gap-4">
               <label class="block text-sm font-medium min-w-[140px] text-right">
-                % giảm giá:
+                % giảm giá: <span class="text-red-500">*</span>
               </label>
               <input
                 type="number"
-                id="phanTramGiam"
-                name="phanTramGiam"
+                name="discountValue"
                 class="w-32 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                 placeholder="0"
-                value="35"
-                min="0"
+                th:value="${promotion.discountValue}"
+                min="0.1"
                 max="100"
-                step="1"
+                step="0.1"
                 required
               />
+              <span class="text-sm text-gray-500">%</span>
+            </div>
+
+            <!-- Trạng thái -->
+            <div class="flex items-center gap-4">
+              <label class="block text-sm font-medium min-w-[140px] text-right">
+                Trạng thái: <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="status"
+                class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                required
+              >
+                <option value="true" th:selected="${promotion.status}">
+                  Kích hoạt
+                </option>
+                <option value="false" th:selected="${!promotion.status}">
+                  Vô hiệu hóa
+                </option>
+              </select>
+            </div>
+
+            <!-- Mô tả -->
+            <div class="flex items-start gap-4">
+              <label
+                class="block text-sm font-medium min-w-[140px] text-right mt-2"
+              >
+                Mô tả:
+              </label>
+              <textarea
+                name="description"
+                rows="3"
+                class="flex-1 max-w-md px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
+                placeholder="Mô tả khuyến mãi (tùy chọn)"
+                maxlength="500"
+                th:text="${promotion.description}"
+              ></textarea>
             </div>
 
             <!-- Buttons -->
@@ -163,53 +150,31 @@
               <button
                 type="submit"
                 class="px-8 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 font-medium"
+                onclick="return validateForm()"
               >
-                Lưu
+                Cập nhật
               </button>
-              <button
-                type="button"
-                id="cancelBtn"
-                class="px-8 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
+              <a
+                href="/marketing"
+                class="px-8 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium inline-block text-center"
               >
                 Hủy
-              </button>
+              </a>
             </div>
           </form>
 
-          <!-- Loading state when saving -->
-          <div id="loadingState" class="text-center py-4" style="display: none">
-            <div
-              class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-orange-600"
-            ></div>
-            <p class="mt-2 text-sm text-gray-600">
-              Đang cập nhật khuyến mãi...
+          <!-- No promotion found -->
+          <!-- <div th:if="${!promotion}" class="text-center py-8">
+            <p class="text-gray-500 mb-4">
+              Không tìm thấy thông tin khuyến mãi
             </p>
-          </div>
-
-          <!-- Test buttons -->
-          <div class="text-center py-4 border-t border-gray-300 mt-6">
-            <p class="text-sm text-gray-600 mb-3">Dữ liệu mẫu để test:</p>
-            <div class="flex justify-center space-x-2 flex-wrap gap-2">
-              <button
-                onclick="loadTestData(1)"
-                class="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-              >
-                Khai trương
-              </button>
-              <button
-                onclick="loadTestData(2)"
-                class="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-              >
-                Sinh nhật
-              </button>
-              <button
-                onclick="loadTestData(3)"
-                class="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-              >
-                Cuối tuần
-              </button>
-            </div>
-          </div>
+            <a
+              href="/marketing"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block"
+            >
+              Quay lại danh sách
+            </a>
+          </div> -->
         </div>
       </div>
     </div>
