@@ -5,12 +5,13 @@ import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
 import com.viettridao.cafe.dto.response.equipment.EquipmentResponse;
 import com.viettridao.cafe.mapper.EquipmentMapper;
 import com.viettridao.cafe.service.EquipmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.List;
 
 @Controller
@@ -21,21 +22,27 @@ public class EquipmentController {
     private final EquipmentMapper equipmentMapper;
 
     @GetMapping("")
-    public String home(Model model) {
-        List<EquipmentResponse> equipments = equipmentMapper.toEquipmentResponseList(equipmentService.getAllEquipments());
-        model.addAttribute("equiments", equipments);
+    public String home(@RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "5") int size,
+                       Model model) {
+//        List<EquipmentResponse> equipments = equipmentMapper.toEquipmentResponseList(equipmentService.getAllEquipments());
+        model.addAttribute("equiments", equipmentService.getAllEquipmentsPage(page, size));
         return "/equipments/equipment";
     }
 
     @GetMapping("/create")
-    public String showFormCreate() {
+    public String showFormCreate(Model model) {
+        model.addAttribute("equipment", new CreateEquipmentRequest());
         return "/equipments/create_equipment";
     }
 
     @PostMapping("/create")
-    public String createEquipment(@ModelAttribute CreateEquipmentRequest request, RedirectAttributes redirectAttributes) {
+    public String createEquipment(@Valid @ModelAttribute("equipment") CreateEquipmentRequest equipment, BindingResult result, RedirectAttributes redirectAttributes) {
         try{
-            equipmentService.createEquipment(request);
+            if (result.hasErrors()) {
+                return "/equipments/create_equipment";
+            }
+            equipmentService.createEquipment(equipment);
             redirectAttributes.addFlashAttribute("success", "Thêm thiết bị thành công");
             return "redirect:/equipment";
         }catch (Exception e){
@@ -69,8 +76,11 @@ public class EquipmentController {
     }
 
     @PostMapping("/update")
-    public String showFormUpdate(@ModelAttribute UpdateEquipmentRequest request, RedirectAttributes redirectAttributes) {
+    public String updateEquipment(@Valid @ModelAttribute UpdateEquipmentRequest request, BindingResult result, RedirectAttributes redirectAttributes) {
         try{
+            if (result.hasErrors()) {
+                return "/equipments/update_equipment";
+            }
             equipmentService.updateEquipment(request);
             redirectAttributes.addFlashAttribute("success", "Chỉnh sửa thiết bị thành công");
             return "redirect:/equipment";

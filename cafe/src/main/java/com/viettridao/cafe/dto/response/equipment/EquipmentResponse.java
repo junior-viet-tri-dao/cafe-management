@@ -1,8 +1,8 @@
 package com.viettridao.cafe.dto.response.equipment;
 
-import com.viettridao.cafe.dto.response.ImportResponse;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,7 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 public class EquipmentResponse {
-
     private Integer id;
 
     private String equipmentName;
@@ -19,11 +18,12 @@ public class EquipmentResponse {
 
     private String notes;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate purchaseDate;
 
     private Double purchasePrice;
 
     private Boolean isDeleted;
 
-    private List<ImportResponse> imports;
+
 }

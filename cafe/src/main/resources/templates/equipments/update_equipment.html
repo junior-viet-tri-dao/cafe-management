@@ -4,49 +4,71 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Chỉnh thiết bị</title>
-    <style>
-        form {
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-        }
-    </style>
+    <title>Chỉnh sửa thiết bị</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <h2>Chỉnh sửa thiết bị mới</h2>
+<div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full flex justify-center items-start py-12 px-4">
+    <div class="flex justify-center items-center w-full min-h-[80vh] px-4 py-8">
+        <div class="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center flex items-center gap-2 justify-center">
+                ✏️ Chỉnh sửa thiết bị
+            </h2>
 
-    <form th:action="@{/equipment/update}" method="post">
-        <input type="hidden" name="id" th:value="${equipment.id}"/>
+            <form th:action="@{/equipment/update}" th:object="${equipment}" method="post" class="space-y-5">
+                <input type="hidden" th:field="*{id}" />
 
-        <label for="equipmentName">Tên thiết bị</label>
-        <input type="text" id="equipmentName" name="equipmentName" th:value="${equipment.equipmentName}" required />
+                <!-- Tên thiết bị -->
+                <div>
+                    <label for="equipmentName" class="block text-gray-700 font-medium mb-1">Tên thiết bị</label>
+                    <input type="text" th:field="*{equipmentName}" id="equipmentName"
+                           required minlength="5" pattern="^(?!\s*$).{5,}$"
+                           title="Tên thiết bị phải có ít nhất 5 ký tự và không được để trống"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('equipmentName')}" th:errors="*{equipmentName}"></p>
+                </div>
 
-        <label for="quantity">Số lượng</label>
-        <input type="number" id="quantity" name="quantity" th:value="${equipment.quantity}"  min="1" required />
+                <!-- Grid 2 cột -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Số lượng -->
+                    <div>
+                        <label for="quantity" class="block text-gray-700 font-medium mb-1">Số lượng</label>
+                        <input type="number" th:field="*{quantity}" id="quantity" min="1" required
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>
+                        <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+                    </div>
 
-        <label for="purchaseDate">Ngày mua</label>
-        <input type="date" id="purchaseDate" name="purchaseDate"  th:value="${equipment.purchaseDate}" required />
+                    <!-- Ngày mua -->
+                    <div>
+                        <label for="purchaseDate" class="block text-gray-700 font-medium mb-1">Ngày mua</label>
+                        <input type="date" th:field="*{purchaseDate}" id="purchaseDate"
+                               th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required
+                               class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>
+                        <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('purchaseDate')}" th:errors="*{purchaseDate}"></p>
+                    </div>
+                </div>
 
-        <label for="purchasePrice">Giá mua</label>
-        <input type="number" step="0.01" id="purchasePrice" th:value="${equipment.purchasePrice}" name="purchasePrice" min="0" required />
+                <!-- Giá mua -->
+                <div>
+                    <label for="purchasePrice" class="block text-gray-700 font-medium mb-1">Giá mua</label>
+                    <input type="number" th:field="*{purchasePrice}" id="purchasePrice" step="0.01" min="0.01" required
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></p>
+                </div>
 
-        <button type="submit">Lưu thiết bị</button>
-    </form>
+                <!-- Nút -->
+                <div class="flex justify-between mt-6">
+                    <a th:href="@{/equipment}"
+                       class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-md shadow">
+                        ← Quay lại
+                    </a>
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow transition">
+                        💾 Lưu thiết bị
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
 </html>
-
