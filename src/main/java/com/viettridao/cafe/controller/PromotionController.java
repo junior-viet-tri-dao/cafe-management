@@ -1,13 +1,16 @@
 package com.viettridao.cafe.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -158,5 +161,26 @@ public class PromotionController {
     @GetMapping("/marketing/create")
     public String showCreatePromotion() {
         return "marketing/marketing-create";
+    }
+
+    @PostMapping("/marketing/delete/{id}")
+    public String deletePromotion(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            promotionService.deletePromotion(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa khuyến mãi thành công!");
+            return "redirect:/marketing";
+
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/marketing";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/marketing";
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa promotion: " + e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi xóa khuyến mãi");
+            return "redirect:/marketing";
+        }
     }
 }

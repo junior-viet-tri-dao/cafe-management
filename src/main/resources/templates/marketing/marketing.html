@@ -7,7 +7,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Quản lý khuyến mãi</title>
-    <script th:src="@{/js/marketing/marketing.js}"></script>
   </head>
   <body>
     <div
@@ -38,174 +37,110 @@
 
           <!-- Add button -->
           <div class="flex justify-end mb-4">
-            <button
-              id="addPromotionBtn"
-              class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium"
+            <a
+              href="/marketing/create"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              + Thêm khuyến mãi
-            </button>
+              Thêm khuyến mãi
+            </a>
           </div>
 
           <!-- Table -->
           <div class="border border-gray-400 rounded overflow-hidden">
-            <!-- Header của bảng -->
-            <div class="grid grid-cols-5 bg-gray-200 border-b border-gray-400">
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                Tên khuyến mãi
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <table class="w-full bg-white">
+              <thead class="bg-gray-200">
+                <tr>
+                  <th class="py-2 px-4 border-b text-left">ID</th>
+                  <th class="py-2 px-4 border-b text-left">Tên khuyến mãi</th>
+                  <th class="py-2 px-4 border-b text-left">Ngày bắt đầu</th>
+                  <th class="py-2 px-4 border-b text-left">Ngày kết thúc</th>
+                  <th class="py-2 px-4 border-b text-left">% Giảm</th>
+                  <th class="py-2 px-4 border-b text-left">Trạng thái</th>
+                  <th class="py-2 px-4 border-b text-center">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  th:if="${listPromotion == null or #lists.isEmpty(listPromotion)}"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                Ngày bắt đầu
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                Ngày kết thúc
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                % giảm giá
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-              <div class="px-4 py-3 font-medium text-center">Thao tác</div>
-            </div>
-
-            <!-- Dữ liệu bảng từ server -->
-            <div id="promotionsList">
-              <th:block
-                th:if="${listPromotion != null and !listPromotion.isEmpty()}"
-              >
-                <div
+                  <td colspan="7" class="py-4 px-4 text-center text-gray-500">
+                    Không có dữ liệu khuyến mãi
+                  </td>
+                </tr>
+                <tr
                   th:each="promotion : ${listPromotion}"
-                  class="grid grid-cols-5 border-b border-gray-300 hover:bg-gray-50"
+                  class="hover:bg-gray-50"
                 >
-                  <div
-                    class="px-4 py-3 border-r border-gray-300"
+                  <td class="py-2 px-4 border-b" th:text="${promotion.id}"></td>
+                  <td
+                    class="py-2 px-4 border-b"
                     th:text="${promotion.promotionName}"
-                  ></div>
-                  <div
-                    class="px-4 py-3 border-r border-gray-300"
+                  ></td>
+                  <td
+                    class="py-2 px-4 border-b"
                     th:text="${#temporals.format(promotion.startDate, 'dd/MM/yyyy')}"
-                  ></div>
-                  <div
-                    class="px-4 py-3 border-r border-gray-300"
+                  ></td>
+                  <td
+                    class="py-2 px-4 border-b"
                     th:text="${#temporals.format(promotion.endDate, 'dd/MM/yyyy')}"
-                  ></div>
-                  <div
-                    class="px-4 py-3 border-r border-gray-300"
-                    th:text="${promotion.discountValue}"
-                  ></div>
-                  <div class="px-4 py-3 flex justify-center space-x-2">
-                    <button
-                      class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 edit-btn"
-                      th:data-id="${promotion.id}"
-                      title="Chỉnh sửa"
+                  ></td>
+                  <td
+                    class="py-2 px-4 border-b"
+                    th:text="${promotion.discountValue + '%'}"
+                  ></td>
+                  <td class="py-2 px-4 border-b">
+                    <span
+                      th:if="${promotion.status}"
+                      class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
                     >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button
-                      class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600 delete-btn"
-                      th:data-id="${promotion.id}"
-                      th:data-name="${promotion.promotionName}"
-                      title="Xóa"
+                      Hoạt động
+                    </span>
+                    <span
+                      th:unless="${promotion.status}"
+                      class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded"
                     >
-                      <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                      Vô hiệu
+                    </span>
+                  </td>
+                  <td class="py-2 px-4 border-b text-center">
+                    <div class="flex justify-center space-x-2">
+                      <!-- Edit button -->
+                      <a
+                        th:href="@{/marketing/edit/{id}(id=${promotion.id})}"
+                        class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600"
                       >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </th:block>
-            </div>
-
-            <!-- Empty state -->
-            <div
-              id="emptyState"
-              class="py-8 text-center text-gray-500"
-              th:style="${listPromotion == null or listPromotion.isEmpty()} ? 'display: block' : 'display: none'"
-            >
-              <p>Chưa có khuyến mãi nào</p>
-            </div>
+                        Sửa
+                      </a>
+                      <!-- Delete button -->
+                      <form
+                        th:action="@{/marketing/delete/{id}(id=${promotion.id})}"
+                        method="post"
+                        style="display: inline"
+                        onsubmit="return confirmDelete(this, '[[${promotion.promotionName}]]')"
+                      >
+                        <button
+                          type="submit"
+                          class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                        >
+                          Xóa
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
+
+    <script>
+      function confirmDelete(form, promotionName) {
+        return confirm(
+          `Bạn có chắc chắn muốn xóa khuyến mãi "${promotionName}"?\n\nLưu ý: Chỉ có thể xóa khuyến mãi đã vô hiệu hóa.`
+        );
+      }
+    </script>
   </body>
 </html>

@@ -85,8 +85,48 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public void deletePromotion(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deletePromotion'");
+        // 1. Validate ID
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID khuyến mãi không hợp lệ");
+        }
+
+        // 2. Kiểm tra promotion có tồn tại không
+        PromotionEntity promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi với ID: " + id));
+
+        // 3. Kiểm tra promotion đã bị xóa chưa (nếu có soft delete)
+        if (promotion.getIsDeleted() != null && promotion.getIsDeleted()) {
+            throw new RuntimeException("Khuyến mãi đã bị xóa trước đó");
+        }
+
+        // 4. Kiểm tra promotion có đang active không (business rule)
+        if (promotion.getStatus() != null && promotion.getStatus()) {
+            throw new RuntimeException("Không thể xóa khuyến mãi đang hoạt động. Vui lòng vô hiệu hóa trước khi xóa");
+        }
+
+        // 5. Kiểm tra promotion có đang được sử dụng không (nếu có liên kết với orders)
+        // boolean isInUse = orderRepository.existsByPromotionId(id);
+        // if (isInUse) {
+        // throw new RuntimeException("Không thể xóa khuyến mãi đang được sử dụng trong
+        // đơn hàng");
+        // }
+
+        try {
+            // Chọn 1 trong 2 cách:
+
+            // Cách 1: Soft Delete (Khuyến nghị)
+            promotion.setIsDeleted(true);
+            // promotion.setDeletedAt(LocalDateTime.now()); // Nếu có field này
+            promotionRepository.save(promotion);
+
+            // Cách 2: Hard Delete (Chỉ khi chắc chắn không cần lưu lại)
+            // promotionRepository.delete(promotion);
+
+            System.out.println("Đã xóa promotion ID: " + id + " - " + promotion.getPromotionName());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi xóa khuyến mãi: " + e.getMessage(), e);
+        }
     }
 
 }
