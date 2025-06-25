@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm thiết bị</title>
+  <style>
+    form {
+      max-width: 500px;
+      margin: 20px auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <h2>Thêm thiết bị mới</h2>
+
+  <form th:action="@{/equipment/create}" method="post">
+    <label for="equipmentName">Tên thiết bị</label>
+    <input type="text" id="equipmentName" name="equipmentName" required />
+
+    <label for="quantity">Số lượng</label>
+    <input type="number" id="quantity" name="quantity"  min="1" required />
+
+    <label for="purchaseDate">Ngày mua</label>
+    <input type="date" id="purchaseDate" name="purchaseDate"  required />
+
+    <label for="purchasePrice">Giá mua</label>
+    <input type="number" step="0.01" id="purchasePrice" name="purchasePrice" min="0" required />
+
+    <button type="submit">Lưu thiết bị</button>
+  </form>
+</div>
+</body>
+</html>
+

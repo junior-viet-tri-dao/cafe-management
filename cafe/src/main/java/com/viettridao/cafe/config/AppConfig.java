@@ -2,6 +2,7 @@ package com.viettridao.cafe.config;
 
 import com.viettridao.cafe.service.UserServiceDetail;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class AppConfig {
     private static final String[] AUTH_WHITELIST = {
-            "/login", "/js/**"
+            "/login", "/js/**", "/css/**"
     };
     private final UserServiceDetail userServiceDetail;
 
@@ -31,8 +32,7 @@ public class AppConfig {
                 .csrf(Customizer.withDefaults())
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
@@ -64,4 +64,10 @@ public class AppConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(6);
     }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+
 }

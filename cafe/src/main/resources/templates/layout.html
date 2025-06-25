@@ -56,18 +56,7 @@
                         <a th:href="@{/employee/create}" class="block py-1 hover:underline">Thêm nhân viên</a>
                     </div>
                 </div>
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button @click="open = !open"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': open }">
-                        🛠️ Quản lý trang thiết bị
-                        <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/device}" class="block py-1 hover:underline">Danh sách thiết bị</a>
-                        <a th:href="@{/device/create}" class="block py-1 hover:underline">Thêm thiết bị</a>
-                    </div>
-                </div>
+                <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý thiết bị</a>
                 <div x-data="{ openCommodity: false }" class="space-y-1">
                     <button @click="openCommodity = !openCommodity"
                             class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
@@ -154,5 +143,6 @@
     <p>2025 Cafe Management | Junior Việt Trí Đạo</p>
 </footer>
 <div th:replace="~{/alert :: alerts}"></div>
+<script th:src="@{/js/global.js}"></script>
 </body>
 </html>
