@@ -1,44 +1,79 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<script th:src="@{/js/alert-utils.js}"></script>
+
 <head>
     <meta charset="UTF-8">
-    <title>Thêm thiết bị</title>
+    <title>Thêm nhân viên</title>
 </head>
 <body>
-<div layout:fragment="content">
+<div layout:fragment="content" class="max-w-xl mx-auto mt-10">
+    <h2 class="text-2xl font-bold mb-4 text-yellow-800">👤 Thêm nhân viên</h2>
 
-<div th:if="${error}" class="text-red-600 font-semibold mb-4">
-    <p th:text="${error}"></p>
-</div>
+    <!-- ✅ Thông báo hệ thống -->
+    <div th:if="${success}" class="text-green-600 font-medium mb-3" th:text="${success}"></div>
+    <div th:if="${error}" class="text-red-600 font-medium mb-3" th:text="${error}"></div>
 
-    <h2 class="text-2xl font-bold mb-4">Thêm thiết bị</h2>
+    <!-- ✅ Lỗi validation -->
+    <div th:if="${#fields.hasErrors('*')}">
+        <ul class="text-red-500 text-sm mb-3">
+            <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+        </ul>
+    </div>
 
-    <form th:action="@{/equipment/add}" th:object="${request}" method="post"
-          class="bg-white shadow p-6 rounded space-y-4 max-w-xl">
+    <form th:action="@{/employee/add}" th:object="${request}" method="post"
+          class="bg-white shadow p-6 rounded space-y-4">
 
-        <div th:if="${#fields.hasErrors('*')}">
-            <ul class="text-red-500 text-sm">
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
+        <label class="block">
+            Họ và tên:
+            <input type="text" th:field="*{fullName}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Tên thiết bị:</label>
-        <input type="text" th:field="*{equipmentName}" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Địa chỉ:
+            <input type="text" th:field="*{address}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Ngày mua:</label>
-        <input type="date" th:field="*{purchaseDate}" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Số điện thoại:
+            <input type="text" th:field="*{phoneNumber}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Số lượng:</label>
-        <input type="number" th:field="*{quantity}" min="1" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Chức vụ:
+            <input type="text" th:field="*{position}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Đơn giá:</label>
-        <input type="number" th:field="*{purchasePrice}" min="1" step="1000" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Lương (VNĐ):
+            <input type="number" th:field="*{salary}" min="1000000" step="1000"
+                   class="w-full border rounded px-3 py-2"/>
+        </label>
+
+        <label class="block">
+            Link ảnh đại diện (tùy chọn):
+            <input type="text" th:field="*{imageUrl}" class="w-full border rounded px-3 py-2"/>
+        </label>
+
+        <label class="block">
+            Tên đăng nhập:
+            <input type="text" th:field="*{username}" class="w-full border rounded px-3 py-2"/>
+        </label>
+
+        <label class="block">
+            Mật khẩu:
+            <input type="password" th:field="*{password}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
         <div class="flex gap-4 pt-4">
-            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded shadow">Thêm</button>
-            <a th:href="@{/equipment}" class="bg-gray-400 text-white px-4 py-2 rounded shadow">Hủy</a>
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded shadow">
+                ➕ Thêm nhân viên
+            </button>
+            <a th:href="@{/employee}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded shadow">Hủy</a>
         </div>
     </form>
 </div>
+<div th:replace="~{/alert :: alerts}"></div>
+
 </body>
 </html>

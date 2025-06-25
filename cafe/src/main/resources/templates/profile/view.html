@@ -2,12 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
+          <script th:src="@{/js/alert-utils.js}"></script>
+      
 <head>
     <meta charset="UTF-8">
     <title>Trang cá nhân</title>
 </head>
 <body>
 <div layout:fragment="content">
+ <!-- ✅ Thông báo hệ thống -->
+    <div th:if="${error}" class="text-red-600 font-semibold mb-3" th:text="${error}"></div>
+    <div th:if="${success}" class="text-green-600 font-semibold mb-3" th:text="${success}"></div>
+
 
     <!-- Form CẬP NHẬT THÔNG TIN -->
     <form th:action="@{/profile}" th:object="${request}" method="post"
@@ -15,12 +21,6 @@
 
         <!-- ✅ Hidden ID để update đúng -->
         <input type="hidden" th:field="*{id}" />
-
-        <div th:if="${#fields.hasErrors('*')}">
-            <ul class="text-red-500 text-sm">
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Avatar -->
@@ -34,14 +34,17 @@
                     Link ảnh đại diện:
                     <input type="text" th:field="*{imageUrl}"
                            class="mt-1 block w-full text-sm px-3 py-1 border rounded" />
+                    <p th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="text-red-500 text-sm"></p>
                 </label>
-			    <form th:action="@{/logout}" method="post" class="text-center mt-6">
-			        <button type="submit"
-			                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
-			            🚪 Đăng xuất
-			        </button>
-			    </form>
+
+                <form th:action="@{/logout}" method="post" class="text-center mt-6">
+                    <button type="submit"
+                            class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
+                        🚪 Đăng xuất
+                    </button>
+                </form>
             </div>
+
             <!-- Thông tin cá nhân -->
             <div class="md:col-span-2 space-y-4">
                 <h2 class="text-2xl font-bold text-yellow-800 border-b pb-2">Thông tin cá nhân</h2>
@@ -50,33 +53,37 @@
 
                     <div>
                         <label class="font-semibold">Họ và tên:</label>
-                        <input type="text" th:field="*{fullName}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                        <input type="text" th:field="*{fullName}" class="w-full px-3 py-2 border rounded" />
+                        <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-500 text-sm"></p>
                     </div>
 
                     <div>
                         <label class="font-semibold">Chức vụ:</label>
-                        <input type="text" th:field="*{position}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                        <input type="text" th:field="*{position}" class="w-full px-3 py-2 border rounded" />
+                        <p th:if="${#fields.hasErrors('position')}" th:errors="*{position}" class="text-red-500 text-sm"></p>
                     </div>
 
                     <div class="col-span-2">
                         <label class="font-semibold">Địa chỉ:</label>
-                        <input type="text" th:field="*{address}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                        <input type="text" th:field="*{address}" class="w-full px-3 py-2 border rounded" />
+                        <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-red-500 text-sm"></p>
                     </div>
 
                     <div>
                         <label class="font-semibold">Số điện thoại:</label>
-                        <input type="text" th:field="*{phoneNumber}" class="w-full px-3 py-2 border rounded" maxlength="20" />
+                        <input type="text" th:field="*{phoneNumber}" class="w-full px-3 py-2 border rounded" />
+                        <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="text-red-500 text-sm"></p>
                     </div>
 
-                   <div>
-					    <label class="font-semibold">Lương:</label>
-					    <div class="relative">
-					        <input type="number" th:field="*{salary}" min="1000" step="1000"
-					               class="w-full px-3 py-2 border rounded pr-16" />
-					        <span class="absolute right-3 top-2.5 text-gray-500 text-sm">VNĐ</span>
-					    </div>
-					</div>
-
+                    <div>
+                        <label class="font-semibold">Lương:</label>
+                        <div class="relative">
+                            <input type="number" th:field="*{salary}" min="1000000" step="1000"
+                                   class="w-full px-3 py-2 border rounded pr-16" />
+                            <span class="absolute right-3 top-2.5 text-gray-500 text-sm">VNĐ</span>
+                        </div>
+                        <p th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}" class="text-red-500 text-sm"></p>
+                    </div>
 
                     <div>
                         <label class="font-semibold">Tài khoản:</label>
@@ -101,5 +108,7 @@
         </div>
     </form>
 </div>
+<div th:replace="~{/alert :: alerts}"></div>
+
 </body>
 </html>

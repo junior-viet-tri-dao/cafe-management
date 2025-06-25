@@ -6,23 +6,30 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Lớp DTO (Data Transfer Object) dùng để trả về thông tin thiết bị (Equipment)
- * dưới dạng phản hồi cho client.
+ * Lớp đại diện cho cấu trúc dữ liệu phản hồi (response) khi truy vấn thông tin
+ * thiết bị. Dùng để trả về thông tin chi tiết của một thiết bị cho phía client.
  */
 @Getter
 @Setter
 public class EquipmentResponse {
-    private Integer id;
+	// Mã định danh duy nhất của thiết bị
+	private Integer id;
 
-    private String equipmentName;
+	// Tên của thiết bị
+	private String equipmentName;
 
-    private LocalDate purchaseDate;
+	// Ngày mua thiết bị
+	private LocalDate purchaseDate;
 
-    private Integer quantity;
+	// Số lượng của thiết bị
+	private Integer quantity;
 
-    private Double purchasePrice;
+	// Đơn giá mua của thiết bị
+	private Double purchasePrice;
 
-    private Double totalPrice;
+	// Tổng giá trị của số lượng thiết bị (quantity * purchasePrice)
+	private Double totalPrice;
 
-    private String notes;
+	// Ghi chú thêm về thiết bị
+	private String notes;
 }

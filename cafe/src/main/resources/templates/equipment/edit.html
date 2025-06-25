@@ -1,45 +1,65 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<script th:src="@{/js/alert-utils.js}"></script>
 <head>
     <meta charset="UTF-8">
     <title>Chỉnh sửa thiết bị</title>
 </head>
 <body>
-<div layout:fragment="content">
-<div th:if="${error}" class="text-red-600 font-semibold mb-4">
-    <p th:text="${error}"></p>
-</div>
+<div layout:fragment="content" class="max-w-xl mx-auto mt-10">
 
-    <h2 class="text-2xl font-bold mb-4">Chỉnh sửa thiết bị</h2>
+    <h2 class="text-2xl font-bold mb-4">✏️ Chỉnh sửa thiết bị</h2>
+
+    <!-- ✅ Thông báo thành công / lỗi -->
+    <div th:if="${success}" class="text-green-600 font-medium mb-3" th:text="${success}"></div>
+    <div th:if="${error}" class="text-red-600 font-medium mb-3" th:text="${error}"></div>
+
+    <!-- ✅ Thông báo lỗi validation -->
+    <div th:if="${#fields.hasErrors('*')}">
+        <ul class="text-red-500 text-sm mb-3">
+            <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+        </ul>
+    </div>
 
     <form th:action="@{/equipment/edit}" th:object="${request}" method="post"
-          class="bg-white shadow p-6 rounded space-y-4 max-w-xl">
+          class="bg-white shadow p-6 rounded space-y-4">
 
         <input type="hidden" th:field="*{id}"/>
 
-        <div th:if="${#fields.hasErrors('*')}">
-            <ul class="text-red-500 text-sm">
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
+        <label class="block">
+            Tên thiết bị:
+            <input type="text" th:field="*{equipmentName}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Tên thiết bị:</label>
-        <input type="text" th:field="*{equipmentName}" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Ngày mua:
+            <input type="date" th:field="*{purchaseDate}" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Ngày mua:</label>
-        <input type="date" th:field="*{purchaseDate}" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Số lượng:
+            <input type="number" th:field="*{quantity}" min="1" class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Số lượng:</label>
-        <input type="number" th:field="*{quantity}" min="1" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Đơn giá:
+            <input type="number" th:field="*{purchasePrice}" min="1000" step="1000"
+                   class="w-full border rounded px-3 py-2"/>
+        </label>
 
-        <label>Đơn giá:</label>
-        <input type="number" th:field="*{purchasePrice}" min="1" step="1000" class="w-full border rounded px-3 py-2"/>
+        <label class="block">
+            Ghi chú (tùy chọn):
+            <textarea th:field="*{notes}" rows="3" class="w-full border rounded px-3 py-2"></textarea>
+        </label>
 
         <div class="flex gap-4 pt-4">
-            <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded shadow">Lưu</button>
-            <a th:href="@{/equipment}" class="bg-gray-400 text-white px-4 py-2 rounded shadow">Hủy</a>
+            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded shadow">
+                💾 Lưu
+            </button>
+            <a th:href="@{/equipment}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded shadow">Hủy</a>
         </div>
     </form>
 </div>
+<div th:replace="~{/alert :: alerts}"></div>
 </body>
 </html>

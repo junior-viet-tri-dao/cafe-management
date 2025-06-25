@@ -1,63 +1,74 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.service.AuthService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.stereotype.Controller; 
+import org.springframework.web.bind.annotation.GetMapping; 
+import org.springframework.web.bind.annotation.PostMapping; 
+import org.springframework.web.bind.annotation.RequestParam; 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes; 
+
+import com.viettridao.cafe.service.AuthService; 
+
+import lombok.RequiredArgsConstructor; 
 
 /**
- * Controller xử lý các yêu cầu liên quan đến xác thực người dùng. Cung cấp các
- * endpoint để hiển thị form đăng nhập và xử lý đăng nhập.
+ * Controller xử lý các yêu cầu liên quan đến xác thực người dùng (đăng nhập).
+ * Điều hướng người dùng đến form đăng nhập và xử lý dữ liệu đăng nhập.
  */
-@Controller
-@RequiredArgsConstructor
+@Controller // Đánh dấu đây là một Spring MVC Controller
+@RequiredArgsConstructor // Tự động tạo constructor để inject các dependency final (AuthService)
 public class AuthController {
-	// Dịch vụ xác thực để xử lý logic đăng nhập
+
+	// Inject AuthService để sử dụng các phương thức xử lý xác thực
 	private final AuthService authService;
 
 	/**
-	 * Hiển thị form đăng nhập.
-	 * 
-	 * @return Tên view "login" để hiển thị trang đăng nhập
+	 * Xử lý yêu cầu HTTP GET đến "/login". Phương thức này dùng để hiển thị form
+	 * đăng nhập cho người dùng.
+	 *
+	 * @return Tên của view (trang HTML) là "login".
 	 */
 	@GetMapping("/login")
 	public String showLoginForm() {
-		return "login";
+		return "login"; // Trả về tên view 'login.html' (hoặc tương tự)
 	}
 
 	/**
-	 * Xử lý yêu cầu đăng nhập từ người dùng.
-	 * 
-	 * @param username           Tên đăng nhập do người dùng cung cấp
-	 * @param password           Mật khẩu do người dùng cung cấp
-	 * @param redirectAttributes Đối tượng để thêm thông báo flash
-	 * @return Chuyển hướng đến trang chủ nếu thành công, hoặc trang đăng nhập nếu
-	 *         thất bại
+	 * Xử lý yêu cầu HTTP POST đến "/login". Phương thức này nhận tên đăng nhập và
+	 * mật khẩu từ form và gọi dịch vụ xác thực.
+	 *
+	 * @param username           Tên đăng nhập được gửi từ form.
+	 * @param password           Mật khẩu được gửi từ form.
+	 * @param redirectAttributes Đối tượng dùng để thêm các thuộc tính "flash" (chỉ
+	 *                           tồn tại một lần redirect) để hiển thị thông báo
+	 *                           thành công hoặc lỗi sau khi chuyển hướng.
+	 * @return Chuyển hướng đến trang chủ ("redirect:/home") nếu đăng nhập thành
+	 *         công, hoặc chuyển hướng lại trang đăng nhập ("redirect:/login") kèm
+	 *         thông báo lỗi nếu thất bại.
 	 */
 	@PostMapping("/login")
 	public String login(@RequestParam String username, @RequestParam String password,
 			RedirectAttributes redirectAttributes) {
+
 		try {
-			// Gọi dịch vụ xác thực để kiểm tra thông tin đăng nhập
+			// Gọi AuthService để thực hiện logic đăng nhập
 			boolean result = authService.login(username, password);
 			if (result) {
-				// Thêm thông báo thành công vào flash attribute
+				// Nếu đăng nhập thành công, thêm thông báo success và chuyển hướng đến trang
+				// chủ
 				redirectAttributes.addFlashAttribute("success", "Đăng nhập thành công!");
-				// Chuyển hướng đến trang chủ
 				return "redirect:/home";
+			} else {
+				// Nếu đăng nhập thất bại (do logic trong AuthService trả về false),
+				// thêm thông báo lỗi và chuyển hướng lại trang đăng nhập
+				redirectAttributes.addFlashAttribute("error", "Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+				return "redirect:/login";
 			}
-		} catch (RuntimeException e) {
-			// Thêm thông báo lỗi từ ngoại lệ vào flash attribute
-			redirectAttributes.addFlashAttribute("error", e.getMessage());
-			// Chuyển hướng về trang đăng nhập
+		} catch (Exception e) {
+			// Bắt các ngoại lệ xảy ra trong quá trình đăng nhập (ví dụ: lỗi validation,
+			// không tìm thấy người dùng)
+			// Thêm thông báo lỗi và chuyển hướng lại trang đăng nhập
+			redirectAttributes.addFlashAttribute("error", "Đăng nhập lỗi: " + e.getMessage());
 			return "redirect:/login";
 		}
-		// Thêm thông báo lỗi mặc định nếu đăng nhập thất bại
-		redirectAttributes.addFlashAttribute("error", "Đăng nhập thất bại");
-		// Chuyển hướng về trang đăng nhập
-		return "redirect:/login";
 	}
 }

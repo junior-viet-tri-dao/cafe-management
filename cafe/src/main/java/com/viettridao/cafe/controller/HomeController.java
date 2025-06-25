@@ -1,8 +1,9 @@
 package com.viettridao.cafe.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controller xử lý yêu cầu liên quan đến trang chủ của ứng dụng. Cung cấp

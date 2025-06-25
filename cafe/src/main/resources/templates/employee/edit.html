@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+      <script th:src="@{/js/alert-utils.js}"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa nhân viên</title>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-xl mx-auto mt-10">
+
+    <h2 class="text-xl font-bold mb-4 text-yellow-800">✏️ Chỉnh sửa thông tin nhân viên</h2>
+
+    <!-- ✅ Thông báo -->
+    <div th:if="${error}" class="text-red-600 font-semibold mb-3" th:text="${error}"></div>
+    <div th:if="${success}" class="text-green-600 font-semibold mb-3" th:text="${success}"></div>
+
+    <form th:action="@{/employee/edit}" th:object="${request}" method="post" class="space-y-4">
+
+        <input type="hidden" th:field="*{id}"/>
+
+        <!-- ✅ Lỗi validation -->
+        <div th:if="${#fields.hasErrors('*')}">
+            <ul class="text-red-500 text-sm">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <!-- Họ tên -->
+        <label class="block font-semibold">Họ và tên:
+            <input type="text" th:field="*{fullName}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('fullName')}" class="text-red-500 text-sm" th:errors="*{fullName}"></div>
+        </label>
+
+        <!-- Địa chỉ -->
+        <label class="block font-semibold">Địa chỉ:
+            <input type="text" th:field="*{address}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('address')}" class="text-red-500 text-sm" th:errors="*{address}"></div>
+        </label>
+
+        <!-- Số điện thoại -->
+        <label class="block font-semibold">Số điện thoại:
+            <input type="text" th:field="*{phoneNumber}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('phoneNumber')}" class="text-red-500 text-sm" th:errors="*{phoneNumber}"></div>
+        </label>
+
+        <!-- Chức vụ -->
+        <label class="block font-semibold">Chức vụ:
+            <input type="text" th:field="*{position}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('position')}" class="text-red-500 text-sm" th:errors="*{position}"></div>
+        </label>
+
+        <!-- Lương -->
+        <label class="block font-semibold">Lương:
+            <input type="number" th:field="*{salary}" step="1000" min="0" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('salary')}" class="text-red-500 text-sm" th:errors="*{salary}"></div>
+        </label>
+
+        <!-- Link ảnh -->
+        <label class="block font-semibold">Link ảnh đại diện:
+            <input type="text" th:field="*{imageUrl}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('imageUrl')}" class="text-red-500 text-sm" th:errors="*{imageUrl}"></div>
+        </label>
+
+        <!-- Avatar preview -->
+        <div class="text-center">
+            <img th:src="${request.imageUrl}"
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/100x120';"
+                 alt="avatar"
+                 class="h-32 w-32 object-cover rounded-full mx-auto border border-gray-300 mb-4"/>
+        </div>
+
+        <!-- Tài khoản -->
+        <label class="block font-semibold">Tài khoản (username):
+            <input type="text" th:field="*{username}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('username')}" class="text-red-500 text-sm" th:errors="*{username}"></div>
+        </label>
+
+        <!-- Mật khẩu -->
+        <label class="block font-semibold">Mật khẩu:
+            <input type="password" th:field="*{password}" class="w-full border rounded px-3 py-2"/>
+            <div th:if="${#fields.hasErrors('password')}" class="text-red-500 text-sm" th:errors="*{password}"></div>
+        </label>
+
+        <!-- Nút thao tác -->
+        <div class="pt-4 space-x-4">
+            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded">
+                💾 Lưu thay đổi
+            </button>
+            <a th:href="@{/employee}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Hủy</a>
+        </div>
+    </form>
+</div>
+<div th:replace="~{/alert :: alerts}"></div>
+</body>
+</html>
