@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Danh Sách Nhân Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
+</head>
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
+<header th:replace="~{layout :: header}"></header>
+
+<div class="flex flex-1">
+    <aside th:replace="~{layout :: aside}"></aside>
+
+    <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
+        <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Phân mềm quản lý quán cà phê ver 1.0</h2>
+            <h3 class="text-xl font-semibold text-[#4e342e] mb-4">Danh sách nhân viên</h3>
+            <div class="mb-4 flex justify-between">
+                <div>
+                    <input type="text" id="search" placeholder="Tìm kiếm..." class="border border-gray-300 rounded-md px-4 py-2">
+                </div>
+                <a th:href="@{/employee/create}" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Thêm nhân viên</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead>
+                    <tr class="bg-[#4e342e] text-white">
+                        <th class="py-2 px-4 border-b">Họ tên</th>
+                        <th class="py-2 px-4 border-b">Chức vụ</th>
+                        <th class="py-2 px-4 border-b">Lương</th>
+                        <th class="py-2 px-4 border-b">Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b">Đặng Văn Định</td>
+                        <td class="py-2 px-4 border-b">Quản lý</td>
+                        <td class="py-2 px-4 border-b">10,000,000</td>
+                        <td class="py-2 px-4 border-b">
+                            <a th:href="@{/employee/edit/{id}(id=1)}" class="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">Sửa</a>
+                            <a th:href="@{/employee/delete/{id}(id=1)}" class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 ml-2">Xóa</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b">Lê Văn Thể</td>
+                        <td class="py-2 px-4 border-b">Phục vụ bàn</td>
+                        <td class="py-2 px-4 border-b">5,000,000</td>
+                        <td class="py-2 px-4 border-b">
+                            <a th:href="@{/employee/edit/{id}(id=2)}" class="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">Sửa</a>
+                            <a th:href="@{/employee/delete/{id}(id=2)}" class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 ml-2">Xóa</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b">Trần Thị Giang</td>
+                        <td class="py-2 px-4 border-b">Thu ngân</td>
+                        <td class="py-2 px-4 border-b">10,000,000</td>
+                        <td class="py-2 px-4 border-b">
+                            <a th:href="@{/employee/edit/{id}(id=3)}" class="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">Sửa</a>
+                            <a th:href="@{/employee/delete/{id}(id=3)}" class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 ml-2">Xóa</a>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-100">
+                        <td class="py-2 px-4 border-b">Võ Bình Yên</td>
+                        <td class="py-2 px-4 border-b">Bảo vệ</td>
+                        <td class="py-2 px-4 border-b">5,000,000</td>
+                        <td class="py-2 px-4 border-b">
+                            <a th:href="@{/employee/edit/{id}(id=4)}" class="px-2 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">Sửa</a>
+                            <a th:href="@{/employee/delete/{id}(id=4)}" class="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 ml-2">Xóa</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{/alert :: alerts}"></div>
+</body>
+</html>

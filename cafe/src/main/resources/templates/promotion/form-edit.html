@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Chỉnh sửa khuyến mãi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
+</head>
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
+<header th:replace="~{layout :: header}"></header>
+
+<div class="flex flex-1">
+    <aside th:replace="~{layout :: aside}"></aside>
+
+    <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
+        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Chỉnh sửa khuyến mãi</h2>
+
+            <form th:action="@{/promotion/edit/{id}(id=${promotion.id})}" method="post" class="space-y-4">
+                <div>
+                    <label for="promotionName" class="block text-sm font-medium text-gray-700">* Tên khuyến mãi:</label>
+                    <input type="text" id="promotionName" name="promotionName" th:value="${promotion.name}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label for="startDate" class="block text-sm font-medium text-gray-700">* Ngày bắt đầu:</label>
+                        <input type="text" id="startDate" name="startDate" th:value="${promotion.startDate}"
+                               class="datepicker-input mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                               placeholder="dd/mm/yyyy" required>
+                    </div>
+
+                    <div class="w-1/2">
+                        <label for="endDate" class="block text-sm font-medium text-gray-700">* Ngày kết thúc:</label>
+                        <input type="text" id="endDate" name="endDate" th:value="${promotion.endDate}"
+                               class="datepicker-input mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                               placeholder="dd/mm/yyyy" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="discountPercent" class="block text-sm font-medium text-gray-700">* % giảm giá:</label>
+                    <input type="number" id="discountPercent" name="discountPercent" th:value="${promotion.discountPercent}"
+                           min="0" max="100" step="1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Lưu</button>
+                    <a th:href="@{/promotion}" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Hủy</a>
+                </div>
+                <p class="text-sm text-red-500 mt-2">( * ): Các trường bắt buộc nhập</p>
+            </form>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{/alert :: alerts}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new Datepicker(document.getElementById('startDate'), {
+            format: 'dd/mm/yyyy',
+            autohide: true
+        });
+        new Datepicker(document.getElementById('endDate'), {
+            format: 'dd/mm/yyyy',
+            autohide: true
+        });
+    });
+</script>
+</body>
+</html>

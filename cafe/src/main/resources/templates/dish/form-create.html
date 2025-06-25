@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm danh mục món</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        label {
+            min-width: 80px;
+            font-weight: bold;
+        }
+        input {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin-top: 15px;
+            margin-right: 8px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-add {
+            background-color: #3498db;
+            color: #fff;
+        }
+        .btn-cancel {
+            background-color: #ccc;
+        }
+        .btn-remove {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 3px;
+        }
+        .small-input {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Thêm danh mục món</h1>
+
+<div class="form-group">
+    <label for="itemName">Tên món:</label>
+    <input type="text" id="itemName" placeholder="Nhập tên món" value="Cà phê sữa">
+    <label for="itemPrice">Giá tiền:</label>
+    <input type="text" id="itemPrice" placeholder="Giá tiền" value="7.000">
+</div>
+
+<h3>Thành phần:</h3>
+<table id="ingredientsTable">
+    <thead>
+    <tr>
+        <th>Tên thành phần</th>
+        <th>Khối lượng</th>
+        <th>Đơn vị tính</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><input type="text" value="Cà phê"></td>
+        <td><input type="number" class="small-input" value="5"></td>
+        <td><input type="text" value="gam"></td>
+        <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
+    </tr>
+    <tr>
+        <td><input type="text" value="Sữa"></td>
+        <td><input type="number" class="small-input" value="5"></td>
+        <td><input type="text" value="ml"></td>
+        <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
+    </tr>
+    </tbody>
+</table>
+
+<button class="btn btn-add" onclick="addIngredientRow()">+ Thêm thành phần</button>
+
+<br><br>
+<button class="btn btn-add" onclick="submitForm()">Thêm món</button>
+<button class="btn btn-cancel" onclick="cancel()">Hủy</button>
+
+<script>
+    function addIngredientRow() {
+        const table = document.getElementById('ingredientsTable').getElementsByTagName('tbody')[0];
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td><input type="text" placeholder="Tên thành phần"></td>
+            <td><input type="number" class="small-input" placeholder="Khối lượng"></td>
+            <td><input type="text" placeholder="Đơn vị"></td>
+            <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
+        `;
+    }
+
+    function removeRow(button) {
+        button.closest('tr').remove();
+    }
+
+    function submitForm() {
+        alert('Đã thêm món mới (demo)');
+        // Thêm logic lưu dữ liệu ở đây
+    }
+
+    function cancel() {
+        if (confirm('Bạn có chắc chắn muốn hủy?')) {
+            window.location.reload(); // Hoặc chuyển trang về danh sách
+        }
+    }
+</script>
+
+</body>
+</html>

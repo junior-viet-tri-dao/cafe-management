@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Chuyển Bàn 14</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+  <script th:src="@{/js/alert-utils.js}"></script>
+</head>
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
+<header th:replace="~{layout :: header}"></header>
+
+<div class="flex flex-1">
+  <aside th:replace="~{layout :: aside}"></aside>
+
+  <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Chuyển bàn 14</h2>
+      <form th:action="@{/table/move}" method="post" class="space-y-4">
+        <div>
+          <label for="targetTable" class="block text-sm font-medium text-gray-700">Chọn bàn cần chuyển đến:</label>
+          <select id="targetTable" name="targetTable" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            <option value="1">Bàn 01</option>
+            <option value="2">Bàn 02</option>
+            <option value="3">Bàn 03</option>
+            <option value="4">Bàn 04</option>
+            <option value="5">Bàn 05</option>
+            <!-- Thêm các bàn khác nếu cần -->
+          </select>
+        </div>
+        <div class="flex justify-center space-x-4">
+          <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Chuyển</button>
+          <button type="reset" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Hủy</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{/alert :: alerts}"></div>
+</body>
+</html>

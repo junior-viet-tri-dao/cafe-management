@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Thanh Toán Bàn 15</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+  <script th:src="@{/js/alert-utils.js}"></script>
+</head>
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
+<header th:replace="~{layout :: header}"></header>
+
+<div class="flex flex-1">
+  <aside th:replace="~{layout :: aside}"></aside>
+
+  <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Thanh toán bàn 15</h2>
+      <form th:action="@{/payment/save}" method="post" class="space-y-4">
+        <div class="border border-gray-300 p-4">
+          <h3 class="text-lg font-semibold mb-2">Bàn 15</h3>
+          <table class="w-full text-left">
+            <thead>
+            <tr class="bg-gray-200">
+              <th class="py-2 px-4 border-b">Tên món</th>
+              <th class="py-2 px-4 border-b">SL</th>
+              <th class="py-2 px-4 border-b">Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td class="py-2 px-4 border-b">Sinh tố</td>
+              <td class="py-2 px-4 border-b">3</td>
+              <td class="py-2 px-4 border-b">45,000</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 border-b">Pepsi</td>
+              <td class="py-2 px-4 border-b">3</td>
+              <td class="py-2 px-4 border-b">21,000</td>
+            </tr>
+            </tbody>
+          </table>
+          <div class="mt-2 text-right">
+            <label class="font-semibold">Tổng:</label>
+            <span>66,000 đ</span>
+          </div>
+        </div>
+        <div>
+          <label for="cash" class="block text-sm font-medium text-gray-700">Khách đưa:</label>
+          <input type="number" id="cash" name="cash" value="100000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+        </div>
+        <div>
+          <label for="change" class="block text-sm font-medium text-gray-700">Thối lại:</label>
+          <input type="number" id="change" name="change" value="34000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" readonly>
+        </div>
+        <div class="flex justify-center space-x-4">
+          <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Thanh toán</button>
+          <button type="reset" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Hủy</button>
+        </div>
+        <p class="text-sm text-center">* Đợi trả hóa đơn sang tờ sau khi thanh toán</p>
+      </form>
+    </div>
+  </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{/alert :: alerts}"></div>
+</body>
+</html>

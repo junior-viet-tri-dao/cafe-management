@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Xem Thu Chi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+</head>
+
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
+<header th:replace="~{layout :: header}"></header>
+
+<div class="flex flex-1">
+    <aside th:replace="~{layout :: aside}"></aside>
+
+    <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
+        <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-[#4e342e] mb-6 text-center">Xem Thu Chi</h2>
+
+            <form action="/revenue" method="get" class="flex items-center space-x-4 mb-6">
+                <div>
+                    <label for="startDate" class="block text-sm text-gray-700">Từ ngày:</label>
+                    <input type="text" id="startDate" name="startDate" value="01/06/2025"
+                           class="datepicker-input mt-1 w-full border border-gray-300 rounded-md px-3 py-2" placeholder="dd/mm/yyyy" required>
+                </div>
+                <div>
+                    <label for="endDate" class="block text-sm text-gray-700">Đến ngày:</label>
+                    <input type="text" id="endDate" name="endDate" value="30/06/2025"
+                           class="datepicker-input mt-1 w-full border border-gray-300 rounded-md px-3 py-2" placeholder="dd/mm/yyyy" required>
+                </div>
+                <div class="pt-5">
+                    <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Xem</button>
+                </div>
+            </form>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                    <tr class="bg-[#4e342e] text-white text-center">
+                        <th class="py-2 px-4 border-b">Ngày</th>
+                        <th class="py-2 px-4 border-b">Thu</th>
+                        <th class="py-2 px-4 border-b">Chi</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="hover:bg-gray-100 text-center">
+                        <td class="py-2 px-4 border-b">23/12/2024</td>
+                        <td class="py-2 px-4 border-b">500.000</td>
+                        <td class="py-2 px-4 border-b">1.000.000</td>
+                    </tr>
+                    <tr class="hover:bg-gray-100 text-center">
+                        <td class="py-2 px-4 border-b">24/12/2024</td>
+                        <td class="py-2 px-4 border-b">750.000</td>
+                        <td class="py-2 px-4 border-b">800.000</td>
+                    </tr>
+                    <tr class="font-bold text-center bg-gray-100">
+                        <td class="py-2 px-4 border-t">Tổng</td>
+                        <td class="py-2 px-4 border-t">1.250.000</td>
+                        <td class="py-2 px-4 border-t">1.800.000</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer th:replace="~{layout :: footer}"></footer>
+<div th:replace="~{/alert :: alerts}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new Datepicker(document.getElementById('startDate'), { format: 'dd/mm/yyyy', autohide: true });
+        new Datepicker(document.getElementById('endDate'), { format: 'dd/mm/yyyy', autohide: true });
+    });
+</script>
+</body>
+</html>

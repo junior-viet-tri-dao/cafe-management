@@ -23,7 +23,7 @@
 
         <div class="flex items-center gap-4">
             <div class="hidden sm:block text-sm text-right">
-                <div class="font-semibold" th:text="${user.username}">Tên đăng nhập</div>
+                <div class="font-semibold" th:text="${user != null ? user.username : 'Guest'}">Tên đăng nhập</div>
                 <div class="text-gray-300 text-xs" th:text="'Chức vụ: ' + ${user.permission}">Chức vụ</div>
             </div>
             <img th:src="${user.imageUrl}" alt="avatar" class="w-8 h-8 rounded-full border"/>
@@ -41,8 +41,8 @@
     <aside class="w-64 bg-white border-r p-4">
         <div class="flex flex-col space-y-2 h-full">
             <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🏠 Trang chủ</a>
-            <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
-            <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
+            <a th:href="@{/account/detail/1}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
+            <a th:href="@{/table}" th:classappend="${currentPath == '/table'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
             <div th:if="${user.permission == 'ADMIN'}">
                 <div x-data="{ open: false }" class="space-y-1">
                     <button @click="open = !open"
@@ -53,7 +53,7 @@
                     </button>
                     <div x-show="open" x-transition class="pl-4 space-y-1">
                         <a th:href="@{/employee}" class="block py-1 hover:underline">Danh sách nhân viên</a>
-                        <a th:href="@{/employee/create}" class="block py-1 hover:underline">Thêm nhân viên</a>
+                        <a th:href="@{/employee/new}" class="block py-1 hover:underline">Thêm nhân viên</a>
                     </div>
                 </div>
                 <div x-data="{ open: false }" class="space-y-1">
@@ -64,8 +64,8 @@
                         <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/device}" class="block py-1 hover:underline">Danh sách thiết bị</a>
-                        <a th:href="@{/device/create}" class="block py-1 hover:underline">Thêm thiết bị</a>
+                        <a th:href="@{/equipment}" class="block py-1 hover:underline">Danh sách thiết bị</a>
+                        <a th:href="@{/equipment/new}" class="block py-1 hover:underline">Thêm thiết bị</a>
                     </div>
                 </div>
                 <div x-data="{ openCommodity: false }" class="space-y-1">
@@ -76,7 +76,7 @@
                         <span x-text="openCommodity ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/commodity}" th:classappend="${currentPath == '/commodity'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
+                        <a th:href="@{/inventory}" th:classappend="${currentPath == '/inventory'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
                         <a th:href="@{/commodity/create}" th:classappend="${currentPath == '/commodity/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
                         <a th:href="@{/commodity/create/export}" th:classappend="${currentPath == '/commodity/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
                     </div>
@@ -89,8 +89,8 @@
                         <span x-text="openMenu ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openMenu" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách món</a>
-                        <a th:href="@{/menu/create}" th:classappend="${currentPath == '/menu/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
+                        <a th:href="@{/dish}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách món</a>
+                        <a th:href="@{/dish/new}" th:classappend="${currentPath == '/menu/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
                     </div>
                 </div>
                 <div x-data="{ openMarketing: false }" class="space-y-1">
@@ -101,8 +101,8 @@
                         <span x-text="openMarketing ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openMarketing" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/marketing}" th:classappend="${currentPath == '/marketing'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách khuyến mãi</a>
-                        <a th:href="@{/marketing/create}" th:classappend="${currentPath == '/marketing/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm khuyến mãi</a>
+                        <a th:href="@{/promotion}" th:classappend="${currentPath == '/marketing'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách khuyến mãi</a>
+                        <a th:href="@{/promotion/create}" th:classappend="${currentPath == '/marketing/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm khuyến mãi</a>
                     </div>
                 </div>
                 <div x-data="{ openBudget: false }" class="space-y-1">
