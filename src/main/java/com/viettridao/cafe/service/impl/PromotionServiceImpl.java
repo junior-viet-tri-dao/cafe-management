@@ -1,6 +1,7 @@
 package com.viettridao.cafe.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
@@ -29,8 +30,35 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public PromotionResponse getPromotionById(Integer id) {
-        PromotionEntity promotion = promotionRepository.findById(id).orElse(null);
-        return promotionMapper.convertToDto(promotion);
+        // Validate ID
+        if (id == null || id <= 0) {
+            return null;
+        }
+
+        try {
+            // Tìm promotion theo ID
+            Optional<PromotionEntity> promotionOpt = promotionRepository.findById(id);
+
+            if (promotionOpt.isPresent()) {
+                PromotionEntity promotion = promotionOpt.get();
+
+                // Kiểm tra promotion có bị xóa không (nếu có soft delete)
+                if (promotion.getIsDeleted() != null && promotion.getIsDeleted()) {
+                    return null; // Coi như không tìm thấy
+                }
+
+                // Convert to DTO
+                return promotionMapper.convertToDto(promotion);
+            } else {
+                // Không tìm thấy promotion
+                return null;
+            }
+
+        } catch (Exception e) {
+            System.err.println("Lỗi khi lấy promotion với ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

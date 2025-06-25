@@ -61,17 +61,21 @@ public class PromotionController {
 
         try {
             PromotionResponse promotion = promotionService.getPromotionById(id);
+
             if (promotion != null) {
                 model.addAttribute("promotion", promotion);
                 return "marketing/marketing-edit";
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy khuyến mãi với ID: " + id);
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Không tìm thấy khuyến mãi với ID: " + id + " hoặc khuyến mãi đã bị xóa");
                 return "redirect:/marketing";
             }
+
         } catch (Exception e) {
             System.err.println("Lỗi khi lấy promotion với ID " + id + ": " + e.getMessage());
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải thông tin khuyến mãi");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Có lỗi xảy ra khi tải thông tin khuyến mãi: " + e.getMessage());
             return "redirect:/marketing";
         }
     }
