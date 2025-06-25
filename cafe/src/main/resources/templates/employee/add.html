@@ -2,8 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-      <script th:src="@{/js/alert-utils.js}"></script>
 <head>
+<script th:src="@{/js/alert-utils.js}"></script>
+
     <meta charset="UTF-8">
     <title>Thêm nhân viên</title>
 </head>
@@ -11,11 +12,8 @@
 <div layout:fragment="content" class="max-w-xl mx-auto mt-10">
 
     <h2 class="text-xl font-bold mb-4 text-yellow-800">➕ Thêm nhân viên</h2>
-
-    <!-- ✅ Thông báo hệ thống -->
-    <div th:if="${error}" class="text-red-600 font-semibold mb-3" th:text="${error}"></div>
-    <div th:if="${success}" class="text-green-600 font-semibold mb-3" th:text="${success}"></div>
-
+   
+   <!-- ✅ Form -->
     <form th:action="@{/employee/add}" th:object="${request}" method="post" class="space-y-4">
 
         <!-- ✅ Lỗi validation chung -->

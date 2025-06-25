@@ -2,9 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-          <script th:src="@{/js/alert-utils.js}"></script>
       
 <head>
+          <script th:src="@{/js/alert-utils.js}"></script>
+
     <meta charset="UTF-8">
     <title>Trang cá nhân</title>
 </head>
@@ -14,10 +15,15 @@
     <div th:if="${error}" class="text-red-600 font-semibold mb-3" th:text="${error}"></div>
     <div th:if="${success}" class="text-green-600 font-semibold mb-3" th:text="${success}"></div>
 
-
     <!-- Form CẬP NHẬT THÔNG TIN -->
     <form th:action="@{/profile}" th:object="${request}" method="post"
           class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-6">
+          
+          
+	<div th:if="${#fields.hasGlobalErrors()}" class="text-red-600 text-sm mb-3">
+	    <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+	</div>
+          
 
         <!-- ✅ Hidden ID để update đúng -->
         <input type="hidden" th:field="*{id}" />
@@ -37,12 +43,6 @@
                     <p th:if="${#fields.hasErrors('imageUrl')}" th:errors="*{imageUrl}" class="text-red-500 text-sm"></p>
                 </label>
 
-                <form th:action="@{/logout}" method="post" class="text-center mt-6">
-                    <button type="submit"
-                            class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
-                        🚪 Đăng xuất
-                    </button>
-                </form>
             </div>
 
             <!-- Thông tin cá nhân -->
@@ -107,6 +107,13 @@
             </div>
         </div>
     </form>
+    
+        <form th:action="@{/logout}" method="post" class="text-center mt-6">
+                    <button type="submit"
+                            class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
+                        🚪 Đăng xuất
+                    </button>
+                </form>
 </div>
 <div th:replace="~{/alert :: alerts}"></div>
 

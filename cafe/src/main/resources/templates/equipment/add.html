@@ -1,79 +1,75 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
-<script th:src="@{/js/alert-utils.js}"></script>
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Thêm nhân viên</title>
+    <title>Thêm thiết bị</title>
+    <script th:src="@{/js/alert-utils.js}"></script>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-xl mx-auto mt-10">
-    <h2 class="text-2xl font-bold mb-4 text-yellow-800">👤 Thêm nhân viên</h2>
 
-    <!-- ✅ Thông báo hệ thống -->
+    <h2 class="text-2xl font-bold mb-4 text-yellow-800">➕ Thêm thiết bị</h2>
+
+    <!-- ✅ Thông báo flash -->
     <div th:if="${success}" class="text-green-600 font-medium mb-3" th:text="${success}"></div>
     <div th:if="${error}" class="text-red-600 font-medium mb-3" th:text="${error}"></div>
 
-    <!-- ✅ Lỗi validation -->
-    <div th:if="${#fields.hasErrors('*')}">
-        <ul class="text-red-500 text-sm mb-3">
-            <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-        </ul>
-    </div>
-
-    <form th:action="@{/employee/add}" th:object="${request}" method="post"
+    <!-- ✅ Form -->
+    <form th:action="@{/equipment/add}" th:object="${request}" method="post"
           class="bg-white shadow p-6 rounded space-y-4">
 
-        <label class="block">
-            Họ và tên:
-            <input type="text" th:field="*{fullName}" class="w-full border rounded px-3 py-2"/>
+        <!-- ✅ Thông báo lỗi validation toàn cục -->
+        <div th:if="${#fields.hasErrors('*')}">
+            <ul class="text-red-500 text-sm mb-3 list-disc list-inside">
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+
+        <!-- Tên thiết bị -->
+        <label class="block font-medium">
+            Tên thiết bị:
+            <input type="text" th:field="*{equipmentName}"
+                   class="w-full border rounded px-3 py-2 mt-1"/>
+            <span class="text-red-500 text-sm" th:errors="*{equipmentName}"></span>
         </label>
 
-        <label class="block">
-            Địa chỉ:
-            <input type="text" th:field="*{address}" class="w-full border rounded px-3 py-2"/>
+        <!-- Ngày mua -->
+        <label class="block font-medium">
+            Ngày mua:
+            <input type="date" th:field="*{purchaseDate}"
+                   class="w-full border rounded px-3 py-2 mt-1"/>
+            <span class="text-red-500 text-sm" th:errors="*{purchaseDate}"></span>
         </label>
 
-        <label class="block">
-            Số điện thoại:
-            <input type="text" th:field="*{phoneNumber}" class="w-full border rounded px-3 py-2"/>
+        <!-- Số lượng -->
+        <label class="block font-medium">
+            Số lượng:
+            <input type="number" min="1" th:field="*{quantity}"
+                   class="w-full border rounded px-3 py-2 mt-1"/>
+            <span class="text-red-500 text-sm" th:errors="*{quantity}"></span>
         </label>
 
-        <label class="block">
-            Chức vụ:
-            <input type="text" th:field="*{position}" class="w-full border rounded px-3 py-2"/>
+        <!-- Đơn giá -->
+        <label class="block font-medium">
+            Đơn giá:
+            <input type="number" min="1000" step="1000" th:field="*{purchasePrice}"
+                   class="w-full border rounded px-3 py-2 mt-1"/>
+            <span class="text-red-500 text-sm" th:errors="*{purchasePrice}"></span>
         </label>
 
-        <label class="block">
-            Lương (VNĐ):
-            <input type="number" th:field="*{salary}" min="1000000" step="1000"
-                   class="w-full border rounded px-3 py-2"/>
-        </label>
-
-        <label class="block">
-            Link ảnh đại diện (tùy chọn):
-            <input type="text" th:field="*{imageUrl}" class="w-full border rounded px-3 py-2"/>
-        </label>
-
-        <label class="block">
-            Tên đăng nhập:
-            <input type="text" th:field="*{username}" class="w-full border rounded px-3 py-2"/>
-        </label>
-
-        <label class="block">
-            Mật khẩu:
-            <input type="password" th:field="*{password}" class="w-full border rounded px-3 py-2"/>
-        </label>
-
+        <!-- Nút -->
         <div class="flex gap-4 pt-4">
             <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded shadow">
-                ➕ Thêm nhân viên
+                ✅ Thêm
             </button>
-            <a th:href="@{/employee}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded shadow">Hủy</a>
+            <a th:href="@{/equipment}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded shadow">Hủy</a>
         </div>
     </form>
 </div>
-<div th:replace="~{/alert :: alerts}"></div>
 
+<!-- ✅ Load alert nếu có (SweetAlert hoặc tương tự) -->
+<div th:replace="~{/alert :: alerts}"></div>
 </body>
 </html>

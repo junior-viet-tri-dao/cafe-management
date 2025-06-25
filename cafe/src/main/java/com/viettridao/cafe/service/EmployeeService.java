@@ -3,6 +3,7 @@ package com.viettridao.cafe.service;
 import java.util.List;
 
 import com.viettridao.cafe.controller.Request.EmployeeProfileRequest;
+import com.viettridao.cafe.controller.Request.ProfileUpdateRequest;
 import com.viettridao.cafe.controller.response.EmployeeProfileResponse;
 import com.viettridao.cafe.dto.EmployeeProfileDTO;
 import com.viettridao.cafe.model.EmployeeEntity;
@@ -93,4 +94,13 @@ public interface EmployeeService {
 	 * @return Đối tượng EmployeeProfileDTO chứa thông tin hồ sơ.
 	 */
 	EmployeeProfileDTO getProfileDTO(String username);
+
+	/**
+	 * Cập nhật thông tin hồ sơ nhân viên dựa trên dữ liệu từ yêu cầu cập nhật hồ sơ
+	 * cá nhân.
+	 * 
+	 * @param request Đối tượng ProfileUpdateRequest chứa thông tin cần cập nhật.
+	 */
+	void updateProfile(ProfileUpdateRequest request);
+
 }

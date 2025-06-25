@@ -140,9 +140,7 @@
     </aside>
 
     <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
-    		 <!-- ✅ Thông báo lỗi/thành công -->
-    <div th:if="${error}" class="text-red-500 mb-3" th:text="${error}"></div>
-    <div th:if="${success}" class="text-green-600 mb-3" th:text="${success}"></div>
+    	
         <div class="text-center mt-20">
             <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.username}">
             </h2>
