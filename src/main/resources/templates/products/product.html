@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Danh sách hàng hóa</title>
-    <script th:src="@{/js/product.js}"></script>
+    <script th:src="@{/js/product/product.js}"></script>
   </head>
   <body>
     <div
@@ -159,18 +159,7 @@
                   >
                     Tên
                   </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Ngày nhập
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Ngày xuất
-                  </th>
+
                   <th
                     scope="col"
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -189,75 +178,42 @@
                   >
                     Đơn giá
                   </th>
-                  <th
-                    scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Tổng tiền
-                  </th>
                 </tr>
               </thead>
               <tbody
                 class="bg-white divide-y divide-gray-200"
                 id="productTableBody"
               >
-                <!-- Fake Data Row 1 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                <!-- Render product rows from DB -->
+                <tr
+                  th:each="product : ${listProduct}"
+                  class="hover:bg-gray-50 transition-colors duration-200"
+                >
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <div class="text-sm font-medium text-gray-900">
-                        Cà phê
-                      </div>
+                      <div
+                        class="text-sm font-medium text-gray-900"
+                        th:text="${product.productName}"
+                      ></div>
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">23/12/2014</div>
+                    <div
+                      class="text-sm text-gray-900"
+                      th:text="${product.quantity}"
+                    ></div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500">-</div>
+                    <div
+                      class="text-sm text-gray-900"
+                      th:text="${product.unit.unitName}"
+                    ></div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">20</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">kg</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">50.000 VNĐ</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      1.000.000 VNĐ
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Fake Data Row 2 -->
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                      <div class="text-sm font-medium text-gray-900">Pepsi</div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500">-</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">27/12/2014</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">5</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">thùng</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">100.000 VNĐ</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      500.000 VNĐ
-                    </div>
+                    <div
+                      class="text-sm text-gray-900"
+                      th:text="${product.price}"
+                    ></div>
                   </td>
                 </tr>
 
@@ -298,48 +254,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-
-        <!-- Summary -->
-        <div class="mt-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
-          <div class="flex items-center justify-between">
-            <div class="text-sm text-purple-600">
-              Tổng số mặt hàng: <span class="font-semibold">2</span>
-            </div>
-            <div class="text-sm text-purple-600">
-              Tổng giá trị kho: <span class="font-semibold">1.500.000 VNĐ</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="mt-6 flex items-center justify-between">
-          <div class="text-sm text-gray-700">
-            Hiển thị <span class="font-medium">1</span> đến
-            <span class="font-medium">2</span>
-            trong tổng số
-            <span class="font-medium">2</span>
-            sản phẩm
-          </div>
-          <div class="flex items-center space-x-2">
-            <button
-              class="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-              disabled
-            >
-              Trước
-            </button>
-            <button
-              class="px-3 py-1 text-sm border border-purple-500 rounded-md bg-purple-500 text-white"
-            >
-              1
-            </button>
-            <button
-              class="px-3 py-1 text-sm border border-gray-300 rounded-md text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-              disabled
-            >
-              Sau
-            </button>
           </div>
         </div>
       </div>

@@ -28,12 +28,6 @@ public class PromotionEntity {
     @Column(name = "discount_value")
     private Double discountValue;
 
-    @Column(name = "status")
-    private Boolean status;
-
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 

@@ -13,7 +13,5 @@ public class PromotionResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private Double discountValue;
-    private Boolean status;
-    private String description;
     private Boolean isDeleted;
 }

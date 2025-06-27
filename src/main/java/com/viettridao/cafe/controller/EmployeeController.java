@@ -22,15 +22,15 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-public class EmployeeController {
+public class EmployeeController extends BaseController {
     private final EmployeeService employeeService;
     private final PositionService positionService;
 
     @GetMapping("/employee")
-    public String getEmployeePage(@RequestParam(value = "search", required = false) String searchKeyword, 
-                             Model model) {
+    public String getEmployeePage(@RequestParam(value = "search", required = false) String searchKeyword,
+            Model model) {
         List<?> employees;
-        
+
         if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
             // Tìm kiếm nhân viên theo từ khóa
             employees = employeeService.searchByName(searchKeyword.trim());
@@ -41,7 +41,7 @@ public class EmployeeController {
             employees = employeeService.getAllEmployees();
             model.addAttribute("isSearchResult", false);
         }
-        
+
         model.addAttribute("listEmployee", employees);
         return "employees/employee";
     }

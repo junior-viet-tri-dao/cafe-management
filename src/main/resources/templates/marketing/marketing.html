@@ -55,7 +55,6 @@
                   <th class="py-2 px-4 border-b text-left">Ngày bắt đầu</th>
                   <th class="py-2 px-4 border-b text-left">Ngày kết thúc</th>
                   <th class="py-2 px-4 border-b text-left">% Giảm</th>
-                  <th class="py-2 px-4 border-b text-left">Trạng thái</th>
                   <th class="py-2 px-4 border-b text-center">Thao tác</th>
                 </tr>
               </thead>
@@ -88,20 +87,6 @@
                     class="py-2 px-4 border-b"
                     th:text="${promotion.discountValue + '%'}"
                   ></td>
-                  <td class="py-2 px-4 border-b">
-                    <span
-                      th:if="${promotion.status}"
-                      class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
-                    >
-                      Hoạt động
-                    </span>
-                    <span
-                      th:unless="${promotion.status}"
-                      class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded"
-                    >
-                      Vô hiệu
-                    </span>
-                  </td>
                   <td class="py-2 px-4 border-b text-center">
                     <div class="flex justify-center space-x-2">
                       <!-- Edit button -->

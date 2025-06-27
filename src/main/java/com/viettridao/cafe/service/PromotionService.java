@@ -2,6 +2,7 @@ package com.viettridao.cafe.service;
 
 import java.util.List;
 
+import com.viettridao.cafe.dto.request.promotion.AddPromotionRequest;
 import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
 import com.viettridao.cafe.model.PromotionEntity;
@@ -28,7 +29,7 @@ public interface PromotionService {
      * @param promotion the promotion to create
      * @return the created promotion
      */
-    PromotionEntity createPromotion(PromotionEntity promotion);
+    PromotionEntity createPromotion(AddPromotionRequest request);
 
     /**
      * Updates an existing promotion.

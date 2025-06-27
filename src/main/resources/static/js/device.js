@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const unitPriceInput = document.getElementById("unitPrice");
   const totalPriceInput = document.getElementById("totalPrice");
   const form = document.getElementById("deviceForm");
+  const notesInput = document.getElementById("notes");
 
   // Validation functions
   function validateDeviceName(name) {
@@ -68,6 +69,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return { valid: false, message: "Đơn giá không được quá 1 tỷ VNĐ" };
     }
     return { valid: true, message: "Đơn giá hợp lệ" };
+  }
+
+  function validateNotes(notes) {
+    if (notes && notes.length > 255) {
+      return { valid: false, message: "Ghi chú không được quá 255 ký tự" };
+    }
+    return { valid: true, message: "Ghi chú hợp lệ" };
   }
 
   // Format price display
@@ -163,6 +171,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (notesInput) {
+    notesInput.addEventListener("blur", function (e) {
+      const validation = validateNotes(e.target.value);
+      showValidationMessage(e.target, validation.valid, validation.message);
+    });
+
+    notesInput.addEventListener("input", function (e) {
+      // Reset styles when typing
+      e.target.style.borderColor = "#d1d5db";
+      e.target.style.backgroundColor = "#ffffff";
+      const existingError = e.target.parentNode.querySelector(".error-message");
+      if (existingError) {
+        existingError.remove();
+      }
+    });
+  }
+
   // Form submission validation
   if (form) {
     form.addEventListener("submit", function (e) {
@@ -196,6 +221,15 @@ document.addEventListener("DOMContentLoaded", function () {
         errors.push(priceValidation.message);
         showValidationMessage(unitPriceInput, false, priceValidation.message);
         isValid = false;
+      }
+
+      if (notesInput) {
+        const notesValidation = validateNotes(notesInput.value);
+        if (!notesValidation.valid) {
+          errors.push(notesValidation.message);
+          showValidationMessage(notesInput, false, notesValidation.message);
+          isValid = false;
+        }
       }
 
       if (!isValid) {

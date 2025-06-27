@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "imports")//donnhap
+@Table(name = "imports") // donnhap
 public class ImportEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +31,6 @@ public class ImportEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")
     private EmployeeEntity employee;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "equipment_id")
-    private EquipmentEntity equipment;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")

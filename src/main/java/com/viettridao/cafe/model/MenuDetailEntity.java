@@ -12,15 +12,15 @@ public class MenuDetailEntity {
     @EmbeddedId
     private MenuKey id;
 
-    @ManyToOne
-    @MapsId("idProduct")
-    @JoinColumn(name = "product_id")
-    private ProductEntity product;
-
-    @ManyToOne
-    @MapsId("idMenuItem")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("menuId") // phần này yêu cầu bạn gán MenuItem trước
     @JoinColumn(name = "menu_item_id")
     private MenuItemEntity menuItem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("productId")
+    @JoinColumn(name = "product_id")
+    private ProductEntity product;
 
     @Column(name = "quantity")
     private Double quantity;

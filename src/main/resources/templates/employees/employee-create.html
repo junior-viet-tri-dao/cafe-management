@@ -14,16 +14,17 @@
       layout:fragment="content"
       class="min-h-full w-full p-6 flex justify-center"
     >
-      <div class="max-w-8xl mx-auto">
+      <!-- Tăng max-width từ max-w-8xl lên max-w-full và set width cụ thể -->
+      <div class="w-full max-w-6xl mx-auto">
         <!-- Header -->
         <div class="mb-8">
           <div class="flex items-center gap-4 mb-4">
             <a
               href="/employee"
-              class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+              class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
             >
               <svg
-                class="w-5 h-5 text-gray-600"
+                class="w-6 h-6 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -37,198 +38,201 @@
               </svg>
             </a>
             <div>
-              <h1 class="text-3xl font-bold text-gray-900">
+              <h1 class="text-4xl font-bold text-gray-900">
                 Thêm nhân viên mới
               </h1>
-              <p class="text-gray-600">
+              <p class="text-lg text-gray-600">
                 Điền thông tin để thêm nhân viên vào hệ thống
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Form -->
-        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+        <!-- Form với padding và spacing lớn hơn -->
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
           <form
             th:action="@{/employee/create}"
             method="post"
             enctype="multipart/form-data"
-            class="p-8"
+            class="p-12"
           >
-            <!-- Họ và tên -->
-            <div>
-              <label
-                for="fullName"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                <span class="text-red-500">*</span> Họ và tên:
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                required
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-            </div>
-
-            <!-- Số điện thoại -->
-            <div>
-              <label
-                for="phoneNumber"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                <span class="text-red-500">*</span> Số điện thoại:
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                required
-                title="Nhập số điện thoại Việt Nam hợp lệ"
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-              <small class="text-gray-500 text-xs mt-1">
-                Định dạng: 0901234567
-              </small>
-            </div>
-
-            <!-- Địa chỉ -->
-            <div>
-              <label
-                for="address"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Địa chỉ:
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                required
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-            </div>
-
-            <!-- Chức vụ -->
-            <div>
-              <label
-                for="positionId"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                <span class="text-red-500">*</span> Chức vụ:
-              </label>
-              <select
-                id="positionId"
-                name="positionId"
-                required
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                onchange="updateSalary(this)"
-              >
-                <option value="">Chọn chức vụ</option>
-                <option
-                  th:each="position : ${listPosition}"
-                  th:value="${position.id}"
-                  th:text="${position.positionName}"
-                  th:data-salary="${position.salary}"
+            <!-- Grid layout 2 cột cho các fields -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Họ và tên -->
+              <div>
+                <label
+                  for="fullName"
+                  class="block text-base font-semibold text-gray-700 mb-3"
                 >
-                  Chức vụ
-                </option>
-              </select>
-            </div>
-
-            <!-- Tên đăng nhập -->
-            <div>
-              <label
-                for="username"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                <span class="text-red-500">*</span> Tên đăng nhập:
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                required
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-            </div>
-
-            <!-- Mật khẩu -->
-            <div>
-              <label
-                for="password"
-                class="block text-sm font-medium text-gray-700 mb-2"
-              >
-                <span class="text-red-500">*</span> Mật khẩu:
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                required
-                minlength="6"
-                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-              />
-            </div>
-
-            <!-- Avatar -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Ảnh đại diện:
-              </label>
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden"
-                >
-                  <img
-                    id="avatarPreview"
-                    class="w-full h-full object-cover hidden"
-                    alt="Preview"
-                  />
-                  <svg
-                    id="avatarPlaceholder"
-                    class="w-8 h-8 text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                    />
-                  </svg>
-                </div>
+                  <span class="text-red-500">*</span> Họ và tên:
+                </label>
                 <input
-                  type="file"
-                  name="avatar"
-                  accept="image/*"
-                  onchange="previewAvatar(this)"
-                  class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                 />
+              </div>
+
+              <!-- Số điện thoại -->
+              <div>
+                <label
+                  for="phoneNumber"
+                  class="block text-base font-semibold text-gray-700 mb-3"
+                >
+                  <span class="text-red-500">*</span> Số điện thoại:
+                </label>
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  required
+                  title="Nhập số điện thoại Việt Nam hợp lệ"
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                />
+                <small class="text-gray-500 text-sm mt-2 block">
+                  Định dạng: 0901234567
+                </small>
+              </div>
+
+              <!-- Địa chỉ - span full width -->
+              <div class="lg:col-span-2">
+                <label
+                  for="address"
+                  class="block text-base font-semibold text-gray-700 mb-3"
+                >
+                  Địa chỉ:
+                </label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  required
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                />
+              </div>
+
+              <!-- Chức vụ -->
+              <div>
+                <label
+                  for="positionId"
+                  class="block text-base font-semibold text-gray-700 mb-3"
+                >
+                  <span class="text-red-500">*</span> Chức vụ:
+                </label>
+                <select
+                  id="positionId"
+                  name="positionId"
+                  required
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  onchange="updateSalary(this)"
+                >
+                  <option value="">Chọn chức vụ</option>
+                  <option
+                    th:each="position : ${listPosition}"
+                    th:value="${position.id}"
+                    th:text="${position.positionName}"
+                    th:data-salary="${position.salary}"
+                  >
+                    Chức vụ
+                  </option>
+                </select>
+              </div>
+
+              <!-- Tên đăng nhập -->
+              <div>
+                <label
+                  for="username"
+                  class="block text-base font-semibold text-gray-700 mb-3"
+                >
+                  <span class="text-red-500">*</span> Tên đăng nhập:
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                />
+              </div>
+
+              <!-- Mật khẩu - span full width -->
+              <div class="lg:col-span-2">
+                <label
+                  for="password"
+                  class="block text-base font-semibold text-gray-700 mb-3"
+                >
+                  <span class="text-red-500">*</span> Mật khẩu:
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  minlength="6"
+                  class="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                />
+              </div>
+
+              <!-- Avatar - span full width -->
+              <div class="lg:col-span-2">
+                <label class="block text-base font-semibold text-gray-700 mb-3">
+                  Ảnh đại diện:
+                </label>
+                <div class="flex items-center space-x-6">
+                  <div
+                    class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden"
+                  >
+                    <img
+                      id="avatarPreview"
+                      class="w-full h-full object-cover hidden"
+                      alt="Preview"
+                    />
+                    <svg
+                      id="avatarPlaceholder"
+                      class="w-12 h-12 text-gray-400"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="file"
+                    name="avatar"
+                    accept="image/*"
+                    onchange="previewAvatar(this)"
+                    class="text-base text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-base file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                </div>
               </div>
             </div>
 
             <!-- Required Fields Note -->
-            <div class="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p class="text-sm text-red-600">
-                <span class="font-medium">Lưu ý:</span> Các trường có dấu
+            <div class="mt-10 p-6 bg-red-50 border border-red-200 rounded-xl">
+              <p class="text-base text-red-600">
+                <span class="font-semibold">Lưu ý:</span> Các trường có dấu
                 <span class="text-red-500">*</span> là bắt buộc phải nhập
               </p>
             </div>
 
             <!-- Action Buttons -->
-            <div class="mt-8 flex items-center justify-end gap-4">
+            <div class="mt-10 flex items-center justify-end gap-6">
               <a
                 href="/employees"
-                class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors duration-200"
+                class="px-8 py-4 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-semibold text-lg transition-colors duration-200"
               >
                 Hủy
               </a>
               <button
                 type="submit"
-                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-lg transition-colors duration-200 flex items-center gap-3"
               >
                 <svg
-                  class="w-5 h-5"
+                  class="w-6 h-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

@@ -1,168 +1,140 @@
 document.addEventListener("DOMContentLoaded", function () {
   let ingredients = [];
 
-  // Lấy các elements
   const ingredientsList = document.getElementById("ingredientsList");
   const addIngredientBtn = document.getElementById("addIngredientBtn");
   const menuForm = document.getElementById("menuForm");
   const cancelBtn = document.getElementById("cancelBtn");
+  const messageBox = document.getElementById("messageBox");
 
-  // Thêm thành phần
   addIngredientBtn.addEventListener("click", function () {
-    const name = document.getElementById("newIngredientName").value.trim();
-    const amount = document.getElementById("newIngredientAmount").value.trim();
-    const unit = document.getElementById("newIngredientUnit").value;
+    const productId = document.getElementById("newIngredientName").value;
+    const productName =
+      document.getElementById("newIngredientName").selectedOptions[0].text;
+    const quantity = document
+      .getElementById("newIngredientAmount")
+      .value.trim();
+    const unitName = document.getElementById("newIngredientUnit").value.trim();
 
-    if (name && amount && unit) {
+    if (productId && quantity && unitName) {
       // Kiểm tra trùng lặp
       const existingIngredient = ingredients.find(
-        (ing) => ing.name.toLowerCase() === name.toLowerCase()
+        (ing) => ing.productId === productId
       );
       if (existingIngredient) {
-        alert("Thành phần này đã được thêm!");
+        showMessage("Thành phần này đã được thêm!", "error");
         return;
       }
 
       const ingredient = {
-        name: name,
-        amount: parseFloat(amount),
-        unit: unit,
+        productId: parseInt(productId),
+        productName: productName,
+        quantity: parseFloat(quantity),
+        unitName: unitName,
       };
 
       ingredients.push(ingredient);
       renderIngredients();
       clearIngredientInputs();
     } else {
-      alert("Vui lòng điền đầy đủ thông tin thành phần!");
+      showMessage("Vui lòng điền đầy đủ thông tin thành phần!", "error");
     }
   });
 
-  // Render danh sách thành phần
   function renderIngredients() {
+    ingredientsList.innerHTML = "";
     if (ingredients.length === 0) {
       ingredientsList.innerHTML = `
-                <div class="grid grid-cols-3 py-8 text-center text-gray-500">
-                    <div class="col-span-3">Chưa có thành phần nào</div>
-                </div>
-            `;
+        <div class="grid grid-cols-3 py-8 text-center text-gray-500">
+          <div class="col-span-3">Chưa có thành phần nào</div>
+        </div>
+      `;
       return;
     }
 
-    const html = ingredients
-      .map(
-        (ingredient, index) => `
-            <div class="grid grid-cols-3 border-b border-gray-300 last:border-b-0">
-                <div class="px-3 py-2 border-r border-gray-300">${ingredient.name}</div>
-                <div class="px-3 py-2 border-r border-gray-300">${ingredient.amount}</div>
-                <div class="px-3 py-2 flex justify-between items-center">
-                    <span>${ingredient.unit}</span>
-                    <button 
-                        type="button" 
-                        onclick="removeIngredient(${index})"
-                        class="text-red-500 hover:text-red-700 ml-2"
-                        title="Xóa thành phần"
-                    >
-                        ✕
-                    </button>
-                </div>
-            </div>
-        `
-      )
-      .join("");
+    ingredients.forEach((ingredient, idx) => {
+      const row = document.createElement("div");
+      row.className =
+        "grid grid-cols-3 border-b border-gray-300 last:border-b-0";
 
-    ingredientsList.innerHTML = html;
+      row.innerHTML = `
+        <div class="px-3 py-2 border-r border-gray-300 text-center">${ingredient.productName}
+          <input type="hidden" name="menuDetails[${idx}].productId" value="${ingredient.productId}" />
+        </div>
+        <div class="px-3 py-2 border-r border-gray-300 text-center">${ingredient.quantity}
+          <input type="hidden" name="menuDetails[${idx}].quantity" value="${ingredient.quantity}" />
+        </div>
+        <div class="px-3 py-2 flex justify-center items-center text-center">
+          <span>${ingredient.unitName}</span>
+          <input type="hidden" name="menuDetails[${idx}].unitName" value="${ingredient.unitName}" />
+          <button 
+            type="button" 
+            onclick="removeIngredient(${idx})"
+            class="text-red-500 hover:text-red-700 ml-2"
+            title="Xóa thành phần"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+      ingredientsList.appendChild(row);
+    });
   }
 
-  // Xóa thành phần
-  window.removeIngredient = function (index) {
-    if (confirm("Bạn có chắc muốn xóa thành phần này?")) {
-      ingredients.splice(index, 1);
-      renderIngredients();
-    }
-  };
-
-  // Xóa input thành phần
   function clearIngredientInputs() {
     document.getElementById("newIngredientName").value = "";
     document.getElementById("newIngredientAmount").value = "";
     document.getElementById("newIngredientUnit").value = "";
   }
 
-  // Submit form
+  function showMessage(msg, type) {
+    if (!messageBox) return;
+    messageBox.innerHTML = `
+      <div class="mb-4 px-4 py-3 rounded-lg ${
+        type === "success"
+          ? "bg-green-50 border border-green-200 text-green-800"
+          : "bg-red-50 border border-red-200 text-red-800"
+      } shadow flex items-center gap-2" role="alert">
+        <span>${msg}</span>
+      </div>
+    `;
+    setTimeout(() => {
+      messageBox.innerHTML = "";
+    }, 3000);
+  }
+
+  window.removeIngredient = function (index) {
+    ingredients.splice(index, 1);
+    renderIngredients();
+  };
+
   menuForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+    // Kiểm tra dữ liệu trước khi submit
+    const itemName = document.getElementById("tenMon").value.trim();
+    const currentPrice = document.getElementById("giaTien").value.trim();
 
-    const tenMon = document.getElementById("tenMon").value.trim();
-    const giaTien = document.getElementById("giaTien").value.trim();
-
-    if (!tenMon || !giaTien) {
-      alert("Vui lòng điền đầy đủ tên món và giá tiền!");
+    if (!itemName || !currentPrice) {
+      showMessage("Vui lòng điền đầy đủ tên món và giá tiền!", "error");
+      e.preventDefault();
       return;
     }
 
     if (ingredients.length === 0) {
-      if (!confirm("Bạn chưa thêm thành phần nào. Bạn có muốn tiếp tục?")) {
-        return;
-      }
+      showMessage("Vui lòng thêm ít nhất 1 thành phần!", "error");
+      e.preventDefault();
+      return;
     }
-
-    const menuData = {
-      tenMon: tenMon,
-      giaTien: parseFloat(giaTien),
-      thanhPhan: ingredients,
-    };
-
-    // Gửi dữ liệu lên server
-    saveMenu(menuData);
+    // Không cần fetch/ajax, form sẽ submit bình thường
   });
 
-  // Lưu món ăn
-  function saveMenu(menuData) {
-    console.log("Dữ liệu món ăn:", menuData);
-
-    // TODO: Gửi request đến server
-    fetch("/api/menus", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(menuData),
-    })
-      .then((response) => {
-        if (response.ok) {
-          alert("Thêm món thành công!");
-          // Reset form
-          resetForm();
-          // Chuyển hướng về danh sách menu
-          window.location.href = "/menus";
-        } else {
-          throw new Error("Lỗi khi thêm món");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Có lỗi xảy ra khi thêm món!");
-      });
-  }
-
-  // Reset form
-  function resetForm() {
-    menuForm.reset();
-    ingredients = [];
-    renderIngredients();
-  }
-
-  // Hủy
   cancelBtn.addEventListener("click", function () {
     if (confirm("Bạn có chắc muốn hủy? Dữ liệu sẽ không được lưu.")) {
-      window.location.href = "/menus";
+      window.location.href = "/menu";
     }
   });
 
-  // Khởi tạo
   renderIngredients();
 
-  // Enter để thêm thành phần
   ["newIngredientName", "newIngredientAmount", "newIngredientUnit"].forEach(
     (id) => {
       document.getElementById(id).addEventListener("keypress", function (e) {

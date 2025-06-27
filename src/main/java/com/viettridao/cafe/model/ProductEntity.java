@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "products")//hanghoa
+@Table(name = "products") // hanghoa
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,9 @@ public class ProductEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @Column(name = "price")
+    private Double price;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImportEntity> imports;
 
@@ -33,4 +36,8 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<MenuDetailEntity> menuDetails;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "unit_id")
+    private UnitEntity unit;
 }

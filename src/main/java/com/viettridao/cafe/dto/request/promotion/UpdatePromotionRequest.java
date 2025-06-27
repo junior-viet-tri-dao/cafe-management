@@ -39,10 +39,4 @@ public class UpdatePromotionRequest {
     @DecimalMin(value = "0.1", message = "Giá trị giảm giá phải lớn hơn 0")
     @DecimalMax(value = "100.0", message = "Giá trị giảm giá không được vượt quá 100%")
     private Double discountValue;
-
-    @NotNull(message = "Trạng thái không được để trống")
-    private Boolean status;
-
-    @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
-    private String description;
 }

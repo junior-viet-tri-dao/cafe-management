@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="${errorCode} + ' - ' + ${errorTitle}">Lỗi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
+  </head>
+  <body>
+    <div
+      class="relative z-10 min-h-full flex justify-center items-center w-full p-6"
+    >
+      <div class="w-full max-w-2xl text-center">
+        <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-12">
+          <!-- Error Icon -->
+          <div class="mb-8">
+            <div class="text-8xl text-yellow-400 mb-4">
+              <span>⚠️</span>
+            </div>
+          </div>
+
+          <!-- Error Info -->
+          <div class="mb-8">
+            <h1
+              class="text-6xl font-bold text-orange-500 mb-4"
+              th:text="${errorCode}"
+            >
+              Lỗi
+            </h1>
+            <h2
+              class="text-2xl font-semibold text-gray-700 mb-4"
+              th:text="${errorTitle}"
+            >
+              Đã xảy ra lỗi
+            </h2>
+            <p class="text-gray-600 text-lg mb-6" th:text="${errorMessage}">
+              Một lỗi không xác định đã xảy ra.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-center space-x-4">
+            <a
+              href="/home"
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium transition-colors"
+            >
+              Về trang chủ
+            </a>
+            <button
+              onclick="history.back()"
+              class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-medium transition-colors"
+            >
+              Quay lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let ingredients = [
-    { name: "Cà phê", amount: 15, unit: "gam" },
-    { name: "Sữa đặc", amount: 30, unit: "ml" },
-    { name: "Nước nóng", amount: 150, unit: "ml" },
-  ];
   let menuId = null;
+  // Xóa thành phần
+  window.removeIngredient = function (index) {
+    if (confirm("Bạn có chắc muốn xóa thành phần này?")) {
+      ingredients.splice(index, 1);
+      renderIngredients();
+    }
+  };
 
   // Lấy các elements
   const ingredientsList = document.getElementById("ingredientsList");
@@ -19,36 +21,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function getMenuIdFromUrl() {
     const urlParts = window.location.pathname.split("/");
     return urlParts[urlParts.length - 1];
-  }
-
-  // Tải thông tin món ăn
-  function loadMenuData() {
-    menuId = getMenuIdFromUrl();
-
-    if (!menuId || menuId === "edit") {
-      showError();
-      return;
-    }
-
-    showLoading();
-
-    fetch(`/api/menus/${menuId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Menu không tồn tại");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        populateForm(data);
-        hideLoading();
-        showForm();
-      })
-      .catch((error) => {
-        console.error("Error loading menu:", error);
-        hideLoading();
-        showError();
-      });
   }
 
   // Điền dữ liệu vào form
@@ -108,8 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
       ingredients.push(ingredient);
       renderIngredients();
       clearIngredientInputs();
-    } else {
-      alert("Vui lòng điền đầy đủ thông tin thành phần!");
     }
   });
 
@@ -127,15 +97,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const html = ingredients
       .map(
         (ingredient, index) => `
-            <div class="grid grid-cols-3 border-b border-gray-300 last:border-b-0">
+            <div class="grid grid-cols-3 border-b border-gray-300 last:border-b-0 ingredient-row">
                 <div class="px-3 py-2 border-r border-gray-300">${ingredient.name}</div>
                 <div class="px-3 py-2 border-r border-gray-300">${ingredient.amount}</div>
                 <div class="px-3 py-2 flex justify-between items-center">
                     <span>${ingredient.unit}</span>
                     <button 
                         type="button" 
-                        onclick="removeIngredient(${index})"
-                        class="text-red-500 hover:text-red-700 ml-2"
+                        class="btn-remove-ingredient text-red-500 hover:text-red-700 ml-2"
                         title="Xóa thành phần"
                     >
                         ✕
@@ -147,15 +116,16 @@ document.addEventListener("DOMContentLoaded", function () {
       .join("");
 
     ingredientsList.innerHTML = html;
-  }
 
-  // Xóa thành phần
-  window.removeIngredient = function (index) {
-    if (confirm("Bạn có chắc muốn xóa thành phần này?")) {
-      ingredients.splice(index, 1);
-      renderIngredients();
-    }
-  };
+    // Gán sự kiện cho các nút xóa vừa được render
+    document.querySelectorAll(".btn-remove-ingredient").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (confirm("Bạn có chắc muốn xóa thành phần này?")) {
+          this.closest(".ingredient-row").remove();
+        }
+      });
+    });
+  }
 
   // Xóa input thành phần
   function clearIngredientInputs() {
@@ -189,12 +159,14 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Hủy
-  cancelBtn.addEventListener("click", function () {
-    if (confirm("Bạn có chắc muốn hủy? Những thay đổi sẽ không được lưu.")) {
-      // window.location.href = '/menus';
-      console.log("Đã hủy chỉnh sửa");
-    }
-  });
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", function () {
+      if (confirm("Bạn có chắc muốn hủy? Những thay đổi sẽ không được lưu.")) {
+        window.location.href = "/menu";
+        console.log("Đã hủy chỉnh sửa");
+      }
+    });
+  }
 
   // Enter để thêm thành phần
   ["newIngredientName", "newIngredientAmount", "newIngredientUnit"].forEach(
@@ -207,6 +179,15 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   );
+
+  // Gán sự kiện xóa cho các nút xóa render từ Thymeleaf khi trang vừa load
+  document.querySelectorAll(".btn-remove-ingredient").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (confirm("Bạn có chắc muốn xóa thành phần này?")) {
+        this.closest(".ingredient-row").remove();
+      }
+    });
+  });
 
   // Khởi tạo - render dữ liệu có sẵn
   renderIngredients();

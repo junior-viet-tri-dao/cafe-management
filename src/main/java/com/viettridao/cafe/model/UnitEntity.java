@@ -1,5 +1,7 @@
 package com.viettridao.cafe.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "units")//donvitinh
+@Table(name = "units") // donvitinh
 public class UnitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +21,7 @@ public class UnitEntity {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL)
+    private List<ProductEntity> products;
 }

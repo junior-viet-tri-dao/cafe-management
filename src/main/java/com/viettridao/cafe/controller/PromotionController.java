@@ -1,24 +1,22 @@
 package com.viettridao.cafe.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.viettridao.cafe.dto.request.promotion.AddPromotionRequest;
 import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
+import com.viettridao.cafe.model.PromotionEntity;
 import com.viettridao.cafe.service.PromotionService;
 
 import lombok.RequiredArgsConstructor;
@@ -163,8 +161,58 @@ public class PromotionController {
     }
 
     @GetMapping("/marketing/create")
-    public String showCreatePromotion() {
+    public String showCreatePromotion(Model model) {
+        // Tạo object rỗng cho form binding
+        model.addAttribute("promotionRequest", new AddPromotionRequest());
         return "marketing/marketing-create";
+    }
+
+    @PostMapping("/marketing/create")
+    public String createPromotion(@jakarta.validation.Valid @ModelAttribute AddPromotionRequest request,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // Kiểm tra validation errors từ annotation
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+
+            model.addAttribute("errorMessage", "Dữ liệu không hợp lệ: " + String.join(", ", errors));
+            model.addAttribute("promotionRequest", request); // Giữ lại dữ liệu user nhập
+            return "marketing/marketing-create";
+        }
+
+        try {
+            // Gọi service để tạo promotion
+            PromotionEntity createdPromotion = promotionService.createPromotion(request);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Tạo khuyến mãi '" + createdPromotion.getPromotionName() + "' thành công!");
+            return "redirect:/marketing";
+
+        } catch (IllegalArgumentException e) {
+            // Lỗi validation từ service (business logic)
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("promotionRequest", request); // Giữ lại dữ liệu user nhập
+            return "marketing/marketing-create";
+
+        } catch (RuntimeException e) {
+            System.err.println("Lỗi khi tạo promotion: " + e.getMessage());
+            e.printStackTrace();
+
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("promotionRequest", request); // Giữ lại dữ liệu user nhập
+            return "marketing/marketing-create";
+
+        } catch (Exception e) {
+            System.err.println("Lỗi không xác định khi tạo promotion: " + e.getMessage());
+            e.printStackTrace();
+
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tạo khuyến mãi. Vui lòng thử lại!");
+            return "redirect:/marketing/create";
+        }
     }
 
     @PostMapping("/marketing/delete/{id}")

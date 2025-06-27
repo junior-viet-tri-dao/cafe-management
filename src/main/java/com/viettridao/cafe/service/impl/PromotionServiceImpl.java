@@ -3,9 +3,13 @@ package com.viettridao.cafe.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.viettridao.cafe.dto.request.promotion.AddPromotionRequest;
 import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
 import com.viettridao.cafe.mapper.PromotionMapper;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.model.PromotionEntity;
@@ -62,9 +66,88 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public PromotionEntity createPromotion(PromotionEntity promotion) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createPromotion'");
+    public PromotionEntity createPromotion(AddPromotionRequest request) {
+        // 1. Validate input
+        if (request == null) {
+            throw new IllegalArgumentException("Dữ liệu khuyến mãi không được để trống");
+        }
+
+        // Thêm validation sau step 1:
+        // 1.1. Validate required fields (phòng trường hợp annotation validation fail)
+        if (request.getPromotionName() == null || request.getPromotionName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Tên khuyến mãi không được để trống");
+        }
+
+        if (request.getStartDate() == null) {
+            throw new IllegalArgumentException("Ngày bắt đầu không được để trống");
+        }
+
+        if (request.getEndDate() == null) {
+            throw new IllegalArgumentException("Ngày kết thúc không được để trống");
+        }
+
+        if (request.getDiscountValue() == null || request.getDiscountValue() <= 0 || request.getDiscountValue() > 100) {
+            throw new IllegalArgumentException("Giá trị giảm giá phải từ 0.1% đến 100%");
+        }
+
+        // 2. Validate business logic - ngày kết thúc phải sau ngày bắt đầu
+        if (request.getEndDate() != null && request.getStartDate() != null) {
+            if (request.getEndDate().isBefore(request.getStartDate()) ||
+                    request.getEndDate().isEqual(request.getStartDate())) {
+                throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
+            }
+        }
+
+        // 3. Kiểm tra tên khuyến mãi trùng lặp
+        String promotionName = request.getPromotionName().trim();
+        boolean nameExists = promotionRepository.findAll().stream()
+                .anyMatch(p -> p.getPromotionName().equalsIgnoreCase(promotionName) &&
+                        (p.getIsDeleted() == null || !p.getIsDeleted()));
+
+        if (nameExists) {
+            throw new IllegalArgumentException("Tên khuyến mãi '" + promotionName + "' đã tồn tại");
+        }
+
+        // 4. Tạo entity mới
+        PromotionEntity promotion = new PromotionEntity();
+        promotion.setPromotionName(promotionName);
+        promotion.setStartDate(request.getStartDate());
+        promotion.setEndDate(request.getEndDate());
+        promotion.setDiscountValue(request.getDiscountValue());
+        // promotion.setStatus(request.getStatus() != null ? request.getStatus() :
+        // true);
+
+        // // Set description (có thể null)
+        // if (request.getDescription() != null) {
+        // String desc = request.getDescription().trim();
+        // if (!desc.isEmpty()) {
+        // if (desc.length() > 500) {
+        // throw new IllegalArgumentException("Mô tả không được vượt quá 500 ký tự");
+        // }
+        // promotion.setDescription(desc);
+        // }
+        // }
+
+        // Set default values cho soft delete
+        promotion.setIsDeleted(false);
+
+        // 5. Lưu vào database
+        try {
+            PromotionEntity saved = promotionRepository.save(promotion);
+            System.out.println("Đã tạo promotion mới ID: " + saved.getId() + " - " + saved.getPromotionName());
+            return saved;
+
+        } catch (DataIntegrityViolationException e) {
+            // Handle database constraint violations
+            throw new RuntimeException("Dữ liệu vi phạm ràng buộc database: " + e.getMessage(), e);
+        } catch (DataAccessException e) {
+            // Handle database access issues
+            throw new RuntimeException("Lỗi truy cập database khi tạo khuyến mãi: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo promotion: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi hệ thống khi tạo khuyến mãi: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -93,14 +176,15 @@ public class PromotionServiceImpl implements PromotionService {
         existingPromotion.setStartDate(request.getStartDate());
         existingPromotion.setEndDate(request.getEndDate());
         existingPromotion.setDiscountValue(request.getDiscountValue());
-        existingPromotion.setStatus(request.getStatus());
+        // existingPromotion.setStatus(request.getStatus());
 
-        // Cập nhật description
-        if (request.getDescription() != null && !request.getDescription().trim().isEmpty()) {
-            existingPromotion.setDescription(request.getDescription().trim());
-        } else {
-            existingPromotion.setDescription(null);
-        }
+        // // Cập nhật description
+        // if (request.getDescription() != null &&
+        // !request.getDescription().trim().isEmpty()) {
+        // existingPromotion.setDescription(request.getDescription().trim());
+        // } else {
+        // existingPromotion.setDescription(null);
+        // }
 
         try {
             PromotionEntity saved = promotionRepository.save(existingPromotion);
@@ -125,11 +209,6 @@ public class PromotionServiceImpl implements PromotionService {
         // 3. Kiểm tra promotion đã bị xóa chưa (nếu có soft delete)
         if (promotion.getIsDeleted() != null && promotion.getIsDeleted()) {
             throw new RuntimeException("Khuyến mãi đã bị xóa trước đó");
-        }
-
-        // 4. Kiểm tra promotion có đang active không (business rule)
-        if (promotion.getStatus() != null && promotion.getStatus()) {
-            throw new RuntimeException("Không thể xóa khuyến mãi đang hoạt động. Vui lòng vô hiệu hóa trước khi xóa");
         }
 
         // 5. Kiểm tra promotion có đang được sử dụng không (nếu có liên kết với orders)

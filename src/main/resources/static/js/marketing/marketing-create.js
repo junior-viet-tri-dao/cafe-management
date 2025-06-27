@@ -1,203 +1,239 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Lấy các elements
-  const promotionForm = document.getElementById("promotionForm");
-  const cancelBtn = document.getElementById("cancelBtn");
-  const loadingState = document.getElementById("loadingState");
+  console.log("Marketing create form loaded - using form submission");
 
-  // Set ngày mặc định
-  const today = new Date();
-  const todayString = today.toISOString().split("T")[0];
+  // Utility functions để hiển thị/ẩn lỗi
+  function showError(fieldName, message) {
+    const errorElement = document.getElementById(fieldName + "-error");
+    const inputElement = document.querySelector(
+      `input[name="${fieldName}"], select[name="${fieldName}"], textarea[name="${fieldName}"]`
+    );
 
-  // Set ngày bắt đầu là hôm nay
-  document.getElementById("ngayBatDau").value = todayString;
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.classList.remove("hidden");
+    }
 
-  // Set ngày kết thúc là 1 tuần sau
-  const nextWeek = new Date(today);
-  nextWeek.setDate(today.getDate() + 7);
-  const nextWeekString = nextWeek.toISOString().split("T")[0];
-  document.getElementById("ngayKetThuc").value = nextWeekString;
+    if (inputElement) {
+      inputElement.classList.add("border-red-500");
+      inputElement.classList.remove("border-gray-400");
+    }
+  }
+
+  function hideError(fieldName) {
+    const errorElement = document.getElementById(fieldName + "-error");
+    const inputElement = document.querySelector(
+      `input[name="${fieldName}"], select[name="${fieldName}"], textarea[name="${fieldName}"]`
+    );
+
+    if (errorElement) {
+      errorElement.classList.add("hidden");
+    }
+
+    if (inputElement) {
+      inputElement.classList.remove("border-red-500");
+      inputElement.classList.add("border-gray-400");
+    }
+  }
+
+  function clearAllErrors() {
+    const errorFields = [
+      "promotionName",
+      "startDate",
+      "endDate",
+      "discountValue",
+      "description",
+    ];
+    errorFields.forEach((field) => hideError(field));
+  }
 
   // Validation ngày
   function validateDates() {
-    const startDate = new Date(document.getElementById("ngayBatDau").value);
-    const endDate = new Date(document.getElementById("ngayKetThuc").value);
+    const startDate = document.querySelector('input[name="startDate"]').value;
+    const endDate = document.querySelector('input[name="endDate"]').value;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      if (end <= start) {
+        const newEndDate = new Date(start);
+        newEndDate.setDate(start.getDate() + 1);
+        document.querySelector('input[name="endDate"]').value = newEndDate
+          .toISOString()
+          .split("T")[0];
+      }
+    }
+  }
+
+  // Set ngày mặc định
+  function setDefaultDates() {
+    const today = new Date();
+    const todayString = today.toISOString().split("T")[0];
+
+    const startDateInput = document.querySelector('input[name="startDate"]');
+    const endDateInput = document.querySelector('input[name="endDate"]');
+
+    if (!startDateInput.value) {
+      startDateInput.value = todayString;
+    }
+
+    if (!endDateInput.value) {
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+      endDateInput.value = nextWeek.toISOString().split("T")[0];
+    }
+  }
+
+  // Validation real-time cho từng field
+  function validatePromotionName() {
+    const promotionName = document
+      .querySelector('input[name="promotionName"]')
+      .value.trim();
+
+    if (!promotionName) {
+      showError("promotionName", "Tên khuyến mãi không được để trống");
+      return false;
+    } else if (promotionName.length < 3) {
+      showError("promotionName", "Tên khuyến mãi phải có ít nhất 3 ký tự");
+      return false;
+    } else if (promotionName.length > 100) {
+      showError(
+        "promotionName",
+        "Tên khuyến mãi không được vượt quá 100 ký tự"
+      );
+      return false;
+    } else {
+      hideError("promotionName");
+      return true;
+    }
+  }
+
+  function validateDateRange() {
+    const startDate = new Date(
+      document.querySelector('input[name="startDate"]').value
+    );
+    const endDate = new Date(
+      document.querySelector('input[name="endDate"]').value
+    );
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Kiểm tra ngày bắt đầu không được nhỏ hơn hôm nay
     if (startDate < today) {
-      alert("Ngày bắt đầu không được nhỏ hơn ngày hôm nay!");
+      showError("startDate", "Ngày bắt đầu không được nhỏ hơn hôm nay");
       return false;
     }
 
-    // Kiểm tra ngày kết thúc phải lớn hơn ngày bắt đầu
     if (endDate <= startDate) {
-      alert("Ngày kết thúc phải lớn hơn ngày bắt đầu!");
+      showError("endDate", "Ngày kết thúc phải sau ngày bắt đầu");
       return false;
+    } else {
+      hideError("startDate");
+      hideError("endDate");
+      return true;
     }
-
-    return true;
   }
 
-  // Event listener cho ngày bắt đầu
-  document.getElementById("ngayBatDau").addEventListener("change", function () {
-    const startDate = new Date(this.value);
-    const endDateInput = document.getElementById("ngayKetThuc");
-    const endDate = new Date(endDateInput.value);
+  function validateDiscountValue() {
+    const discountValue = parseFloat(
+      document.querySelector('input[name="discountValue"]').value
+    );
 
-    // Nếu ngày kết thúc nhỏ hơn hoặc bằng ngày bắt đầu, tự động set ngày kết thúc
-    if (endDate <= startDate) {
-      const newEndDate = new Date(startDate);
-      newEndDate.setDate(startDate.getDate() + 1);
-      endDateInput.value = newEndDate.toISOString().split("T")[0];
+    if (!discountValue || isNaN(discountValue)) {
+      showError("discountValue", "Giá trị giảm giá không được để trống");
+      return false;
+    } else if (discountValue < 0.1) {
+      showError("discountValue", "Giá trị giảm giá phải từ 0.1% trở lên");
+      return false;
+    } else if (discountValue > 100) {
+      showError("discountValue", "Giá trị giảm giá không được vượt quá 100%");
+      return false;
+    } else {
+      hideError("discountValue");
+      return true;
     }
-  });
+  }
 
-  // Validation % giảm giá
-  document
-    .getElementById("phanTramGiam")
-    .addEventListener("input", function () {
-      const value = parseInt(this.value);
-      if (value < 0) {
-        this.value = 0;
+  function validateDescription() {
+    const description = document.querySelector(
+      'textarea[name="description"]'
+    ).value;
+
+    if (description && description.length > 500) {
+      showError("description", "Mô tả không được vượt quá 500 ký tự");
+      return false;
+    } else {
+      hideError("description");
+      return true;
+    }
+  }
+
+  // Validation form trước khi submit
+  function validateForm() {
+    clearAllErrors();
+
+    const isNameValid = validatePromotionName();
+    const isDateValid = validateDateRange();
+    const isDiscountValid = validateDiscountValue();
+    const isDescriptionValid = validateDescription();
+
+    return isNameValid && isDateValid && isDiscountValid && isDescriptionValid;
+  }
+
+  // Event listeners
+  const startDateInput = document.querySelector('input[name="startDate"]');
+  const endDateInput = document.querySelector('input[name="endDate"]');
+  const discountInput = document.querySelector('input[name="discountValue"]');
+  const nameInput = document.querySelector('input[name="promotionName"]');
+  const descriptionInput = document.querySelector(
+    'textarea[name="description"]'
+  );
+
+  // Set default dates on load
+  setDefaultDates();
+
+  // Real-time validation
+  if (nameInput) {
+    nameInput.addEventListener("blur", validatePromotionName);
+    nameInput.addEventListener("input", function () {
+      if (this.value.trim().length >= 3) {
+        validatePromotionName();
+      }
+    });
+  }
+
+  // Auto-adjust end date khi start date thay đổi
+  if (startDateInput) {
+    startDateInput.addEventListener("change", function () {
+      validateDates();
+      setTimeout(validateDateRange, 100);
+    });
+  }
+
+  if (endDateInput) {
+    endDateInput.addEventListener("change", validateDateRange);
+  }
+
+  // Giới hạn giá trị discount và validate
+  if (discountInput) {
+    discountInput.addEventListener("input", function () {
+      const value = parseFloat(this.value);
+      if (value < 0.1 && value > 0) {
+        this.value = 0.1;
       } else if (value > 100) {
         this.value = 100;
       }
     });
 
-  // Submit form
-  promotionForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    // Validate form
-    const tenKhuyenMai = document.getElementById("tenKhuyenMai").value.trim();
-    const ngayBatDau = document.getElementById("ngayBatDau").value;
-    const ngayKetThuc = document.getElementById("ngayKetThuc").value;
-    const phanTramGiam = document.getElementById("phanTramGiam").value;
-
-    if (!tenKhuyenMai) {
-      alert("Vui lòng nhập tên khuyến mãi!");
-      document.getElementById("tenKhuyenMai").focus();
-      return;
-    }
-
-    if (!ngayBatDau || !ngayKetThuc) {
-      alert("Vui lòng chọn ngày bắt đầu và ngày kết thúc!");
-      return;
-    }
-
-    if (!phanTramGiam || phanTramGiam <= 0) {
-      alert("Vui lòng nhập phần trăm giảm giá hợp lệ!");
-      document.getElementById("phanTramGiam").focus();
-      return;
-    }
-
-    if (!validateDates()) {
-      return;
-    }
-
-    // Tạo object dữ liệu
-    const promotionData = {
-      tenKhuyenMai: tenKhuyenMai,
-      ngayBatDau: formatDateForDisplay(ngayBatDau),
-      ngayKetThuc: formatDateForDisplay(ngayKetThuc),
-      phanTramGiam: parseInt(phanTramGiam),
-    };
-
-    // Gửi dữ liệu
-    createPromotion(promotionData);
-  });
-
-  // Tạo khuyến mãi
-  function createPromotion(promotionData) {
-    console.log("Dữ liệu khuyến mãi:", promotionData);
-
-    // Hiển thị loading
-    showLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Gọi API thực tế
-      /*
-            fetch('/api/promotions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(promotionData)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Tạo khuyến mãi thành công!');
-                    window.location.href = '/marketing';
-                } else {
-                    throw new Error('Lỗi khi tạo khuyến mãi');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi tạo khuyến mãi!');
-            })
-            .finally(() => {
-                showLoading(false);
-            });
-            */
-
-      // Mock success response
-      showLoading(false);
-      alert("Tạo khuyến mãi thành công! (Demo)");
-
-      // Uncomment để redirect về trang danh sách
-      // window.location.href = '/marketing';
-
-      // Reset form để demo
-      resetForm();
-    }, 1500);
+    discountInput.addEventListener("blur", validateDiscountValue);
   }
 
-  // Hiển thị/ẩn loading
-  function showLoading(show) {
-    if (show) {
-      promotionForm.style.display = "none";
-      loadingState.style.display = "block";
-    } else {
-      promotionForm.style.display = "block";
-      loadingState.style.display = "none";
-    }
+  // Validate description
+  if (descriptionInput) {
+    descriptionInput.addEventListener("input", validateDescription);
   }
 
-  // Format ngày để hiển thị (dd/mm/yyyy)
-  function formatDateForDisplay(dateString) {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  // Reset form
-  function resetForm() {
-    promotionForm.reset();
-
-    // Set lại ngày mặc định
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
-    document.getElementById("ngayBatDau").value = todayString;
-
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    const nextWeekString = nextWeek.toISOString().split("T")[0];
-    document.getElementById("ngayKetThuc").value = nextWeekString;
-  }
-
-  // Hủy
-  cancelBtn.addEventListener("click", function () {
-    if (confirm("Bạn có chắc muốn hủy? Dữ liệu sẽ không được lưu.")) {
-      // window.location.href = '/marketing';
-      console.log("Đã hủy tạo khuyến mãi");
-      resetForm();
-    }
-  });
+  // Gán functions vào global scope để HTML có thể gọi
+  window.validateForm = validateForm;
 
   console.log("Marketing create form loaded successfully");
 });

@@ -1,15 +1,24 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDate;
-import java.util.List;
+
+import groovy.transform.builder.Builder;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "equipment") // thietbi
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EquipmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +43,4 @@ public class EquipmentEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<ImportEntity> imports;
 }
