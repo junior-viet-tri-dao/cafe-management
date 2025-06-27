@@ -96,7 +96,8 @@
                     </li>
 
                     <!-- Các số trang -->
-                    <li th:each="pageNum : ${#numbers.sequence(0, employees.totalPages - 1)}">
+                    <li th:if="${employees.totalPages > 0}"
+                        th:each="pageNum : ${#numbers.sequence(0, employees.totalPages - 1)}">
                         <a th:href="@{/employee(page=${pageNum}, keyword=${param.keyword})}"
                            th:text="${pageNum + 1}"
                            th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +

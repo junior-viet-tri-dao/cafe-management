@@ -53,9 +53,9 @@
                         <span x-text="openCommodity ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/commodity}" th:classappend="${currentPath == '/commodity'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
-                        <a th:href="@{/commodity/create}" th:classappend="${currentPath == '/commodity/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
-                        <a th:href="@{/commodity/create/export}" th:classappend="${currentPath == '/commodity/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
+                        <a th:href="@{/warehouse}" th:classappend="${currentPath == '/warehouse'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
+                        <a th:href="@{/warehouse/create}" th:classappend="${currentPath == '/warehouse/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
+                        <a th:href="@{/warehouse/create/export}" th:classappend="${currentPath == '/warehouse/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
                     </div>
                 </div>
                 <div x-data="{ openMenu: false }" class="space-y-1">
