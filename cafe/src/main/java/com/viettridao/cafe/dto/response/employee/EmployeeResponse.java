@@ -1,15 +1,11 @@
-package com.viettridao.cafe.dto.response.account;
+package com.viettridao.cafe.dto.response.employee;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class AccountResponse {
+public class EmployeeResponse {
     private Integer id;
 
     private String fullName;

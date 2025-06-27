@@ -43,18 +43,7 @@
             <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
             <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
             <div th:if="${user.permission == 'ADMIN'}">
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button @click="open = !open"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': open }">
-                        👥 Quản lý nhân viên
-                        <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/employee}" class="block py-1 hover:underline">Danh sách nhân viên</a>
-                        <a th:href="@{/employee/create}" class="block py-1 hover:underline">Thêm nhân viên</a>
-                    </div>
-                </div>
+                <a th:href="@{/employee}" th:classappend="${currentPath == '/employee'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý nhân viên</a>
                 <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý thiết bị</a>
                 <div x-data="{ openCommodity: false }" class="space-y-1">
                     <button @click="openCommodity = !openCommodity"
@@ -81,18 +70,7 @@
                         <a th:href="@{/menu/create}" th:classappend="${currentPath == '/menu/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
                     </div>
                 </div>
-                <div x-data="{ openMarketing: false }" class="space-y-1">
-                    <button @click="openMarketing = !openMarketing"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openMarketing }">
-                        📢 Quản lý Marketing
-                        <span x-text="openMarketing ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openMarketing" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/marketing}" th:classappend="${currentPath == '/marketing'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách khuyến mãi</a>
-                        <a th:href="@{/marketing/create}" th:classappend="${currentPath == '/marketing/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm khuyến mãi</a>
-                    </div>
-                </div>
+                <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý Marketing</a>
                 <div x-data="{ openBudget: false }" class="space-y-1">
                     <button @click="openBudget = !openBudget"
                             class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"

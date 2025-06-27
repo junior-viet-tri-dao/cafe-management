@@ -47,7 +47,7 @@
                             <form th:action="@{/equipment/delete/{id}(id=${equipment.id})}" method="post"
                                   th:id="'deleteForm-' + ${equipment.id}">
                                 <button type="button"
-                                        th:attr="data-id=${equipment.id}"
+                                        th:attr="data-id=${equipment.id}, data-name=${equipment.equipmentName}"
                                         class="btn-delete inline-flex items-center bg-red-500 hover:bg-red-600 text-white text-xs font-medium px-3 py-1.5 rounded shadow transition">
                                     🗑️ Xóa
                                 </button>
@@ -67,7 +67,7 @@
         <!-- Phân trang -->
         <div class="flex items-center justify-between mt-8">
             <!-- Hiển thị số lượng -->
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-gray-600" th:if="${equiments.totalPages > 0}">
                 <span th:text="'Trang ' + (${equiments.pageNumber + 1}) + ' / ' + ${equiments.totalPages}">Trang 1 / 5</span> |
                 <span th:text="'Tổng: ' + ${equiments.totalElements} + ' thiết bị'">Tổng: 25 thiết bị</span>
             </div>
@@ -84,7 +84,8 @@
                     </li>
 
                     <!-- Các số trang -->
-                    <li th:each="pageNum : ${#numbers.sequence(0, equiments.totalPages - 1)}">
+                    <li th:if="${equiments.totalPages > 0}"
+                        th:each="pageNum : ${#numbers.sequence(0, equiments.totalPages - 1)}">
                         <a th:href="@{/equipment(page=${pageNum})}"
                            th:text="${pageNum + 1}"
                            th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +

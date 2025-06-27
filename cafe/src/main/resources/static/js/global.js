@@ -1,9 +1,10 @@
 document.querySelectorAll('.btn-delete').forEach(button => {
     button.addEventListener('click', function () {
         const id = this.getAttribute('data-id');
+        const name = this.getAttribute('data-name');
         Swal.fire({
             title: 'Xác nhận xoá?',
-            text: 'Bạn có chắc muốn xóa không?',
+            text: `Bạn có chắc muốn xóa "${name}" không?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Có',
