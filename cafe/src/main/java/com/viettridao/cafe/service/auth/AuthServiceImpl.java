@@ -1,6 +1,5 @@
-package com.viettridao.cafe.service.impl;
+package com.viettridao.cafe.service.auth;
 
-import com.viettridao.cafe.service.iservice.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

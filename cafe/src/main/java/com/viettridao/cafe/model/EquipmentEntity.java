@@ -1,14 +1,18 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "equipment")//thietbi
 public class EquipmentEntity {
     @Id
@@ -32,8 +36,6 @@ public class EquipmentEntity {
     private Double purchasePrice;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<ImportEntity> imports;
 }

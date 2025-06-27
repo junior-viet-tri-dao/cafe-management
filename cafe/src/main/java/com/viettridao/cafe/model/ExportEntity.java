@@ -1,13 +1,17 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "exports")//donxuat
 public class ExportEntity {
     @Id
@@ -25,7 +29,7 @@ public class ExportEntity {
     private Integer quantity;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")

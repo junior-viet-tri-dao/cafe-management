@@ -1,12 +1,16 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "menu_item_ingredients")
 public class MenuDetailEntity {
     @EmbeddedId
@@ -29,5 +33,5 @@ public class MenuDetailEntity {
     private String unitName;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 }

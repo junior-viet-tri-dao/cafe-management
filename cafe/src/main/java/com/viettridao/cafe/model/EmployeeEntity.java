@@ -1,7 +1,9 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -26,7 +28,7 @@ public class EmployeeEntity {
     private String address;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
@@ -44,4 +46,5 @@ public class EmployeeEntity {
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<ReservationEntity> reservations;
+
 }

@@ -1,8 +1,7 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +13,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "accounts") //taikhoan
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "accounts")
 public class AccountEntity implements Serializable, UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,7 @@ public class AccountEntity implements Serializable, UserDetails {
     private String imageUrl;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private EmployeeEntity employee;
@@ -66,4 +67,5 @@ public class AccountEntity implements Serializable, UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
 }

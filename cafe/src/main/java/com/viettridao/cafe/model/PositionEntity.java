@@ -1,14 +1,18 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "positions")//chucvu
 public class PositionEntity {
     @Id
@@ -23,7 +27,7 @@ public class PositionEntity {
     private String positionName;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "position")
     private List<EmployeeEntity> employees;

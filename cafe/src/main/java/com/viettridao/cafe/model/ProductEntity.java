@@ -1,14 +1,18 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "products")//hanghoa
 public class ProductEntity {
     @Id
@@ -22,8 +26,11 @@ public class ProductEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "price")
+    private Double price;
+
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImportEntity> imports;
@@ -33,4 +40,8 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<MenuDetailEntity> menuDetails;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "unit_id")
+    private UnitEntity unit;
 }

@@ -1,14 +1,18 @@
 package com.viettridao.cafe.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "menu_items")//thucdon
 public class MenuItemEntity {
     @Id
@@ -23,7 +27,7 @@ public class MenuItemEntity {
     private Double currentPrice;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)
     private List<MenuDetailEntity> menuDetails;

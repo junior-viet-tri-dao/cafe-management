@@ -2,7 +2,7 @@
 <html lang="vi"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorator="layout">
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Chỉnh Sửa Nhân Viên</title>
@@ -13,8 +13,8 @@
     <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
     <script th:src="@{/js/alert-utils.js}"></script>
 </head>
-<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
 
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
 <header th:replace="~{layout :: header}"></header>
 
 <div class="flex flex-1">
@@ -23,50 +23,55 @@
     <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
         <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Chỉnh sửa nhân viên</h2>
-            <form th:action="@{/employee/edit}" method="post" class="space-y-4" enctype="multipart/form-data">
+            <form th:action="@{/employee/{id}(id=${employeeId})}" method="post" th:object="${employee}" class="space-y-4" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}" />
+
                 <div>
-                    <label for="fullName" class="block text-sm font-medium text-gray-700">* Họ và tên:</label>
-                    <input type="text" id="fullName" name="fullName" value="Đặng Văn Định" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <label class="block text-sm font-medium text-gray-700">* Họ và tên:</label>
+                    <input type="text" th:field="*{fullName}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
+
                 <div>
-                    <label for="address" class="block text-sm font-medium text-gray-700">* Địa chỉ:</label>
-                    <input type="text" id="address" name="address" value="Liên Chiểu, Đà Nẵng" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <label class="block text-sm font-medium text-gray-700">* Địa chỉ:</label>
+                    <input type="text" th:field="*{address}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
+
                 <div class="flex items-center space-x-4">
                     <div class="w-1/2">
-                        <label for="role" class="block text-sm font-medium text-gray-700">* Chức vụ:</label>
-                        <select id="role" name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                            <option value="MANAGER" selected>Quản lý</option>
-                            <option value="EMPLOYEE">Nhân viên</option>
+                        <label class="block text-sm font-medium text-gray-700">* Chức vụ:</label>
+                        <select id="positionSelect"
+                                th:field="*{positionId}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                onchange="updateSalary()" required>
+                        <option th:each="p : ${positions}"
+                                th:value="${p.id}"
+                                data-salary="${p.salary}"
+                                th:text="${p.positionName}">
+                            </option>
                         </select>
                     </div>
+
                     <div class="w-1/2">
-                        <label for="salary" class="block text-sm font-medium text-gray-700">* Lương:</label>
-                        <input type="number" id="salary" name="salary" value="10000000" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                        <label class="block text-sm font-medium text-gray-700">* Lương:</label>
+                        <input type="text"
+                               id="salaryInput"
+                               readonly
+                               th:value="${#numbers.formatDecimal(employee.salary, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
                     </div>
                 </div>
+
                 <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700">* Số điện thoại:</label>
-                    <input type="text" id="phone" name="phone" value="095765473" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <label class="block text-sm font-medium text-gray-700">* Số điện thoại:</label>
+                    <input type="text" th:field="*{phoneNumber}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                 </div>
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">Tên đăng nhập:</label>
-                    <input type="text" id="username" name="username" value="admin1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Mật khẩu:</label>
-                    <input type="password" id="password" name="password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="text-center">
-                    <img src="https://via.placeholder.com/150" alt="Avatar" class="w-24 h-24 rounded-full mx-auto mb-2">
-                    <label for="avatar" class="block text-sm font-medium text-gray-700">Ảnh đại diện:</label>
-                    <input type="file" id="avatar" name="avatar" accept="image/*" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                </div>
+
                 <div class="flex justify-center space-x-4">
-                    <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">Lưu</button>
-                    <button type="reset" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Hủy</button>
+                    <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">💾 Lưu</button>
+                    <a th:href="@{/employee}" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">❌ Hủy</a>
                 </div>
-                <p class="text-sm text-red-500 mt-2">( * ): Các trường bắt buộc nhập</p>
+
+                <p class="text-sm text-red-500 mt-2">(*): Các trường bắt buộc nhập</p>
             </form>
         </div>
     </main>
@@ -75,4 +80,19 @@
 <footer th:replace="~{layout :: footer}"></footer>
 <div th:replace="~{/alert :: alerts}"></div>
 </body>
+<script>
+    function updateSalary() {
+        const select = document.getElementById("positionSelect");
+        const selectedOption = select.options[select.selectedIndex];
+        const salary = selectedOption.getAttribute("data-salary");
+        const formattedSalary = new Intl.NumberFormat('vi-VN').format(Number(salary || 0)) + " VNĐ";
+        document.getElementById("salaryInput").value = formattedSalary;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const select = document.getElementById("positionSelect");
+        select.addEventListener("change", updateSalary);
+        updateSalary(); // gọi khi vừa load trang
+    });
+</script>
 </html>

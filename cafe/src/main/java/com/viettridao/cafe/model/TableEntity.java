@@ -2,7 +2,9 @@ package com.viettridao.cafe.model;
 
 import com.viettridao.cafe.common.TableStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tables")//ban
 public class TableEntity {
     @Id
@@ -25,7 +29,7 @@ public class TableEntity {
     private String tableName;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @OneToMany(mappedBy = "table", cascade = CascadeType.ALL)
     private List<ReservationEntity> reservations;

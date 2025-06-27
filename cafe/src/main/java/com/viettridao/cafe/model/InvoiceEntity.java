@@ -2,15 +2,19 @@ package com.viettridao.cafe.model;
 
 import com.viettridao.cafe.common.InvoiceStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "invoices")//hoadon
 public class InvoiceEntity {
     @Id
@@ -29,7 +33,7 @@ public class InvoiceEntity {
     private InvoiceStatus status;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "promotion_id")
