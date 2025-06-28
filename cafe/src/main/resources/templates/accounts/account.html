@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang cá nhân</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <form th:action="@{/account/update}" th:object="${account}" method="post"
+          enctype="multipart/form-data"
+          class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-8 space-y-8">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Cột trái: Avatar + Đăng xuất -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="w-40 h-40 relative">
+                    <!-- Nếu có ảnh -->
+                    <img th:if="${account != null and account.imageUrl != null and !#strings.isEmpty(account.imageUrl)}"
+                         th:src="@{${account.imageUrl}}"
+                         alt="avatar"
+                         class="w-40 h-40 rounded-full border-4 border-[#4e342e] shadow object-cover"/>
+                    <!-- Nếu không có ảnh -->
+                    <img th:if="${account == null or account.imageUrl == null or #strings.isEmpty(account.imageUrl)}"
+                         src="https://via.placeholder.com/160"
+                         alt="avatar"
+                         class="w-40 h-40 rounded-full border-4 border-[#4e342e] shadow object-cover"/>
+                </div>
+
+                <label class="text-sm font-medium text-gray-700 text-center w-full">
+                    <span class="block mb-1">Thay ảnh đại diện</span>
+                    <input type="file" name="avatar" accept="image/*"
+                           onchange="previewAvatar(event)"
+                           class="block w-full text-sm file:mr-2 file:py-1 file:px-2
+                                  file:rounded file:border-0 file:bg-yellow-500 file:text-white
+                                  hover:file:bg-yellow-600"/>
+                </label>
+
+                <button type="submit" formaction="/logout"
+                        class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow w-full">
+                    🚪 Đăng xuất
+                </button>
+            </div>
+
+            <!-- Cột phải: Thông tin cá nhân -->
+            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Họ và tên -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Họ và tên</label>
+                    <input type="text" th:field="*{fullName}" required minlength="5" pattern="^(?!\s*$).{5,}$"
+                           title="Họ tên phải có ít nhất 5 ký tự và không được để trống hoặc toàn dấu cách"
+                           th:placeholder="${fullName} ?: 'Chưa có thông tin'"
+                           class="w-full px-3 py-2 border rounded"/>
+                </div>
+
+                <!-- Chức vụ -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Chức vụ</label>
+                    <input type="text" th:field="*{positionName}"
+                           placeholder="Chưa có thông tin"
+                           readonly class="w-full px-3 py-2 border rounded bg-gray-100"/>
+                </div>
+
+                <!-- Địa chỉ -->
+                <div class="flex flex-col md:col-span-2">
+                    <label class="font-semibold mb-1">Địa chỉ</label>
+                    <input type="text" th:field="*{address}"
+                           th:placeholder="${address} ?: 'Chưa có thông tin'"
+                           class="w-full px-3 py-2 border rounded"/>
+                </div>
+
+                <!-- Số điện thoại -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Số điện thoại</label>
+                    <input type="text" th:field="*{phoneNumber}"
+                           required
+                           pattern="^0\d{9,10}$"
+                           title="Số điện thoại phải bắt đầu bằng 0 và có từ 10 đến 11 chữ số"
+                           maxlength="11"
+                           th:placeholder="${phoneNumber} ?: 'Chưa có thông tin'"
+                           class="w-full px-3 py-2 border rounded"/>
+                </div>
+
+                <!-- Lương -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Lương</label>
+                    <input type="text"
+                           th:value="${account.salary != null ? #numbers.formatDecimal(account.salary, 0, 'POINT', 0, 'COMMA') : 'Chưa có thông tin'}"
+                           readonly class="w-full px-3 py-2 border rounded bg-gray-100"/>
+                    <input type="hidden" th:field="*{salary}"/>
+                </div>
+
+                <!-- Tài khoản -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Tài khoản</label>
+                    <input type="text" th:field="*{username}" readonly
+                           class="w-full px-3 py-2 border rounded bg-gray-100"/>
+                </div>
+
+                <!-- Mật khẩu -->
+                <div class="flex flex-col">
+                    <label class="font-semibold mb-1">Mật khẩu</label>
+                    <input type="password" th:field="*{password}"
+                           placeholder="Nhập mật khẩu mới (nếu muốn đổi)"
+                           class="w-full px-3 py-2 border rounded"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút lưu -->
+        <div class="flex justify-end">
+            <button type="submit"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded font-semibold shadow">
+                💾 Lưu thông tin
+            </button>
+        </div>
+    </form>
+    <script>
+        function previewAvatar(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = input.closest('div').parentElement.querySelector('img');
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Xuất hàng hóa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-8 mt-10">
+    <h2 class="text-2xl font-bold text-[#1e3a8a] mb-6 tracking-wide flex items-center gap-2">
+      📤 Xuất hàng hóa
+    </h2>
+
+    <form th:action="@{/warehouse/create/export}" th:object="${export}" method="post" class="space-y-6">
+
+      <!-- Tên hàng -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">
+          * Tên hàng:
+        </label>
+        <select th:field="*{productId}" required autofocus
+                class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400">
+          <option value="" disabled selected>-- Chọn hàng hóa --</option>
+          <option th:each="item : ${products}"
+                  th:value="${item.id}"
+                  th:text="${item.productName}">
+          </option>
+        </select>
+        <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}"></p>
+      </div>
+
+      <!-- Số lượng -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">
+          * Số lượng:
+        </label>
+        <input type="number" th:field="*{quantity}" min="1" required
+               class="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-400">
+        <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+      </div>
+
+      <!-- Ngày xuất -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-1">
+          * Ngày xuất:
+        </label>
+        <div class="relative max-w-sm">
+          <input th:field="*{exportDate}"
+                 th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                 type="date"
+                 placeholder="Chọn ngày"
+                 class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+          <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('exportDate')}" th:errors="*{exportDate}"></p>
+        </div>
+      </div>
+
+      <!-- Nút -->
+      <div class="flex justify-center gap-4 pt-4">
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md shadow transition">
+          💾 Lưu
+        </button>
+        <a th:href="@{/warehouse}"
+           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-md transition">
+          ❌ Hủy
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>
