@@ -58,18 +58,7 @@
                         <a th:href="@{/warehouse/create/export}" th:classappend="${currentPath == '/warehouse/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
                     </div>
                 </div>
-                <div x-data="{ openMenu: false }" class="space-y-1">
-                    <button @click="openMenu = !openMenu"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openMenu }">
-                        🍽️ Quản lý thực đơn
-                        <span x-text="openMenu ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openMenu" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách món</a>
-                        <a th:href="@{/menu/create}" th:classappend="${currentPath == '/menu/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
-                    </div>
-                </div>
+                <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🍽️ Quản lý thực đơn</a>
                 <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý Marketing</a>
                 <div x-data="{ openBudget: false }" class="space-y-1">
                     <button @click="openBudget = !openBudget"

@@ -48,7 +48,8 @@
                     <select th:field="*{positionId}" id="positionSelect" required
                             class="col-span-4 border border-gray-300 px-2 py-2 rounded-md">
                         <option value="">-- Chọn chức vụ --</option>
-                        <option th:each="pos : ${positions}" th:value="${pos.id}" th:data-luong="${pos.salary}"
+                        <option th:each="pos : ${positions}" th:value="${pos.id}"
+                                th:data-luong="${pos.salary}"
                                 th:text="${pos.positionName}">
                         </option>
                     </select>

@@ -2,10 +2,7 @@ package com.viettridao.cafe.controller;
 
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
-import com.viettridao.cafe.dto.request.promotion.CreatePromotionRequest;
-import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
-import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
 import com.viettridao.cafe.mapper.EmployeeMapper;
 import com.viettridao.cafe.mapper.PositionMapper;
 import com.viettridao.cafe.service.EmployeeService;

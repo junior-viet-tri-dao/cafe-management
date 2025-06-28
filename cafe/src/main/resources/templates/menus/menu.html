@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách thiết bị</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+        📋 Danh sách thực đơn
+      </h2>
+      <a th:href="@{/menu/create}"
+         class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2 rounded-md shadow transition">
+        ➕ <span>Thêm thực đơn</span>
+      </a>
+    </div>
+
+    <form method="get" th:action="@{/menu}" class="flex items-center gap-2 mb-4">
+      <input type="text" name="keyword" placeholder="Tìm theo tên thực đơn"
+             th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-72">
+      <button type="submit"
+              class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow transition">
+        🔍 Tìm
+      </button>
+    </form>
+
+    <!-- Hiển thị thông báo tìm kiếm nếu có -->
+    <div class="mb-4 text-sm text-gray-600 italic" th:if="${param.keyword}">
+      Đang tìm với từ khóa: "<span th:text="${param.keyword}"></span>"
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto border border-gray-300 rounded-lg">
+        <thead class="bg-[#e3f2fd] text-gray-800 text-sm font-bold uppercase">
+        <tr>
+          <th class="px-4 py-2 text-center">Stt</th>
+          <th class="px-4 py-2 text-left">Tên món</th>
+          <th class="px-4 py-2 text-right">Giá tiền</th>
+          <th class="px-4 py-2 text-center">Thao tác</th>
+        </tr>
+        </thead>
+        <tbody class="text-sm text-gray-700 divide-y divide-gray-100" th:if="${menus.items != null}">
+        <tr th:each="menu, iterStat : ${menus.items}" class="hover:bg-yellow-50 transition">
+          <td class="px-4 py-2 text-center" th:text="${iterStat.index + 1}">1</td>
+          <td class="px-4 py-2" th:text="${menu.itemName}">Cà phê đen</td>
+          <td class="px-4 py-2 text-right" th:text="${#numbers.formatDecimal(menu.currentPrice, 0, 'POINT', 0, 'COMMA')}">6.000</td>
+          <td class="px-4 py-2 text-center flex justify-center gap-2">
+            <a th:href="@{/menu/update/{id}(id=${menu.id})}"
+               class="bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+              ✏️ Sửa
+            </a>
+
+            <form th:action="@{/menu/delete/{id}(id=${menu.id})}" method="post"
+                  th:id="'deleteForm-' + ${menu.id}">
+              <button type="button"
+                      th:attr="data-id=${menu.id}, data-name=${menu.itemName}"
+                      class="btn-delete bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow">
+                🗑️ Xóa
+              </button>
+            </form>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(menus.items)}">
+          <td colspan="5" class="text-center text-gray-500 italic py-6">
+            Không có thực đơn nào được tìm thấy.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex items-center justify-between mt-8">
+      <!-- Hiển thị số lượng -->
+      <div class="text-sm text-gray-600" th:if="${menus.totalPages > 0}">
+        <span th:text="'Trang ' + (${menus.pageNumber + 1}) + ' / ' + ${menus.totalPages}">Trang 1 / 5</span> |
+        <span th:text="'Tổng: ' + ${menus.totalElements} + ' thực đơn'">Tổng: 25 thực đơn</span>
+      </div>
+
+      <!-- Danh sách nút phân trang -->
+      <nav>
+        <ul class="inline-flex items-center space-x-1">
+          <!-- Nút Trước -->
+          <li>
+            <a th:href="@{/menu(page=${menus.pageNumber - 1}, keyword=${param.keyword})}"
+               th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${menus.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+              ◀ Trước
+            </a>
+          </li>
+          <li th:if="${menus.totalPages > 0}"
+              th:each="pageNum : ${#numbers.sequence(0, menus.totalPages - 1)}">
+            <a th:href="@{/menu(page=${pageNum}, keyword=${param.keyword})}"
+               th:text="${pageNum + 1}"
+               th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +
+                             (${pageNum} == ${menus.pageNumber}
+                             ? 'bg-blue-600 text-white border-blue-600'
+                             : 'border-gray-300 text-gray-700 hover:bg-blue-50')">
+            </a>
+          </li>
+
+          <!-- Nút Tiếp -->
+          <li>
+            <a th:href="@{/menu(page=${menus.pageNumber + 1}, keyword=${param.keyword})}"
+               th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${menus.pageNumber + 1 >= menus.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+              Tiếp ▶
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

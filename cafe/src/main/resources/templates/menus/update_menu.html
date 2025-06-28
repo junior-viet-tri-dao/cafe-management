@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa món</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-[#4e342e] mb-6">✏️ Chỉnh sửa món</h2>
+
+        <!-- Bổ sung JSON -->
+        <script type="application/json" id="details-json"
+                th:utext="${menu.detailsJson}">
+        </script>
+
+        <!-- x-data -->
+        <form th:action="@{/menu/update}" th:object="${menu}" method="post"
+              x-data="{
+                rows: (function(){
+                    let raw = document.getElementById('details-json').textContent;
+                    try {
+                        let data = JSON.parse(raw);
+                        if (Array.isArray(data) && data.length > 0) {
+                            return data.map(e => ({
+                                id: Date.now() + Math.random(),
+                                productId: e.productId,
+                                quantity: e.quantity,
+                                unitName: e.unitName
+                            }));
+                        }
+                        return [];
+                    } catch (err) {
+                        return [];
+                    }
+                })()
+              }">
+
+            <!-- Hidden ID -->
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Tên món và giá -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tên món <span class="text-red-500">*</span></label>
+                    <input type="text" th:field="*{itemName}" placeholder="Ví dụ: Cà phê sữa"
+                           class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Giá tiền (VNĐ) <span class="text-red-500">*</span></label>
+                    <input type="number" th:field="*{currentPrice}" placeholder="7000"
+                           class="mt-1 w-full border border-gray-300 rounded-lg shadow-sm p-2 focus:ring-2 focus:ring-blue-500" required>
+                </div>
+            </div>
+
+            <!-- Thành phần -->
+            <div>
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">🧪 Thành phần</h3>
+                <table class="w-full border border-gray-200 rounded-lg text-sm mb-4">
+                    <thead class="bg-[#e3f2fd] text-gray-800">
+                    <tr>
+                        <th class="p-2 text-left">Tên thành phần</th>
+                        <th class="p-2 text-right">Khối lượng</th>
+                        <th class="p-2 text-center">Đơn vị tính</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template x-for="(row, index) in rows" :key="row.id">
+                        <tr class="border-t hover:bg-yellow-50 transition">
+                            <!-- Thành phần -->
+                            <td class="p-2 flex items-center gap-2 justify-center">
+                                <select :name="'details[' + index + '].productId'"
+                                        x-model="row.productId"
+                                        class="w-full border border-gray-300 rounded px-2 py-1" required>
+                                    <option value="">-- Chọn thành phần --</option>
+                                    <option th:each="product : ${products}"
+                                            th:value="${product.id}" th:text="${product.productName}">
+                                    </option>
+                                </select>
+                            </td>
+                            <!-- Khối lượng -->
+                            <td class="p-2 text-right">
+                                <input type="number" step="0.1" min="0"
+                                       :name="'details[' + index + '].quantity'"
+                                       x-model="row.quantity"
+                                       class="w-full border border-gray-300 rounded px-2 py-1 text-right"
+                                       placeholder="0.0" required>
+                            </td>
+                            <!-- Đơn vị -->
+                            <td class="p-2 flex items-center gap-2 justify-center">
+                                <select :name="'details[' + index + '].unitName'"
+                                        x-model="row.unitName"
+                                        class="w-full border border-gray-300 rounded px-2 py-1" required>
+                                    <option value="">-- Đơn vị --</option>
+                                    <option th:each="dv : ${units}"
+                                            th:value="${dv.unitName}" th:text="${dv.unitName}">
+                                    </option>
+                                </select>
+                                <button type="button" @click="rows.splice(index, 1)"
+                                        class="text-red-500 hover:text-red-700 text-sm font-bold ml-2">
+                                    🗑️
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                    <!-- Nút thêm dòng -->
+                    <tr>
+                        <td colspan="3" class="text-center py-3">
+                            <button type="button" @click="rows.push({ id: Date.now() + Math.random(), productId: '', quantity: 0, unitName: '' })"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-1 rounded shadow">
+                                ➕ Thêm thành phần
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Nút -->
+            <div class="flex justify-end gap-4">
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded-lg shadow">
+                    ✅ Cập nhật món
+                </button>
+                <a th:href="@{/menu}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-5 py-2 rounded-lg shadow">
+                    ❌ Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
