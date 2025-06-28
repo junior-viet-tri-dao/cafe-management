@@ -1,212 +1,125 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách hàng hóa</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .btn-add {
-            background-color: #3498db;
-            color: #fff;
-            margin-bottom: 15px;
-        }
-        .btn-add:hover {
-            background-color: #2980b9;
-        }
-        .btn-edit {
-            background-color: #f1c40f;
-            color: #fff;
-        }
-        .btn-edit:hover {
-            background-color: #d4ac0d;
-        }
-        .btn-delete {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #2c3e50;
-            color: #fff;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        td:last-child button {
-            margin: 0 3px;
-        }
-        .search-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .search-container input {
-            padding: 8px 12px;
-            width: 250px;
-            max-width: 100%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        @media (max-width: 768px) {
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-            tr {
-                margin-bottom: 15px;
-                border: 1px solid #ccc;
-                border-radius: 8px;
-                padding: 10px;
-            }
-            th {
-                display: none;
-            }
-            td {
-                text-align: right;
-                position: relative;
-                padding-left: 50%;
-            }
-            td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                top: 12px;
-                font-weight: bold;
-                color: #2c3e50;
-                text-align: left;
-            }
-            .search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Danh sách giao dịch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script th:src="@{/js/table-search.js}"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
 </head>
+
 <body>
+<div layout:fragment="content" class="container mt-5 mb-5">
+    <div class="card shadow rounded-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary fw-bold">📋 Danh sách giao dịch</h2>
+                <div class="btn-group">
+                    <a th:href="@{/product}" class="btn btn-outline-danger">📦 Hàng hóa</a>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmProductExistModal">➕ Đơn nhập</button>
+                    <a th:href="@{/inventory/export/new}" class="btn btn-outline-primary">➕ Đơn xuất</a>
+                </div>
+            </div>
 
-<h1>Danh sách hàng hóa</h1>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput"
+                           class="form-control shadow-sm"
+                           placeholder="🔍 Tìm theo tên hàng hóa..."
+                           onkeyup="filterTable('searchInput', 'transactionTableBody', [0])"/>
+                </div>
+            </div>
 
-<div class="search-container">
-    <button class="btn btn-add" onclick="addProduct()">+ Thêm hàng hóa</button>
-    <input type="text" id="searchInput" placeholder="Tìm kiếm hàng hóa..." onkeyup="searchProduct()">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center shadow-sm">
+                    <thead class="table-dark">
+                    <tr>
+                        <th style="min-width: 160px;">Tên hàng hóa</th>
+                        <th>Ngày nhập</th>
+                        <th>Ngày xuất</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị tính</th>
+                        <th>Đơn giá</th>
+                        <th>Tổng tiền</th>
+                        <th>Loại</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="transactionTableBody">
+                    <tr th:each="tx : ${transactions}">
+                        <td th:text="${tx.productName}">Tên hàng</td>
+                        <td th:text="${tx.importDate}">Ngày nhập</td>
+                        <td th:text="${tx.exportDate}">Ngày xuất</td>
+                        <td th:text="${tx.quantity}">Số lượng</td>
+                        <td th:text="${tx.unitName}">Đơn vị</td>
+                        <td th:text="${tx.quantity > 0} ? ${#numbers.formatDecimal(tx.totalAmount / tx.quantity, 0, 'POINT', 0, 'COMMA')} + ' VNĐ' : '0 VNĐ'">Đơn giá</td>
+                        <td th:text="${#numbers.formatDecimal(tx.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">Tổng tiền</td>
+                        <td>
+                            <span th:if="${tx.type == 'IMPORT'}" class="badge bg-success">Nhập</span>
+                            <span th:if="${tx.type == 'EXPORT'}" class="badge bg-danger">Xuất</span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                <a th:if="${tx.type == 'IMPORT'}" th:href="@{/inventory/import/edit/{id}(id=${tx.id})}" class="btn btn-sm btn-warning">✏️ Sửa</a>
+                                <a th:if="${tx.type == 'EXPORT'}" th:href="@{/inventory/export/edit/{id}(id=${tx.id})}" class="btn btn-sm btn-warning">✏️ Sửa</a>
+
+                                <form th:if="${tx.type == 'IMPORT'}"
+                                      th:action="@{/inventory/import/delete/{id}(id=${tx.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa đơn nhập này?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Xóa</button>
+                                </form>
+
+                                <form th:if="${tx.type == 'EXPORT'}"
+                                      th:action="@{/inventory/export/delete/{id}(id=${tx.id})}"
+                                      method="post"
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa đơn xuất này?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(transactions)}">
+                        <td colspan="9" class="text-center text-danger">Không có giao dịch.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a th:href="@{/home}" class="btn btn-secondary">🔙 Quay lại trang chủ</a>
+            </div>
+
+            <!-- Modal xác nhận -->
+            <div class="modal fade" id="confirmProductExistModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-3 shadow">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-primary fw-bold">📦 Hàng hóa đã có trong kho chưa?</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Bạn vui lòng chọn một trong hai lựa chọn bên dưới để tiếp tục thêm đơn nhập:</p>
+                            <ul>
+                                <li><strong>Chưa có</strong>: Tạo hàng hóa mới trước khi nhập.</li>
+                                <li><strong>Đã có</strong>: Nhập hàng dựa trên sản phẩm có sẵn.</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <a th:href="@{/product/new(redirectToImport=true)}" class="btn btn-outline-secondary">➕ Chưa có</a>
+                            <a th:href="@{/inventory/import/new}" class="btn btn-primary">✅ Đã có</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-
-<table id="productTable">
-    <thead>
-    <tr>
-        <th>Tên</th>
-        <th>Ngày Nhập</th>
-        <th>Ngày Xuất</th>
-        <th>Số lượng</th>
-        <th>Đơn vị</th>
-        <th>Đơn giá (VNĐ)</th>
-        <th>Tổng tiền (VNĐ)</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td data-label="Tên">Cà phê</td>
-        <td data-label="Ngày Nhập">23/12/2014</td>
-        <td data-label="Ngày Xuất">30/12/2014</td>
-        <td data-label="Số lượng">20</td>
-        <td data-label="Đơn vị">kg</td>
-        <td data-label="Đơn giá">50.000</td>
-        <td data-label="Tổng tiền">1.000.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editProduct(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteProduct(this)">Xóa</button>
-        </td>
-    </tr>
-    <tr>
-        <td data-label="Tên">Pepsi</td>
-        <td data-label="Ngày Nhập">27/12/2014</td>
-        <td data-label="Ngày Xuất"></td>
-        <td data-label="Số lượng">5</td>
-        <td data-label="Đơn vị">thùng</td>
-        <td data-label="Đơn giá">100.000</td>
-        <td data-label="Tổng tiền">500.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editProduct(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteProduct(this)">Xóa</button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<script>
-    function addProduct() {
-        alert('Thêm hàng hóa');
-    }
-
-    function editProduct(button) {
-        alert('Sửa hàng hóa');
-    }
-
-    function deleteProduct(button) {
-        if (confirm('Bạn có chắc chắn muốn xóa hàng hóa này không?')) {
-            const row = button.parentNode.parentNode;
-            row.remove();
-        }
-    }
-
-    function searchProduct() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const table = document.getElementById('productTable');
-        const rows = table.getElementsByTagName('tr');
-
-        for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            let match = false;
-
-            for (let j = 0; j < cells.length - 1; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
-                }
-            }
-
-            rows[i].style.display = match ? '' : 'none';
-        }
-    }
-</script>
-
 </body>
 </html>

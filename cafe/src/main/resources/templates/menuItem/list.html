@@ -1,214 +1,68 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách thực đơn</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            padding: 20px;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .controls input {
-            padding: 8px 12px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            width: 250px;
-            max-width: 100%;
-        }
-        .btn {
-            padding: 8px 16px;
-            border-radius: 5px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-add {
-            background-color: #3498db;
-            color: #fff;
-        }
-        .btn-add:hover {
-            background-color: #2980b9;
-        }
-        .btn-edit {
-            background-color: #f1c40f;
-            color: #fff;
-        }
-        .btn-edit:hover {
-            background-color: #d4ac0d;
-        }
-        .btn-delete {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 12px 10px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #2c3e50;
-            color: #fff;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        td:last-child button {
-            margin: 0 3px;
-        }
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-            th {
-                display: none;
-            }
-            tr {
-                margin-bottom: 10px;
-                border: 1px solid #ccc;
-                border-radius: 8px;
-                padding: 8px;
-            }
-            td {
-                text-align: right;
-                position: relative;
-                padding-left: 50%;
-            }
-            td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                top: 12px;
-                font-weight: bold;
-                color: #2c3e50;
-                text-align: left;
-            }
-        }
-    </style>
+    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Danh sách thực đơn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script th:src="@{/js/table-search.js}"></script>
+    <script th:src="@{/js/alert-utils.js}"></script>
 </head>
+
 <body>
+<div layout:fragment="content" class="container mt-5 mb-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="mb-4 text-center text-primary">🍽️ Danh sách thực đơn</h2>
 
-<h1>Danh sách thực đơn</h1>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput"
+                           class="form-control"
+                           placeholder="🔍 Tìm theo tên món ăn..."
+                           onkeyup="filterTable('searchInput', 'menuItemTableBody', [0])"/>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a th:href="@{/menuItem/new}" class="btn btn-success">➕ Thêm món ăn</a>
+                </div>
+            </div>
 
-<div class="controls">
-    <button class="btn btn-add" onclick="addMenuItem()">+ Thêm món</button>
-    <input type="text" id="searchInput" placeholder="Tìm kiếm món..." onkeyup="searchMenu()">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle text-center">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Tên món ăn</th>
+                        <th>Giá hiện tại</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="menuItemTableBody">
+                    <tr th:each="menuItem : ${menuItems}">
+                        <td th:text="${menuItem.itemName}">Cà phê sữa đá</td>
+                        <td th:text="${#numbers.formatDecimal(menuItem.currentPrice, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'">30.000 VNĐ</td>
+                        <td>
+                            <a th:href="@{/menuItem/edit/{id}(id=${menuItem.id})}" class="btn btn-sm btn-warning">✏️ Sửa</a>
+                            <form th:action="@{/menuItem/{id}/delete(id=${menuItem.id})}" method="post" class="d-inline">
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Bạn có chắc muốn xóa món ăn này?')">🗑️ Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(menuItems)}">
+                        <td colspan="3" class="text-center text-danger">Không có món ăn nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a th:href="@{/home}" class="btn btn-secondary">🔙 Quay lại</a>
+            </div>
+        </div>
+    </div>
 </div>
-
-<table id="menuTable">
-    <thead>
-    <tr>
-        <th>STT</th>
-        <th>Tên món</th>
-        <th>Giá tiền (VNĐ)</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td data-label="STT">1</td>
-        <td data-label="Tên món">Cà phê đen</td>
-        <td data-label="Giá tiền">6.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editMenu(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteMenu(this)">Xóa</button>
-        </td>
-    </tr>
-    <tr>
-        <td data-label="STT">2</td>
-        <td data-label="Tên món">Cà phê sữa</td>
-        <td data-label="Giá tiền">7.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editMenu(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteMenu(this)">Xóa</button>
-        </td>
-    </tr>
-    <tr>
-        <td data-label="STT">3</td>
-        <td data-label="Tên món">Sinh tố trái cây</td>
-        <td data-label="Giá tiền">15.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editMenu(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteMenu(this)">Xóa</button>
-        </td>
-    </tr>
-    <tr>
-        <td data-label="STT">4</td>
-        <td data-label="Tên món">Pepsi</td>
-        <td data-label="Giá tiền">7.000</td>
-        <td data-label="Hành động">
-            <button class="btn btn-edit" onclick="editMenu(this)">Sửa</button>
-            <button class="btn btn-delete" onclick="deleteMenu(this)">Xóa</button>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<script>
-    function addMenuItem() {
-        alert('Thêm món mới');
-    }
-
-    function editMenu(button) {
-        alert('Sửa món ăn');
-    }
-
-    function deleteMenu(button) {
-        if (confirm('Bạn có chắc chắn muốn xóa món này không?')) {
-            const row = button.closest('tr');
-            row.remove();
-        }
-    }
-
-    function searchMenu() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#menuTable tbody tr');
-
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            let match = false;
-
-            cells.forEach((cell, index) => {
-                if (index !== cells.length - 1 && cell.textContent.toLowerCase().includes(input)) {
-                    match = true;
-                }
-            });
-
-            row.style.display = match ? '' : 'none';
-        });
-    }
-</script>
-
 </body>
 </html>

@@ -2,7 +2,7 @@ package com.viettridao.cafe.service.employee;
 
 import java.util.List;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

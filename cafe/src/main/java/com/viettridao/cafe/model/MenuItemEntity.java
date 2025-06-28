@@ -29,7 +29,7 @@ public class MenuItemEntity {
     @Column(name = "is_deleted")
     private Boolean deleted;
 
-    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuDetailEntity> menuDetails;
 
     @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)

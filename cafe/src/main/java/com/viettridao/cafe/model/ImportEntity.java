@@ -32,7 +32,7 @@ public class ImportEntity {
     @Column(name = "is_deleted")
     private Boolean deleted;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "employee_id")
     private EmployeeEntity employee;
 

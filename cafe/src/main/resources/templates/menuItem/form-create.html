@@ -1,150 +1,93 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm danh mục món</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        label {
-            min-width: 80px;
-            font-weight: bold;
-        }
-        input {
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #3498db;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-        .btn {
-            padding: 8px 16px;
-            margin-top: 15px;
-            margin-right: 8px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .btn-add {
-            background-color: #3498db;
-            color: #fff;
-        }
-        .btn-cancel {
-            background-color: #ccc;
-        }
-        .btn-remove {
-            background-color: #e74c3c;
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 3px;
-        }
-        .small-input {
-            width: 100px;
-        }
-    </style>
+    <title layout:fragment="title">Thêm món mới</title>
 </head>
 <body>
+<main layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Thêm món mới</h2>
 
-<h1>Thêm danh mục món</h1>
+        <form th:action="@{/menuItem}" th:object="${menuItem}" method="post" id="menuItemForm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="itemName" class="form-label">Tên món</label>
+                    <input type="text" th:field="*{itemName}" id="itemName" class="form-control" placeholder="Nhập tên món" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="currentPrice" class="form-label">Giá tiền</label>
+                    <input type="number" step="0.01" th:field="*{currentPrice}" id="currentPrice" class="form-control" placeholder="Nhập giá" required>
+                </div>
+            </div>
 
-<div class="form-group">
-    <label for="itemName">Tên món:</label>
-    <input type="text" id="itemName" placeholder="Nhập tên món" value="Cà phê sữa">
-    <label for="itemPrice">Giá tiền:</label>
-    <input type="text" id="itemPrice" placeholder="Giá tiền" value="7.000">
-</div>
+            <h5>Danh sách nguyên liệu</h5>
+            <table class="table table-bordered align-middle" id="ingredientsTable">
+                <thead class="table-primary">
+                <tr>
+                    <th>Nguyên liệu</th>
+                    <th>Số lượng</th>
+                    <th>Đơn vị</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <select name="menuDetails[0].productId" class="form-select" required>
+                            <option value="">-- Chọn nguyên liệu --</option>
+                            <option th:each="product : ${products}"
+                                    th:value="${product.id}"
+                                    th:text="${product.productName}">
+                            </option>
+                        </select>
+                    </td>
+                    <td><input type="number" name="menuDetails[0].quantity" class="form-control" required></td>
+                    <td><input type="text" name="menuDetails[0].unitName" class="form-control" required></td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
-<h3>Thành phần:</h3>
-<table id="ingredientsTable">
-    <thead>
-    <tr>
-        <th>Tên thành phần</th>
-        <th>Khối lượng</th>
-        <th>Đơn vị tính</th>
-        <th>Hành động</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td><input type="text" value="Cà phê"></td>
-        <td><input type="number" class="small-input" value="5"></td>
-        <td><input type="text" value="gam"></td>
-        <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
-    </tr>
-    <tr>
-        <td><input type="text" value="Sữa"></td>
-        <td><input type="number" class="small-input" value="5"></td>
-        <td><input type="text" value="ml"></td>
-        <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
-    </tr>
-    </tbody>
-</table>
+            <button type="button" class="btn btn-outline-primary mb-3" onclick="addIngredientRow()">+ Thêm nguyên liệu</button>
 
-<button class="btn btn-add" onclick="addIngredientRow()">+ Thêm thành phần</button>
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">Lưu món</button>
+                <a th:href="@{/menuItem}" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
 
-<br><br>
-<button class="btn btn-add" onclick="submitForm()">Thêm món</button>
-<button class="btn btn-cancel" onclick="cancel()">Hủy</button>
+    <script>
+        let rowIndex = 1;
 
-<script>
-    function addIngredientRow() {
-        const table = document.getElementById('ingredientsTable').getElementsByTagName('tbody')[0];
-        const row = table.insertRow();
-        row.innerHTML = `
-            <td><input type="text" placeholder="Tên thành phần"></td>
-            <td><input type="number" class="small-input" placeholder="Khối lượng"></td>
-            <td><input type="text" placeholder="Đơn vị"></td>
-            <td><button class="btn-remove" onclick="removeRow(this)">Xóa</button></td>
-        `;
-    }
+        function addIngredientRow() {
+            const tbody = document.getElementById('ingredientsTable').getElementsByTagName('tbody')[0];
+            const selectHTML = document.querySelector('select[name="menuDetails[0].productId"]').innerHTML;
 
-    function removeRow(button) {
-        button.closest('tr').remove();
-    }
-
-    function submitForm() {
-        alert('Đã thêm món mới (demo)');
-        // Thêm logic lưu dữ liệu ở đây
-    }
-
-    function cancel() {
-        if (confirm('Bạn có chắc chắn muốn hủy?')) {
-            window.location.reload(); // Hoặc chuyển trang về danh sách
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <select name="menuDetails[${rowIndex}].productId" class="form-select" required>
+                        ${selectHTML}
+                    </select>
+                </td>
+                <td><input type="number" name="menuDetails[${rowIndex}].quantity" class="form-control" required></td>
+                <td><input type="text" name="menuDetails[${rowIndex}].unitName" class="form-control" required></td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
+            `;
+            tbody.appendChild(newRow);
+            rowIndex++;
         }
-    }
-</script>
 
+        function removeRow(button) {
+            button.closest('tr').remove();
+        }
+    </script>
+</main>
 </body>
 </html>
