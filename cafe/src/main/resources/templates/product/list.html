@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Danh sách hàng hóa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script th:src="@{/js/table-search.js}"></script>
+  <script th:src="@{/js/alert-utils.js}"></script>
+</head>
+
+<body>
+<div layout:fragment="content" class="container mt-5 mb-5">
+  <div class="card shadow-lg rounded-4 border-0">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold m-0">📦 Danh sách hàng hóa</h2>
+        <a th:href="@{/product/new}" class="btn btn-success shadow-sm px-4">
+          ➕ Thêm hàng hóa
+        </a>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <input type="text" id="searchInput"
+                 class="form-control shadow-sm"
+                 placeholder="🔍 Tìm theo tên hàng hóa..."
+                 onkeyup="filterTable('searchInput', 'productTableBody', [0])"/>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle text-center shadow-sm">
+          <thead class="table-dark">
+          <tr>
+            <th scope="col">Tên hàng hóa</th>
+            <th scope="col">Số lượng</th>
+            <th scope="col">Đơn vị</th>
+            <th scope="col">Hành động</th>
+          </tr>
+          </thead>
+          <tbody id="productTableBody">
+          <tr th:each="product : ${products}">
+            <td th:text="${product.productName}">Tên hàng</td>
+            <td th:text="${product.quantity}">0</td>
+            <td th:text="${product.unit != null} ? ${product.unit.unitName} : 'N/A'">g</td>
+            <td>
+              <div class="d-flex justify-content-center gap-2">
+                <a th:href="@{/product/edit/{id}(id=${product.id})}" class="btn btn-sm btn-warning shadow-sm">
+                  ✏️ Sửa
+                </a>
+                <form th:action="@{/product/delete/{id}(id=${product.id})}" method="post"
+                      onsubmit="return confirm('Bạn có chắc muốn xóa hàng hóa này?')">
+                  <button type="submit" class="btn btn-sm btn-danger shadow-sm">
+                    🗑️ Xóa
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(products)}">
+            <td colspan="4" class="text-center text-danger fw-semibold py-3">⚠️ Không có hàng hóa nào.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4">
+        <a th:href="@{/home}" class="btn btn-secondary shadow-sm px-4">
+          🔙 Quay lại trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

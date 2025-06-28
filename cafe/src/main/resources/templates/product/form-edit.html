@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title layout:fragment="title">Cập nhật hàng hóa</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Cập nhật hàng hóa</h2>
+
+    <form th:action="@{'/product/' + ${productId}}" th:object="${product}" method="post" id="productForm">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="productName" class="form-label">Tên hàng hóa</label>
+          <input type="text" th:field="*{productName}" id="productName" class="form-control" placeholder="Nhập tên món" required>
+        </div>
+        <div class="col-md-6">
+          <label for="quantity" class="form-label">Số lượng</label>
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="number" step="0.01" th:field="*{quantity}" id="quantity"
+                     class="form-control" placeholder="Nhập giá" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label for="unitId" class="form-label">Đơn vị</label>
+            <select th:field="*{unitId}" id="unitId" class="form-select" required>
+              <option value="" disabled>-- Chọn đơn vị --</option>
+              <option th:each="unit : ${units}"
+                      th:value="${unit.id}"
+                      th:text="${unit.unitName}"
+                      th:selected="${unit.id == product.unitId}">
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-success">Cập nhật hàng hóa</button>
+        <a th:href="@{/product}" class="btn btn-secondary">Hủy</a>
+      </div>
+    </form>
+  </div>
+</main>
+</body>
+</html>
