@@ -1,22 +1,26 @@
 package com.viettridao.cafe.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
-import com.viettridao.cafe.dto.request.promotion.CreatePromotionRequest;
-import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
-import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
 import com.viettridao.cafe.mapper.EmployeeMapper;
 import com.viettridao.cafe.mapper.PositionMapper;
 import com.viettridao.cafe.service.EmployeeService;
 import com.viettridao.cafe.service.PositionService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,7 +42,7 @@ public class EmployeeController {
 
     @GetMapping("/create")
     public String showFormCreate(Model model) {
-        model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+    	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
         model.addAttribute("employee", new CreateEmployeeRequest());
         return "/employees/create_employee";
     }
@@ -48,7 +52,7 @@ public class EmployeeController {
                                  RedirectAttributes redirectAttributes, Model model) {
         try{
             if (result.hasErrors()) {
-                model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+            	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
                 return "/employees/create_employee";
             }
 
@@ -76,8 +80,8 @@ public class EmployeeController {
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         try{
-            EmployeeResponse response = employeeMapper.toEmployeeResponse(employeeService.getEmployeeById(id));
-            model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+        	EmployeeResponse response = employeeMapper.toDto(employeeService.getEmployeeById(id));
+        	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
             model.addAttribute("employee", response);
             return "/employees/update_employee";
         } catch (Exception e) {
@@ -91,7 +95,7 @@ public class EmployeeController {
                                  RedirectAttributes redirectAttributes, Model model) {
         try{
             if (result.hasErrors()) {
-                model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+            	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
                 return "/employees/update_employee";
             }
             employeeService.updateEmployee(request);

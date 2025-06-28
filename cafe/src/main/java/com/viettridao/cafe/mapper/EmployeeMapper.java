@@ -1,37 +1,53 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
-import com.viettridao.cafe.model.EmployeeEntity;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
+import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
+import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.EmployeeEntity;
 
 @Component
-@RequiredArgsConstructor
-public class EmployeeMapper {
-    private final ModelMapper modelMapper;
+public class EmployeeMapper extends BaseMapper<EmployeeEntity, CreateEmployeeRequest, EmployeeResponse> {
 
-    public EmployeeResponse toEmployeeResponse(EmployeeEntity entity){
-        EmployeeResponse response = new EmployeeResponse();
-        modelMapper.map(entity, response);
+    public EmployeeMapper(ModelMapper modelMapper) {
+        super(modelMapper, EmployeeEntity.class, CreateEmployeeRequest.class, EmployeeResponse.class);
+    }
 
-        if(entity.getPosition() != null){
-            response.setPositionId(entity.getPosition().getId());
-            response.setPositionName(entity.getPosition().getPositionName());
-            response.setSalary(entity.getPosition().getSalary());
+    @Override
+    public EmployeeResponse toDto(EmployeeEntity entity) {
+        EmployeeResponse response = super.toDto(entity);
+
+        // Gán thông tin chức vụ
+        var position = entity.getPosition();
+        if (position != null) {
+            response.setPositionId(position.getId());
+            response.setPositionName(position.getPositionName());
+            response.setSalary(position.getSalary());
         }
 
-        if (entity.getAccount() != null){
-            response.setUsername(entity.getAccount().getUsername());
-            response.setPassword(entity.getAccount().getPassword());
-            response.setImageUrl(entity.getAccount().getImageUrl());
+        // Gán thông tin tài khoản
+        var account = entity.getAccount();
+        if (account != null) {
+            response.setUsername(account.getUsername());
+            response.setPassword(account.getPassword());
+            response.setImageUrl(account.getImageUrl());
         }
+
         return response;
     }
 
-    public List<EmployeeResponse> toListEmployeeResponse(List<EmployeeEntity> entities){
-        return entities.stream().map(this::toEmployeeResponse).toList();
+    @Override
+    public List<EmployeeResponse> toDtoList(List<EmployeeEntity> entities) {
+        return entities.stream().map(this::toDto).toList();
+    }
+
+    // Dùng cho cập nhật nhân viên
+    public void updateEntityFromUpdateRequest(UpdateEmployeeRequest dto, EmployeeEntity entity) {
+        modelMapper.map(dto, entity);
     }
 }

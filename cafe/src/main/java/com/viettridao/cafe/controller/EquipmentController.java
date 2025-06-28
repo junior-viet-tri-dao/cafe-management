@@ -66,7 +66,7 @@ public class EquipmentController {
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         try{
-            EquipmentResponse response = equipmentMapper.toEquipmentResponse(equipmentService.getEquipmentById(id));
+        	EquipmentResponse response = equipmentMapper.toDto(equipmentService.getEquipmentById(id));
             model.addAttribute("equipment", response);
             return "/equipments/update_equipment";
         } catch (Exception e) {

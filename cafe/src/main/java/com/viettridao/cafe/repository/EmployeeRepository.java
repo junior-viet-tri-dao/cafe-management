@@ -15,4 +15,5 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
 
     @Query("select e from EmployeeEntity e where e.isDeleted = false")
     Page<EmployeeEntity> getAllEmployees(Pageable pageable);
+    
 }

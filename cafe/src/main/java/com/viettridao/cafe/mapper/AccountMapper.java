@@ -1,31 +1,44 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.account.AccountResponse;
-import com.viettridao.cafe.model.AccountEntity;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import com.viettridao.cafe.dto.response.account.AccountResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.AccountEntity;
+
 @Component
-@RequiredArgsConstructor
-public class AccountMapper {
-    private final ModelMapper modelMapper;
+public class AccountMapper extends BaseMapper<AccountEntity, Void, AccountResponse> {
 
-    public AccountResponse toAccountResponse(AccountEntity entity){
-        AccountResponse response = new AccountResponse();
-        modelMapper.map(entity, response);
+	public AccountMapper(ModelMapper modelMapper) {
+		super(modelMapper, AccountEntity.class, Void.class, AccountResponse.class);
+	}
 
-        if(entity.getEmployee() != null){
-            response.setFullName(entity.getEmployee().getFullName());
-            response.setAddress(entity.getEmployee().getAddress());
-            response.setPhoneNumber(entity.getEmployee().getPhoneNumber());
-        }
+	@Override
+	public AccountResponse toDto(AccountEntity entity) {
+		AccountResponse res = super.toDto(entity);
 
-        if(entity.getEmployee().getPosition() != null){
-            response.setSalary(entity.getEmployee().getPosition().getSalary());
-            response.setPositionName(entity.getEmployee().getPosition().getPositionName());
-            response.setPositionId(entity.getEmployee().getPosition().getId());
-        }
-        return response;
-    }
+		if (entity.getEmployee() != null) {
+			var employee = entity.getEmployee();
+			res.setFullName(employee.getFullName());
+			res.setAddress(employee.getAddress());
+			res.setPhoneNumber(employee.getPhoneNumber());
+
+			if (employee.getPosition() != null) {
+				var position = employee.getPosition();
+				res.setPositionId(position.getId());
+				res.setPositionName(position.getPositionName());
+				res.setSalary(position.getSalary());
+			}
+		}
+
+		return res;
+	}
+
+	@Override
+	public List<AccountResponse> toDtoList(List<AccountEntity> entities) {
+		return entities.stream().map(this::toDto).toList();
+	}
 }

@@ -1,11 +1,11 @@
 package com.viettridao.cafe.dto.response.equipment;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.time.LocalDate;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

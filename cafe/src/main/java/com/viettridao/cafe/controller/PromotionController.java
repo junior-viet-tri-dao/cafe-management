@@ -64,7 +64,7 @@ public class PromotionController {
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         try{
-            PromotionResponse response = promotionMapper.toPromotionResponse(promotionService.getPromotionById(id));
+        	PromotionResponse response = promotionMapper.toDto(promotionService.getPromotionById(id));
             model.addAttribute("promotion", response);
             return "/promotions/update_promotion";
         } catch (Exception e) {

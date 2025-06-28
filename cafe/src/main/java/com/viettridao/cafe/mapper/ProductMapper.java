@@ -1,32 +1,36 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.product.ProductResponse;
-import com.viettridao.cafe.model.ProductEntity;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.viettridao.cafe.dto.request.product.CreateProductRequest;
+import com.viettridao.cafe.dto.response.product.ProductResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.ProductEntity;
 
 @Component
-@RequiredArgsConstructor
-public class ProductMapper {
-    private final ModelMapper modelMapper;
+public class ProductMapper extends BaseMapper<ProductEntity, CreateProductRequest, ProductResponse> {
 
-    public ProductResponse toProductResponse(ProductEntity product){
-        ProductResponse productResponse = new ProductResponse();
-        modelMapper.map(product, productResponse);
-//        productResponse.setId(product.getId());
-//        productResponse.setProductName(product.getProductName());
-//        productResponse.setQuantity(product.getQuantity());
+	public ProductMapper(ModelMapper modelMapper) {
+		super(modelMapper, ProductEntity.class, CreateProductRequest.class, ProductResponse.class);
+	}
 
-        if(product.getUnit() != null){
-            productResponse.setUnitName(product.getUnit().getUnitName());
-        }
-        return productResponse;
-    }
+	@Override
+	public ProductResponse toDto(ProductEntity entity) {
+		ProductResponse res = super.toDto(entity);
 
-    public List<ProductResponse> toProductResponse(List<ProductEntity> products){
-        return products.stream().map(this::toProductResponse).toList();
-    }
+		var unit = entity.getUnit();
+		if (unit != null) {
+			res.setUnitName(unit.getUnitName());
+		}
+
+		return res;
+	}
+
+	@Override
+	public List<ProductResponse> toDtoList(List<ProductEntity> entities) {
+		return entities.stream().map(this::toDto).toList();
+	}
 }

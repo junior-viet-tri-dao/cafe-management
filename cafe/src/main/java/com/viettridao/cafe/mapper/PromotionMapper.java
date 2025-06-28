@@ -1,23 +1,32 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
-import com.viettridao.cafe.model.PromotionEntity;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.viettridao.cafe.dto.request.promotion.CreatePromotionRequest;
+import com.viettridao.cafe.dto.response.promotion.PromotionResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.PromotionEntity;
 
 @Component
-@RequiredArgsConstructor
-public class PromotionMapper {
-    private final ModelMapper modelMapper;
+public class PromotionMapper extends BaseMapper<PromotionEntity, CreatePromotionRequest, PromotionResponse> {
 
-    public PromotionResponse toPromotionResponse(PromotionEntity entity){
-        return modelMapper.map(entity, PromotionResponse.class);
-    }
+	public PromotionMapper(ModelMapper modelMapper) {
+		super(modelMapper, PromotionEntity.class, CreatePromotionRequest.class, PromotionResponse.class);
+	}
 
-    public List<PromotionResponse> toPromotionResponseList(List<PromotionEntity> entities){
-        return entities.stream().map(this::toPromotionResponse).toList();
-    }
+	@Override
+	public PromotionResponse toDto(PromotionEntity entity) {
+		PromotionResponse res = super.toDto(entity);
+
+		return res;
+	}
+
+	@Override
+	public List<PromotionResponse> toDtoList(List<PromotionEntity> entities) {
+		return entities.stream().map(this::toDto).toList();
+	}
+
 }

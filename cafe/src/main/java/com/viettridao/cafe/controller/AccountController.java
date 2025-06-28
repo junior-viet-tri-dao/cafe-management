@@ -25,7 +25,9 @@ public class AccountController {
     @GetMapping("")
     public String home(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AccountResponse accountResponse = accountMapper.toAccountResponse(accountService.getAccountByUsername(auth.getName()));
+        AccountResponse accountResponse = accountMapper.toDto(
+        	    accountService.getAccountByUsername(auth.getName())
+        	);
         model.addAttribute("account", accountResponse != null ? accountResponse : new AccountResponse());
         return "/accounts/account";
     }

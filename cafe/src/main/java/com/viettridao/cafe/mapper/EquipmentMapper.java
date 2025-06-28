@@ -1,40 +1,45 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.equipment.EquipmentResponse;
-import com.viettridao.cafe.model.EquipmentEntity;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
+
+import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
+import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
+import com.viettridao.cafe.dto.response.equipment.EquipmentResponse;
+import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.EquipmentEntity;
+
 @Component
-@RequiredArgsConstructor
-public class EquipmentMapper {
-    private final ModelMapper modelMapper;
+public class EquipmentMapper extends BaseMapper<EquipmentEntity, CreateEquipmentRequest, EquipmentResponse> {
 
-    //mapper bằng tay
-    public EquipmentResponse toResponse(EquipmentEntity entity) {
-        EquipmentResponse equipmentResponse = new EquipmentResponse();
-        equipmentResponse.setId(entity.getId());
-        equipmentResponse.setEquipmentName(entity.getEquipmentName());
-        equipmentResponse.setNotes(entity.getNotes());
-        equipmentResponse.setPurchaseDate(entity.getPurchaseDate());
-        equipmentResponse.setPurchasePrice(entity.getPurchasePrice());
-        equipmentResponse.setIsDeleted(entity.getIsDeleted());
-        equipmentResponse.setQuantity(entity.getQuantity());
+	public EquipmentMapper(ModelMapper modelMapper) {
+		super(modelMapper, EquipmentEntity.class, CreateEquipmentRequest.class, EquipmentResponse.class);
+	}
 
-        return equipmentResponse;
-    }
+	@Override
+	public EquipmentResponse toDto(EquipmentEntity entity) {
+		return super.toDto(entity);
+	}
 
-    //mapper thư viện
-    public EquipmentResponse toEquipmentResponse(EquipmentEntity entity) {
-        EquipmentResponse equipmentResponse = new EquipmentResponse();
-        modelMapper.map(entity, equipmentResponse);
+	@Override
+	public List<EquipmentResponse> toDtoList(List<EquipmentEntity> entities) {
+		return entities.stream().map(this::toDto).toList();
+	}
 
-        return equipmentResponse;
-    }
+	// Ánh xạ thông tin cập nhật từ UpdateEquipmentRequest vào entity hiện có
+	public void updateEntityFromUpdateRequest(UpdateEquipmentRequest dto, EquipmentEntity entity) {
+		modelMapper.map(dto, entity);
+	}
 
-    public List<EquipmentResponse> toEquipmentResponseList(List<EquipmentEntity> entities) {
-        return entities.stream().map(this::toEquipmentResponse).toList();
-    }
+	// Dùng cho phần báo cáo ngân sách (thiết bị là chi phí)
+	public BudgetViewResponse toBudgetDto(EquipmentEntity entity) {
+		BudgetViewResponse dto = new BudgetViewResponse();
+		dto.setDate(entity.getPurchaseDate());
+		dto.setIncome(0.0); // vì là chi, không phải thu
+		dto.setExpense(entity.getPurchasePrice());
+		return dto;
+	}
 }

@@ -77,7 +77,9 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentPageResponse.setTotalElements(equipmentEntities.getTotalElements());
         equipmentPageResponse.setTotalPages(equipmentEntities.getTotalPages());
         equipmentPageResponse.setPageSize(equipmentEntities.getSize());
-        equipmentPageResponse.setEquipments(equipmentMapper.toEquipmentResponseList(equipmentEntities.getContent()));
+        equipmentPageResponse.setEquipments(
+        	    equipmentMapper.toDtoList(equipmentEntities.getContent())
+        	);
 
         return equipmentPageResponse;
     }

@@ -40,7 +40,7 @@ public class WareHouseController {
 
     @GetMapping("/create")
     public String showFormCreate(Model model) {
-        model.addAttribute("products", productMapper.toProductResponse(productService.getAllProducts()));
+    	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
         model.addAttribute("import", new CreateImportRequest());
         return "/warehouses/create_warehouse_import";
     }
@@ -62,7 +62,7 @@ public class WareHouseController {
 
     @GetMapping("/create/export")
     public String showFormCreateExport(Model model) {
-        model.addAttribute("products", productMapper.toProductResponse(productService.getAllProducts()));
+    	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
         model.addAttribute("export", new CreateExportRequest());
         return "/warehouses/create_warehouse_export";
     }
@@ -85,8 +85,8 @@ public class WareHouseController {
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         try{
-            model.addAttribute("import", importMapper.toImportResponse(importService.getImportById(id)));
-            model.addAttribute("products", productMapper.toProductResponse(productService.getAllProducts()));
+        	model.addAttribute("import", importMapper.toDto(importService.getImportById(id)));
+        	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
             return "/warehouses/update_warehouse";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

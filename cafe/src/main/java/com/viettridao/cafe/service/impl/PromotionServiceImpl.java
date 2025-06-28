@@ -30,7 +30,9 @@ public class PromotionServiceImpl implements PromotionService {
         promotionPageResponse.setPageSize(promotions.getSize());
         promotionPageResponse.setTotalElements(promotions.getTotalElements());
         promotionPageResponse.setTotalPages(promotions.getTotalPages());
-        promotionPageResponse.setPromotions(promotionMapper.toPromotionResponseList(promotions.getContent()));
+        promotionPageResponse.setPromotions(
+        	    promotionMapper.toDtoList(promotions.getContent())
+        	);
 
         return promotionPageResponse;
     }

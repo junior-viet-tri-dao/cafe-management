@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách Thu Chi</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Danh sách Thu Chi</h2>
+
+<!-- Form lọc ngày -->
+<form th:action="@{/budget/list}" method="get">
+    Từ ngày: <input type="date" name="fromDate" th:value="${filter.fromDate}" />
+    Đến ngày: <input type="date" name="toDate" th:value="${filter.toDate}" />
+    <button type="submit">Xem</button>
+</form>
+
+<!-- Bảng thu chi -->
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Ngày</th>
+            <th>Thu (VNĐ)</th>
+            <th>Chi (VNĐ)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${#lists.isEmpty(budgetPage.content)}">
+            <td colspan="3">Không có dữ liệu</td>
+        </tr>
+        <tr th:each="item : ${budgetPage.content}">
+            <td th:text="${item.date}">2025-06-01</td>
+            <td th:text="${#numbers.formatDecimal(item.income, 0, 'COMMA', 2, 'POINT')}">0</td>
+            <td th:text="${#numbers.formatDecimal(item.expense, 0, 'COMMA', 2, 'POINT')}">0</td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Tổng</th>
+            <th th:text="${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 2, 'POINT')}">0</th>
+            <th th:text="${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 2, 'POINT')}">0</th>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Phân trang -->
+<div th:if="${budgetPage.totalPages > 1}">
+    <span>Trang:</span>
+    <span th:each="i : ${#numbers.sequence(0, budgetPage.totalPages - 1)}">
+        <a th:href="@{/budget/list(fromDate=${filter.fromDate}, toDate=${filter.toDate}, page=${i})}"
+           th:text="${i + 1}" 
+           th:style="${i == budgetPage.number} ? 'font-weight:bold' : ''"></a>
+    </span>
+</div>
+
+<!-- Thêm khoản chi -->
+<p><a th:href="@{/budget/add}">➕ Thêm khoản chi</a></p>
+
+<!-- Thông báo flash -->
+<div th:if="${success}" style="color:green;" th:text="${success}"></div>
+<div th:if="${error}" style="color:red;" th:text="${error}"></div>
+
+</body>
+</html>
