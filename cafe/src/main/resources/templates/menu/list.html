@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách món ăn</title>
+</head>
+<body>
+<h1>Danh sách món ăn</h1>
+
+<form th:action="@{/menu/search}" method="get">
+    <input type="text" name="keyword" placeholder="Tìm món..." th:value="${keyword}">
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Stt</th>
+        <th>Tên món</th>
+        <th>Giá tiền</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item, stat : ${items.content}">
+        <td th:text="${stat.index + 1}"></td>
+        <td th:text="${item.itemName}"></td>
+        <td th:text="${item.currentPrice} + ' VNĐ'"></td>
+        <td>
+            <a th:href="@{/menu/edit/{id}(id=${item.id})}">Sửa</a> |
+            <a th:href="@{/menu/delete/{id}(id=${item.id})}" onclick="return confirm('Xoá món này?')">Xoá</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Phân trang -->
+<div>
+    <a th:href="@{/menu/list(page=${currentPage - 1})}" th:if="${items.hasPrevious()}">« Trước</a>
+    <span>Trang [[${currentPage + 1}]]</span>
+    <a th:href="@{/menu/list(page=${currentPage + 1})}" th:if="${items.hasNext()}">Sau »</a>
+</div>
+
+<a href="/menu/add">➕ Thêm món mới</a>
+</body>
+</html>

@@ -1,6 +1,16 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.viettridao.cafe.dto.request.export.CreateExportRequest;
 import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
 import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
@@ -10,13 +20,9 @@ import com.viettridao.cafe.service.ExportService;
 import com.viettridao.cafe.service.ImportService;
 import com.viettridao.cafe.service.ProductService;
 import com.viettridao.cafe.service.WareHouseService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor

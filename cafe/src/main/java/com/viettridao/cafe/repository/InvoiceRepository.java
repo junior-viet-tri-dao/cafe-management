@@ -12,9 +12,9 @@ import com.viettridao.cafe.model.InvoiceEntity;
 @Repository
 public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer> {
 
-    List<InvoiceEntity> findByStatusAndCreatedAtBetween(
-        InvoiceStatus status,
-        LocalDateTime from,
-        LocalDateTime to
-    );
+	List<InvoiceEntity> findByStatusAndCreatedAtBetween(InvoiceStatus status, LocalDateTime from, LocalDateTime to);
+
+	InvoiceEntity findTopByReservations_Table_IdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(Integer tableId,
+			InvoiceStatus status);
+
 }

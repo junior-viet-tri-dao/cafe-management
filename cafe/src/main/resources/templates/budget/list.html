@@ -29,8 +29,8 @@
         </tr>
         <tr th:each="item : ${budgetPage.content}">
             <td th:text="${item.date}">2025-06-01</td>
-            <td th:text="${#numbers.formatDecimal(item.income, 0, 'COMMA', 2, 'POINT')}">0</td>
-            <td th:text="${#numbers.formatDecimal(item.expense, 0, 'COMMA', 2, 'POINT')}">0</td>
+            <td th:text="${item.formattedIncome}">0</td>
+            <td th:text="${item.formattedExpense}">0</td>
         </tr>
     </tbody>
     <tfoot>
@@ -47,7 +47,7 @@
     <span>Trang:</span>
     <span th:each="i : ${#numbers.sequence(0, budgetPage.totalPages - 1)}">
         <a th:href="@{/budget/list(fromDate=${filter.fromDate}, toDate=${filter.toDate}, page=${i})}"
-           th:text="${i + 1}" 
+           th:text="${i + 1}"
            th:style="${i == budgetPage.number} ? 'font-weight:bold' : ''"></a>
     </span>
 </div>

@@ -1,5 +1,6 @@
 package com.viettridao.cafe.dto.response.expenses;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,26 @@ import lombok.Setter;
 @NoArgsConstructor
 public class BudgetViewResponse {
     private LocalDate date;
-    private Double income;   
-    private Double expense;  
+    private Double income;
+    private Double expense;
+
+    public String getFormattedIncome() {
+        if (income == null) return "";
+        return formatCurrency(income);
+    }
+
+    public String getFormattedExpense() {
+        if (expense == null) return "";
+        return formatCurrency(expense);
+    }
+
+    private String formatCurrency(Double value) {
+        if (value % 1 == 0) {
+            return new DecimalFormat("#,###").format(value);
+        } else {
+            return new DecimalFormat("#,###.00").format(value);
+        }
+    }
 }
+
 

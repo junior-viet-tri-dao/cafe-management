@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Danh sách bàn</title>
+<meta charset="UTF-8">
+<style>
+table {
+	width: 80%;
+	border-collapse: collapse;
+	margin: 20px auto;
+}
+
+th, td {
+	padding: 8px 12px;
+	border: 1px solid #999;
+	text-align: center;
+}
+
+th {
+	background-color: #f2f2f2;
+}
+
+.button {
+	padding: 5px 10px;
+	border-radius: 4px;
+	text-decoration: none;
+	color: white;
+	margin: 2px;
+	display: inline-block;
+	transition: filter 0.3s ease;
+}
+
+/* Màu theo trạng thái bàn */
+.status-available {
+	background-color: green;
+}
+
+.status-occupied {
+	background-color: red;
+}
+
+.status-reserved {
+	background-color: orange;
+}
+
+.status-out_of_service {
+	background-color: gray;
+}
+
+/* Màu cho các nút thao tác */
+.btn-view {
+	background-color: #007bff; /* Xanh dương */
+}
+
+.btn-move {
+	background-color: #28a745; /* Xanh lá */
+}
+
+.btn-split {
+	background-color: #ffc107; /* Vàng */
+	color: black;
+}
+
+.btn-merge {
+	background-color: #17a2b8; /* Xanh nước biển nhạt */
+}
+
+/* Hiệu ứng hover nhẹ */
+.button:hover {
+	filter: brightness(0.85);
+}
+</style>
+</head>
+<body>
+	<h2 style="text-align: center">Danh sách bàn</h2>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Tên bàn</th>
+				<th>Trạng thái</th>
+				<th>Thao tác</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="table : ${tables}">
+				<td th:text="${table.tableName}">Tên bàn</td>
+				<td th:text="${table.status}">Trạng thái</td>
+				<td>
+					<a th:href="@{'/sale/see-table/' + ${table.id}}" class="button btn-view">Xem</a>
+					<a th:href="@{'/sale/chuyen-ban/' + ${table.id}}" class="button btn-move">Chuyển</a>
+					<a th:href="@{'/sale/tach-ban/' + ${table.id}}" class="button btn-split">Tách</a>
+					<a th:href="@{'/sale/gop-ban/' + ${table.id}}" class="button btn-merge">Gộp</a>
+					    <a th:href="@{'/sale/menu/select'(tableId=${table.id})}">Chọn thực đơn</a>
+					
+
+					<!-- Nút Đặt bàn chỉ hiển thị nếu trạng thái khác OUT_OF_SERVICE -->
+					<a th:if="${table.status.name() != 'OUT_OF_SERVICE'}"
+					   th:href="@{/sale/reserve(tableId=${table.id})}"
+					   th:class="'button status-' + ${#strings.toLowerCase(table.status.name())}"
+					   th:text="'Đặt bàn (' + ${table.status} + ')'">
+					</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+</body>
+</html>

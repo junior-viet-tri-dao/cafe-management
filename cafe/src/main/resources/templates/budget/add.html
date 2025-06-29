@@ -13,17 +13,24 @@
 
 <form th:action="@{/budget/add}" method="post" th:object="${expenseRequest}">
     <label>Ngày:</label><br/>
-    <input type="date" th:field="*{expenseDate}" required /><br/><br/>
+    <input type="date" th:field="*{expenseDate}" required /><br/>
+    <div th:if="${#fields.hasErrors('expenseDate')}" th:errors="*{expenseDate}" style="color:red;"></div>
+    <br/>
 
     <label>Khoản chi:</label><br/>
-    <input type="text" th:field="*{expenseName}" required placeholder="Ví dụ: Mua nguyên liệu" /><br/><br/>
+    <input type="text" th:field="*{expenseName}" required placeholder="Ví dụ: Mua nguyên liệu" /><br/>
+    <div th:if="${#fields.hasErrors('expenseName')}" th:errors="*{expenseName}" style="color:red;"></div>
+    <br/>
 
     <label>Số tiền (VNĐ):</label><br/>
-    <input type="number" th:field="*{amount}" step="0.01" required /><br/><br/>
+    <input type="number" th:field="*{amount}" step="0.01" required /><br/>
+    <div th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}" style="color:red;"></div>
+    <br/>
 
     <button type="submit">💾 Lưu</button>
     <a th:href="@{/budget/list}">↩ Quay lại</a>
 </form>
+
 
 </body>
 </html>

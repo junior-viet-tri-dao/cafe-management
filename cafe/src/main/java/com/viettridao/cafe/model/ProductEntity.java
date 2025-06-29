@@ -38,6 +38,6 @@ public class ProductEntity {
     private List<MenuDetailEntity> menuDetails;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "unit_id")
+    @JoinColumn(name = "unit_id", nullable = false)
     private UnitEntity unit;
 }

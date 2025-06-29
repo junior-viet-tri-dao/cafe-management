@@ -1,9 +1,17 @@
 package com.viettridao.cafe.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -30,6 +38,9 @@ public class ReservationEntity {
 
     @Column(name = "customer_name")
     private String customerName;
+    
+    @Column(name = "reservation_time")
+    private LocalTime reservationTime;
 
     @Column(name = "customer_phone_number")
     private String customerPhone;
