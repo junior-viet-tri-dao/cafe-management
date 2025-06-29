@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Đặt bàn</title>
+    <meta charset="UTF-8">
+    <style>
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            width: 100px;
+        }
+
+        .form-row input {
+            margin-right: 16px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            min-width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Đặt bàn <span th:text="${tableNumber}"></span></h3>
+    <form th:action="@{/sale/reserve}" method="post">
+        <input type="hidden" name="tableId" th:value="${tableId}" />
+        <div class="form-row">
+            <label>Khách hàng:</label>
+            <input type="text" name="customerName" th:value="${customerName}" required />
+            <label>SDT:</label>
+            <input type="text" name="phone" th:value="${phone}" required />
+        </div>
+        <div class="form-row">
+            <label>Ngày:</label>
+            <input type="date" name="date" th:value="${date}" required />
+            <label>Giờ:</label>
+            <input type="time" name="time" th:value="${time}" required />
+        </div>
+        <div class="form-actions">
+            <button type="submit">Đặt bàn</button>
+            <a th:href="@{/sale}" style="margin-left: 16px;"><button type="button">Hủy</button></a>
+        </div>
+    </form>
+</body>
+
+</html>

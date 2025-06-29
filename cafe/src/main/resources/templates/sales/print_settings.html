@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Cài đặt in hóa đơn</title>
+    <meta charset="UTF-8">
+    <style>
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-row label {
+            width: 100px;
+        }
+
+        .form-row select,
+        .form-row input {
+            margin-right: 16px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            min-width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Cài đặt in ấn hóa đơn</h3>
+    <form th:action="@{/sale/print-settings}" method="post">
+        <div class="form-row">
+            <label>Khổ giấy:</label>
+            <select name="paperSize" th:value="${paperSize}">
+                <option value="A4">A4</option>
+                <option value="A5">A5</option>
+                <option value="A6">A6</option>
+            </select>
+            <label>Máy in:</label>
+            <select name="printer" th:value="${printer}">
+                <option th:each="p : ${printers}" th:value="${p}" th:text="${p}"></option>
+            </select>
+            <label>Giới hạn in:</label>
+            <input type="number" name="printLimit" min="1" th:value="${printLimit}" />
+        </div>
+        <div class="form-actions">
+            <button type="submit">Lưu</button>
+            <a th:href="@{/sale}"><button type="button">Hủy</button></a>
+        </div>
+    </form>
+</body>
+
+</html>

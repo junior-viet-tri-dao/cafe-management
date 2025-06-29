@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý bàn</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold text-[#4e342e] mb-6">🍽️ Danh sách bàn</h2>
+            <div class="mb-4 text-right">
+                <a href="/table/create" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">➕ Thêm
+                    bàn</a>
+            </div>
+            <table class="min-w-full table-auto border border-gray-300 rounded-lg">
+                <thead class="bg-blue-100 text-gray-800 text-sm font-bold uppercase">
+                    <tr>
+                        <th class="px-4 py-2 text-center">STT</th>
+                        <th class="px-4 py-2 text-center">Tên bàn</th>
+                        <th class="px-4 py-2 text-center">Trạng thái</th>
+                        <th class="px-4 py-2 text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700 divide-y divide-gray-200">
+                    <tr th:each="table,iter : ${tables}">
+                        <td class="px-4 py-2 text-center" th:text="${iter.index + 1}">1</td>
+                        <td class="px-4 py-2 text-center" th:text="${table.tableName}">A1</td>
+                        <td class="px-4 py-2 text-center">
+                            <span th:switch="${table.status}">
+                                <span th:case="'AVAILABLE'" class="text-green-600 font-semibold">Trống</span>
+                                <span th:case="'OCCUPIED'" class="text-yellow-600 font-semibold">Đang sử dụng</span>
+                                <span th:case="'RESERVED'" class="text-blue-600 font-semibold">Đã đặt trước</span>
+                                <span th:case="'OUT_OF_SERVICE'" class="text-red-600 font-semibold">Ngừng phục vụ</span>
+                                <span th:case="*" class="text-gray-600">Không rõ</span>
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <a th:href="@{'/table/update/' + ${table.id}}"
+                                class="text-blue-600 hover:underline mr-2">Sửa</a>
+                            <a th:href="@{'/table/delete/' + ${table.id}}" class="text-red-600 hover:underline mr-2"
+                                onclick="return confirm('Xác nhận xóa bàn?')">Xóa</a>
+                            <form th:action="@{'/table/status/' + ${table.id}}" method="post" class="inline">
+                                <select name="status" class="border rounded px-2 py-1 text-xs">
+                                    <option th:each="st : ${T(com.viettridao.cafe.common.TableStatus).values()}"
+                                        th:value="${st}" th:text="${st}" th:selected="${st} == ${table.status}">
+                                    </option>
+                                </select>
+                                <button type="submit" class="ml-1 bg-gray-200 px-2 py-1 rounded text-xs">Đổi</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(tables)}">
+                        <td colspan="4" class="text-center text-gray-500 italic py-6">Không có bàn nào.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
