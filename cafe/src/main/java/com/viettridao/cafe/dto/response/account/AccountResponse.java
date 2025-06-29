@@ -33,5 +33,4 @@ public class AccountResponse {
 
     private String password;
 
-    private List<ExpenseResponse> expenses;
 }

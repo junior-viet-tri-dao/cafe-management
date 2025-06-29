@@ -19,7 +19,6 @@ public interface AccountMapper {
     @Mapping(target = "expenses", ignore = true)
     AccountEntity toEntity(AccountCreateRequest request);
 
-
     AccountResponse toResponse(AccountEntity entity);
 
     AccountUpdateRequest toUpdateRequest(AccountEntity entity);

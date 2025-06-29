@@ -35,13 +35,6 @@ public class AccountServiceImpl implements IAccountService{
     }
 
     @Override
-    public Integer findIdByUsername(String username) {
-        return accountRepository.findByUsernameAndDeletedFalse(username)
-                .map(AccountEntity::getId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
-    }
-
-    @Override
     @Transactional
     public void createAccount(AccountCreateRequest request) {
 
@@ -85,11 +78,6 @@ public class AccountServiceImpl implements IAccountService{
             throw new RuntimeException("Không tìm thấy thông tin nhân viên cho tài khoản có ID = " + accountId);
         }
         return profileMapper.toProfile(account);
-    }
-
-    @Override
-    public Optional<AccountEntity> findAccoundById(Integer id) {
-        return accountRepository.findById(id);
     }
 
     // Kiếm tài khoản theo id truyền vào
