@@ -8,9 +8,9 @@ import com.viettridao.cafe.service.impl.MenuItemServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
@@ -20,16 +20,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class MenuItemServiceTest {
-    @Mock
+    @MockBean
     private MenuItemRepository menuItemRepository;
-    @InjectMocks
-    private MenuItemServiceImpl menuItemService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private MenuItemServiceImpl menuItemService;
 
     @Test
     @DisplayName("Tạo món thành công")

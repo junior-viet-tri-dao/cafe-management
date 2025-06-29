@@ -4,28 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Cập Nhật Bàn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <!-- Đã loại bỏ file CSS ngoài, chỉ dùng Tailwind CSS -->
 </head>
 
 <body>
-    <div class="container">
-        <h2>Cập Nhật Bàn</h2>
-        <form th:action="@{/tables/update}" th:object="${table}" method="post">
+    <div class="max-w-xl mx-auto mt-10 bg-white rounded-xl shadow-xl p-8">
+        <h2 class="text-2xl font-bold text-[#4e342e] mb-6">Cập Nhật Bàn</h2>
+        <form th:action="@{/tables/update}" th:object="${table}" method="post" class="space-y-6">
             <input type="hidden" th:field="*{id}" />
-            <div>
-                <label for="tableName">Tên bàn:</label>
-                <input type="text" id="tableName" th:field="*{tableName}" required />
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label for="tableName" class="font-medium mb-1">Tên bàn:</label>
+                    <input type="text" id="tableName" th:field="*{tableName}" required
+                        class="border border-gray-300 rounded px-3 py-2 w-full" />
+                </div>
+                <div>
+                    <label for="status" class="font-medium mb-1">Trạng thái:</label>
+                    <select id="status" th:field="*{status}" class="border border-gray-300 rounded px-3 py-2 w-full">
+                        <option th:each="status : ${T(com.viettridao.cafe.common.TableStatus).values()}"
+                            th:value="${status}" th:text="${status}"></option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label for="status">Trạng thái:</label>
-                <select id="status" th:field="*{status}">
-                    <option th:each="status : ${T(com.viettridao.cafe.common.TableStatus).values()}"
-                        th:value="${status}" th:text="${status}"></option>
-                </select>
-            </div>
-            <div>
-                <button type="submit">Cập nhật</button>
-                <a th:href="@{/tables}">Hủy</a>
+            <div class="flex justify-center gap-6 mt-6">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">💾
+                    Cập nhật</button>
+                <a th:href="@{/tables}" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-md shadow">❌
+                    Hủy</a>
             </div>
         </form>
     </div>

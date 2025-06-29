@@ -14,8 +14,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "accounts") //taikhoan
-public class AccountEntity implements Serializable, UserDetails {
+@Table(name = "accounts")
+public class AccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
@@ -41,29 +41,4 @@ public class AccountEntity implements Serializable, UserDetails {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<ExpenseEntity> expenses;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(this.permission));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 }

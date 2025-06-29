@@ -7,8 +7,12 @@ import com.viettridao.cafe.model.EmployeeEntity;
 
 public interface EmployeeService {
     EmployeePageResponse getAllEmployees(String keyword, int page, int size);
+
     EmployeeEntity createEmployee(CreateEmployeeRequest request);
+
     void deleteEmployee(Integer id);
+
     void updateEmployee(UpdateEmployeeRequest request);
+
     EmployeeEntity getEmployeeById(Integer id);
 }

@@ -4,62 +4,51 @@
 <head>
     <title>Chọn món cho bàn</title>
     <meta charset="UTF-8">
-    <style>
-        .form-actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        button {
-            min-width: 100px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            border: 1px solid #aaa;
-            padding: 6px 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #eee;
-        }
-    </style>
+    <!-- Đã loại bỏ style, chỉ dùng Tailwind CSS -->
 </head>
 
 <body>
-    <h3>Chọn món bàn <span th:text="${tableNumber}"></span></h3>
-    <form th:action="@{/sale/order}" method="post">
-        <input type="hidden" name="tableId" th:value="${tableId}" />
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Tên món</th>
-                    <th>Số lượng</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="item : ${menuItems}">
-                    <td><input type="checkbox" th:name="selectedItems" th:value="${item.id}"
-                            th:checked="${item.selected}" /></td>
-                    <td th:text="${item.name}"></td>
-                    <td><input type="number" th:name="quantities[__${item.id}__]" min="0" th:value="${item.quantity}"
-                            style="width: 60px;" /></td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="form-actions">
-            <button type="submit">Lưu</button>
-            <a th:href="@{/sale}"><button type="button">Hủy</button></a>
-        </div>
-    </form>
+    <div class="max-w-2xl mx-auto mt-10 bg-white rounded-xl shadow-xl p-8">
+        <h3 class="text-2xl font-bold text-[#4e342e] mb-6">Chọn món bàn <span th:text="${tableNumber}"></span></h3>
+        <form th:action="@{/sale/order}" method="post" class="space-y-6">
+            <input type="hidden" name="tableId" th:value="${tableId}" />
+            <div class="overflow-x-auto">
+                <table class="min-w-full table-auto border border-gray-300 rounded-lg">
+                    <thead class="bg-blue-100 text-gray-800 text-sm font-bold uppercase">
+                        <tr>
+                            <th class="px-4 py-2 text-center"></th>
+                            <th class="px-4 py-2 text-left">Tên món</th>
+                            <th class="px-4 py-2 text-center">Số lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${menuItems}" class="hover:bg-yellow-50 transition">
+                            <td class="px-4 py-2 text-center">
+                                <input type="checkbox" th:name="selectedItems" th:value="${item.id}"
+                                    th:checked="${item.selected}"
+                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                            </td>
+                            <td class="px-4 py-2" th:text="${item.name}"></td>
+                            <td class="px-4 py-2 text-center">
+                                <input type="number" th:name="quantities[__${item.id}__]" min="0"
+                                    th:value="${item.quantity}"
+                                    class="w-20 border border-gray-300 rounded px-2 py-1 text-center" required />
+                                <p class="text-red-500 text-xs mt-1"
+                                    th:if="${#fields.hasErrors('quantities[' + item.id + ']')}"
+                                    th:errors="*{quantities[__${item.id}__]}"></p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-center gap-6 mt-6">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">💾
+                    Lưu</button>
+                <a th:href="@{/sale}" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-md shadow">❌
+                    Hủy</a>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>

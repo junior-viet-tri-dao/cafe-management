@@ -9,9 +9,9 @@ import com.viettridao.cafe.service.impl.ExpenseServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
@@ -21,18 +21,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class ExpenseServiceTest {
-    @Mock
+    @MockBean
     private ExpenseRepository expenseRepository;
-    @Mock
+    @MockBean
     private com.viettridao.cafe.mapper.ExpenseMapper expenseMapper;
-    @InjectMocks
-    private ExpenseServiceImpl expenseService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private ExpenseServiceImpl expenseService;
 
     @Test
     @DisplayName("Tạo khoản chi thành công")

@@ -5,8 +5,9 @@ import com.viettridao.cafe.dto.response.account.AccountResponse;
 import com.viettridao.cafe.mapper.AccountMapper;
 import com.viettridao.cafe.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import com.viettridao.cafe.model.AccountEntity;
+
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,16 +24,17 @@ public class AccountController {
     private final AccountMapper accountMapper;
 
     @GetMapping("")
-    public String home(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AccountResponse accountResponse = accountMapper.toAccountResponse(accountService.getAccountByUsername(auth.getName()));
-        model.addAttribute("account", accountResponse != null ? accountResponse : new AccountResponse());
+    public String home(@ModelAttribute("user") User user, Model model) {
+        AccountResponse accountResponse = accountMapper
+                .toAccountResponse(accountService.getAccountByUsername(user.getUsername()));
+
+        model.addAttribute("account", accountResponse);
         return "/accounts/account";
     }
 
     @PostMapping("/update")
-    public String updateAccount(@ModelAttribute("account") UpdateAccountRequest request,
-                                RedirectAttributes redirectAttributes) {
+    public String updateAccount(UpdateAccountRequest request,
+            RedirectAttributes redirectAttributes) {
         try {
             accountService.updateAccount(request);
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin cá nhân thành công!");

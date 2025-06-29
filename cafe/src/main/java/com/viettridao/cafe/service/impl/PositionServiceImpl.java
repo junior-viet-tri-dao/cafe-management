@@ -15,11 +15,12 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public PositionEntity getPositionById(Integer id) {
-        return positionRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy chức vụ id=" + id));
+        return positionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chức vụ id=" + id));
     }
 
     @Override
     public List<PositionEntity> getPositions() {
-        return positionRepository.getAllPositions();
+        return positionRepository.findAllByIsDeletedFalse();
     }
 }

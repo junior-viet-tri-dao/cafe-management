@@ -9,9 +9,9 @@ import com.viettridao.cafe.service.impl.ExportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 
@@ -21,20 +21,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class ExportServiceTest {
-    @Mock
+    @MockBean
     private ExportRepository exportRepository;
-    @Mock
+    @MockBean
     private ProductService productService;
-    @Mock
+    @MockBean
     private ProductRepository productRepository;
-    @InjectMocks
-    private ExportServiceImpl exportService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private ExportServiceImpl exportService;
 
     @Test
     @DisplayName("Tạo đơn xuất thành công")

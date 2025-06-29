@@ -10,9 +10,9 @@ import com.viettridao.cafe.service.impl.ImportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -23,20 +23,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class ImportServiceTest {
-    @Mock
+    @MockBean
     private ImportRepository importRepository;
-    @Mock
+    @MockBean
     private ProductRepository productRepository;
-    @Mock
+    @MockBean
     private ProductService productService;
-    @InjectMocks
-    private ImportServiceImpl importService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private ImportServiceImpl importService;
 
     @Test
     @DisplayName("Tạo đơn nhập thành công")

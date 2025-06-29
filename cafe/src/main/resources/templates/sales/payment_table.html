@@ -4,73 +4,61 @@
 <head>
     <title>Thanh toán bàn</title>
     <meta charset="UTF-8">
-    <style>
-        .form-actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        button {
-            min-width: 100px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th,
-        td {
-            border: 1px solid #aaa;
-            padding: 6px 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #eee;
-        }
-    </style>
+    <!-- Đã loại bỏ style, chỉ dùng Tailwind CSS -->
 </head>
 
 <body>
-    <h3>Thanh toán bàn <span th:text="${tableNumber}"></span></h3>
-    <form th:action="@{/sale/payment}" method="post">
-        <input type="hidden" name="tableId" th:value="${tableId}" />
-        <table>
-            <thead>
-                <tr>
-                    <th>Tên món</th>
-                    <th>SL</th>
-                    <th>Thành tiền</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="item : ${orderItems}">
-                    <td th:text="${item.name}"></td>
-                    <td th:text="${item.quantity}"></td>
-                    <td th:text="${#numbers.formatDecimal(item.total, 0, 'POINT', 0, 'COMMA')}"></td>
-                </tr>
-            </tbody>
-        </table>
-        <div style="margin: 10px 0; text-align: right;">
-            <b>Tổng:</b> <span th:text="${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}"></span> đ
-        </div>
-        <div class="form-row">
-            <label>Khách đưa:</label>
-            <input type="number" name="customerPay" th:value="${customerPay}" min="0" required />
-            <span style="margin-left: 20px;"><b>Thối lại:</b> <span th:text="${change}"></span></span>
-        </div>
-        <div class="form-row" style="margin: 10px 0;">
-            <input type="checkbox" name="setAvailable" th:checked="${setAvailable}" /> Đổi trạng thái bàn sang trống sau
-            khi thanh toán
-        </div>
-        <div class="form-actions">
-            <button type="submit">Thanh toán</button>
-            <a th:href="@{/sale}"><button type="button">Hủy</button></a>
-            <button type="button" onclick="window.print()">In phiếu thanh toán…</button>
-        </div>
-    </form>
+    <div class="max-w-2xl mx-auto mt-10 bg-white rounded-xl shadow-xl p-8">
+        <h3 class="text-2xl font-bold text-[#4e342e] mb-6">Thanh toán bàn <span th:text="${tableNumber}"></span></h3>
+        <form th:action="@{/sale/payment}" method="post" class="space-y-6">
+            <input type="hidden" name="tableId" th:value="${tableId}" />
+            <table class="min-w-full table-auto border border-gray-300 rounded-lg mb-4">
+                <thead class="bg-blue-100 text-gray-800 text-sm font-bold uppercase">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Tên món</th>
+                        <th class="px-4 py-2 text-center">SL</th>
+                        <th class="px-4 py-2 text-right">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700 divide-y divide-gray-200">
+                    <tr th:each="item : ${orderItems}">
+                        <td class="px-4 py-2" th:text="${item.name}"></td>
+                        <td class="px-4 py-2 text-center" th:text="${item.quantity}"></td>
+                        <td class="px-4 py-2 text-right"
+                            th:text="${#numbers.formatDecimal(item.total, 0, 'POINT', 0, 'COMMA')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="flex justify-end items-center mb-4">
+                <span class="font-semibold mr-2">Tổng:</span>
+                <span class="text-lg font-bold text-green-700"
+                    th:text="${#numbers.formatDecimal(total, 0, 'POINT', 0, 'COMMA')}"></span>
+                <span class="ml-1">đ</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <label class="font-medium">Khách đưa:</label>
+                <input type="number" name="customerPay" th:value="${customerPay}" min="0" required
+                    class="border border-gray-300 rounded px-3 py-2 w-32" />
+                <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('customerPay')}"
+                    th:errors="*{customerPay}"></p>
+                <span class="ml-6 font-medium">Thối lại: <span class="text-blue-700 font-bold"
+                        th:text="${change}"></span></span>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+                <input type="checkbox" name="setAvailable" th:checked="${setAvailable}" class="mr-2" />
+                <span>Đổi trạng thái bàn sang trống sau khi thanh toán</span>
+            </div>
+            <div class="flex justify-center gap-6 mt-6">
+                <button type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">Thanh toán</button>
+                <a th:href="@{/sale}"
+                    class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-md shadow">Hủy</a>
+                <button type="button" onclick="window.print()"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md shadow">In phiếu thanh
+                    toán…</button>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>

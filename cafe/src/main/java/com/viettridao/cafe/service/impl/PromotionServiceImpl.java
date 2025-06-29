@@ -22,8 +22,9 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public PromotionPageResponse getAllPromotions(int page, int size) {
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<PromotionEntity> promotions = promotionRepository.getAllByPromotions(pageable);
+        Page<PromotionEntity> promotions = promotionRepository.findAllByIsDeletedFalse(pageable);
 
         PromotionPageResponse promotionPageResponse = new PromotionPageResponse();
         promotionPageResponse.setPageNumber(promotions.getNumber());
@@ -62,7 +63,8 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public PromotionEntity getPromotionById(Integer id) {
-        return promotionRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy khuyến mãi có id=" + id));
+        return promotionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khuyến mãi có id=" + id));
     }
 
     @Transactional

@@ -36,10 +36,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         Pageable pageable = PageRequest.of(page, size);
         Page<EmployeeEntity> employeeEntities;
 
-        if(StringUtils.hasText(keyword)) {
-            employeeEntities = employeeRepository.getAllEmployeesBySearch(keyword, pageable);
-        }else {
-            employeeEntities = employeeRepository.getAllEmployees(pageable);
+        if (StringUtils.hasText(keyword)) {
+            employeeEntities = employeeRepository.findAllByIsDeletedFalseAndFullNameContainingIgnoreCase(keyword,
+                    pageable);
+        } else {
+            employeeEntities = employeeRepository.findAllByIsDeletedFalse(pageable);
         }
         EmployeePageResponse employeePageResponse = new EmployeePageResponse();
         employeePageResponse.setPageNumber(employeeEntities.getNumber());
@@ -60,12 +61,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setAddress(request.getAddress().trim());
         employee.setIsDeleted(false);
 
-        if(request.getPositionId() != null) {
+        if (request.getPositionId() != null) {
             PositionEntity position = positionService.getPositionById(request.getPositionId());
             employee.setPosition(position);
         }
 
-        if(StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
+        if (StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
             AccountEntity account = new AccountEntity();
             account.setUsername(request.getUsername().trim());
             account.setPassword(passwordEncoder.encode(request.getPassword().trim()));
@@ -136,9 +137,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
     }
 
-
     @Override
     public EmployeeEntity getEmployeeById(Integer id) {
-        return employeeRepository.findById(id).orElseThrow(()-> new RuntimeException(("Không tìm thấy nhân viên có id=" + id)));
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(("Không tìm thấy nhân viên có id=" + id)));
     }
 }

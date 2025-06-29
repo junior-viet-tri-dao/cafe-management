@@ -1,3 +1,4 @@
+
 package com.viettridao.cafe.service;
 
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
@@ -8,12 +9,12 @@ import com.viettridao.cafe.model.PositionEntity;
 import com.viettridao.cafe.repository.AccountRepository;
 import com.viettridao.cafe.repository.EmployeeRepository;
 import com.viettridao.cafe.service.impl.EmployeeServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -24,22 +25,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
-class EmployeeServiceTest {
-    @Mock
-    private EmployeeRepository employeeRepository;
-    @Mock
-    private AccountRepository accountRepository;
-    @Mock
-    private PositionService positionService;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @InjectMocks
-    private EmployeeServiceImpl employeeService;
+@SpringBootTest
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+class EmployeeServiceTest {
+    @MockBean
+    private EmployeeRepository employeeRepository;
+    @MockBean
+    private AccountRepository accountRepository;
+    @MockBean
+    private PositionService positionService;
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmployeeServiceImpl employeeService;
 
     @Test
     @DisplayName("Tạo nhân viên thành công")

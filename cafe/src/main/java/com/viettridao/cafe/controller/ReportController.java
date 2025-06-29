@@ -1,18 +1,22 @@
+
 package com.viettridao.cafe.controller;
 
+import com.viettridao.cafe.dto.request.report.ReportFilterRequest;
+import com.viettridao.cafe.dto.response.report.ReportItemResponse;
+import com.viettridao.cafe.service.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
-import com.viettridao.cafe.dto.response.report.ReportItemResponse;
-import com.viettridao.cafe.service.ReportService;
 
 @Controller
 @RequiredArgsConstructor
@@ -74,31 +78,43 @@ public class ReportController {
     }
 
     @GetMapping
-    public String getReport(
-            @RequestParam(value = "category", required = false, defaultValue = "all") String category,
-            @RequestParam(value = "fromDate", required = false) String fromDate,
-            @RequestParam(value = "toDate", required = false) String toDate,
+    public String getReport(@ModelAttribute ReportFilterRequest filter,
+            BindingResult bindingResult,
             Model model) {
+        // Validate ngày: fromDate <= toDate chỉ ở controller
         LocalDate from = null;
         LocalDate to = null;
-        try {
-            if (fromDate != null && !fromDate.isBlank())
-                from = LocalDate.parse(fromDate);
-            if (toDate != null && !toDate.isBlank())
-                to = LocalDate.parse(toDate);
-        } catch (Exception e) {
-            // fallback: ignore parse error, let service handle null
+        if (!bindingResult.hasErrors()) {
+            try {
+                if (filter.getFromDate() != null && !filter.getFromDate().isBlank())
+                    from = LocalDate.parse(filter.getFromDate());
+                if (filter.getToDate() != null && !filter.getToDate().isBlank())
+                    to = LocalDate.parse(filter.getToDate());
+                if (from != null && to != null && from.isAfter(to)) {
+                    bindingResult.rejectValue("fromDate", "fromDate.afterToDate",
+                            "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!");
+                }
+            } catch (Exception e) {
+                bindingResult.reject("date.parse", "Định dạng ngày không hợp lệ!");
+            }
         }
-        List<ReportItemResponse> reportList = reportService.getReport(from, to, category);
-        long tongThu = reportList.stream().mapToLong(ReportItemResponse::getThu).sum();
-        long tongChi = reportList.stream().mapToLong(ReportItemResponse::getChi).sum();
-
+        List<ReportItemResponse> reportList = List.of();
+        long tongThu = 0;
+        long tongChi = 0;
+        // Không validate ở service, chỉ lấy dữ liệu nếu không có lỗi
+        if (!bindingResult.hasErrors()) {
+            reportList = reportService.getReport(from, to, filter.getCategory());
+            tongThu = reportList.stream().mapToLong(ReportItemResponse::getThu).sum();
+            tongChi = reportList.stream().mapToLong(ReportItemResponse::getChi).sum();
+        }
         model.addAttribute("reportList", reportList);
         model.addAttribute("tongThu", tongThu);
         model.addAttribute("tongChi", tongChi);
-        model.addAttribute("category", category);
-        model.addAttribute("fromDate", fromDate);
-        model.addAttribute("toDate", toDate);
+        model.addAttribute("category", filter.getCategory());
+        model.addAttribute("fromDate", filter.getFromDate());
+        model.addAttribute("toDate", filter.getToDate());
+        model.addAttribute("org.springframework.validation.BindingResult.filter", bindingResult);
+        model.addAttribute("filter", filter);
         return "reports/report";
     }
 }

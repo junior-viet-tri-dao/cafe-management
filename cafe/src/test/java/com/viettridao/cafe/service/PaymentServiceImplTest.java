@@ -1,4 +1,4 @@
-package com.viettridao.cafe.service.impl;
+package com.viettridao.cafe.service;
 
 import com.viettridao.cafe.model.OrderEntity;
 import com.viettridao.cafe.model.PaymentEntity;
@@ -6,6 +6,8 @@ import com.viettridao.cafe.model.TableEntity;
 import com.viettridao.cafe.repository.OrderRepository;
 import com.viettridao.cafe.repository.PaymentRepository;
 import com.viettridao.cafe.repository.TableRepository;
+import com.viettridao.cafe.service.impl.PaymentServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

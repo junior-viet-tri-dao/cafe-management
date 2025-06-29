@@ -1,9 +1,11 @@
-package com.viettridao.cafe.service.impl;
+package com.viettridao.cafe.service;
 
 import com.viettridao.cafe.common.TableStatus;
 import com.viettridao.cafe.model.TableEntity;
 import com.viettridao.cafe.repository.TableRepository;
 import com.viettridao.cafe.service.TableService;
+import com.viettridao.cafe.service.impl.TableServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

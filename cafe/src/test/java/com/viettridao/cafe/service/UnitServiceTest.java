@@ -6,9 +6,9 @@ import com.viettridao.cafe.service.impl.UnitServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,16 +19,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class UnitServiceTest {
-    @Mock
+    @MockBean
     private UnitRepository unitRepository;
-    @InjectMocks
-    private UnitServiceImpl unitService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private UnitServiceImpl unitService;
 
     @Test
     @DisplayName("Lấy danh sách đơn vị tính thành công")

@@ -4,9 +4,9 @@ package com.viettridao.cafe.service;
 import com.viettridao.cafe.repository.PositionRepository;
 import com.viettridao.cafe.service.impl.PositionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.viettridao.cafe.model.PositionEntity;
 import org.junit.jupiter.api.DisplayName;
@@ -19,16 +19,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 class PositionServiceTest {
-    @Mock
+    @MockBean
     private PositionRepository positionRepository;
-    @InjectMocks
-    private PositionServiceImpl positionService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Autowired
+    private PositionServiceImpl positionService;
 
     @Test
     @DisplayName("Lấy danh sách chức vụ thành công")
@@ -42,7 +39,7 @@ class PositionServiceTest {
         p2.setPositionName("Nhân viên");
         p2.setSalary(7000000d);
         List<PositionEntity> mockList = Arrays.asList(p1, p2);
-        when(positionRepository.getAllPositions()).thenReturn(mockList);
+        when(positionRepository.findAllByIsDeletedFalse()).thenReturn(mockList);
         List<PositionEntity> result = positionService.getPositions();
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getPositionName()).isEqualTo("Quản lý");

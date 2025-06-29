@@ -4,55 +4,42 @@
 <head>
     <title>Cài đặt in hóa đơn</title>
     <meta charset="UTF-8">
-    <style>
-        .form-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .form-row label {
-            width: 100px;
-        }
-
-        .form-row select,
-        .form-row input {
-            margin-right: 16px;
-        }
-
-        .form-actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        button {
-            min-width: 100px;
-        }
-    </style>
+    <!-- Đã loại bỏ style, chỉ dùng Tailwind CSS -->
 </head>
 
 <body>
-    <h3>Cài đặt in ấn hóa đơn</h3>
-    <form th:action="@{/sale/print-settings}" method="post">
-        <div class="form-row">
-            <label>Khổ giấy:</label>
-            <select name="paperSize" th:value="${paperSize}">
-                <option value="A4">A4</option>
-                <option value="A5">A5</option>
-                <option value="A6">A6</option>
-            </select>
-            <label>Máy in:</label>
-            <select name="printer" th:value="${printer}">
-                <option th:each="p : ${printers}" th:value="${p}" th:text="${p}"></option>
-            </select>
-            <label>Giới hạn in:</label>
-            <input type="number" name="printLimit" min="1" th:value="${printLimit}" />
-        </div>
-        <div class="form-actions">
-            <button type="submit">Lưu</button>
-            <a th:href="@{/sale}"><button type="button">Hủy</button></a>
-        </div>
-    </form>
+    <div class="max-w-xl mx-auto mt-10 bg-white rounded-xl shadow-xl p-8">
+        <h3 class="text-2xl font-bold text-[#4e342e] mb-6">Cài đặt in ấn hóa đơn</h3>
+        <form th:action="@{/sale/print-settings}" method="post" class="space-y-6">
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Khổ giấy:</label>
+                    <select name="paperSize" th:value="${paperSize}" class="border border-gray-300 rounded px-3 py-2">
+                        <option value="A4">A4</option>
+                        <option value="A5">A5</option>
+                        <option value="A6">A6</option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Máy in:</label>
+                    <select name="printer" th:value="${printer}" class="border border-gray-300 rounded px-3 py-2">
+                        <option th:each="p : ${printers}" th:value="${p}" th:text="${p}"></option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Giới hạn in:</label>
+                    <input type="number" name="printLimit" min="1" th:value="${printLimit}"
+                        class="border border-gray-300 rounded px-3 py-2" />
+                </div>
+            </div>
+            <div class="flex justify-center gap-6 mt-6">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">💾
+                    Lưu</button>
+                <a th:href="@{/sale}" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-md shadow">❌
+                    Hủy</a>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>

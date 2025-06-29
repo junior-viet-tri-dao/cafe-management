@@ -9,9 +9,14 @@ import java.util.List;
 
 public interface EquipmentService {
     List<EquipmentEntity> getAllEquipments();
+
     EquipmentEntity createEquipment(CreateEquipmentRequest request);
+
     void deleteEquipment(Integer id);
+
     EquipmentEntity getEquipmentById(Integer id);
+
     void updateEquipment(UpdateEquipmentRequest request);
+
     EquipmentPageResponse getAllEquipmentsPage(int page, int size);
 }

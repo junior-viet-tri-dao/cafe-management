@@ -4,53 +4,49 @@
 <head>
     <title>Đặt bàn</title>
     <meta charset="UTF-8">
-    <style>
-        .form-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .form-row label {
-            width: 100px;
-        }
-
-        .form-row input {
-            margin-right: 16px;
-        }
-
-        .form-actions {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        button {
-            min-width: 100px;
-        }
-    </style>
+    <!-- Đã loại bỏ style, chỉ dùng Tailwind CSS -->
 </head>
 
 <body>
-    <h3>Đặt bàn <span th:text="${tableNumber}"></span></h3>
-    <form th:action="@{/sale/reserve}" method="post">
-        <input type="hidden" name="tableId" th:value="${tableId}" />
-        <div class="form-row">
-            <label>Khách hàng:</label>
-            <input type="text" name="customerName" th:value="${customerName}" required />
-            <label>SDT:</label>
-            <input type="text" name="phone" th:value="${phone}" required />
-        </div>
-        <div class="form-row">
-            <label>Ngày:</label>
-            <input type="date" name="date" th:value="${date}" required />
-            <label>Giờ:</label>
-            <input type="time" name="time" th:value="${time}" required />
-        </div>
-        <div class="form-actions">
-            <button type="submit">Đặt bàn</button>
-            <a th:href="@{/sale}" style="margin-left: 16px;"><button type="button">Hủy</button></a>
-        </div>
-    </form>
+    <div class="max-w-xl mx-auto mt-10 bg-white rounded-xl shadow-xl p-8">
+        <h3 class="text-2xl font-bold text-[#4e342e] mb-6">Đặt bàn <span th:text="${tableNumber}"></span></h3>
+        <form th:action="@{/sale/reserve}" method="post" class="space-y-6">
+            <input type="hidden" name="tableId" th:value="${tableId}" />
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Khách hàng:</label>
+                    <input type="text" name="customerName" th:value="${customerName}" required
+                        class="border border-gray-300 rounded px-3 py-2" />
+                    <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('customerName')}"
+                        th:errors="*{customerName}"></p>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">SDT:</label>
+                    <input type="text" name="phone" th:value="${phone}" required
+                        class="border border-gray-300 rounded px-3 py-2" />
+                    <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Ngày:</label>
+                    <input type="date" name="date" th:value="${date}" required
+                        class="border border-gray-300 rounded px-3 py-2" />
+                    <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"></p>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium mb-1">Giờ:</label>
+                    <input type="time" name="time" th:value="${time}" required
+                        class="border border-gray-300 rounded px-3 py-2" />
+                    <p class="text-red-500 text-xs mt-1" th:if="${#fields.hasErrors('time')}" th:errors="*{time}"></p>
+                </div>
+            </div>
+            <div class="flex justify-center gap-6 mt-6">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md shadow">Đặt
+                    bàn</button>
+                <a th:href="@{/sale}" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-md shadow">❌
+                    Hủy</a>
+            </div>
+        </form>
+    </div>
 </body>
 
 </html>
