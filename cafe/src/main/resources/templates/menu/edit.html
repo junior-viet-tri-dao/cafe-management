@@ -2,49 +2,51 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Chỉnh sửa món</title>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8">
+    <script>
+        function addIngredientRow() {
+            const container = document.getElementById("ingredients");
+            const index = container.children.length;
+            const row = document.createElement("div");
+            row.innerHTML = `
+                <input name="ingredients[${index}].productName" placeholder="Tên thành phần" required />
+                <input name="ingredients[${index}].quantity" placeholder="Khối lượng" type="number" step="0.01" required />
+                <input name="ingredients[${index}].unitName" placeholder="Đơn vị tính" required />
+                <button type="button" onclick="this.parentElement.remove()">Xóa</button>
+                <br/>
+            `;
+            container.appendChild(row);
+        }
+    </script>
 </head>
 <body>
 <h2>Chỉnh sửa món</h2>
 
-<div th:if="${error}" style="color:red;">
-    <p th:text="${error}"></p>
-</div>
-
-<form th:action="@{/menu/edit/{id}(id=${menuItem.id})}" th:object="${menuItem}" method="post">
-
-    <label for="itemName">Tên món:</label>
-    <input type="text" id="itemName" th:field="*{itemName}" placeholder="Nhập tên món" required />
-    <br/><br/>
-
-    <label for="currentPrice">Giá tiền:</label>
-    <input type="number" id="currentPrice" th:field="*{currentPrice}" step="0.01" min="0" placeholder="Nhập giá tiền" required />
-    <br/><br/>
-
-    <h3>Thành phần</h3>
-    <div th:each="detail, stat : *{menuDetails}">
-        <label>Tên thành phần:</label>
-        <select th:field="*{menuDetails[__${stat.index}__].productId}" required>
-            <option value="" disabled>-- Chọn nguyên liệu --</option>
-           <option th:each="prod : ${products}" 
-			        th:value="${prod.id}" 
-			        th:text="${prod.productName}"
-			        th:selected="${prod.id == detail.productId}"></option>
-
-        </select>
-
-        <label>Khối lượng:</label>
-        <input type="number" th:field="*{menuDetails[__${stat.index}__].quantity}" step="0.01" min="0" required />
-
-        <label>Đơn vị:</label>
-        <input type="text" th:field="*{menuDetails[__${stat.index}__].unitName}" placeholder="Ví dụ: gram, cái" required />
-
-        <br/><br/>
+<form th:action="@{'/menu/edit/' + ${menuItem.id}}" method="post" th:object="${menuItem}">
+    <div>
+        <label>Tên món:</label>
+        <input type="text" th:field="*{itemName}" required />
+    </div>
+    <div>
+        <label>Giá tiền:</label>
+        <input type="number" th:field="*{currentPrice}" step="1000" required />
     </div>
 
-    <button type="submit">Cập nhật</button>
-    <a href="#" onclick="window.history.back()">Hủy</a>
-</form>
+    <h4>Thành phần</h4>
+    <div id="ingredients">
+        <div th:each="ingredient, iStat : *{ingredients}">
+            <input type="text" th:name="'ingredients[' + ${iStat.index} + '].productName'" th:value="${ingredient.productName}" required />
+            <input type="number" step="0.01" th:name="'ingredients[' + ${iStat.index} + '].quantity'" th:value="${ingredient.quantity}" required />
+            <input type="text" th:name="'ingredients[' + ${iStat.index} + '].unitName'" th:value="${ingredient.unitName}" required />
+            <button type="button" onclick="this.parentElement.remove()">Xóa</button>
+            <br/>
+        </div>
+    </div>
+    <button type="button" onclick="addIngredientRow()">+ Thêm thành phần</button>
+    <br/><br/>
 
+    <button type="submit">Cập nhật</button>
+    <a th:href="@{/menu}">Hủy</a>
+</form>
 </body>
 </html>

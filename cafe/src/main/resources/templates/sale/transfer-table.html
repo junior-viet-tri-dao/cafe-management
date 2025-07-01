@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Chuyển bàn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-lg mx-auto p-6 bg-white shadow rounded">
+
+    <h1 class="text-xl font-semibold mb-4">Chuyển bàn</h1>
+
+    <form th:action="@{/sale/transfer-table}" method="post" class="space-y-4">
+        <input type="hidden" name="fromTableId" th:value="${fromTableId}" />
+
+        <div>
+            <label class="block font-medium mb-1">Chọn bàn cần chuyển đến:</label>
+            <select name="toTableId" class="w-full border px-3 py-2 rounded" required>
+                <option value="">-- Chọn bàn --</option>
+                <option th:each="table : ${availableTables}"
+                        th:if="${table.id != fromTableId}"
+                        th:value="${table.id}"
+                        th:text="${table.tableName + ' - ' + table.status}">
+                </option>
+            </select>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <a th:href="@{/sale}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Hủy</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Chuyển
+            </button>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>

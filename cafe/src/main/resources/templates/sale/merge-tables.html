@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Gộp bàn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div layout:fragment="content" class="max-w-2xl mx-auto p-6 bg-white shadow rounded">
+
+    <h1 class="text-2xl font-bold mb-4">Gộp bàn</h1>
+
+    <div th:if="${successMessage}" class="bg-green-100 text-green-800 p-3 rounded mb-4">
+        ✅ <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="bg-red-100 text-red-800 p-3 rounded mb-4">
+        ❌ <span th:text="${errorMessage}"></span>
+    </div>
+
+    <form th:action="@{/sale/merge-tables}" method="post" class="space-y-6">
+
+        <div>
+            <label class="block font-semibold mb-2">Chọn bàn gộp đến (mục tiêu):</label>
+            <div class="grid grid-cols-2 gap-2">
+                <div th:each="table : ${tables}">
+                    <input type="radio" name="targetTableId" th:id="'target_' + ${table.id}" th:value="${table.id}" required>
+                    <label th:for="'target_' + ${table.id}" th:text="${table.tableName + ' (' + table.status + ')'}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-2">Chọn các bàn cần gộp (nguồn):</label>
+            <div class="grid grid-cols-2 gap-2">
+                <div th:each="table : ${tables}">
+                    <input type="checkbox" name="sourceTableIds" th:id="'source_' + ${table.id}" th:value="${table.id}">
+                    <label th:for="'source_' + ${table.id}" th:text="${table.tableName + ' (' + table.status + ')'}"></label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Tên khách:</label>
+            <input type="text" name="customerName" class="w-full border px-3 py-2 rounded" placeholder="Nhập tên khách">
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Số điện thoại:</label>
+            <input type="text" name="customerPhone" class="w-full border px-3 py-2 rounded" placeholder="Nhập số điện thoại">
+        </div>
+
+        <div class="flex justify-end gap-4">
+            <a th:href="@{/sale}" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Hủy</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Gộp</button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

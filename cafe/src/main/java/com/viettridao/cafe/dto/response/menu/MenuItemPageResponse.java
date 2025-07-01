@@ -2,13 +2,15 @@ package com.viettridao.cafe.dto.response.menu;
 
 import java.util.List;
 
-import com.viettridao.cafe.dto.response.PageResponse;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MenuItemPageResponse extends PageResponse {
+public class MenuItemPageResponse {
     private List<MenuItemResponse> items;
+    private int currentPage;
+    private int totalPages;
+    private long totalItems;
 }
+

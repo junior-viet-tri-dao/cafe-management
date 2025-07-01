@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả thanh toán</title>
+</head>
+<body>
+
+<h2>Kết quả thanh toán</h2>
+
+<!-- Thành công -->
+<div th:if="${response.success}" style="color:green">
+    <p>✅ <strong>Thanh toán thành công!</strong></p>
+    <p><b>Tổng tiền:</b> <span th:text="${#numbers.formatDecimal(response.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span></p>
+    <p><b>Khách đưa:</b> <span th:text="${#numbers.formatDecimal(response.customerCash, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span></p>
+    <p><b>Tiền thối lại:</b> <span th:text="${#numbers.formatDecimal(response.change, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span></p>
+    <p><b>Hóa đơn ID:</b> <span th:text="${response.invoiceId}">0</span></p>
+    <p><b>Trạng thái hóa đơn:</b> <span th:text="${response.invoiceStatus}">-</span></p>
+    <p><b>Nhân viên thanh toán:</b>
+        <span th:text="${response.paidByName}">Không rõ</span>
+        (ID: <span th:text="${response.paidById}">-</span>)
+    </p>
+</div>
+
+<!-- Thất bại -->
+<div th:if="${!response.success}" style="color:red">
+    <p>❌ <strong>Thanh toán thất bại:</strong></p>
+    <p><b th:text="${response.message}">Lỗi không xác định</b></p>
+</div>
+
+<br/>
+<a href="/sale">← Quay lại danh sách bàn</a>
+
+</body>
+</html>

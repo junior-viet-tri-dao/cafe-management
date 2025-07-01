@@ -9,9 +9,7 @@ import com.viettridao.cafe.model.TableEntity;
 
 @Component
 public class TableMapper extends BaseMapper<TableEntity, Object, TableResponse> {
-
-    public TableMapper(ModelMapper modelMapper) {
-        super(modelMapper, TableEntity.class, Object.class, TableResponse.class);
-    }
+	public TableMapper(ModelMapper modelMapper) {
+		super(modelMapper, TableEntity.class, Object.class, TableResponse.class);
+	}
 }
-

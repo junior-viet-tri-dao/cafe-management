@@ -9,12 +9,8 @@ import lombok.Setter;
 @Setter
 public class MenuItemResponse {
     private Integer id;
-
     private String itemName;
-
     private Double currentPrice;
-
-    private List<MenuItemDetailResponse> details;
-
-    private String detailsJson;
+    private List<MenuDetailResponse> ingredients;
 }
+

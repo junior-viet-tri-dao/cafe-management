@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chọn món</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Chọn thực đơn</h2>
+
+<form th:action="@{/invoice/item}" th:object="${form}" method="post">
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+        <tr>
+            <th>Tên món</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item, iterStat : *{items}">
+            <!-- Trường ẩn -->
+            <td style="display: none;">
+                <input type="hidden" th:field="*{items[__${iterStat.index}__].invoiceId}" />
+                <input type="hidden" th:field="*{items[__${iterStat.index}__].menuItemId}" />
+            </td>
+
+            <!-- Tên món -->
+            <td th:text="${menuItems[iterStat.index].itemName}">Tên món</td>
+
+            <!-- Giá món -->
+            <td th:text="${#numbers.formatDecimal(menuItems[iterStat.index].currentPrice, 1, 'COMMA', 2, 'POINT')} + ' đ'">Giá</td>
+
+            <!-- Nhập số lượng -->
+            <td>
+                <input type="number"
+                       min="0"
+                       th:field="*{items[__${iterStat.index}__].quantity}"
+                       style="width: 60px;" />
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <br/>
+    <button type="submit">Lưu</button>
+    <a th:href="@{/sale}">Hủy</a>
+
+    <!-- Thông báo thành công -->
+    <div th:if="${message}" style="color: green;" th:text="${message}"></div>
+
+    <!-- Thông báo lỗi -->
+    <div th:if="${#fields.hasErrors('*')}" style="color: red;">
+        <p th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>
+    </div>
+</form>
+
+</body>
+</html>

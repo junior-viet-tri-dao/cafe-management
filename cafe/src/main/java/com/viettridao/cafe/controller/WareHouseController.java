@@ -91,8 +91,8 @@ public class WareHouseController {
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         try{
-        	model.addAttribute("import", importMapper.toDto(importService.getImportById(id)));
-        	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
+            model.addAttribute("import", importMapper.toImportResponse(importService.getImportById(id)));
+            model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
             return "/warehouses/update_warehouse";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());

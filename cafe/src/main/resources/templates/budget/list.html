@@ -33,13 +33,13 @@
             <td th:text="${item.formattedExpense}">0</td>
         </tr>
     </tbody>
-    <tfoot>
-        <tr>
-            <th>Tổng</th>
-            <th th:text="${#numbers.formatDecimal(totalIncome, 0, 'COMMA', 2, 'POINT')}">0</th>
-            <th th:text="${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 2, 'POINT')}">0</th>
-        </tr>
-    </tfoot>
+		 <tfoot>
+		    <tr>
+		        <th>Tổng</th>
+		        <th th:text="${totalIncomeText}">0</th>
+		        <th th:text="${totalExpenseText}">0</th>
+		    </tr>
+		</tfoot>
 </table>
 
 <!-- Phân trang -->

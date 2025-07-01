@@ -1,21 +1,28 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.dto.request.expenses.BudgetFilterRequest;
-import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
-import com.viettridao.cafe.dto.response.expenses.ExpenseRequest;
-import com.viettridao.cafe.service.BudgetService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.security.Principal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.util.Locale;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
-import java.time.LocalDate;
+import com.viettridao.cafe.dto.request.expenses.BudgetFilterRequest;
+import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
+import com.viettridao.cafe.dto.response.expenses.ExpenseRequest;
+import com.viettridao.cafe.service.BudgetService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/budget")
@@ -30,19 +37,38 @@ public class BudgetController {
                                 Model model,
                                 @ModelAttribute("success") String success,
                                 @ModelAttribute("error") String error) {
-        // ✅ Gán mặc định nếu thiếu ngày
         if (filter.getFromDate() == null || filter.getToDate() == null) {
             LocalDate today = LocalDate.now();
             filter.setToDate(today);
             filter.setFromDate(today.minusDays(7));
         }
 
-        // ✅ Lấy dữ liệu danh sách thu/chi
         Page<BudgetViewResponse> budgetPage = budgetService.getBudgetView(filter);
         model.addAttribute("budgetPage", budgetPage);
         model.addAttribute("filter", filter);
 
-        // ✅ Thêm thông báo nếu có
+        // ✅ Tính tổng
+        double totalIncome = budgetPage.getContent().stream()
+                .mapToDouble(item -> item.getIncome() != null ? item.getIncome() : 0.0)
+                .sum();
+        double totalExpense = budgetPage.getContent().stream()
+                .mapToDouble(item -> item.getExpense() != null ? item.getExpense() : 0.0)
+                .sum();
+
+        NumberFormat intFormatter = NumberFormat.getIntegerInstance(new Locale("vi", "VN"));
+        DecimalFormat decimalFormatter = new DecimalFormat("#,##0.##");
+
+        String totalIncomeText = (totalIncome % 1 == 0)
+                ? intFormatter.format(totalIncome)
+                : decimalFormatter.format(totalIncome);
+
+        String totalExpenseText = (totalExpense % 1 == 0)
+                ? intFormatter.format(totalExpense)
+                : decimalFormatter.format(totalExpense);
+
+        model.addAttribute("totalIncomeText", totalIncomeText);
+        model.addAttribute("totalExpenseText", totalExpenseText);
+
         if (success != null && !success.isEmpty()) {
             model.addAttribute("success", success);
         }
@@ -52,6 +78,7 @@ public class BudgetController {
 
         return "budget/list";
     }
+
 
     // 👉 Hiển thị form thêm chi tiêu
     @GetMapping("/add")

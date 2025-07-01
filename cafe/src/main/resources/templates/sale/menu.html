@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thông Tin Bàn</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>🍽 Danh sách món ăn của bàn</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>Tên món</th>
+        <th>Số lượng</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${menuItems}">
+        <td th:text="${item.itemName}">Tên món</td>
+        <td th:text="${item.quantity}">Số lượng</td>
+    </tr>
+    </tbody>
+</table>
+
+<p><strong>🥣 Tổng số món:</strong> <span th:text="${menuItems.size()}">0</span></p>
+
+<br/>
+
+<!-- ✅ Thông tin đặt trước -->
+<h3>📋 Thông tin đặt trước</h3>
+<div th:if="${reservation != null}">
+    <p><strong>👤 Tên khách:</strong> <span th:text="${reservation.customerName}">Tên khách</span></p>
+    <p><strong>📞 Số điện thoại:</strong> <span th:text="${reservation.customerPhone}">SĐT</span></p>
+    <p><strong>📅 Ngày đặt:</strong> <span th:text="${#temporals.format(reservation.reservationDate, 'dd/MM/yyyy')}">dd/MM/yyyy</span></p>
+    <p><strong>⏰ Giờ đặt:</strong> <span th:text="${reservation.reservationTime}">HH:mm</span></p>
+    <p><strong>🧾 Trạng thái hóa đơn:</strong> <span th:text="${invoiceStatus}">Chưa có</span></p>
+    <p><strong>🧑‍💼 Nhân viên đặt:</strong>
+        <span th:text="${reservation.employee != null ? reservation.employee.fullName : 'Không rõ'}">Tên nhân viên</span>
+    </p>
+
+    <!-- ✅ Nút chuyển đến thanh toán nếu có -->
+    <form th:action="@{/payment/{id}(id=${reservation.table.id})}" method="get">
+        <button type="submit">💰 Tiến hành thanh toán</button>
+    </form>
+</div>
+
+<div th:if="${reservation == null}">
+    <p><i>Không có thông tin đặt trước cho bàn này.</i></p>
+</div>
+
+<br/>
+<a href="/sale">← Quay lại danh sách bàn</a>
+
+</body>
+</html>

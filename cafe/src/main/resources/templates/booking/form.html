@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Đặt Bàn</title>
+</head>
+<body>
+<h2>Đặt Bàn</h2>
+
+<!-- ✅ Hiển thị thông báo -->
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<form th:action="@{/booking}" th:object="${booking}" method="post">
+    <!-- ✅ tableId và employeeId ẩn -->
+    <input type="hidden" th:field="*{tableId}" />
+    <input type="hidden" th:field="*{employeeId}" />
+
+    <label>Tên khách hàng:</label>
+    <input type="text" th:field="*{customerName}" />
+
+    <label>Số điện thoại:</label>
+    <input type="text" th:field="*{customerPhone}" />
+
+    <label>Ngày đặt:</label>
+    <input type="date" th:field="*{reservationDate}" />
+
+    <label>Giờ đặt:</label>
+    <input type="time" th:field="*{reservationTime}" />
+   
+    <input type="submit" value="Đặt bàn" />
+</form>
+
+<a href="/sale">← Quay lại danh sách bàn</a>
+</body>
+</html>

@@ -1,44 +1,36 @@
 package com.viettridao.cafe.mapper;
 
+import com.viettridao.cafe.dto.response.imports.ImportResponse;
+import com.viettridao.cafe.model.ImportEntity;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
-import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
-import com.viettridao.cafe.dto.response.imports.ImportResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
-import com.viettridao.cafe.model.ImportEntity;
+import java.util.List;
 
 @Component
-public class ImportMapper extends BaseMapper<ImportEntity, Object, ImportResponse> {
-	public ImportMapper(ModelMapper modelMapper) {
-		super(modelMapper, ImportEntity.class, Object.class, ImportResponse.class); // Object vì không dùng request của
-																					// BaseMapper
-	}
+@RequiredArgsConstructor
+public class ImportMapper {
+    private final ModelMapper modelMapper;
 
-	public ImportEntity fromCreateRequest(CreateImportRequest request) {
-		return modelMapper.map(request, ImportEntity.class);
-	}
+    public ImportResponse toImportResponse(ImportEntity importEntity){
+        ImportResponse importResponse = new ImportResponse();
+        modelMapper.map(importEntity, importResponse);
 
-	public void updateEntityFromRequest(UpdateImportRequest request, ImportEntity entity) {
-		modelMapper.map(request, entity);
-	}
+        if(importEntity.getProduct() != null){
+            importResponse.setProductId(importEntity.getProduct().getId());
+            importResponse.setProductName(importEntity.getProduct().getProductName());
+            importResponse.setProductPrice(importEntity.getProduct().getProductPrice());
+        }
 
-	@Override
-	public ImportResponse toDto(ImportEntity entity) {
-		ImportResponse res = super.toDto(entity);
+        if(importEntity.getProduct().getUnit() != null){
+            importResponse.setUnitName(importEntity.getProduct().getUnit().getUnitName());
+        }
 
-		var product = entity.getProduct();
-		if (product != null) {
-			res.setProductId(product.getId());
-			res.setProductName(product.getProductName());
-			res.setProductPrice(product.getProductPrice());
+        return importResponse;
+    }
 
-			if (product.getUnit() != null) {
-				res.setUnitName(product.getUnit().getUnitName());
-			}
-		}
-
-		return res;
-	}
+    public List<ImportResponse> toImportResponseList(List<ImportEntity> importEntityList){
+        return importEntityList.stream().map(this::toImportResponse).toList();
+    }
 }

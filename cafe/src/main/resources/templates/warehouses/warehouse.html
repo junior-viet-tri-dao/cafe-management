@@ -12,6 +12,7 @@
     <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-7xl mx-auto">
         <h2 class="text-2xl font-bold text-[#4e342e] mb-6">📦 Danh sách hàng hóa</h2>
 
+        <!-- Tìm kiếm -->
         <form method="get" th:action="@{/warehouse}" class="flex items-center gap-2 mb-4">
             <input type="text" name="keyword" placeholder="Tìm theo tên hàng hóa"
                    th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-72">
@@ -21,7 +22,7 @@
             </button>
         </form>
 
-        <!-- Hiển thị thông báo tìm kiếm nếu có -->
+        <!-- Hiển thị từ khóa -->
         <div class="mb-4 text-sm text-gray-600 italic" th:if="${param.keyword}">
             Đang tìm với từ khóa: "<span th:text="${param.keyword}"></span>"
         </div>
@@ -44,34 +45,31 @@
 
                 <tbody class="text-sm text-gray-700 divide-y divide-gray-100" th:if="${warehouses != null and warehouses.warehouses != null}">
                 <tr th:each="item : ${warehouses.warehouses}" class="hover:bg-yellow-50 transition">
-                    <!-- Tên hàng -->
                     <td class="px-4 py-2" th:text="${item.productName}">Tên hàng</td>
 
-                    <!-- Ngày nhập -->
                     <td class="px-4 py-2 text-center"
                         th:text="${item.importDate != null ? #dates.format(item.importDate, 'dd/MM/yyyy') : '-'}">-</td>
 
-                    <!-- Ngày xuất -->
                     <td class="px-4 py-2 text-center"
                         th:text="${item.exportDate != null ? #dates.format(item.exportDate, 'dd/MM/yyyy') : '-'}">-</td>
 
-                    <!-- Số lượng -->
                     <td class="px-4 py-2 text-center"
-                        th:text="${item.quantityImport != null ? item.quantityImport : item.quantityExport}">0</td>
+                        th:text="${item.quantityImport != null ? item.quantityImport : (item.quantityExport != null ? item.quantityExport : 0)}">0</td>
 
-                    <!-- Đơn vị -->
                     <td class="px-4 py-2 text-center" th:text="${item.unitName}">-</td>
 
-                    <!-- Đơn giá -->
                     <td class="px-4 py-2 text-right"
-                        th:text="${#numbers.formatDecimal(item.productPrice, 0, 'POINT', 0, 'COMMA')}">0</td>
+                        th:text="${item.productPrice != null ? #numbers.formatDecimal(item.productPrice, 0, 'POINT', 0, 'COMMA') + ' ₫' : '-'}">-</td>
 
-                    <!-- Tổng tiền -->
                     <td class="px-4 py-2 text-right">
-                        <span th:if="${item.quantityImport != null}"
-                              th:text="${#numbers.formatDecimal(item.quantityImport * item.productPrice, 0, 'POINT', 0, 'COMMA')}">0</span>
-                        <span th:if="${item.quantityImport == null}"
-                              th:text="${#numbers.formatDecimal(item.quantityExport * item.productPrice, 0, 'POINT', 0, 'COMMA')}">0</span>
+                        <span th:if="${item.productPrice != null}">
+                            <span th:if="${item.quantityImport != null}"
+                                  th:text="${#numbers.formatDecimal(item.quantityImport * item.productPrice, 0, 'POINT', 0, 'COMMA')} + ' ₫'">0</span>
+                            <span th:if="${item.quantityImport == null and item.quantityExport != null}"
+                                  th:text="${#numbers.formatDecimal(item.quantityExport * item.productPrice, 0, 'POINT', 0, 'COMMA')} + ' ₫'">0</span>
+                            <span th:if="${item.quantityImport == null and item.quantityExport == null}">-</span>
+                        </span>
+                        <span th:if="${item.productPrice == null}">-</span>
                     </td>
 
                     <td class="px-4 py-3">
@@ -85,27 +83,25 @@
                 </tr>
                 </tbody>
 
-                <!-- Nếu không có dữ liệu -->
+                <!-- Không có dữ liệu -->
                 <tbody th:if="${warehouses == null or warehouses.warehouses == null or warehouses.warehouses.size() == 0}">
                 <tr>
-                    <td colspan="7" class="text-center text-gray-400 py-6">Không có hàng hóa nào.</td>
+                    <td colspan="8" class="text-center text-gray-400 py-6">Không có hàng hóa nào.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Phân trang -->
-        <div class="flex items-center justify-between mt-8">
-            <!-- Hiển thị số lượng -->
-            <div class="text-sm text-gray-600" th:if="${warehouses.totalPages > 0}">
-                <span th:text="'Trang ' + (${warehouses.pageNumber + 1}) + ' / ' + ${warehouses.totalPages}">Trang 1 / 5</span> |
-                <span th:text="'Tổng: ' + ${warehouses.totalElements} + ' hàng hóa'">Tổng: 25 hàng hóa</span>
+        <div class="flex items-center justify-between mt-8" th:if="${warehouses.totalPages > 0}">
+            <div class="text-sm text-gray-600">
+                <span th:text="'Trang ' + (${warehouses.pageNumber + 1}) + ' / ' + ${warehouses.totalPages}">Trang</span> |
+                <span th:text="'Tổng: ' + ${warehouses.totalElements} + ' hàng hóa'">Tổng</span>
             </div>
 
-            <!-- Danh sách nút phân trang -->
             <nav>
                 <ul class="inline-flex items-center space-x-1">
-                    <!-- Nút Trước -->
+                    <!-- Trước -->
                     <li>
                         <a th:href="@{/warehouse(page=${warehouses.pageNumber - 1}, keyword=${param.keyword})}"
                            th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${warehouses.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
@@ -113,9 +109,8 @@
                         </a>
                     </li>
 
-                    <!-- Các số trang -->
-                    <li th:if="${warehouses.totalPages > 0}"
-                        th:each="pageNum : ${#numbers.sequence(0, warehouses.totalPages - 1)}">
+                    <!-- Trang số -->
+                    <li th:each="pageNum : ${#numbers.sequence(0, warehouses.totalPages - 1)}">
                         <a th:href="@{/warehouse(page=${pageNum}, keyword=${param.keyword})}"
                            th:text="${pageNum + 1}"
                            th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +
@@ -125,7 +120,7 @@
                         </a>
                     </li>
 
-                    <!-- Nút Tiếp -->
+                    <!-- Tiếp -->
                     <li>
                         <a th:href="@{/warehouse(page=${warehouses.pageNumber + 1}, keyword=${param.keyword})}"
                            th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${warehouses.pageNumber + 1 >= warehouses.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">

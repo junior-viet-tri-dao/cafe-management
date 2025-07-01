@@ -21,7 +21,7 @@ public class AccountEntity implements Serializable, UserDetails {
     @Column(name = "account_id")
     private Integer id;
 
-    @Column(name = "username", unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "password")

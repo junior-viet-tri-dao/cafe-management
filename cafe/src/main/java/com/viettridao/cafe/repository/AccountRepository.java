@@ -23,4 +23,6 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Integer>
     WHERE tk.username = :username
     """)
     AccountResponse getAccountByUsername(@Param("username") String username);
+    
+    
 }
