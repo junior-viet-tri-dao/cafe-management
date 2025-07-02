@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +16,15 @@ import com.viettridao.cafe.common.TableStatus;
 import com.viettridao.cafe.dto.response.tables.TableMenuItemResponse;
 import com.viettridao.cafe.dto.response.tables.TableResponse;
 import com.viettridao.cafe.mapper.TableMapper;
-import com.viettridao.cafe.model.*;
-import com.viettridao.cafe.repository.*;
+import com.viettridao.cafe.model.EmployeeEntity;
+import com.viettridao.cafe.model.InvoiceEntity;
+import com.viettridao.cafe.model.ReservationEntity;
+import com.viettridao.cafe.model.ReservationKey;
+import com.viettridao.cafe.model.TableEntity;
+import com.viettridao.cafe.repository.EmployeeRepository;
+import com.viettridao.cafe.repository.InvoiceRepository;
+import com.viettridao.cafe.repository.ReservationRepository;
+import com.viettridao.cafe.repository.TableRepository;
 import com.viettridao.cafe.service.TableService;
 
 import lombok.RequiredArgsConstructor;
@@ -54,12 +64,12 @@ public class TableServiceImpl implements TableService {
 	@Override
 	public List<TableMenuItemResponse> getTableMenuItems(Integer tableId) {
 		InvoiceEntity invoice = getLatestUnpaidInvoiceByTableId(tableId);
-		if (invoice == null || invoice.getInvoiceDetails() == null) return List.of();
+		if (invoice == null || invoice.getInvoiceDetails() == null)
+			return List.of();
 
 		return invoice.getInvoiceDetails().stream()
 				.filter(detail -> (detail.getIsDeleted() == null || !detail.getIsDeleted())
-						&& detail.getQuantity() != null && detail.getQuantity() > 0
-						&& detail.getPrice() != null)
+						&& detail.getQuantity() != null && detail.getQuantity() > 0 && detail.getPrice() != null)
 				.map(detail -> {
 					TableMenuItemResponse dto = new TableMenuItemResponse();
 					dto.setMenuItemId(detail.getMenuItem().getId());
@@ -73,15 +83,14 @@ public class TableServiceImpl implements TableService {
 
 	@Override
 	public InvoiceEntity getLatestUnpaidInvoiceByTableId(Integer tableId) {
-		return invoiceRepository.findTopByReservations_Table_IdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(
-				tableId, InvoiceStatus.UNPAID);
+		return invoiceRepository.findTopByReservations_Table_IdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(tableId,
+				InvoiceStatus.UNPAID);
 	}
 
 	@Override
 	public ReservationEntity getLatestReservationByTableId(Integer tableId) {
 		return reservationRepository
-				.findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(tableId)
-				.orElse(null);
+				.findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(tableId).orElse(null);
 	}
 
 	@Transactional
@@ -96,7 +105,8 @@ public class TableServiceImpl implements TableService {
 		}
 
 		InvoiceEntity invoice = getLatestUnpaidInvoiceByTableId(tableId);
-		if (invoice != null) return invoice.getId();
+		if (invoice != null)
+			return invoice.getId();
 
 		invoice = createNewInvoiceAndReservation(table);
 		return invoice.getId();

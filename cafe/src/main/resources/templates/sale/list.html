@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <title>Danh sách bàn</title>
     <meta charset="UTF-8">
 </head>
-<body>
+<body><div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full px-6 py-8">
 <h2>Danh sách bàn</h2>
 
 <table border="1">
@@ -41,6 +43,11 @@
 				        ➕ Gộp bàn
 				    </a>
 				</div>
+				
+				 <a th:href="@{/sale/split(fromTableId=${table.id})}" 
+                   class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded">
+                    Tách bàn
+                </a>
 
 				<!-- Nút Hủy Bàn -->
 					<form th:action="@{/sale/clear}" method="post" style="display:inline"
@@ -99,6 +106,7 @@
         background-color: #0056b3;
     }
 </style>
+</div>
 
 </body>
 </html>
