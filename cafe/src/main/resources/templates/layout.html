@@ -68,8 +68,8 @@
                         <span x-text="openBudget ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openBudget" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/budget}" th:classappend="${currentPath == '/budget'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem thu chi</a>
-                        <a th:href="@{/budget/create}" th:classappend="${currentPath == '/budget/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm chi tiêu</a>
+                        <a th:href="@{/revenue}" th:classappend="${currentPath == '/revenue'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem thu chi</a>
+                        <a th:href="@{/expense}" th:classappend="${currentPath == '/expense'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách chi tiêu</a>
                     </div>
 
 

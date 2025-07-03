@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thêm chi tiêu</title>
+  </head>
+  <body>
+  <div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full flex justify-center items-start py-12 px-4">
+    <div class="flex justify-center items-center w-full min-h-[80vh] px-4 py-8">
+      <div class="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center flex items-center gap-2 justify-center">
+          📦 Thêm chi tiêu
+        </h2>
+
+        <form th:action="@{/expense}" th:object="${expense}" method="post" class="space-y-5">
+          <!-- Tên thiết bị -->
+          <div>
+            <label for="expenseName" class="block text-gray-700 font-medium mb-1">Tên thiết bị</label>
+            <input
+                    type="text"
+                    th:field="*{expenseName}"
+                    id="expenseName"
+                    required
+                    minlength="3"
+                    pattern="^(?!\s*$).{3,}$"
+                    title="Tên thiết bị phải có ít nhất 3 ký tự và không được để trống hoặc toàn dấu cách"
+                    class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"
+            />
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('expenseName')}" th:errors="*{expenseName}"></p>
+          </div>
+
+          <!-- Ngày nhập -->
+          <div>
+            <label for="expenseDate" class="block text-gray-700 font-medium mb-1">Ngày nhập</label>
+            <input
+                    type="date"
+                    th:field="*{expenseDate}"
+                    id="expenseDate"
+                    th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                    required
+                    class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"
+            />
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('expenseDate')}" th:errors="*{expenseDate}"></p>
+          </div>
+
+          <!-- Tổng tiền -->
+          <div>
+            <label for="amount" class="block text-gray-700 font-medium mb-1">Tổng tiền</label>
+            <input
+                    type="number"
+                    th:field="*{amount}"
+                    id="amount"
+                    min="0"
+                    required
+                    class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"
+            />
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></p>
+          </div>
+
+          <!-- Nút hành động -->
+          <div class="flex justify-between mt-6">
+            <a
+                    th:href="@{/expense}"
+                    class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-md shadow"
+            >
+              ← Quay lại
+            </a>
+            <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow transition"
+            >
+              💾 Lưu
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </body>
+
+</html>

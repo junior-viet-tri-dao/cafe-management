@@ -34,7 +34,10 @@ public class AppConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().authenticated())
-                .formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .permitAll())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
                 .logout(logout -> logout

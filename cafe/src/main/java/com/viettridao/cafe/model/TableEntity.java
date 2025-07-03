@@ -21,7 +21,7 @@ public class TableEntity {
     @Column(name = "status")
     private TableStatus status;
 
-    @Column(name = "table_name")
+    @Column(name = "table_name", unique = true)
     private String tableName;
 
     @Column(name = "is_deleted")

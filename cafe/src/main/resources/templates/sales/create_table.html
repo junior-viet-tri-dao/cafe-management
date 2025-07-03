@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm bàn</title>
+</head>
+<body>
+<div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full flex justify-center items-start py-12 px-4">
+    <div class="flex justify-center items-center w-full min-h-[60vh] px-4 py-8">
+        <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center flex items-center gap-2 justify-center">
+                🪑 Thêm bàn mới
+            </h2>
+
+            <form th:action="@{/sale/create}" th:object="${table}" method="post" class="space-y-5">
+                <!-- Tên bàn -->
+                <div>
+                    <label for="tableName" class="block text-gray-700 font-medium mb-1">Tên bàn</label>
+                    <input type="text"
+                           th:field="*{tableName}"
+                           id="tableName"
+                           required
+                           minlength="2"
+                           pattern="^(?!\s*$).{2,}$"
+                           title="Tên bàn phải có ít nhất 2 ký tự và không được để trống hoặc toàn dấu cách"
+                           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>
+                    <p class="text-red-500 text-sm mt-1"
+                       th:if="${#fields.hasErrors('tableName')}"
+                       th:errors="*{tableName}"></p>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="flex justify-between mt-6">
+                    <a th:href="@{/sale}"
+                       class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-md shadow">
+                        ← Quay lại
+                    </a>
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow transition">
+                        💾 Lưu bàn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

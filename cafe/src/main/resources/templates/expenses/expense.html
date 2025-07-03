@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý khoản chi</title>
+</head>
+<body>
+<div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full px-6 py-8">
+    <div class="max-w-[1500px] mx-auto">
+
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                📋 Danh sách các khoản chi khác
+            </h2>
+            <a th:href="@{/expense/new}"
+               class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-5 py-2 rounded-md shadow transition">
+                ➕ <span>Thêm chi tiêu</span>
+            </a>
+        </div>
+
+        <!-- Bảng dữ liệu -->
+        <div class="w-full overflow-x-auto border border-gray-300 rounded-xl shadow bg-white">
+            <table class="w-full text-sm text-gray-800 table-fixed">
+                <thead class="bg-gray-100 text-xs font-semibold text-gray-600 uppercase">
+                <tr>
+                    <th class="w-[30%] px-4 py-3 text-left">Tên khoản chi</th>
+                    <th class="w-[20%] px-4 py-3 text-left">Ngày chi</th>
+                    <th class="w-[20%] px-4 py-3 text-right">Tổng tiền</th>
+                </tr>
+                </thead>
+                <tbody id="expenseTableBody" class="divide-y divide-gray-200">
+                <tr th:each="expense : ${expenses.expenses}" class="hover:bg-gray-50 transition">
+                    <td class="px-4 py-3 font-medium" th:text="${expense.expenseName}">Máy in</td>
+                    <td class="px-4 py-3" th:text="${#temporals.format(expense.expenseDate, 'dd/MM/yyyy')}">01/01/2025</td>
+                    <td class="px-4 py-3 text-right" th:text="${#numbers.formatDecimal(expense.amount, 0, 'POINT', 0, 'COMMA')} + ' VND'">10.000 VND</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(expenses.expenses)}">
+                    <td colspan="4" class="text-center text-gray-500 italic py-6">
+                        Không có khoản chi nào được tìm thấy.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="flex items-center justify-between mt-8">
+            <!-- Hiển thị số lượng -->
+            <div class="text-sm text-gray-600" th:if="${expenses.totalPages > 0}">
+                <span th:text="'Trang ' + (${expenses.pageNumber + 1}) + ' / ' + ${expenses.totalPages}">Trang 1 / 5</span> |
+                <span th:text="'Tổng: ' + ${expenses.totalElements} + ' chi tiêu'">Tổng: 25 thiết bị</span>
+            </div>
+
+            <!-- Danh sách nút phân trang -->
+            <nav>
+                <ul class="inline-flex items-center space-x-1">
+                    <!-- Nút Trước -->
+                    <li>
+                        <a th:href="@{/expense(page=${expenses.pageNumber - 1})}"
+                           th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${expenses.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                            ◀ Trước
+                        </a>
+                    </li>
+
+                    <!-- Các số trang -->
+                    <li th:if="${expenses.totalPages > 0}"
+                        th:each="pageNum : ${#numbers.sequence(0, expenses.totalPages - 1)}">
+                        <a th:href="@{/expense(page=${pageNum})}"
+                           th:text="${pageNum + 1}"
+                           th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +
+                             (${pageNum} == ${expenses.pageNumber}
+                             ? 'bg-blue-600 text-white border-blue-600'
+                             : 'border-gray-300 text-gray-700 hover:bg-blue-50')">
+                        </a>
+                    </li>
+
+                    <!-- Nút Tiếp -->
+                    <li>
+                        <a th:href="@{/expense(page=${expenses.pageNumber + 1})}"
+                           th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${expenses.pageNumber + 1 >= expenses.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                            Tiếp ▶
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

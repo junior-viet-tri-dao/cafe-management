@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
     @Query(value = """
@@ -63,4 +66,6 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
             nativeQuery = true
     )
     Page<WareHouseResponse> getAllWarehouses(@Param("keyword") String keyword, Pageable pageable);
+
+    List<ImportEntity> findByImportDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
 }

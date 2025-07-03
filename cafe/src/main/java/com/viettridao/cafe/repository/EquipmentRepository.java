@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,6 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Inte
 
     @Query("select e from EquipmentEntity e where e.isDeleted = false")
     Page<EquipmentEntity> getAllEquipmentsByPage(Pageable pageable);
+
+    List<EquipmentEntity> findByPurchaseDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
 }
