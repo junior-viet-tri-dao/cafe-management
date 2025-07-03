@@ -9,4 +9,6 @@ public interface TableService {
     List<TableEntity> getAllTables();
     TableEntity create(TableRequest request);
     TableEntity getTableById(Integer id);
+    void cancelTable(Integer id);
+    void selectMenusForTable(Integer tableId, List<Integer> menuIds, List<Integer> quantities);
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Integer> {
     @Query("select m from MenuItemEntity m where m.isDeleted = false and lower(m.itemName) like lower(CONCAT('%', :keyword, '%')) ")
@@ -15,4 +17,6 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Intege
 
     @Query("select m from MenuItemEntity m where m.isDeleted = false")
     Page<MenuItemEntity> getAllByMenuItems(Pageable pageable);
+
+    List<MenuItemEntity> findAllByIsDeletedFalse();
 }

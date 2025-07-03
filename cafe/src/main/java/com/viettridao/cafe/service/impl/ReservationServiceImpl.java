@@ -70,4 +70,10 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    @Override
+    public ReservationEntity getReservationById(Integer tableId) {
+        return reservationRepository.findLatestReservation(tableId).orElseThrow(
+                ()-> new RuntimeException("Không tìm thấy chi tiết đặt bàn mới nhất của bàn này" + tableId.toString()));
+    }
+
 }

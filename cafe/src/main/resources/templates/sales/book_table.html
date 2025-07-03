@@ -23,6 +23,8 @@
                    placeholder="Nhập tên khách hàng"
                    required minlength="5" pattern="^(?!\s*$).{5,}$"
                    title="Tên khách hàng phải có ít nhất 5 ký tự và không được để trống hoặc toàn dấu cách" />
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}"></p>
+
         </div>
 
         <!-- Số điện thoại -->
@@ -37,6 +39,7 @@
                    pattern="^0\d{9,10}$"
                    title="Số điện thoại phải bắt đầu bằng 0 và có từ 10 đến 11 chữ số"
                    maxlength="11"/>
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}"></p>
         </div>
 
         <!-- Thời gian đặt -->
@@ -49,12 +52,13 @@
                           px-4 py-3 text-lg"
                    required
                    title="Ngày giờ đặt không được nhỏ hơn hiện tại" />
+            <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('reservationDate')}" th:errors="*{reservationDate}"></p>
         </div>
 
         <div class="flex justify-between mt-6">
             <a th:href="@{/sale}"
                class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-md shadow">
-                ← Quay lại
+                Quay lại
             </a>
 
             <button type="submit"

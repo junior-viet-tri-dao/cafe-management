@@ -8,9 +8,10 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class RevenueItemResponse {
-
     private LocalDate date;
+
     private Double income;
+
     private Double expense;
 
 }

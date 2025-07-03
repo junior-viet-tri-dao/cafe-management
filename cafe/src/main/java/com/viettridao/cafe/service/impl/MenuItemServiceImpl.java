@@ -135,4 +135,9 @@ public class MenuItemServiceImpl implements MenuItemService {
     public MenuItemEntity getMenuItemById(Integer id) {
         return menuItemRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy thực đơn có id=" + id));
     }
+
+    @Override
+    public List<MenuItemEntity> getAllMenuItems() {
+        return menuItemRepository.findAllByIsDeletedFalse();
+    }
 }

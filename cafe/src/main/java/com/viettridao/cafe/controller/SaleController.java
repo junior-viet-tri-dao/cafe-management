@@ -1,10 +1,14 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.reservation.ReservationCreateRequest;
 import com.viettridao.cafe.dto.request.table.TableRequest;
+import com.viettridao.cafe.dto.response.reservation.ReservationResponse;
 import com.viettridao.cafe.dto.response.table.TableResponse;
+import com.viettridao.cafe.mapper.MenuItemMapper;
+import com.viettridao.cafe.mapper.ReservationMapper;
 import com.viettridao.cafe.mapper.TableMapper;
+import com.viettridao.cafe.model.ReservationEntity;
+import com.viettridao.cafe.service.MenuItemService;
 import com.viettridao.cafe.service.ReservationService;
 import com.viettridao.cafe.service.TableService;
 import jakarta.validation.Valid;
@@ -18,8 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,10 +31,14 @@ public class SaleController {
     private final TableService tableService;
     private final TableMapper tableMapper;
     private final ReservationService reservationService;
+    private final MenuItemService menuItemService;
+    private final MenuItemMapper menuItemMapper;
+    private final ReservationMapper reservationMapper;
 
     @GetMapping("")
     public String home(Model model) {
         model.addAttribute("tables", tableMapper.toListResponse(tableService.getAllTables()));
+        model.addAttribute("menus", menuItemMapper.toListMenuItemResponse(menuItemService.getAllMenuItems()));
         return "/sales/sale";
     }
 
@@ -41,6 +48,7 @@ public class SaleController {
         return "/sales/create_table";
     }
 
+    // thêm bàn
     @PostMapping("/create")
     public String createEmployee(@Valid @ModelAttribute("table") TableRequest table, BindingResult result,
                                  RedirectAttributes redirectAttributes) {
@@ -56,12 +64,16 @@ public class SaleController {
             return "redirect:/sale/create";
         }
     }
-    
+
+    // xem chi tiết bàn
     @GetMapping("/api/view/{id}")
     @ResponseBody
-    public TableResponse getTableDetail(@PathVariable Integer id) {
-        return tableMapper.toResponse(tableService.getTableById(id));
+    public ReservationResponse getTableDetail(@PathVariable("id") Integer id) {
+        ReservationEntity reservation = reservationService.getReservationById(id);
+        ReservationResponse response = reservationMapper.toResponse(reservation);
+        return response;
     }
+
 
     @GetMapping("/reservation")
     public String showReservationForm(@RequestParam("tableId") Integer tableId, Model model) {
@@ -74,6 +86,7 @@ public class SaleController {
         return "/sales/book_table";
     }
 
+    // đặt bàn
     @PostMapping("/reservation")
     public String reserveTable(
             @Valid @ModelAttribute("reservation") ReservationCreateRequest request,
@@ -93,4 +106,39 @@ public class SaleController {
             return "redirect:/sale";
         }
     }
+
+    @PostMapping("/cancel")
+    public String cancelTable(
+            @RequestParam("tableId") Integer tableId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tableService.cancelTable(tableId);
+            redirectAttributes.addFlashAttribute("success", "Hủy bàn thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Hủy bàn thất bại: " + e.getMessage());
+        }
+        return "redirect:/sale";
+    }
+
+    @PostMapping("/select-menu")
+    public String selectMenuForTable(
+            @RequestParam("tableId") Integer tableId,
+            @RequestParam("menuIds") List<Integer> menuIds,
+            @RequestParam("quantities") List<Integer> quantities,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tableService.selectMenusForTable(tableId, menuIds, quantities);
+            redirectAttributes.addFlashAttribute("success", "Chọn thực đơn cho bàn thành công!");
+            return "redirect:/sale";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Chọn thực đơn thất bại: " + e.getMessage());
+            return "redirect:/sale";
+        }
+    }
+
+
+
+
 }
