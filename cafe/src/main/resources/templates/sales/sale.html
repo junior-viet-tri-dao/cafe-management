@@ -1,133 +1,202 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
-<head>
-  <meta charset="UTF-8">
-  <title>Quản lý bán hàng</title>
-</head>
-<body>
-<div layout:fragment="content">
-  <div class="space-y-6">
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý bán hàng</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <div class="space-y-6">
+        <!-- Tiêu đề -->
+        <h2 class="text-2xl font-bold text-[#4e342e]">📋 Sơ đồ bàn</h2>
 
-    <!-- Tiêu đề -->
-    <h2 class="text-2xl font-bold text-[#4e342e]">📋 Sơ đồ bàn</h2>
+        <!-- Grid bàn -->
+        <div class="grid grid-cols-5 gap-4 w-fit mx-auto">
+          <div
+            th:each="table : ${tables}"
+            class="flex flex-col items-center justify-center aspect-square rounded-xl font-semibold text-center shadow-md w-24 p-2 transition duration-200"
+            th:classappend="${table.status == 'AVAILABLE'}
+             ? 'bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer'
+             : (${table.status == 'RESERVED'}
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-300 text-gray-700 hover:bg-gray-400')"
+          >
+            <!-- Checkbox luôn chọn được -->
+            <input
+              type="checkbox"
+              th:id="'table-' + ${table.id}"
+              th:value="${table.id}"
+              class="mb-1"
+              name="selectedTable"
+            />
 
-    <!-- Grid bàn -->
-    <div class="grid grid-cols-5 gap-4 w-fit mx-auto">
-      <div th:each="table : ${tables}"
-           class="flex flex-col items-center justify-center aspect-square rounded-xl font-semibold text-center shadow-md w-24 p-2 transition duration-200"
-           th:classappend="${table.status == 'AVAILABLE'}
-                       ? 'bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer'
-                       : 'bg-gray-300 text-gray-700 hover:bg-gray-400 '">
+            <!-- Tên bàn -->
+            <label
+              th:for="'table-' + ${table.id}"
+              th:text="${table.tableName}"
+            ></label>
 
-        <!-- Checkbox luôn chọn được -->
-        <input type="checkbox"
-               th:id="'table-' + ${table.id}"
-               th:value="${table.id}"
-               class="mb-1">
+            <!-- Trạng thái có icon -->
+            <span class="text-xs mt-1 flex items-center gap-1">
+              <span th:if="${table.status == 'AVAILABLE'}">🟢 Trống</span>
+              <span th:if="${table.status == 'OCCUPIED'}">🔴 Đang sử dụng</span>
+              <span th:if="${table.status == 'RESERVED'}">🟡 Đặt trước</span>
+            </span>
+          </div>
+        </div>
 
-        <!-- Tên bàn -->
-        <label th:for="'table-' + ${table.id}" th:text="${table.tableName}"></label>
+        <!-- Các nút thao tác -->
+        <div class="flex flex-wrap gap-3 justify-center mt-6">
+          <a
+            th:href="@{/sale/create}"
+            class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            ➕ Thêm bàn
+          </a>
+          <button
+            type="button"
+            onclick="showSelectedTables()"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            👁️ Xem bàn
+          </button>
+          <button
+            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+          >
+            Chuyển bàn
+          </button>
+          <button
+            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+          >
+            Tách bàn
+          </button>
+          <button
+            class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+          >
+            Gộp bàn
+          </button>
+          <button
+                  type="button"
+                  class="bg-blue-600 text-white px-4 py-2 rounded"
+                  onclick="redirectToReservationForm()"
+          >
+            Đặt bàn
+          </button>
+        </div>
 
-        <!-- Trạng thái có icon -->
-        <span class="text-xs mt-1 flex items-center gap-1">
-      <span th:if="${table.status == 'AVAILABLE'}">🟢 Trống</span>
-      <span th:if="${table.status != 'AVAILABLE'}">🔴 Đang sử dụng</span>
-    </span>
+        <!-- Menu, Thanh toán, In -->
+        <div class="grid grid-cols-3 gap-4 max-w-4xl mx-auto mt-4">
+          <select class="border rounded px-3 py-2 col-span-1">
+            <option>Chọn thực đơn...</option>
+          </select>
+          <button
+            class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+          >
+            💳 Thanh toán
+          </button>
+          <button
+            class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            🖨️ In hóa đơn
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Các nút thao tác -->
-    <div class="flex flex-wrap gap-3 justify-center mt-6">
-      <a th:href="@{/sale/create}"
-         class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        ➕ Thêm bàn
-      </a>
-      <button type="button"
-              onclick="showSelectedTables()"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        👁️ Xem bàn
-      </button>
-      <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Chuyển bàn</button>
-      <button class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">Tách bàn</button>
-      <button class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">Gộp bàn</button>
-      <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Hủy bàn</button>
-      <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Đặt bàn</button>
-    </div>
-
-    <!-- Menu, Thanh toán, In -->
-    <div class="grid grid-cols-3 gap-4 max-w-4xl mx-auto mt-4">
-      <select class="border rounded px-3 py-2 col-span-1">
-        <option>Chọn thực đơn...</option>
-      </select>
-      <button class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">💳 Thanh toán</button>
-      <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">🖨️ In hóa đơn</button>
-    </div>
-
-  </div>
-
-  <!-- Modal hiển thị chi tiết bàn -->
-  <div id="detailModal"
-       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-      <h2 class="text-xl font-bold mb-4">🪑 Chi tiết bàn</h2>
-      <div id="modalContent" class="space-y-2">
-        <p><strong>Tên bàn:</strong> <span id="tableName"></span></p>
-        <p><strong>Trạng thái:</strong> <span id="tableStatus"></span></p>
+      <!-- Modal hiển thị chi tiết bàn -->
+      <div
+        id="detailModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+      >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+          <h2 class="text-xl font-bold mb-4">🪑 Chi tiết bàn</h2>
+          <div id="modalContent" class="space-y-2">
+            <p><strong>Tên bàn:</strong> <span id="tableName"></span></p>
+            <p><strong>Trạng thái:</strong> <span id="tableStatus"></span></p>
+          </div>
+          <button
+            onclick="closeDetailModal()"
+            class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          >
+            ✖️
+          </button>
+        </div>
       </div>
-      <button onclick="closeDetailModal()"
-              class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-        ✖️
-      </button>
-    </div>
-  </div>
 
-  <script>
-    function showSelectedTables() {
-      const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
-      if (checkboxes.length === 0) {
-        alert('Vui lòng chọn ít nhất một bàn.');
-        return;
-      }
-
-      // Xóa nội dung cũ
-      const modalContent = document.getElementById('modalContent');
-      modalContent.innerHTML = '';
-
-      const promises = Array.from(checkboxes).map(cb => {
-        const id = cb.value;
-        return fetch('/sale/api/view/' + id)
-                .then(res => {
-                  if (!res.ok) {
-                    throw new Error('HTTP error ' + res.status);
-                  }
-                  return res.json();
-                })
-                .then(data => {
-                  const div = document.createElement('div');
-                  div.className = 'border-b pb-2';
-                  div.innerHTML = `
-          <p><strong>Tên bàn:</strong> ${data.tableName}</p>
-          <p><strong>Trạng thái:</strong> ${data.status === 'AVAILABLE' ? 'Trống' : 'Đang sử dụng'}</p>
-        `;
-                  modalContent.appendChild(div);
-                })
-                .catch(err => {
-                  console.error('Lỗi lấy bàn', err);
-                  const div = document.createElement('div');
-                  div.className = 'text-red-500';
-                  div.textContent = 'Không thể lấy dữ liệu bàn ID ' + id;
-                  modalContent.appendChild(div);
+      <script>
+        // xem thông tin bàn
+        // Chỉ cho phép chọn 1 checkbox
+        document.querySelectorAll("input[type=checkbox]").forEach((cb) => {
+          cb.addEventListener("change", function () {
+            if (this.checked) {
+              document
+                .querySelectorAll("input[type=checkbox]")
+                .forEach((other) => {
+                  if (other !== this) other.checked = false;
                 });
-      });
+            }
+          });
+        });
 
-      Promise.all(promises).then(() => {
-        document.getElementById('detailModal').classList.remove('hidden');
-      });
-    }
+        function showSelectedTables() {
+          const checkbox = document.querySelector(
+            "input[type=checkbox]:checked"
+          );
+          if (!checkbox) {
+            showWarning("Vui lòng chọn một bàn.");
+            return;
+          }
+          const id = checkbox.value;
+          fetch("/sale/api/view/" + id)
+            .then((res) => {
+              if (!res.ok) throw new Error("HTTP error " + res.status);
+              return res.json();
+            })
+            .then((data) => {
+              const modalContent = document.getElementById("modalContent");
+              modalContent.innerHTML = `
+            <p><strong>Tên bàn:</strong> ${data.tableName}</p>
+            <p><strong>Trạng thái:</strong> ${
+                      data.status === "AVAILABLE"
+                              ? "Trống"
+                              : data.status === "RESERVED"
+                                      ? "Đặt trước"
+                                      : "Đang sử dụng"
+              }</p>
+          `;
+              document.getElementById("detailModal").classList.remove("hidden");
+            })
+            .catch((err) => {
+              showError("Không thể lấy dữ liệu bàn!");
+            });
+        }
 
-  </script>
-</div>
-</body>
+        function closeDetailModal() {
+          document.getElementById("detailModal").classList.add("hidden");
+        }
+
+
+        // đặt bàn
+        function redirectToReservationForm() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn!');
+            return;
+          }
+          // Lấy trạng thái bàn từ DOM
+          const tableDiv = checked.closest('div');
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+          if (statusText !== "🟢 Trống") {
+            showWarning('Chỉ được đặt bàn khi bàn đang trống!');
+            return;
+          }
+          window.location.href = '/sale/reservation?tableId=' + checked.value;
+        }
+      </script>
+    </div>
+  </body>
 </html>
