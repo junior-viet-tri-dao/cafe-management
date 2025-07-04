@@ -72,7 +72,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationEntity getReservationById(Integer tableId) {
-        return reservationRepository.findLatestReservation(tableId).orElseThrow(
+        return reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(tableId, false).orElseThrow(
                 ()-> new RuntimeException("Không tìm thấy chi tiết đặt bàn mới nhất của bàn này" + tableId.toString()));
     }
 

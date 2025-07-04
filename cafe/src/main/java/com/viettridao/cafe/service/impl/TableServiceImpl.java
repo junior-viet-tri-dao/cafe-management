@@ -139,7 +139,7 @@ public class TableServiceImpl implements TableService {
             tableRepository.save(table);
         } else {
             // Nếu bàn không trống thì lấy Reservation hiện tại
-            Optional<ReservationEntity> reservationOpt = reservationRepository.findLatestReservation(table.getId());
+            Optional<ReservationEntity> reservationOpt = reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(table.getId(), false);
             if (!reservationOpt.isPresent()) {
                 throw new RuntimeException("Bàn chưa có chi tiết đặt bàn");
             }
@@ -190,5 +190,28 @@ public class TableServiceImpl implements TableService {
 
         table.setStatus(TableStatus.OCCUPIED);
         tableRepository.save(table);
+    }
+
+    @Transactional
+    @Override
+    public void payment(Integer tableId) {
+        TableEntity table = getTableById(tableId);
+
+        if(!table.getStatus().equals(TableStatus.OCCUPIED)) {
+            throw new RuntimeException("Chỉ có bàn đang sử dụng mới được thanh toán");
+        }
+        Optional<ReservationEntity> reservationOpt = reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(table.getId(), false);
+
+        if(reservationOpt.isPresent()) {
+            ReservationEntity reservation = reservationOpt.get();
+
+            if(reservation.getInvoice() != null) {
+                InvoiceEntity invoice = reservation.getInvoice();
+                invoice.setStatus(InvoiceStatus.PAID);
+
+                invoiceRepository.save(invoice);
+            }
+            table.setStatus(TableStatus.AVAILABLE);
+        }
     }
 }

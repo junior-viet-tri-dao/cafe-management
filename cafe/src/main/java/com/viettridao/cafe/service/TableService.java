@@ -11,4 +11,5 @@ public interface TableService {
     TableEntity getTableById(Integer id);
     void cancelTable(Integer id);
     void selectMenusForTable(Integer tableId, List<Integer> menuIds, List<Integer> quantities);
+    void payment(Integer tableId);
 }

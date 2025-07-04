@@ -138,6 +138,21 @@ public class SaleController {
         }
     }
 
+    @PostMapping("/payment")
+    public String payment(
+            @RequestParam("tableId") Integer tableId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tableService.payment(tableId);
+            redirectAttributes.addFlashAttribute("success", "Thanh toán thành công!");
+            return "redirect:/sale";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Thanh toán thất bại: " + e.getMessage());
+            return "redirect:/sale";
+        }
+    }
+
 
 
 

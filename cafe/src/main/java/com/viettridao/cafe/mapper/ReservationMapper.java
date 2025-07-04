@@ -23,6 +23,7 @@ public class ReservationMapper {
         response.setCustomerPhone(entity.getCustomerPhone());
 
         if(entity.getTable() != null){
+            response.setTableId(entity.getTable().getId());
             response.setTableName(entity.getTable().getTableName());
             response.setStatus(entity.getTable().getStatus());
         }

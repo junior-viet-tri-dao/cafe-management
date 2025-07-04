@@ -10,6 +10,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ReservationResponse {
+    private Integer tableId;
+
     private String tableName;
 
     private TableStatus status;

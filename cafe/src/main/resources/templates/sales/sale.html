@@ -5,6 +5,8 @@
   layout:decorate="~{layout}"
 >
   <head>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_parameter" th:content="${_csrf.parameterName}" />
     <meta charset="UTF-8" />
     <title>Quản lý bán hàng</title>
   </head>
@@ -188,22 +190,83 @@
               class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
       >
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-          <h2 class="text-xl font-bold mb-4 text-teal-700">💳 Xác nhận thanh toán</h2>
-          <div id="paymentModalContent" class="space-y-2"></div>
-          <div class="flex gap-3 mt-4">
+          <!-- Tiêu đề -->
+          <h2 class="text-xl font-bold mb-4 text-teal-700">
+            💳 Thanh toán <span id="paymentTableName"></span>
+          </h2>
+
+          <!-- Danh sách món ăn -->
+          <div class="border rounded mb-4 max-h-52 overflow-y-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-100">
+              <tr>
+                <th class="p-2 text-left">Tên món</th>
+                <th class="p-2 text-center">SL</th>
+                <th class="p-2 text-right">Thành tiền</th>
+              </tr>
+              </thead>
+              <tbody id="paymentItems">
+              <!-- JS sẽ render -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tổng tiền -->
+          <div class="flex justify-between mb-3">
+            <span class="font-semibold">Tổng:</span>
+            <span id="paymentTotal" class="font-bold text-teal-700">0 đ</span>
+          </div>
+
+          <!-- Khách đưa -->
+          <div class="flex items-center gap-2 mb-3">
+            <label class="whitespace-nowrap font-semibold">Khách đưa:</label>
+            <input
+                    type="number"
+                    id="customerPay"
+                    min="0"
+                    value="0"
+                    class="border rounded w-full px-2 py-1 text-right"
+                    oninput="calculateChange()"
+            />
+          </div>
+
+          <!-- Tiền thối -->
+          <div class="flex justify-between mb-3">
+            <span class="font-semibold">Thối lại:</span>
+            <span id="changeAmount" class="font-bold">0 đ</span>
+          </div>
+
+          <!-- Checkbox đổi trạng thái -->
+          <div class="mb-4 flex items-center gap-2">
+            <input type="checkbox" id="autoSetEmpty" checked />
+            <label for="autoSetEmpty" class="text-sm">Đổi trạng thái bàn sang trống sau khi thanh toán</label>
+          </div>
+
+          <!-- Nút in phiếu -->
+          <button
+                  onclick="printReceipt()"
+                  class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded w-full mb-3"
+          >
+            🖨️ In phiếu thanh toán...
+          </button>
+
+          <!-- Nút xác nhận + hủy -->
+          <div class="flex gap-3">
             <button
                     id="confirmPaymentBtn"
                     class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded w-full"
             >
-              Xác nhận thanh toán
+              ✅ Thanh toán
             </button>
             <button
                     onclick="closePaymentModal()"
                     class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded w-full"
             >
-              Hủy
+              ❌ Hủy
             </button>
           </div>
+
+          <!-- Nút đóng góc trên -->
           <button
                   onclick="closePaymentModal()"
                   class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -211,11 +274,8 @@
             ✖️
           </button>
         </div>
-
-        <form id="paymentForm" th:action="@{/sale/payment}" method="post" style="display:none;">
-          <input type="hidden" name="tableId" />
-        </form>
       </div>
+
 
       <script>
         // xem thông tin bàn
@@ -437,20 +497,7 @@
         });
 
         //thanh toán
-        function submitPayment(tableId) {
-          let form = document.getElementById('paymentForm');
-          if (!form) {
-            form = document.createElement('form');
-            form.method = 'post';
-            form.action = '/sale/payment';
-            form.style.display = 'none';
-            form.innerHTML = `<input name="tableId" value="${tableId}"/>`;
-            document.body.appendChild(form);
-          } else {
-            form.querySelector('input[name="tableId"]').value = tableId;
-          }
-          form.submit();
-        }
+        let currentPaymentData = null;
 
         function confirmPayment() {
           const checked = document.querySelector('input[name="selectedTable"]:checked');
@@ -458,79 +505,123 @@
             showWarning('Vui lòng chọn một bàn để thanh toán!');
             return;
           }
+
+          // Lấy trạng thái bàn từ DOM
           const tableDiv = checked.closest('div');
           const statusSpan = tableDiv.querySelector('.text-xs span');
           const statusText = statusSpan ? statusSpan.textContent.trim() : '';
-          if (statusText === "🟢 Trống") {
-            showWarning('Bàn trống không thể thanh toán!');
+
+          // Kiểm tra trạng thái
+          if (statusText !== "🔴 Đang sử dụng") {
+            showWarning('Chỉ bàn đang sử dụng mới được thanh toán!');
             return;
           }
-          // Lấy chi tiết bàn qua API
+
           fetch("/sale/api/view/" + checked.value)
                   .then((res) => {
                     if (!res.ok) throw new Error("HTTP error " + res.status);
                     return res.json();
                   })
                   .then((data) => {
-                    let statusText = "";
-                    if (data.status === "AVAILABLE") {
-                      statusText = "🟢 Trống";
-                    } else if (data.status === "RESERVED") {
-                      statusText = "🟡 Đặt trước";
-                    } else {
-                      statusText = "🔴 Đang sử dụng";
+                    if (!data.menuItems || data.menuItems.length === 0) {
+                      showWarning("Bàn chưa có thực đơn, không thể thanh toán!");
+                      return;
                     }
 
-                    let menuHtml = "";
-                    if (data.menuItems && data.menuItems.length > 0) {
-                      menuHtml = "<ul class='list-disc ml-5'>";
-                      data.menuItems.forEach((item) => {
-                        menuHtml += `<li>${item.itemName} - SL: ${item.quantity} - Giá: ${
-                                item.price ? item.price.toLocaleString() : "0"
-                        }đ</li>`;
-                      });
-                      menuHtml += "</ul>";
-                      menuHtml += `<p class="mt-2"><strong>Tổng tiền:</strong> ${
-                              data.totalPrice ? data.totalPrice.toLocaleString() : "0"
-                      } đ</p>`;
-                    } else {
-                      menuHtml = "<em>Chưa có thực đơn</em>";
-                    }
+                    currentPaymentData = data;
 
-                    const customerInfo = data.customerName
-                            ? `<p><strong>Khách hàng:</strong> ${data.customerName} (${
-                                    data.customerPhone || "N/A"
-                            })</p>`
-                            : "";
+                    // Tên bàn
+                    document.getElementById("paymentTableName").innerText = data.tableName;
 
-                    const reservationDate = data.reservationDate
-                            ? `<p><strong>Ngày đặt:</strong> ${new Date(
-                                    data.reservationDate
-                            ).toLocaleString()}</p>`
-                            : "";
+                    // Danh sách món ăn
+                    let itemsHtml = "";
+                    data.menuItems.forEach((item) => {
+                      itemsHtml += `
+                      <tr>
+                        <td class="p-1">${item.itemName}</td>
+                        <td class="p-1 text-center">${item.quantity}</td>
+                        <td class="p-1 text-right">${(item.price * item.quantity || 0).toLocaleString()} đ</td>
+                      </tr>
+                    `;
+                    });
+                    document.getElementById("paymentItems").innerHTML = itemsHtml;
 
-                    document.getElementById("paymentModalContent").innerHTML = `
-                    <p><strong>Tên bàn:</strong> ${data.tableName}</p>
-                    <p><strong>Trạng thái:</strong> ${statusText}</p>
-                    ${customerInfo}
-                    ${reservationDate}
-                    <p><strong>Thực đơn đã chọn:</strong></p>
-                    ${menuHtml}
-                  `;
+                    // Tổng tiền
+                    document.getElementById("paymentTotal").innerText = `${(data.totalPrice || 0).toLocaleString()} đ`;
+
+                    // Reset input tiền khách đưa và tiền thối
+                    document.getElementById("customerPay").value = 0;
+                    document.getElementById("changeAmount").innerText = "0 đ";
+
+                    // Hiện modal
                     document.getElementById("paymentModal").classList.remove("hidden");
 
-                    // Gán sự kiện xác nhận thanh toán
+                    // Nút xác nhận thanh toán
                     document.getElementById("confirmPaymentBtn").onclick = function () {
-                      submitPayment(data.id); // data.id là id của bàn hoặc reservation
+                      submitPayment(data.tableId);
                     };
                   })
                   .catch((err) => {
+                    console.error(err);
                     showError("Không thể lấy dữ liệu bàn!");
                   });
         }
 
+        function calculateChange() {
+          const customerPay = parseInt(document.getElementById("customerPay").value) || 0;
+          const total = currentPaymentData?.totalPrice || 0;
+          const change = customerPay - total;
+          document.getElementById("changeAmount").innerText = `${change > 0 ? change.toLocaleString() : 0} đ`;
+        }
+
+        function submitPayment(tableId) {
+          const autoEmpty = document.getElementById("autoSetEmpty").checked ? "true" : "false";
+          const customerPay = parseInt(document.getElementById("customerPay").value) || 0;
+
+          const total = currentPaymentData?.totalPrice || 0;
+
+          if (customerPay < total) {
+            showWarning("Số tiền khách đưa không đủ để thanh toán!");
+            return;
+          }
+
+          // Lấy CSRF token (nếu dùng Thymeleaf + Spring Security)
+          const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+          const csrfParam = document.querySelector('meta[name="_csrf_parameter"]')?.getAttribute("content");
+
+          const form = document.createElement("form");
+          form.method = "post";
+          form.action = "/sale/payment";
+          form.style.display = "none";
+
+          form.innerHTML = `
+          <input name="tableId" value="${tableId}" />
+          ${csrfToken && csrfParam ? `<input name="${csrfParam}" value="${csrfToken}" />` : ''}
+        `;
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+
+
         function closePaymentModal() {
           document.getElementById("paymentModal").classList.add("hidden");
+        }
+
+        function printReceipt() {
+          if (!currentPaymentData) {
+            showWarning("Không có dữ liệu để in!");
+            return;
+          }
+          // Ví dụ: Mở cửa sổ in đơn giản
+          let content = `<h3>Hóa đơn - ${currentPaymentData.tableName}</h3><ul>`;
+          currentPaymentData.menuItems.forEach(item => {
+            content += `<li>${item.itemName} x${item.quantity} - ${(item.price || 0).toLocaleString()} đ</li>`;
+          });
+          content += `</ul><p><strong>Tổng tiền:</strong> ${(currentPaymentData.totalPrice || 0).toLocaleString()} đ</p>`;
+          const win = window.open('', '_blank');
+          win.document.write(content);
+          win.print();
         }
 
       </script>
