@@ -12,4 +12,6 @@ public interface TableService {
     void cancelTable(Integer id);
     void selectMenusForTable(Integer tableId, List<Integer> menuIds, List<Integer> quantities);
     void payment(Integer tableId);
+    void moveTable(Integer fromTableId, Integer toTableId);
+    void merge(List<Integer> sourceTableIds, Integer targetTableId);
 }

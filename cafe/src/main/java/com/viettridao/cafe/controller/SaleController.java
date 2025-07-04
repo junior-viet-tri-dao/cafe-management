@@ -153,6 +153,39 @@ public class SaleController {
         }
     }
 
+    @PostMapping("/transfer")
+    public String moveTable(
+            @RequestParam("fromTableId") Integer fromTableId,
+            @RequestParam("toTableId") Integer toTableId,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            tableService.moveTable(fromTableId, toTableId);
+            redirectAttributes.addFlashAttribute("success", "Chuyển bàn thành công!");
+            return "redirect:/sale";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Chuyển bàn thất bại: " + e.getMessage());
+            return "redirect:/sale";
+        }
+    }
+
+    @PostMapping("/merge")
+    public String mergeTables(
+            @RequestParam("sourceTableIds") List<Integer> sourceTableIds,
+            @RequestParam("targetTableId") Integer targetTableId,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            tableService.merge(sourceTableIds, targetTableId);
+            redirectAttributes.addFlashAttribute("success", "Chuyển bàn thành công!");
+            return "redirect:/sale";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Chuyển bàn thất bại: " + e.getMessage());
+            return "redirect:/sale";
+        }
+
+    }
+
 
 
 

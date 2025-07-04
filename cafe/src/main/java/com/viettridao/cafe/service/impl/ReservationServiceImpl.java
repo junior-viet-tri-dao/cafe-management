@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @RequiredArgsConstructor
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -46,6 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
         invoice.setStatus(InvoiceStatus.UNPAID);
         invoice.setIsDeleted(false);
         invoice.setTotalAmount(0.0);
+        invoice.setCreatedAt(LocalDateTime.now());
 
         InvoiceEntity savedInvoice = invoiceRepository.save(invoice);
 

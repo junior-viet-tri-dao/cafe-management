@@ -67,7 +67,9 @@
             👁️ Xem bàn
           </button>
           <button
-            class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                  type="button"
+                  onclick="openTransferModalFromSelection()"
+                  class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
           >
             Chuyển bàn
           </button>
@@ -76,7 +78,7 @@
           >
             Tách bàn
           </button>
-          <button
+          <button onclick="openModalMergeTable()"
             class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
           >
             Gộp bàn
@@ -276,6 +278,83 @@
         </div>
       </div>
 
+      <!-- Modal chuyển bàn -->
+      <div id="transferModal"
+           class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+          <h2 class="text-lg font-bold mb-4">Chuyển bàn <span id="fromTableName"></span></h2>
+
+          <form id="transferForm" th:action="@{/sale/transfer}" method="post">
+            <input type="hidden" name="fromTableId" id="fromTableId"/>
+            <label class="block mb-2 font-semibold">Chọn bàn cần chuyển đến:</label>
+            <select name="toTableId" id="toTableSelect"
+                    class="border rounded w-full px-2 py-1 mb-4">
+              <option value="">-- Chọn bàn --</option>
+              <option th:each="table : ${tables}"
+                      th:if="${table.status == 'AVAILABLE'}"
+                      th:value="${table.id}"
+                      th:text="${table.tableName}"></option>
+            </select>
+
+            <div id="transferError" class="text-red-500 text-sm mb-2"></div>
+
+            <div class="flex justify-end gap-2">
+              <button type="button"
+                      onclick="closeTransferModal()"
+                      class="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded">Hủy</button>
+              <button type="button"
+                      onclick="submitTransferForm()"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Chuyển</button>
+            </div>
+          </form>
+
+          <button onclick="closeTransferModal()"
+                  class="absolute top-2 right-2 text-gray-400 hover:text-black text-3xl">&times;</button>
+        </div>
+      </div>
+
+      <!-- Modal gộp bàn -->
+      <div id="mergeTableModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-xl shadow-lg">
+          <h2 class="text-xl font-semibold mb-4">Gộp bàn</h2>
+
+          <form id="mergeTableForm" th:action="@{/sale/merge}" method="post">
+            <div class="flex justify-between gap-4">
+              <!-- Danh sách bàn cần gộp (bàn đang sử dụng) -->
+              <div class="w-1/2">
+                <h3 class="font-medium mb-2">Chọn các bàn cần gộp</h3>
+                <div class="max-h-40 overflow-y-auto border rounded p-2 space-y-2">
+                  <div th:each="table : ${tables}" th:if="${table.status == 'OCCUPIED'}">
+                    <label>
+                      <input type="checkbox" class="merge-source" name="sourceTableIds" th:value="${table.id}" />
+                      <span th:text="${table.tableName}"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chọn bàn gộp đến (trống hoặc đang sử dụng) -->
+              <div class="w-1/2">
+                <h3 class="font-medium mb-2">Chọn bàn gộp đến</h3>
+                <div class="max-h-40 overflow-y-auto border rounded p-2 space-y-2">
+                  <div th:each="table : ${tables}" th:if="${table.status == 'OCCUPIED' or table.status == 'AVAILABLE'}">
+                    <label>
+                      <input type="radio" name="targetTableId" class="merge-target" th:value="${table.id}" />
+                      <span th:text="${table.tableName}"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="mt-6 flex justify-end gap-4">
+              <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Gộp</button>
+              <button type="button" onclick="closeModalMergeTable()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       <script>
         // xem thông tin bàn
@@ -294,9 +373,9 @@
 
 
         function showSelectedTables() {
-          const checkbox = document.querySelector("input[type=checkbox]:checked");
+          const checkbox = document.querySelector('input[name="selectedTable"]:checked');
           if (!checkbox) {
-            showWarning("Vui lòng chọn một bàn.");
+            showWarning("Vui lòng chọn một bàn để xem.");
             return;
           }
 
@@ -624,6 +703,76 @@
           win.print();
         }
 
+        // chuyển bàn
+        function openTransferModalFromSelection() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn để chuyển!');
+            return;
+          }
+          const tableId = checked.value;
+          const tableDiv = checked.closest('div');
+          const tableName = tableDiv.querySelector('label').innerText;
+
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+
+          // Kiểm tra trạng thái
+          if (statusText == "🟢 Trống") {
+            showWarning('Chỉ có bàn đã đặt trước hoặc bàn đang sử dụng mới được chuyển');
+            return;
+          }
+
+          openTransferModal(tableId, tableName);
+        }
+
+        function openTransferModal(fromTableId, fromTableName) {
+          document.getElementById('fromTableId').value = fromTableId;
+          document.getElementById('fromTableName').innerText = fromTableName;
+          document.getElementById('toTableSelect').value = '';
+          document.getElementById('transferError').innerText = '';
+          document.getElementById('transferModal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+          document.getElementById('transferModal').classList.add('hidden');
+        }
+
+        function submitTransferForm() {
+          const toTableId = document.getElementById('toTableSelect').value;
+          if (!toTableId) {
+            document.getElementById('transferError').innerText = 'Vui lòng chọn bàn đích!';
+            return;
+          }
+          document.getElementById('transferForm').submit();
+        }
+
+
+        // gộp bàn
+        function openModalMergeTable() {
+          document.getElementById("mergeTableModal").classList.remove("hidden");
+        }
+
+        function closeModalMergeTable() {
+          document.getElementById("mergeTableModal").classList.add("hidden");
+        }
+
+        document.getElementById("mergeTableForm")?.addEventListener("submit", function(event) {
+          const sources = Array.from(document.querySelectorAll('.merge-source:checked')).map(cb => cb.value);
+          const target = document.querySelector('.merge-target:checked')?.value;
+
+          if (sources.length === 0 || !target) {
+            event.preventDefault();
+            showWarning("Vui lòng chọn các bàn cần gộp và bàn gộp đến!");
+            return;
+          }
+
+          if (sources.length == 1) {
+            event.preventDefault();
+            showWarning("Nếu chọn một bàn gộp thì vui lòng thực hiện chức năng chuyển bàn");
+            return;
+          }
+        });
       </script>
     </div>
   </body>

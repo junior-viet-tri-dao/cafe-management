@@ -167,6 +167,7 @@ public class TableServiceImpl implements TableService {
                 // Món đã tồn tại => cộng dồn
                 InvoiceDetailEntity existingDetail = existingDetailOpt.get();
                 existingDetail.setQuantity(existingDetail.getQuantity() + quantity);
+                existingDetail.setIsDeleted(false);
                 invoiceDetailRepository.save(existingDetail);
             } else {
                 // Món mới => thêm mới
@@ -176,6 +177,7 @@ public class TableServiceImpl implements TableService {
                 newDetail.setQuantity(quantity);
                 newDetail.setInvoice(invoice);
                 newDetail.setPrice(menuItem.getCurrentPrice());
+                newDetail.setIsDeleted(false);
                 invoiceDetailRepository.save(newDetail);
             }
         }
@@ -214,4 +216,198 @@ public class TableServiceImpl implements TableService {
             table.setStatus(TableStatus.AVAILABLE);
         }
     }
+
+    @Transactional
+    @Override
+    public void moveTable(Integer fromTableId, Integer toTableId) {
+        TableEntity tableFrom = getTableById(fromTableId);
+        TableEntity tableTo = getTableById(toTableId);
+
+        if(tableFrom.getStatus().equals(TableStatus.AVAILABLE)) {
+            throw new RuntimeException("Bàn cần chuyển có trạng thái là đang sử dụng hoặc bàn đặt trước");
+        }
+
+        if(!tableTo.getStatus().equals(TableStatus.AVAILABLE)) {
+            throw new RuntimeException("Bàn chuyển đến phải là bàn đang trạng thái trống");
+        }
+
+        Optional<ReservationEntity> reservationOpt = reservationRepository.
+                findTopByTableIdAndIsDeletedOrderByReservationDateDesc(tableFrom.getId(), false);
+
+        if(reservationOpt.isPresent()) {
+            ReservationEntity reservation = reservationOpt.get();
+
+            InvoiceEntity invoice = reservation.getInvoice();
+            EmployeeEntity employee = reservation.getEmployee();
+
+            ReservationKey key = new ReservationKey();
+            key.setIdTable(tableTo.getId());
+            key.setIdInvoice(invoice.getId());
+            key.setIdEmployee(employee.getId());
+
+            ReservationEntity newReservation = new ReservationEntity();
+
+            newReservation.setId(key);
+            newReservation.setInvoice(invoice);
+            newReservation.setEmployee(employee);
+            newReservation.setTable(tableTo);
+
+            if (reservation.getCustomerPhone() != null) {
+                newReservation.setCustomerPhone(reservation.getCustomerPhone());
+            }
+            if (reservation.getCustomerName() != null) {
+                newReservation.setCustomerName(reservation.getCustomerName());
+            }
+            if (reservation.getReservationDate() != null) {
+                newReservation.setReservationDate(reservation.getReservationDate());
+            }
+
+            if(tableFrom.getStatus().equals(TableStatus.RESERVED)) {
+                tableTo.setStatus(TableStatus.RESERVED);
+            }else if(tableFrom.getStatus().equals(TableStatus.OCCUPIED)) {
+                newReservation.setIsDeleted(false);
+                tableTo.setStatus(TableStatus.OCCUPIED);
+            }
+
+            reservationRepository.save(newReservation);
+
+            tableFrom.setStatus(TableStatus.AVAILABLE);
+            tableRepository.save(tableFrom);
+            tableRepository.save(tableTo);
+
+            reservation.setIsDeleted(true);
+            reservationRepository.save(reservation);
+        }else {
+            throw new RuntimeException("Bàn cần chuyển chưa có chi tiết đặt bàn");
+        }
+
+    }
+
+    @Transactional
+    @Override
+    public void merge(List<Integer> sourceTableIds, Integer targetTableId) {
+        if (sourceTableIds == null || sourceTableIds.isEmpty() || targetTableId == null) {
+            throw new IllegalArgumentException("Thiếu thông tin bàn gộp.");
+        }
+
+        if (sourceTableIds.contains(targetTableId)) {
+            sourceTableIds.remove(targetTableId);
+        }
+
+        TableEntity tableTarget = getTableById(targetTableId);
+        InvoiceEntity mainInvoice = null;
+
+        // Lấy hóa đơn chính từ bàn đích
+        Optional<ReservationEntity> targetReservation = reservationRepository
+                .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(targetTableId, false);
+        if (targetReservation.isPresent()) {
+            mainInvoice = targetReservation.get().getInvoice();
+        }
+
+        // Nếu chưa có hóa đơn => tạo mới
+        if (mainInvoice == null) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            AccountEntity account = accountService.getAccountByUsername(auth.getName());
+
+            if (account.getEmployee() == null) {
+                throw new IllegalStateException("Bạn phải cập nhật đầy đủ thông tin cá nhân");
+            }
+
+            mainInvoice = new InvoiceEntity();
+            mainInvoice.setStatus(InvoiceStatus.UNPAID);
+            mainInvoice.setIsDeleted(false);
+            mainInvoice.setTotalAmount(0.0);
+            mainInvoice.setCreatedAt(LocalDateTime.now());
+            mainInvoice.setInvoiceDetails(new ArrayList<>());
+            invoiceRepository.save(mainInvoice);
+
+            // Tạo reservation cho bàn đích
+            ReservationEntity newReservation = new ReservationEntity();
+            ReservationKey key = new ReservationKey();
+            key.setIdTable(tableTarget.getId());
+            key.setIdEmployee(account.getEmployee().getId());
+            key.setIdInvoice(mainInvoice.getId());
+
+            newReservation.setId(key);
+            newReservation.setInvoice(mainInvoice);
+            newReservation.setEmployee(account.getEmployee());
+            newReservation.setTable(tableTarget);
+            newReservation.setIsDeleted(false);
+
+            reservationRepository.save(newReservation);
+        }
+
+        double totalAmount = 0.0;
+
+        // Gộp từ các bàn nguồn
+        for (Integer sourceId : sourceTableIds) {
+            Optional<ReservationEntity> sourceOpt = reservationRepository
+                    .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(sourceId, false);
+            if (!sourceOpt.isPresent()) continue;
+
+            ReservationEntity sourceReservation = sourceOpt.get();
+            InvoiceEntity sourceInvoice = sourceReservation.getInvoice();
+
+            if (sourceInvoice == null) continue;
+
+            // Lấy món từ source và merge vào mainInvoice
+            List<InvoiceDetailEntity> sourceItems = invoiceDetailRepository.findByInvoice_Id(sourceInvoice.getId());
+            for (InvoiceDetailEntity sourceItem : sourceItems) {
+                totalAmount += mergeItemToMainInvoice(mainInvoice, sourceItem);
+            }
+
+            // Nếu khác invoice chính thì xóa
+            if (!sourceInvoice.getId().equals(mainInvoice.getId())) {
+                sourceInvoice.setIsDeleted(true);
+                invoiceRepository.save(sourceInvoice);
+            }
+
+            // Cập nhật bàn source thành AVAILABLE
+            TableEntity sourceTable = sourceReservation.getTable();
+            if (sourceTable != null) {
+                sourceTable.setStatus(TableStatus.AVAILABLE);
+                tableRepository.save(sourceTable);
+            }
+
+            sourceReservation.setIsDeleted(true);
+            reservationRepository.save(sourceReservation);
+        }
+
+        mainInvoice.setTotalAmount(totalAmount);
+        invoiceRepository.save(mainInvoice);
+
+        // Đảm bảo bàn đích là OCCUPIED
+        tableTarget.setStatus(TableStatus.OCCUPIED);
+        tableRepository.save(tableTarget);
+    }
+
+
+    private double mergeItemToMainInvoice(InvoiceEntity mainInvoice, InvoiceDetailEntity sourceItem) {
+        if (mainInvoice.getInvoiceDetails() == null) {
+            mainInvoice.setInvoiceDetails(new ArrayList<>());
+        }
+
+        for (InvoiceDetailEntity item : mainInvoice.getInvoiceDetails()) {
+            if (item.getMenuItem().getId().equals(sourceItem.getMenuItem().getId())) {
+                item.setQuantity(item.getQuantity() + sourceItem.getQuantity());
+                return sourceItem.getQuantity() * sourceItem.getPrice();
+            }
+        }
+
+        InvoiceDetailEntity newItem = new InvoiceDetailEntity();
+        InvoiceKey newKey = new InvoiceKey(mainInvoice.getId(), sourceItem.getMenuItem().getId());
+
+        newItem.setId(newKey);
+        newItem.setInvoice(mainInvoice);
+        newItem.setMenuItem(sourceItem.getMenuItem());
+        newItem.setQuantity(sourceItem.getQuantity());
+        newItem.setPrice(sourceItem.getPrice());
+        newItem.setIsDeleted(false);
+
+        mainInvoice.getInvoiceDetails().add(newItem);
+        return newItem.getQuantity() * newItem.getPrice();
+    }
+
+
+
 }
