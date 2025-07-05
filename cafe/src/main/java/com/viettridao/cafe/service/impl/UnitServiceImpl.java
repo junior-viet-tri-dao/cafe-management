@@ -1,25 +1,25 @@
 package com.viettridao.cafe.service.impl;
 
-import com.viettridao.cafe.model.UnitEntity;
-import com.viettridao.cafe.repository.UnitRepository;
-import com.viettridao.cafe.service.UnitService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.viettridao.cafe.dto.response.unit.UnitResponse;
+import com.viettridao.cafe.mapper.UnitMapper;
+import com.viettridao.cafe.repository.UnitRepository;
+import com.viettridao.cafe.service.UnitService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UnitServiceImpl implements UnitService {
-    private final UnitRepository unitRepository;
 
-    @Override
-    public List<UnitEntity> getAllUnits() {
-        return unitRepository.findAllByIsDeleted(false);
-    }
+	private final UnitRepository unitRepository;
+	private final UnitMapper unitMapper;
 
-    @Override
-    public UnitEntity getUnitById(Integer id) {
-        return unitRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy đơn vị tính có id=" + id));
-    }
+	@Override
+	public List<UnitResponse> getAll() {
+		return unitMapper.toDtoList(unitRepository.findByIsDeletedFalse());
+	}
 }

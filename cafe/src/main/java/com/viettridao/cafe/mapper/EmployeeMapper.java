@@ -14,40 +14,37 @@ import com.viettridao.cafe.model.EmployeeEntity;
 @Component
 public class EmployeeMapper extends BaseMapper<EmployeeEntity, CreateEmployeeRequest, EmployeeResponse> {
 
-    public EmployeeMapper(ModelMapper modelMapper) {
-        super(modelMapper, EmployeeEntity.class, CreateEmployeeRequest.class, EmployeeResponse.class);
-    }
+	public EmployeeMapper(ModelMapper modelMapper) {
+		super(modelMapper, EmployeeEntity.class, CreateEmployeeRequest.class, EmployeeResponse.class);
+	}
 
-    @Override
-    public EmployeeResponse toDto(EmployeeEntity entity) {
-        EmployeeResponse response = super.toDto(entity);
+	@Override
+	public EmployeeResponse toDto(EmployeeEntity entity) {
+		EmployeeResponse response = super.toDto(entity);
 
-        // Gán thông tin chức vụ
-        var position = entity.getPosition();
-        if (position != null) {
-            response.setPositionId(position.getId());
-            response.setPositionName(position.getPositionName());
-            response.setSalary(position.getSalary());
-        }
+		var position = entity.getPosition();
+		if (position != null) {
+			response.setPositionId(position.getId());
+			response.setPositionName(position.getPositionName());
+			response.setSalary(position.getSalary());
+		}
 
-        // Gán thông tin tài khoản
-        var account = entity.getAccount();
-        if (account != null) {
-            response.setUsername(account.getUsername());
-            response.setPassword(account.getPassword());
-            response.setImageUrl(account.getImageUrl());
-        }
+		var account = entity.getAccount();
+		if (account != null) {
+			response.setUsername(account.getUsername());
+			response.setPassword(account.getPassword());
+			response.setImageUrl(account.getImageUrl());
+		}
 
-        return response;
-    }
+		return response;
+	}
 
-    @Override
-    public List<EmployeeResponse> toDtoList(List<EmployeeEntity> entities) {
-        return entities.stream().map(this::toDto).toList();
-    }
+	@Override
+	public List<EmployeeResponse> toDtoList(List<EmployeeEntity> entities) {
+		return entities.stream().map(this::toDto).toList();
+	}
 
-    // Dùng cho cập nhật nhân viên
-    public void updateEntityFromUpdateRequest(UpdateEmployeeRequest dto, EmployeeEntity entity) {
-        modelMapper.map(dto, entity);
-    }
+	public void updateEntityFromUpdateRequest(UpdateEmployeeRequest dto, EmployeeEntity entity) {
+		modelMapper.map(dto, entity);
+	}
 }

@@ -1,10 +1,9 @@
 package com.viettridao.cafe.service;
 
-import com.viettridao.cafe.model.UnitEntity;
-
 import java.util.List;
 
+import com.viettridao.cafe.dto.response.unit.UnitResponse;
+
 public interface UnitService {
-    List<UnitEntity> getAllUnits();
-    UnitEntity getUnitById(Integer id);
+	List<UnitResponse> getAll();
 }

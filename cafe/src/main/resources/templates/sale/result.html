@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+      
 <head>
     <meta charset="UTF-8">
     <title>Kết quả thanh toán</title>
 </head>
 <body>
+<div layout:fragment="content">
 
 <h2>Kết quả thanh toán</h2>
 
@@ -30,6 +34,7 @@
 
 <br/>
 <a href="/sale">← Quay lại danh sách bàn</a>
+</div>
 
 </body>
 </html>

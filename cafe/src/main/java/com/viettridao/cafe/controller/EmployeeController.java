@@ -26,84 +26,82 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/employee")
 public class EmployeeController {
-    private final EmployeeService employeeService;
-    private final EmployeeMapper employeeMapper;
-    private final PositionService positionService;
-    private final PositionMapper positionMapper;
+	private final EmployeeService employeeService;
+	private final EmployeeMapper employeeMapper;
+	private final PositionService positionService;
+	private final PositionMapper positionMapper;
 
-    @GetMapping("")
-    public String home(@RequestParam(required = false) String keyword,
-                       @RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "5") int size,
-                       Model model) {
-        model.addAttribute("employees", employeeService.getAllEmployees(keyword, page, size));
-        return "/employees/employee";
-    }
+	@GetMapping("")
+	public String home(@RequestParam(required = false) String keyword, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "5") int size, Model model) {
+		model.addAttribute("employees", employeeService.getAllEmployees(keyword, page, size));
+		return "/employees/employee";
+	}
 
-    @GetMapping("/create")
-    public String showFormCreate(Model model) {
-    	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
-        model.addAttribute("employee", new CreateEmployeeRequest());
-        return "/employees/create_employee";
-    }
+	@GetMapping("/create")
+	public String showFormCreate(Model model) {
+		model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
+		model.addAttribute("employee", new CreateEmployeeRequest());
+		return "/employees/create_employee";
+	}
 
-    @PostMapping("/create")
-    public String createEmployee(@Valid @ModelAttribute("employee") CreateEmployeeRequest employee, BindingResult result,
-                                 RedirectAttributes redirectAttributes, Model model) {
-        try{
-            if (result.hasErrors()) {
-            	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
-                return "/employees/create_employee";
-            }
+	@PostMapping("/create")
+	public String createEmployee(@Valid @ModelAttribute("employee") CreateEmployeeRequest employee,
+			BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+		try {
+			if (result.hasErrors()) {
+				model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
+				return "/employees/create_employee";
+			}
 
-            employeeService.createEmployee(employee);
-            redirectAttributes.addFlashAttribute("success", "Thêm nhân viên thành công");
-            return "redirect:/employee";
-        }catch (Exception e){
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee/create";
-        }
-    }
+			employeeService.createEmployee(employee);
+			redirectAttributes.addFlashAttribute("success", "Thêm nhân viên thành công");
+			return "redirect:/employee";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/employee/create";
+		}
+	}
 
-    @PostMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes){
-        try{
-            employeeService.deleteEmployee(id);
-            redirectAttributes.addFlashAttribute("success", "Xoá nhân viên thành công");
-            return "redirect:/employee";
-        }catch (Exception e){
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee";
-        }
-    }
+	@PostMapping("/delete/{id}")
+	public String deleteEmployee(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+		try {
+			employeeService.deleteEmployee(id);
+			redirectAttributes.addFlashAttribute("success", "Xoá nhân viên thành công");
+			return "redirect:/employee";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/employee";
+		}
+	}
 
-    @GetMapping("/update/{id}")
-    public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
-        try{
-        	EmployeeResponse response = employeeMapper.toDto(employeeService.getEmployeeById(id));
-        	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
-            model.addAttribute("employee", response);
-            return "/employees/update_employee";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee";
-        }
-    }
+	@GetMapping("/update/{id}")
+	public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+		try {
+			EmployeeResponse response = employeeMapper.toDto(employeeService.getEmployeeById(id));
+			model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
+			model.addAttribute("employee", response);
+			return "/employees/update_employee";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/employee";
+		}
+	}
 
-    @PostMapping("/update")
-    public String updateEmployee(@Valid @ModelAttribute UpdateEmployeeRequest request, BindingResult result,
-                                 RedirectAttributes redirectAttributes, Model model) {
-        try{
-            if (result.hasErrors()) {
-            	model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
-                return "/employees/update_employee";
-            }
-            employeeService.updateEmployee(request);
-            redirectAttributes.addFlashAttribute("success", "Chỉnh sửa nhân viên thành công");
-            return "redirect:/employee";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/employee";
-        }
-    }
+	@PostMapping("/update")
+	public String updateEmployee(@Valid @ModelAttribute UpdateEmployeeRequest request, BindingResult result,
+			RedirectAttributes redirectAttributes, Model model) {
+		try {
+			if (result.hasErrors()) {
+				model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
+				return "/employees/update_employee";
+			}
+			employeeService.updateEmployee(request);
+			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa nhân viên thành công");
+			return "redirect:/employee";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/employee";
+		}
+	}
 }

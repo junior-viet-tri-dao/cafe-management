@@ -9,12 +9,12 @@ import lombok.Setter;
 @Setter
 @Embeddable
 public class ReservationKey {
-    @Column(name = "table_id")
-    private Integer idTable;
+	@Column(name = "table_id")
+	private Integer idTable;
 
-    @Column(name = "employee_id")
-    private Integer idEmployee;
+	@Column(name = "employee_id")
+	private Integer idEmployee;
 
-    @Column(name = "invoice_id")
-    private Integer idInvoice;
+	@Column(name = "invoice_id")
+	private Integer idInvoice;
 }

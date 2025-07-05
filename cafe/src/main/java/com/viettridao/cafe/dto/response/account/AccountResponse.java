@@ -10,23 +10,23 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountResponse {
-    private Integer id;
+	private Integer id;
 
-    private String fullName;
+	private String fullName;
 
-    private String phoneNumber;
+	private String phoneNumber;
 
-    private String address;
+	private String address;
 
-    private String imageUrl;
+	private String imageUrl;
 
-    private Integer positionId;
+	private Integer positionId;
 
-    private String positionName;
+	private String positionName;
 
-    private Double salary;
+	private Double salary;
 
-    private String username;
+	private String username;
 
-    private String password;
+	private String password;
 }

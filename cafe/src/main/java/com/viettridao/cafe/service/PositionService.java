@@ -1,10 +1,11 @@
 package com.viettridao.cafe.service;
 
-import com.viettridao.cafe.model.PositionEntity;
-
 import java.util.List;
 
+import com.viettridao.cafe.model.PositionEntity;
+
 public interface PositionService {
-    PositionEntity getPositionById(Integer id);
-    List<PositionEntity> getPositions();
+	PositionEntity getPositionById(Integer id);
+
+	List<PositionEntity> getPositions();
 }

@@ -55,7 +55,6 @@ public class TableMergeServiceImpl implements TableMergeService {
 				.findTopByReservations_Table_IdAndStatusAndIsDeletedFalseOrderByCreatedAtDesc(targetTableId,
 						InvoiceStatus.UNPAID);
 
-		// Nếu bàn đích là AVAILABLE thì tạo mới hóa đơn + reservation
 		if (targetStatus == TableStatus.AVAILABLE) {
 			String finalName = customerName;
 			String finalPhone = customerPhone;
@@ -108,10 +107,8 @@ public class TableMergeServiceImpl implements TableMergeService {
 			throw new RuntimeException("Bàn đang phục vụ nhưng chưa có hóa đơn.");
 		}
 
-		long occupiedSourceCount = sourceTableIds.stream()
-				.map(id -> tableRepository.findById(id).orElse(null))
-				.filter(t -> t != null && t.getStatus() == TableStatus.OCCUPIED)
-				.count();
+		long occupiedSourceCount = sourceTableIds.stream().map(id -> tableRepository.findById(id).orElse(null))
+				.filter(t -> t != null && t.getStatus() == TableStatus.OCCUPIED).count();
 
 		if (targetStatus == TableStatus.OCCUPIED && targetInvoice != null && occupiedSourceCount > 1) {
 			List<ReservationEntity> reservations = reservationRepository

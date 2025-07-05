@@ -8,8 +8,13 @@ import lombok.Setter;
 public class InvoiceItemResponse {
 
 	private Integer id;
+
 	private String itemName;
+
 	private Integer quantity;
+
 	private Double unitPrice;
+
 	private Double totalPrice;
+
 }

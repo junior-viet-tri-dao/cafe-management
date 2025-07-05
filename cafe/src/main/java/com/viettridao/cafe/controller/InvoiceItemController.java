@@ -30,13 +30,11 @@ public class InvoiceItemController {
 	private final InvoiceItemService invoiceItemService;
 	private final MenuItemRepository menuItemRepository;
 
-	// ✅ Hiển thị form thêm món vào hóa đơn
 	@GetMapping("/item-form")
 	public String showItemForm(@RequestParam("invoiceId") Integer invoiceId, Model model) {
 		List<MenuItemEntity> menuItems = menuItemRepository.findByIsDeletedFalse();
 		List<InvoiceItemRequest> itemRequests = new ArrayList<>();
 
-		// Khởi tạo danh sách món với số lượng 0
 		for (MenuItemEntity item : menuItems) {
 			InvoiceItemRequest req = new InvoiceItemRequest();
 			req.setInvoiceId(invoiceId);
@@ -54,7 +52,6 @@ public class InvoiceItemController {
 		return "sale/item-form";
 	}
 
-	// ✅ Xử lý thêm món
 	@PostMapping("/item")
 	public String addItems(@ModelAttribute("form") @Valid InvoiceItemListRequest request, BindingResult result,
 			Model model) {
@@ -63,12 +60,15 @@ public class InvoiceItemController {
 			return "sale/item-form";
 		}
 
-		List<InvoiceItemResponse> items = invoiceItemService.addItemsToInvoice(request);
-
-		// Gửi message nếu cần
-		model.addAttribute("message", "Thêm món thành công");
-		model.addAttribute("items", items);
-
-		return "redirect:/sale"; // hoặc redirect đến hóa đơn hoặc danh sách bàn
+		try {
+			List<InvoiceItemResponse> items = invoiceItemService.addItemsToInvoice(request);
+			model.addAttribute("success", "Thêm món thành công");
+			model.addAttribute("items", items);
+			return "redirect:/sale";
+		} catch (Exception e) {
+			model.addAttribute("error", "Đã xảy ra lỗi khi thêm món vào hóa đơn.");
+			model.addAttribute("menuItems", menuItemRepository.findByIsDeletedFalse());
+			return "sale/item-form";
+		}
 	}
 }

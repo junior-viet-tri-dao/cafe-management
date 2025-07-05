@@ -1,4 +1,4 @@
-package com.viettridao.cafe.dto.response.expenses;
+package com.viettridao.cafe.dto.request.expenses;
 
 import java.time.LocalDate;
 

@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <title>Danh sách Thu Chi</title>
     <meta charset="UTF-8">
 </head>
 <body>
+<div layout:fragment="content">
+
 <h2>Danh sách Thu Chi</h2>
 
 <!-- Form lọc ngày -->
@@ -55,9 +59,8 @@
 <!-- Thêm khoản chi -->
 <p><a th:href="@{/budget/add}">➕ Thêm khoản chi</a></p>
 
-<!-- Thông báo flash -->
-<div th:if="${success}" style="color:green;" th:text="${success}"></div>
-<div th:if="${error}" style="color:red;" th:text="${error}"></div>
+
+</div>
 
 </body>
 </html>

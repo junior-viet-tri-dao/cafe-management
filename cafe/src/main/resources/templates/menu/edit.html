@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
-    <title>Chỉnh sửa món</title>
     <meta charset="UTF-8">
+    <title>Chỉnh sửa món</title>
     <script>
         function addIngredientRow() {
             const container = document.getElementById("ingredients");
             const index = container.children.length;
             const row = document.createElement("div");
             row.innerHTML = `
-                <input name="ingredients[${index}].productName" placeholder="Tên thành phần" required />
-                <input name="ingredients[${index}].quantity" placeholder="Khối lượng" type="number" step="0.01" required />
-                <input name="ingredients[${index}].unitName" placeholder="Đơn vị tính" required />
+                <input name="ingredients[${index}].productName" placeholder="Tên thành phần" required maxlength="50" />
+                <input name="ingredients[${index}].quantity" placeholder="Khối lượng" type="number" step="0.01" min="0.01" required />
+                <input name="ingredients[${index}].unitName" placeholder="Đơn vị tính" required maxlength="10" />
                 <button type="button" onclick="this.parentElement.remove()">Xóa</button>
                 <br/>
             `;
@@ -20,33 +22,49 @@
     </script>
 </head>
 <body>
+<div layout:fragment="content">
+
 <h2>Chỉnh sửa món</h2>
 
 <form th:action="@{'/menu/edit/' + ${menuItem.id}}" method="post" th:object="${menuItem}">
+    <!-- Tên món -->
     <div>
         <label>Tên món:</label>
-        <input type="text" th:field="*{itemName}" required />
-    </div>
-    <div>
-        <label>Giá tiền:</label>
-        <input type="number" th:field="*{currentPrice}" step="1000" required />
+        <input type="text" th:field="*{itemName}" required maxlength="100" placeholder="Cà phê sữa" />
+        <div th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}" style="color:red;"></div>
     </div>
 
+    <!-- Giá tiền -->
+    <div>
+        <label>Giá tiền:</label>
+        <input type="number" th:field="*{currentPrice}" step="1000" min="1000" required />
+        <div th:if="${#fields.hasErrors('currentPrice')}" th:errors="*{currentPrice}" style="color:red;"></div>
+    </div>
+
+    <!-- Thành phần -->
     <h4>Thành phần</h4>
     <div id="ingredients">
         <div th:each="ingredient, iStat : *{ingredients}">
-            <input type="text" th:name="'ingredients[' + ${iStat.index} + '].productName'" th:value="${ingredient.productName}" required />
-            <input type="number" step="0.01" th:name="'ingredients[' + ${iStat.index} + '].quantity'" th:value="${ingredient.quantity}" required />
-            <input type="text" th:name="'ingredients[' + ${iStat.index} + '].unitName'" th:value="${ingredient.unitName}" required />
+            <input type="text" th:name="'ingredients[' + ${iStat.index} + '].productName'"
+                   th:value="${ingredient.productName}" required maxlength="50" placeholder="Tên thành phần" />
+            <input type="number" step="0.01" min="0.01" required
+                   th:name="'ingredients[' + ${iStat.index} + '].quantity'"
+                   th:value="${ingredient.quantity}" placeholder="Khối lượng" />
+            <input type="text" required maxlength="10" placeholder="Đơn vị tính"
+                   th:name="'ingredients[' + ${iStat.index} + '].unitName'"
+                   th:value="${ingredient.unitName}" />
             <button type="button" onclick="this.parentElement.remove()">Xóa</button>
             <br/>
         </div>
     </div>
-    <button type="button" onclick="addIngredientRow()">+ Thêm thành phần</button>
-    <br/><br/>
 
-    <button type="submit">Cập nhật</button>
-    <a th:href="@{/menu}">Hủy</a>
+    <button type="button" onclick="addIngredientRow()">+ Thêm thành phần</button>
+
+    <br/><br/>
+    <button type="submit">✅ Cập nhật</button>
+    <a th:href="@{/menu}">❌ Hủy</a>
 </form>
+
+</div>
 </body>
 </html>

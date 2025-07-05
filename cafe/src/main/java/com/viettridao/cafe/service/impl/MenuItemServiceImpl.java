@@ -37,9 +37,8 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		// Cập nhật thông tin
 		menuItemMapper.updateEntityFromRequest(request, entity);
-		entity.getMenuDetails().clear(); // Xóa chi tiết cũ
+		entity.getMenuDetails().clear();
 
-		// Ánh xạ lại nguyên liệu từ request (sử dụng lại mapper)
 		MenuItemEntity newEntity = menuItemMapper.fromRequest(request);
 		entity.setMenuDetails(newEntity.getMenuDetails());
 

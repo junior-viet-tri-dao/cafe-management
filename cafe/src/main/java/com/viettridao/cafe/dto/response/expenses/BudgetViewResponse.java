@@ -13,27 +13,30 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BudgetViewResponse {
-    private LocalDate date;
-    private Double income;
-    private Double expense;
 
-    public String getFormattedIncome() {
-        if (income == null) return "";
-        return formatCurrency(income);
-    }
+	private LocalDate date;
 
-    public String getFormattedExpense() {
-        if (expense == null) return "";
-        return formatCurrency(expense);
-    }
+	private Double income;
 
-    private String formatCurrency(Double value) {
-        if (value % 1 == 0) {
-            return new DecimalFormat("#,###").format(value);
-        } else {
-            return new DecimalFormat("#,###.00").format(value);
-        }
-    }
+	private Double expense;
+
+	public String getFormattedIncome() {
+		if (income == null)
+			return "";
+		return formatCurrency(income);
+	}
+
+	public String getFormattedExpense() {
+		if (expense == null)
+			return "";
+		return formatCurrency(expense);
+	}
+
+	private String formatCurrency(Double value) {
+		if (value % 1 == 0) {
+			return new DecimalFormat("#,###").format(value);
+		} else {
+			return new DecimalFormat("#,###.00").format(value);
+		}
+	}
 }
-
-

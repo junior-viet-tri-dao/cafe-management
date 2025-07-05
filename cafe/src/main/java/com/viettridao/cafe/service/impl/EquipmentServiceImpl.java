@@ -21,67 +21,66 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EquipmentServiceImpl implements EquipmentService {
-    private final EquipmentRepository equipmentRepository;
-    private final EquipmentMapper equipmentMapper;
+	private final EquipmentRepository equipmentRepository;
+	private final EquipmentMapper equipmentMapper;
 
-    @Override
-    public List<EquipmentEntity> getAllEquipments() {
-        return equipmentRepository.getAllEquipments();
-    }
+	@Override
+	public List<EquipmentEntity> getAllEquipments() {
+		return equipmentRepository.getAllEquipments();
+	}
 
-    @Transactional
-    @Override
-    public EquipmentEntity createEquipment(CreateEquipmentRequest request) {
-        EquipmentEntity equipmentEntity = new EquipmentEntity();
-        equipmentEntity.setEquipmentName(request.getEquipmentName());
-        equipmentEntity.setQuantity(request.getQuantity());
-        equipmentEntity.setPurchaseDate(request.getPurchaseDate());
-        equipmentEntity.setPurchasePrice(request.getPurchasePrice());
-        equipmentEntity.setIsDeleted(false);
+	@Transactional
+	@Override
+	public EquipmentEntity createEquipment(CreateEquipmentRequest request) {
+		EquipmentEntity equipmentEntity = new EquipmentEntity();
+		equipmentEntity.setEquipmentName(request.getEquipmentName());
+		equipmentEntity.setQuantity(request.getQuantity());
+		equipmentEntity.setPurchaseDate(request.getPurchaseDate());
+		equipmentEntity.setPurchasePrice(request.getPurchasePrice());
+		equipmentEntity.setIsDeleted(false);
 
-        return equipmentRepository.save(equipmentEntity);
-    }
+		return equipmentRepository.save(equipmentEntity);
+	}
 
-    @Transactional
-    @Override
-    public void deleteEquipment(Integer id) {
-        EquipmentEntity equipment = getEquipmentById(id);
-        equipment.setIsDeleted(true);
+	@Transactional
+	@Override
+	public void deleteEquipment(Integer id) {
+		EquipmentEntity equipment = getEquipmentById(id);
+		equipment.setIsDeleted(true);
 
-        equipmentRepository.save(equipment);
-    }
+		equipmentRepository.save(equipment);
+	}
 
-    @Override
-    public EquipmentEntity getEquipmentById(Integer id) {
-        return equipmentRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy thiết bị có id=" + id));
-    }
+	@Override
+	public EquipmentEntity getEquipmentById(Integer id) {
+		return equipmentRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị có id=" + id));
+	}
 
-    @Transactional
-    @Override
-    public void updateEquipment(UpdateEquipmentRequest request) {
-        EquipmentEntity equipmentEntity = getEquipmentById(request.getId());
-        equipmentEntity.setEquipmentName(request.getEquipmentName());
-        equipmentEntity.setQuantity(request.getQuantity());
-        equipmentEntity.setPurchaseDate(request.getPurchaseDate());
-        equipmentEntity.setPurchasePrice(request.getPurchasePrice());
+	@Transactional
+	@Override
+	public void updateEquipment(UpdateEquipmentRequest request) {
+		EquipmentEntity equipmentEntity = getEquipmentById(request.getId());
+		equipmentEntity.setEquipmentName(request.getEquipmentName());
+		equipmentEntity.setQuantity(request.getQuantity());
+		equipmentEntity.setPurchaseDate(request.getPurchaseDate());
+		equipmentEntity.setPurchasePrice(request.getPurchasePrice());
 
-        equipmentRepository.save(equipmentEntity);
-    }
+		equipmentRepository.save(equipmentEntity);
+	}
 
-    @Override
-    public EquipmentPageResponse getAllEquipmentsPage(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<EquipmentEntity> equipmentEntities = equipmentRepository.getAllEquipmentsByPage(pageable);
+	@Override
+	public EquipmentPageResponse getAllEquipmentsPage(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<EquipmentEntity> equipmentEntities = equipmentRepository.getAllEquipmentsByPage(pageable);
 
-        EquipmentPageResponse equipmentPageResponse = new EquipmentPageResponse();
-        equipmentPageResponse.setPageNumber(equipmentEntities.getNumber());
-        equipmentPageResponse.setTotalElements(equipmentEntities.getTotalElements());
-        equipmentPageResponse.setTotalPages(equipmentEntities.getTotalPages());
-        equipmentPageResponse.setPageSize(equipmentEntities.getSize());
-        equipmentPageResponse.setEquipments(
-        	    equipmentMapper.toDtoList(equipmentEntities.getContent())
-        	);
+		EquipmentPageResponse equipmentPageResponse = new EquipmentPageResponse();
+		equipmentPageResponse.setPageNumber(equipmentEntities.getNumber());
+		equipmentPageResponse.setTotalElements(equipmentEntities.getTotalElements());
+		equipmentPageResponse.setTotalPages(equipmentEntities.getTotalPages());
+		equipmentPageResponse.setPageSize(equipmentEntities.getSize());
+		equipmentPageResponse.setEquipments(equipmentMapper.toDtoList(equipmentEntities.getContent()));
 
-        return equipmentPageResponse;
-    }
+		return equipmentPageResponse;
+	}
 }

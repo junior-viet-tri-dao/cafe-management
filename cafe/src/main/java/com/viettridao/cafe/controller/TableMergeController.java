@@ -22,98 +22,94 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TableMergeController {
 
-    private final TableRepository tableRepository;
-    private final TableMergeService tableMergeService;
+	private final TableRepository tableRepository;
+	private final TableMergeService tableMergeService;
 
-    @GetMapping("/merge-tables")
-    public String showMergePage(Model model) {
-        model.addAttribute("tables", tableRepository.findByIsDeletedFalse());
-        return "sale/merge-tables";
-    }
+	@GetMapping("/merge-tables")
+	public String showMergePage(Model model) {
+		try {
+			model.addAttribute("tables", tableRepository.findByIsDeletedFalse());
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi tải danh sách bàn: " + e.getMessage());
+		}
+		return "sale/merge-tables";
+	}
 
-    @PostMapping("/merge-tables")
-    public String mergeTables(@RequestParam("targetTableId") Integer targetId,
-                              @RequestParam(value = "sourceTableIds", required = false) List<Integer> sourceIds,
-                              @RequestParam("customerName") String customerName,
-                              @RequestParam("customerPhone") String customerPhone,
-                              RedirectAttributes redirectAttributes) {
+	@PostMapping("/merge-tables")
+	public String mergeTables(@RequestParam("targetTableId") Integer targetId,
+			@RequestParam(value = "sourceTableIds", required = false) List<Integer> sourceIds,
+			@RequestParam("customerName") String customerName, @RequestParam("customerPhone") String customerPhone,
+			RedirectAttributes redirectAttributes) {
 
-        // ⚠️ Bắt buộc chọn ít nhất 1 bàn nguồn
-        if (sourceIds == null || sourceIds.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất một bàn cần gộp (nguồn).");
-            redirectAttributes.addFlashAttribute("targetTableId", targetId);
-            redirectAttributes.addFlashAttribute("customerName", customerName);
-            redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
-            return "redirect:/sale/merge-tables";
-        }
+		try {
+			if (sourceIds == null || sourceIds.isEmpty()) {
+				redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất một bàn cần gộp (nguồn).");
+				redirectAttributes.addFlashAttribute("targetTableId", targetId);
+				redirectAttributes.addFlashAttribute("customerName", customerName);
+				redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
+				return "redirect:/sale/merge-tables";
+			}
 
-        // ⚠️ Không cho phép gộp vào hoặc từ bàn RESERVED
-        TableEntity targetTable = tableRepository.findById(targetId).orElse(null);
-        if (targetTable == null) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy bàn đích.");
-            return "redirect:/sale/merge-tables";
-        }
-        if (targetTable.getStatus() == TableStatus.RESERVED) {
-            redirectAttributes.addFlashAttribute("error", "Không thể gộp vào bàn đã được đặt trước.");
-            return "redirect:/sale/merge-tables";
-        }
+			TableEntity targetTable = tableRepository.findById(targetId).orElse(null);
+			if (targetTable == null) {
+				redirectAttributes.addFlashAttribute("error", "Không tìm thấy bàn đích.");
+				return "redirect:/sale/merge-tables";
+			}
+			if (targetTable.getStatus() == TableStatus.RESERVED) {
+				redirectAttributes.addFlashAttribute("error", "Không thể gộp vào bàn đã được đặt trước.");
+				return "redirect:/sale/merge-tables";
+			}
 
-        for (Integer sourceId : sourceIds) {
-            TableEntity sourceTable = tableRepository.findById(sourceId).orElse(null);
-            if (sourceTable == null) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy bàn nguồn.");
-                return "redirect:/sale/merge-tables";
-            }
-            if (sourceTable.getStatus() == TableStatus.RESERVED) {
-                redirectAttributes.addFlashAttribute("error", "Không thể gộp từ bàn đã được đặt trước.");
-                return "redirect:/sale/merge-tables";
-            }
-        }
+			for (Integer sourceId : sourceIds) {
+				TableEntity sourceTable = tableRepository.findById(sourceId).orElse(null);
+				if (sourceTable == null) {
+					redirectAttributes.addFlashAttribute("error", "Không tìm thấy bàn nguồn.");
+					return "redirect:/sale/merge-tables";
+				}
+				if (sourceTable.getStatus() == TableStatus.RESERVED) {
+					redirectAttributes.addFlashAttribute("error", "Không thể gộp từ bàn đã được đặt trước.");
+					return "redirect:/sale/merge-tables";
+				}
+			}
 
-        // ⚠️ Kiểm tra logic yêu cầu nhập Tên/SĐT
-        boolean targetIsOccupied = targetTable.getStatus() == TableStatus.OCCUPIED;
-        boolean hasSourceOccupied = sourceIds.stream()
-                .map(id -> tableRepository.findById(id).orElse(null))
-                .anyMatch(t -> t != null && t.getStatus() == TableStatus.OCCUPIED);
+			boolean targetIsOccupied = targetTable.getStatus() == TableStatus.OCCUPIED;
+			boolean hasSourceOccupied = sourceIds.stream().map(id -> tableRepository.findById(id).orElse(null))
+					.anyMatch(t -> t != null && t.getStatus() == TableStatus.OCCUPIED);
 
-        boolean needCustomerInfo = false;
+			boolean needCustomerInfo = false;
 
-        if (sourceIds.size() > 1) {
-            // nhiều bàn nguồn
-            needCustomerInfo = true;
-        } else if (hasSourceOccupied && targetIsOccupied) {
-            // 1 bàn nguồn OCCUPIED → đích cũng OCCUPIED
-            needCustomerInfo = true;
-        } else if (!targetIsOccupied && hasSourceOccupied) {
-            // OCCUPIED → AVAILABLE (gộp vào) → dùng form, không bắt buộc
-            needCustomerInfo = false;
-        } else if (targetIsOccupied && !hasSourceOccupied) {
-            // AVAILABLE → OCCUPIED → vẫn cập nhật từ form, nên yêu cầu nhập
-            needCustomerInfo = true;
-        }
+			if (sourceIds.size() > 1) {
+				needCustomerInfo = true;
+			} else if (hasSourceOccupied && targetIsOccupied) {
+				needCustomerInfo = true;
+			} else if (!targetIsOccupied && hasSourceOccupied) {
+				needCustomerInfo = false;
+			} else if (targetIsOccupied && !hasSourceOccupied) {
+				needCustomerInfo = true;
+			}
 
-        if (needCustomerInfo &&
-                (customerName == null || customerName.trim().isEmpty()
-              || customerPhone == null || customerPhone.trim().isEmpty())) {
-            redirectAttributes.addFlashAttribute("error", "Vui lòng nhập Tên khách và Số điện thoại theo yêu cầu gộp.");
-            redirectAttributes.addFlashAttribute("targetTableId", targetId);
-            redirectAttributes.addFlashAttribute("sourceTableIds", sourceIds);
-            redirectAttributes.addFlashAttribute("customerName", customerName);
-            redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
-            return "redirect:/sale/merge-tables";
-        }
+			if (needCustomerInfo && (customerName == null || customerName.trim().isEmpty() || customerPhone == null
+					|| customerPhone.trim().isEmpty())) {
+				redirectAttributes.addFlashAttribute("error",
+						"Vui lòng nhập Tên khách và Số điện thoại theo yêu cầu gộp.");
+				redirectAttributes.addFlashAttribute("targetTableId", targetId);
+				redirectAttributes.addFlashAttribute("sourceTableIds", sourceIds);
+				redirectAttributes.addFlashAttribute("customerName", customerName);
+				redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
+				return "redirect:/sale/merge-tables";
+			}
 
-        try {
-            tableMergeService.mergeTables(targetId, sourceIds, customerName, customerPhone);
-            redirectAttributes.addFlashAttribute("success", "✅ Gộp bàn thành công.");
-            return "redirect:/sale";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "❌ " + e.getMessage());
-            redirectAttributes.addFlashAttribute("targetTableId", targetId);
-            redirectAttributes.addFlashAttribute("sourceTableIds", sourceIds);
-            redirectAttributes.addFlashAttribute("customerName", customerName);
-            redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
-            return "redirect:/sale/merge-tables";
-        }
-    }
+			tableMergeService.mergeTables(targetId, sourceIds, customerName, customerPhone);
+			redirectAttributes.addFlashAttribute("success", "✅ Gộp bàn thành công.");
+			return "redirect:/sale";
+
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "❌ " + e.getMessage());
+			redirectAttributes.addFlashAttribute("targetTableId", targetId);
+			redirectAttributes.addFlashAttribute("sourceTableIds", sourceIds);
+			redirectAttributes.addFlashAttribute("customerName", customerName);
+			redirectAttributes.addFlashAttribute("customerPhone", customerPhone);
+			return "redirect:/sale/merge-tables";
+		}
+	}
 }

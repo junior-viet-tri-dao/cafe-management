@@ -25,24 +25,21 @@ public class MenuItemController {
 
 	private final MenuItemService menuItemService;
 
-	// ✅ Danh sách món (có tìm kiếm)
 	@GetMapping
 	public String listMenuItems(@RequestParam(defaultValue = "") String keyword,
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
 		Page<MenuItemResponse> items = menuItemService.getAll(keyword, page, size);
 		model.addAttribute("items", items);
 		model.addAttribute("keyword", keyword);
-		return "menu/list"; // Thymeleaf view: menu/list.html
+		return "menu/list";
 	}
 
-	// ✅ Hiển thị form thêm món
 	@GetMapping("/add")
 	public String showAddForm(Model model) {
 		model.addAttribute("menuItem", new MenuItemRequest());
-		return "menu/add"; // Thymeleaf view: menu/add.html
+		return "menu/add";
 	}
 
-	// ✅ Xử lý thêm món
 	@PostMapping("/add")
 	public String addMenuItem(@ModelAttribute @Valid MenuItemRequest menuItem, BindingResult result, Model model) {
 		if (result.hasErrors()) {
@@ -58,15 +55,13 @@ public class MenuItemController {
 		}
 	}
 
-	// ✅ Hiển thị form sửa món
 	@GetMapping("/edit/{id}")
 	public String showEditForm(@PathVariable Integer id, Model model) {
 		MenuItemResponse item = menuItemService.getById(id);
 		model.addAttribute("menuItem", item);
-		return "menu/edit"; // Thymeleaf view: menu/edit.html
+		return "menu/edit";
 	}
 
-	// ✅ Xử lý cập nhật món
 	@PostMapping("/edit/{id}")
 	public String updateMenuItem(@PathVariable Integer id, @ModelAttribute @Valid MenuItemRequest menuItem,
 			BindingResult result, Model model) {
@@ -83,18 +78,16 @@ public class MenuItemController {
 		}
 	}
 
-	// ✅ Xoá mềm món
 	@PostMapping("/delete/{id}")
 	public String deleteMenuItem(@PathVariable Integer id) {
 		menuItemService.delete(id);
 		return "redirect:/menu";
 	}
 
-	// ✅ Xem chi tiết món
 	@GetMapping("/detail/{id}")
 	public String viewDetail(@PathVariable Integer id, Model model) {
 		MenuItemResponse item = menuItemService.getById(id);
 		model.addAttribute("item", item);
-		return "menu/detail"; // Thymeleaf view: menu/detail.html
+		return "menu/detail";
 	}
 }

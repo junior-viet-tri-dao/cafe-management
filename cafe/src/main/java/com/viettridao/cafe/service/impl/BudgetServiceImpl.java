@@ -1,7 +1,11 @@
 package com.viettridao.cafe.service.impl;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -12,8 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.common.InvoiceStatus;
 import com.viettridao.cafe.dto.request.expenses.BudgetFilterRequest;
+import com.viettridao.cafe.dto.request.expenses.ExpenseRequest;
 import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
-import com.viettridao.cafe.dto.response.expenses.ExpenseRequest;
 import com.viettridao.cafe.mapper.EquipmentMapper;
 import com.viettridao.cafe.mapper.ExpenseMapper;
 import com.viettridao.cafe.mapper.IncomeMapper;
@@ -47,14 +51,12 @@ public class BudgetServiceImpl implements BudgetService {
 		LocalDate from = request.getFromDate();
 		LocalDate to = request.getToDate();
 
-		// Lấy dữ liệu
 		List<InvoiceEntity> invoices = invoiceRepo.findByStatusAndCreatedAtBetween(InvoiceStatus.PAID,
 				from.atStartOfDay(), to.plusDays(1).atStartOfDay());
 
 		List<ExpenseEntity> expenses = expenseRepo.findExpensesBetweenDates(from, to);
 		List<EquipmentEntity> equipmentList = equipmentRepo.findEquipmentsBetweenDates(from, to);
 
-		// Mapping DTOs
 		List<BudgetViewResponse> incomeDtos = invoices.stream().map(incomeMapper::fromInvoice)
 				.collect(Collectors.toList());
 
@@ -63,25 +65,19 @@ public class BudgetServiceImpl implements BudgetService {
 		List<BudgetViewResponse> equipmentDtos = equipmentList.stream().map(equipmentMapper::toBudgetDto)
 				.collect(Collectors.toList());
 
-		// Gộp dữ liệu theo ngày
 		Map<LocalDate, BudgetViewResponse> merged = new HashMap<>();
 
-		// Thu
 		for (BudgetViewResponse income : incomeDtos) {
 			merged.put(income.getDate(), new BudgetViewResponse(income.getDate(), income.getIncome(), 0.0));
 		}
 
-		// Chi tiêu thường
 		expenseDtos.forEach(dto -> mergeExpense(merged, dto));
 
-		// Chi mua thiết bị
 		equipmentDtos.forEach(dto -> mergeExpense(merged, dto));
 
-		// Kết quả cuối
 		List<BudgetViewResponse> result = new ArrayList<>(merged.values());
 		result.sort(Comparator.comparing(BudgetViewResponse::getDate).reversed());
 
-		// Phân trang an toàn
 		int start = request.getPage() * request.getSize();
 		if (start >= result.size()) {
 			return Page.empty(PageRequest.of(request.getPage(), request.getSize()));

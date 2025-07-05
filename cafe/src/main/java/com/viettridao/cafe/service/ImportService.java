@@ -1,11 +1,16 @@
 package com.viettridao.cafe.service;
 
-import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
-import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
-import com.viettridao.cafe.model.ImportEntity;
+import java.util.List;
+
+import com.viettridao.cafe.dto.request.imports.ImportRequest;
+import com.viettridao.cafe.dto.response.imports.ImportResponse;
 
 public interface ImportService {
-    ImportEntity createImport(CreateImportRequest request);
-    void updateImport(UpdateImportRequest request);
-    ImportEntity getImportById(Integer id);
+    ImportResponse createImport(ImportRequest request);
+
+    List<ImportResponse> getImportsByProduct(Integer productId);
+
+    List<ImportResponse> getAll();
 }
+
+

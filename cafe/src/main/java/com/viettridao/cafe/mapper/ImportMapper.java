@@ -1,36 +1,34 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.response.imports.ImportResponse;
-import com.viettridao.cafe.model.ImportEntity;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.viettridao.cafe.dto.request.imports.ImportRequest;
+import com.viettridao.cafe.dto.response.imports.ImportResponse;
+import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.ImportEntity;
 
 @Component
-@RequiredArgsConstructor
-public class ImportMapper {
-    private final ModelMapper modelMapper;
+public class ImportMapper extends BaseMapper<ImportEntity, ImportRequest, ImportResponse> {
 
-    public ImportResponse toImportResponse(ImportEntity importEntity){
-        ImportResponse importResponse = new ImportResponse();
-        modelMapper.map(importEntity, importResponse);
+	public ImportMapper(ModelMapper modelMapper) {
+		super(modelMapper, ImportEntity.class, ImportRequest.class, ImportResponse.class);
+	}
 
-        if(importEntity.getProduct() != null){
-            importResponse.setProductId(importEntity.getProduct().getId());
-            importResponse.setProductName(importEntity.getProduct().getProductName());
-            importResponse.setProductPrice(importEntity.getProduct().getProductPrice());
-        }
+	@Override
+	public ImportEntity fromRequest(ImportRequest dto) {
+		ImportEntity entity = new ImportEntity();
+		entity.setImportDate(dto.getImportDate());
+		entity.setQuantity(dto.getQuantity());
+		return entity;
+	}
 
-        if(importEntity.getProduct().getUnit() != null){
-            importResponse.setUnitName(importEntity.getProduct().getUnit().getUnitName());
-        }
-
-        return importResponse;
-    }
-
-    public List<ImportResponse> toImportResponseList(List<ImportEntity> importEntityList){
-        return importEntityList.stream().map(this::toImportResponse).toList();
-    }
+	@Override
+	public ImportResponse toDto(ImportEntity entity) {
+		ImportResponse dto = super.toDto(entity);
+		dto.setProductId(entity.getProduct().getId());
+		dto.setProductName(entity.getProduct().getProductName());
+		dto.setEmployeeName(entity.getEmployee().getFullName());
+		return dto;
+	}
 }

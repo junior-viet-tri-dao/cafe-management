@@ -26,16 +26,17 @@ public class DataController {
 		return "/datas/backup";
 	}
 
-	// ✅ Xử lý POST /data/backup
 	@PostMapping("/backup")
 	public String handleBackup(@RequestParam("path") String path, RedirectAttributes redirectAttributes) {
-		// TODO: Thực hiện sao lưu vào path
-		System.out.println("Backup to path: " + path);
-		redirectAttributes.addFlashAttribute("success", "Đã sao lưu dữ liệu!");
+		try {
+			System.out.println("Backup to path: " + path);
+			redirectAttributes.addFlashAttribute("success", "Đã sao lưu dữ liệu!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Đã có lỗi xảy ra khi sao lưu!");
+		}
 		return "redirect:/data/backup";
 	}
 
-	// ✅ Xử lý POST /data/restore
 	@PostMapping("/restore")
 	public String handleRestore(@RequestParam("backupFile") MultipartFile file, RedirectAttributes redirectAttributes) {
 		if (file.isEmpty()) {
@@ -43,9 +44,13 @@ public class DataController {
 			return "redirect:/data/restore";
 		}
 
-		// TODO: Thực hiện phục hồi từ file
-		System.out.println("Restore from file: " + file.getOriginalFilename());
-		redirectAttributes.addFlashAttribute("success", "Phục hồi dữ liệu thành công!");
+		try {
+			System.out.println("Restore from file: " + file.getOriginalFilename());
+			redirectAttributes.addFlashAttribute("success", "Phục hồi dữ liệu thành công!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Đã có lỗi xảy ra khi phục hồi!");
+		}
+
 		return "redirect:/data/restore";
 	}
 }

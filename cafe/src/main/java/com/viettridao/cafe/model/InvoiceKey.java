@@ -13,9 +13,9 @@ import lombok.Setter;
 @Setter
 @Embeddable
 public class InvoiceKey {
-    @Column(name = "invoice_id")
-    private Integer idInvoice;
+	@Column(name = "invoice_id")
+	private Integer idInvoice;
 
-    @Column(name = "menu_item_id")
-    private Integer idMenuItem;
+	@Column(name = "menu_item_id")
+	private Integer idMenuItem;
 }

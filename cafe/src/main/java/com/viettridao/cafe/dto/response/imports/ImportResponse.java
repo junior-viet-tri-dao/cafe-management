@@ -1,26 +1,26 @@
 package com.viettridao.cafe.dto.response.imports;
 
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
 public class ImportResponse {
-    private Integer id;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate importDate;
+	private Integer id;
 
-    private String productName;
+	private Integer productId;
 
-    private Integer productId;
+	private String productName;
 
-    private Double productPrice;
+	private Integer quantity;
 
-    private String unitName;
+	private Double totalAmount;
 
-    private Integer quantity;
+	private LocalDate importDate;
+
+	private String employeeName;
+
 }

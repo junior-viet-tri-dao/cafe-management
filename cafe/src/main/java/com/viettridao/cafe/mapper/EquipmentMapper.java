@@ -29,12 +29,10 @@ public class EquipmentMapper extends BaseMapper<EquipmentEntity, CreateEquipment
 		return entities.stream().map(this::toDto).toList();
 	}
 
-	// Ánh xạ thông tin cập nhật từ UpdateEquipmentRequest vào entity hiện có
 	public void updateEntityFromUpdateRequest(UpdateEquipmentRequest dto, EquipmentEntity entity) {
 		modelMapper.map(dto, entity);
 	}
 
-	// Dùng cho phần báo cáo ngân sách (thiết bị là chi phí)
 	public BudgetViewResponse toBudgetDto(EquipmentEntity entity) {
 		BudgetViewResponse dto = new BudgetViewResponse();
 		dto.setDate(entity.getPurchaseDate());

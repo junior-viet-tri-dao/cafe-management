@@ -35,33 +35,37 @@ public class SaleController {
 	@GetMapping("/split")
 	public String showSplitForm(@RequestParam("fromTableId") Integer fromTableId, Model model,
 			RedirectAttributes redirectAttributes) {
-		TableEntity fromTable = tableRepository.findById(fromTableId)
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy bàn nguồn"));
+		try {
+			TableEntity fromTable = tableRepository.findById(fromTableId)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy bàn nguồn"));
 
-		// ❌ Nếu bàn đang RESERVED, không cho phép tách
-		if (fromTable.getStatus() == TableStatus.RESERVED) {
-			redirectAttributes.addFlashAttribute("error", "Bàn này đã được đặt trước, không thể tách.");
+			if (fromTable.getStatus() == TableStatus.RESERVED) {
+				redirectAttributes.addFlashAttribute("error", "Bàn này đã được đặt trước, không thể tách.");
+				return "redirect:/sale";
+			}
+
+			InvoiceEntity invoice = tableService.getLatestUnpaidInvoiceByTableId(fromTableId);
+			if (invoice == null) {
+				redirectAttributes.addFlashAttribute("error", "Bàn này không có hóa đơn chưa thanh toán");
+				return "redirect:/sale";
+			}
+
+			List<TableMenuItemResponse> items = tableService.getTableMenuItems(fromTableId);
+			List<TableEntity> allTables = tableRepository.findByIsDeletedFalse();
+
+			MenuItemSplitWrapper wrapper = new MenuItemSplitWrapper();
+			wrapper.setItems(new java.util.ArrayList<>());
+
+			model.addAttribute("fromTableId", fromTableId);
+			model.addAttribute("menuItems", items);
+			model.addAttribute("allTables", allTables.stream().filter(t -> !t.getId().equals(fromTableId)).toList());
+			model.addAttribute("splitWrapper", wrapper);
+
+			return "sale/split-form";
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi khi hiển thị form tách bàn: " + e.getMessage());
 			return "redirect:/sale";
 		}
-
-		InvoiceEntity invoice = tableService.getLatestUnpaidInvoiceByTableId(fromTableId);
-		if (invoice == null) {
-			redirectAttributes.addFlashAttribute("error", "Bàn này không có hóa đơn chưa thanh toán");
-			return "redirect:/sale";
-		}
-
-		List<TableMenuItemResponse> items = tableService.getTableMenuItems(fromTableId);
-		List<TableEntity> allTables = tableRepository.findByIsDeletedFalse();
-
-		MenuItemSplitWrapper wrapper = new MenuItemSplitWrapper();
-		wrapper.setItems(new java.util.ArrayList<>()); // để tránh null
-
-		model.addAttribute("fromTableId", fromTableId);
-		model.addAttribute("menuItems", items);
-		model.addAttribute("allTables", allTables.stream().filter(t -> !t.getId().equals(fromTableId)).toList());
-		model.addAttribute("splitWrapper", wrapper);
-
-		return "sale/split-form";
 	}
 
 	@PostMapping("/split")
@@ -69,25 +73,25 @@ public class SaleController {
 			@RequestParam("toTableId") Integer toTableId, @RequestParam("customerName") String customerName,
 			@RequestParam("customerPhone") String customerPhone,
 			@ModelAttribute("splitWrapper") MenuItemSplitWrapper wrapper, RedirectAttributes redirectAttributes) {
-
-		TableEntity toTable = tableRepository.findById(toTableId)
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy bàn đích"));
-
-		if (toTable.getStatus() != TableStatus.AVAILABLE) {
-			redirectAttributes.addFlashAttribute("error", "Chỉ có thể tách sang bàn trống (AVAILABLE).");
-			return "redirect:/sale/split?fromTableId=" + fromTableId;
-		}
-
-		List<MenuItemSplitRequest> validItems = wrapper.getItems().stream().filter(
-				i -> Boolean.TRUE.equals(i.getSelected()) && i.getQuantityToMove() != null && i.getQuantityToMove() > 0)
-				.toList();
-
-		if (validItems.isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất 1 món hợp lệ để tách.");
-			return "redirect:/sale/split?fromTableId=" + fromTableId;
-		}
-
 		try {
+			TableEntity toTable = tableRepository.findById(toTableId)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy bàn đích"));
+
+			if (toTable.getStatus() != TableStatus.AVAILABLE) {
+				redirectAttributes.addFlashAttribute("error", "Chỉ có thể tách sang bàn trống (AVAILABLE).");
+				return "redirect:/sale/split?fromTableId=" + fromTableId;
+			}
+
+			List<MenuItemSplitRequest> validItems = wrapper.getItems().stream()
+					.filter(i -> Boolean.TRUE.equals(i.getSelected()) && i.getQuantityToMove() != null
+							&& i.getQuantityToMove() > 0)
+					.toList();
+
+			if (validItems.isEmpty()) {
+				redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất 1 món hợp lệ để tách.");
+				return "redirect:/sale/split?fromTableId=" + fromTableId;
+			}
+
 			tableSplitService.splitTable(fromTableId, toTableId, validItems, customerName, customerPhone);
 			redirectAttributes.addFlashAttribute("success", "Tách bàn thành công!");
 		} catch (Exception e) {

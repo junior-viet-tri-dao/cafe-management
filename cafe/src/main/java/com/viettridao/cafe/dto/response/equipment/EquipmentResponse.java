@@ -10,20 +10,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EquipmentResponse {
-    private Integer id;
+	private Integer id;
 
-    private String equipmentName;
+	private String equipmentName;
 
-    private Integer quantity;
+	private Integer quantity;
 
-    private String notes;
+	private String notes;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate purchaseDate;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate purchaseDate;
 
-    private Double purchasePrice;
+	private Double purchasePrice;
 
-    private Boolean isDeleted;
-
+	private Boolean isDeleted;
 
 }

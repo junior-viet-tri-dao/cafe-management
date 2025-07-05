@@ -1,8 +1,8 @@
 package com.viettridao.cafe.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,108 +11,129 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.viettridao.cafe.dto.request.export.CreateExportRequest;
-import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
-import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
-import com.viettridao.cafe.mapper.ImportMapper;
-import com.viettridao.cafe.mapper.ProductMapper;
+import com.viettridao.cafe.dto.request.export.ExportRequest;
+import com.viettridao.cafe.dto.request.imports.ImportRequest;
+import com.viettridao.cafe.dto.request.product.ProductRequest;
+import com.viettridao.cafe.dto.response.product.ProductResponse;
 import com.viettridao.cafe.service.ExportService;
 import com.viettridao.cafe.service.ImportService;
 import com.viettridao.cafe.service.ProductService;
-import com.viettridao.cafe.service.WareHouseService;
+import com.viettridao.cafe.service.UnitService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/warehouse")
-public class WareHouseController {
-    private final WareHouseService wareHouseService;
-    private final ImportService importService;
-    private final ExportService exportService;
-    private final ProductService productService;
-    private final ProductMapper productMapper;
-    private final ImportMapper importMapper;
+@RequiredArgsConstructor
+public class WarehouseController {
 
-    @GetMapping("")
-    public String home(@RequestParam(required = false) String keyword,
-                       @RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "5") int size,
-                       Model model) {
-        model.addAttribute("warehouses", wareHouseService.getAllWareHouses(keyword, page, size));
-        return "/warehouses/warehouse";
-    }
+	private final ProductService productService;
+	private final ImportService importService;
+	private final ExportService exportService;
+	private final UnitService unitService;
 
-    @GetMapping("/create")
-    public String showFormCreate(Model model) {
-    	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
-        model.addAttribute("import", new CreateImportRequest());
-        return "/warehouses/create_warehouse_import";
-    }
+	@GetMapping
+	public String viewProducts(@RequestParam(required = false) String keyword,
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
+		try {
+			Page<ProductResponse> productPage;
 
-    @PostMapping("/create")
-    public String createWareHouse(@Valid @ModelAttribute("import") CreateImportRequest request, BindingResult result, RedirectAttributes redirectAttributes) {
-        try{
-            if (result.hasErrors()) {
-                return "/warehouses/create_warehouse_import";
-            }
-            importService.createImport(request);
-            redirectAttributes.addFlashAttribute("success", "Thêm đơn nhập thành công");
-            return "redirect:/warehouse";
-        }catch (Exception e){
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/warehouse/create";
-        }
-    }
+			if (keyword != null && !keyword.trim().isEmpty()) {
+				productPage = productService.search(keyword, page, size);
+				model.addAttribute("keyword", keyword);
+			} else {
+				productPage = productService.getAllPaged(page, size);
+			}
 
-    @GetMapping("/create/export")
-    public String showFormCreateExport(Model model) {
-    	model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
-        model.addAttribute("export", new CreateExportRequest());
-        return "/warehouses/create_warehouse_export";
-    }
+			model.addAttribute("productPage", productPage);
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi tải danh sách hàng hóa: " + e.getMessage());
+		}
+		return "warehouse/list";
+	}
 
-    @PostMapping("/create/export")
-    public String createWareHouseExport(@Valid @ModelAttribute("export") CreateExportRequest request, BindingResult result, RedirectAttributes redirectAttributes) {
-        try{
-            if (result.hasErrors()) {
-                return "/warehouses/create_warehouse_export";
-            }
-            exportService.createExport(request);
-            redirectAttributes.addFlashAttribute("success", "Thêm đơn xuất thành công");
-            return "redirect:/warehouse";
-        }catch (Exception e){
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/warehouse/create/export";
-        }
-    }
+	@GetMapping("/import")
+	public String showImportForm(Model model) {
+		try {
+			model.addAttribute("importRequest", new ImportRequest());
+			model.addAttribute("products", productService.getAll());
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi hiển thị form nhập hàng: " + e.getMessage());
+		}
+		return "warehouse/import";
+	}
 
-    @GetMapping("/update/{id}")
-    public String showFormUpdate(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
-        try{
-            model.addAttribute("import", importMapper.toImportResponse(importService.getImportById(id)));
-            model.addAttribute("products", productMapper.toDtoList(productService.getAllProducts()));
-            return "/warehouses/update_warehouse";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/warehouse";
-        }
-    }
+	@PostMapping("/import")
+	public String importProduct(@ModelAttribute("importRequest") ImportRequest request, RedirectAttributes redirect) {
+		try {
+			if (request.getEmployeeId() == null) {
+				request.setEmployeeId(1);
+			}
+			importService.createImport(request);
+			redirect.addFlashAttribute("success", "Nhập hàng thành công!");
+		} catch (RuntimeException e) {
+			redirect.addFlashAttribute("error", e.getMessage());
+			return "redirect:/warehouse/import";
+		}
+		return "redirect:/warehouse";
+	}
 
-    @PostMapping("/update")
-    public String updateWareHouse(@Valid @ModelAttribute UpdateImportRequest request, BindingResult result, RedirectAttributes redirectAttributes) {
-        try{
-            if (result.hasErrors()) {
-                return "/warehouses/update_warehouse";
-            }
-            importService.updateImport(request);
-            redirectAttributes.addFlashAttribute("success", "Chỉnh sửa đơn nhập thành công");
-            return "redirect:/warehouse";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/warehouse";
-        }
-    }
+	@GetMapping("/export")
+	public String showExportForm(Model model) {
+		try {
+			model.addAttribute("exportRequest", new ExportRequest());
+			model.addAttribute("products", productService.getAll());
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi hiển thị form xuất hàng: " + e.getMessage());
+		}
+		return "warehouse/export";
+	}
 
+	@PostMapping("/export")
+	public String exportProduct(@ModelAttribute("exportRequest") ExportRequest request, RedirectAttributes redirect) {
+		try {
+			if (request.getEmployeeId() == null) {
+				request.setEmployeeId(1);
+			}
+			exportService.createExport(request);
+			redirect.addFlashAttribute("success", "Xuất hàng thành công!");
+		} catch (RuntimeException e) {
+			redirect.addFlashAttribute("error", e.getMessage());
+			return "redirect:/warehouse/export";
+		}
+		return "redirect:/warehouse";
+	}
+
+	@GetMapping("/edit/{id}")
+	public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes redirect) {
+		try {
+			ProductResponse response = productService.getById(id);
+
+			ProductRequest request = new ProductRequest();
+			request.setId(response.getId());
+			request.setProductName(response.getProductName());
+			request.setQuantity(response.getQuantity());
+			request.setProductPrice(response.getProductPrice());
+			request.setUnitId(response.getUnitId());
+			request.setImportDate(response.getLatestImportDate());
+
+			model.addAttribute("product", request);
+			model.addAttribute("units", unitService.getAll());
+		} catch (Exception e) {
+			redirect.addFlashAttribute("error", "Không thể hiển thị thông tin chỉnh sửa: " + e.getMessage());
+			return "redirect:/warehouse";
+		}
+		return "warehouse/edit";
+	}
+
+	@PostMapping("/edit")
+	public String updateProduct(@ModelAttribute("product") ProductRequest request, RedirectAttributes redirect) {
+		try {
+			productService.update(request.getId(), request);
+			redirect.addFlashAttribute("success", "Cập nhật thành công!");
+		} catch (RuntimeException e) {
+			redirect.addFlashAttribute("error", e.getMessage());
+		}
+		return "redirect:/warehouse";
+	}
 }

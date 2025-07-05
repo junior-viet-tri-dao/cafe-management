@@ -6,11 +6,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PageResponse {
-    private long pageNumber;
 
-    private long pageSize;
+	private long pageNumber;
 
-    private long totalPages;
+	private long pageSize;
 
-    private long totalElements;
+	private long totalPages;
+
+	private long totalElements;
 }

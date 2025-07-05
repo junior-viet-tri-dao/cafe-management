@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo cáo thống kê</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+<h1>Báo cáo thống kê</h1>
+
+<!-- Form chọn thời gian và loại báo cáo -->
+<form method="get" th:action="@{/report/statistics}">
+    <label>Từ ngày:
+        <input type="date" name="from" th:value="${from}" required />
+    </label>
+    <label>Đến ngày:
+        <input type="date" name="to" th:value="${to}" required />
+    </label>
+    <label>Loại báo cáo:
+        <select name="type" required>
+            <option value="" disabled th:if="${type == null}">-- Chọn loại báo cáo --</option>
+            <option th:each="t : ${types}"
+                    th:value="${t}"
+                    th:text="${t}"
+                    th:selected="${t == type}">
+            </option>
+        </select>
+    </label>
+    <button type="submit">Xem</button>
+</form>
+
+<!-- Bảng dữ liệu -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Ngày</th>
+        <th>Thu</th>
+        <th>Chi</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="report : ${reports}">
+        <td th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}"></td>
+        <td th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+        <td th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Xuất báo cáo -->
+<h2>Xuất báo cáo</h2>
+<form method="get" th:action="@{/report/export}">
+    <input type="hidden" name="from" th:value="${from}" />
+    <input type="hidden" name="to" th:value="${to}" />
+    <input type="hidden" name="type" th:value="${type}" />
+
+    <label>Định dạng:
+        <input type="radio" name="format" value="TXT" checked /> .txt
+        <input type="radio" name="format" value="XLS" /> .xls
+        <input type="radio" name="format" value="SQL" /> .sql
+    </label>
+    <button type="submit">Xuất file</button>
+</form>
+
+<!-- In báo cáo -->
+<h2>In báo cáo</h2>
+<form method="post" th:action="@{/report/print}">
+    <label>Khổ giấy:
+        <select name="paperSize" required>
+            <option value="A4">A4</option>
+            <option value="A5">A5</option>
+            <option value="Letter">Letter</option>
+        </select>
+    </label>
+
+    <label>Máy in:
+        <select name="printerName" required>
+            <option value="Printer1">Printer1</option>
+            <option value="Printer2">Printer2</option>
+        </select>
+    </label>
+
+    <label>Số lượng:
+        <input type="number" name="copies" min="1" value="1" required />
+    </label>
+
+    <button type="submit">In</button>
+</form>
+
+</div>
+</body>
+</html>

@@ -54,8 +54,8 @@
                     </button>
                     <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
                         <a th:href="@{/warehouse}" th:classappend="${currentPath == '/warehouse'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
-                        <a th:href="@{/warehouse/create}" th:classappend="${currentPath == '/warehouse/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
-                        <a th:href="@{/warehouse/create/export}" th:classappend="${currentPath == '/warehouse/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
+                        <a th:href="@{/warehouse/import}" th:classappend="${currentPath == '/warehouse/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
+                        <a th:href="@{/warehouse/export}" th:classappend="${currentPath == '/warehouse/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
                     </div>
                 </div>
                 <div x-data="{ openMenu: false }" class="space-y-1">
@@ -97,7 +97,7 @@
                         </div>
                     </div>
 
-                    <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
+                    <a th:href="@{/report/statistics}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
                     <hr class="my-3">
                     <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">ℹ️ Giới thiệu</a>
                 </div>

@@ -1,36 +1,52 @@
 package com.viettridao.cafe.mapper;
 
-import java.util.List;
+import java.time.LocalDate;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import com.viettridao.cafe.dto.request.product.CreateProductRequest;
+import com.viettridao.cafe.dto.request.product.ProductRequest;
 import com.viettridao.cafe.dto.response.product.ProductResponse;
 import com.viettridao.cafe.mapper.base.BaseMapper;
+import com.viettridao.cafe.model.ExportEntity;
+import com.viettridao.cafe.model.ImportEntity;
 import com.viettridao.cafe.model.ProductEntity;
 
 @Component
-public class ProductMapper extends BaseMapper<ProductEntity, CreateProductRequest, ProductResponse> {
+public class ProductMapper extends BaseMapper<ProductEntity, ProductRequest, ProductResponse> {
 
 	public ProductMapper(ModelMapper modelMapper) {
-		super(modelMapper, ProductEntity.class, CreateProductRequest.class, ProductResponse.class);
+		super(modelMapper, ProductEntity.class, ProductRequest.class, ProductResponse.class);
 	}
 
 	@Override
 	public ProductResponse toDto(ProductEntity entity) {
-		ProductResponse res = super.toDto(entity);
+		ProductResponse dto = super.toDto(entity);
 
-		var unit = entity.getUnit();
-		if (unit != null) {
-			res.setUnitName(unit.getUnitName());
+		if (entity.getUnit() != null) {
+			dto.setUnitName(entity.getUnit().getUnitName());
+			dto.setUnitId(entity.getUnit().getId()); // ✅ MỚI: để <select th:field="*{unitId}"> hoạt động
+		} else {
+			dto.setUnitName("N/A");
+			dto.setUnitId(null);
 		}
 
-		return res;
-	}
+		Double price = entity.getProductPrice() != null ? entity.getProductPrice() : 0.0;
+		Integer quantity = entity.getQuantity() != null ? entity.getQuantity() : 0;
+		dto.setTotalAmount(price * quantity);
 
-	@Override
-	public List<ProductResponse> toDtoList(List<ProductEntity> entities) {
-		return entities.stream().map(this::toDto).toList();
+		dto.setLatestImportDate(
+				entity.getImports() != null
+						? entity.getImports().stream().filter(i -> i.getIsDeleted() == null || !i.getIsDeleted())
+								.map(ImportEntity::getImportDate).max(LocalDate::compareTo).orElse(null)
+						: null);
+
+		dto.setLatestExportDate(
+				entity.getExports() != null
+						? entity.getExports().stream().filter(e -> e.getIsDeleted() == null || !e.getIsDeleted())
+								.map(ExportEntity::getExportDate).max(LocalDate::compareTo).orElse(null)
+						: null);
+
+		return dto;
 	}
 }

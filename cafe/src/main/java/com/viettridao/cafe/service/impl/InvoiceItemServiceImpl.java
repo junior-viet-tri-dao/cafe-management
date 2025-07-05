@@ -48,19 +48,16 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 		Integer invoiceId = request.getItems().get(0).getInvoiceId();
 		InvoiceEntity invoice = invoiceRepository.findById(invoiceId).orElse(null);
 
-		// ✅ Nếu không có hóa đơn → tìm bàn tương ứng
 		TableEntity table = tableRepository.findByReservations_Invoice_Id(invoiceId);
 		if (table == null) {
 			throw new RuntimeException("Không tìm thấy bàn liên kết với hóa đơn ID: " + invoiceId);
 		}
 
-		// ✅ Chỉ cho phép bàn AVAILABLE, RESERVED, OCCUPIED
 		if (!(table.getStatus() == TableStatus.AVAILABLE || table.getStatus() == TableStatus.RESERVED
 				|| table.getStatus() == TableStatus.OCCUPIED)) {
 			throw new RuntimeException("Bàn không cho phép thêm món");
 		}
 
-		// ✅ Nếu hóa đơn null hoặc đã thanh toán → tạo mới hóa đơn
 		if (invoice == null || invoice.getStatus() != InvoiceStatus.UNPAID) {
 			invoice = new InvoiceEntity();
 			invoice.setStatus(InvoiceStatus.UNPAID);
@@ -69,7 +66,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 			invoice.setIsDeleted(false);
 			invoice = invoiceRepository.save(invoice);
 
-			// Gắn hóa đơn vào đặt bàn gần nhất của bàn
 			ReservationEntity latestReservation = reservationRepository
 					.findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(table.getId())
 					.orElseThrow(() -> new RuntimeException("Không tìm thấy đặt bàn gần nhất để gắn hóa đơn"));
@@ -79,7 +75,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 			reservationRepository.save(latestReservation);
 		}
 
-		// ✅ Xử lý thêm món
 		double total = 0.0;
 		for (InvoiceItemRequest itemReq : request.getItems()) {
 			MenuItemEntity menuItem = menuItemRepository.findById(itemReq.getMenuItemId())
@@ -104,7 +99,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 			invoiceDetailRepository.save(detail);
 		}
 
-		// ✅ Cập nhật tổng tiền hóa đơn
 		List<InvoiceDetailEntity> allDetails = invoiceDetailRepository
 				.findByInvoice_IdAndIsDeletedFalse(invoice.getId());
 		for (InvoiceDetailEntity detail : allDetails) {
@@ -113,7 +107,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 		invoice.setTotalAmount(total);
 		invoiceRepository.save(invoice);
 
-		// ✅ Cập nhật trạng thái bàn → OCCUPIED
 		table.setStatus(TableStatus.OCCUPIED);
 		tableRepository.save(table);
 

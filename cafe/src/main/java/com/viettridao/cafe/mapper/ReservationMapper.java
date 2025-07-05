@@ -11,20 +11,19 @@ import com.viettridao.cafe.model.ReservationEntity;
 @Component
 public class ReservationMapper extends BaseMapper<ReservationEntity, TableBookingRequest, TableBookingResponse> {
 
-    public ReservationMapper(ModelMapper modelMapper) {
-        super(modelMapper, ReservationEntity.class, TableBookingRequest.class, TableBookingResponse.class);
-    }
+	public ReservationMapper(ModelMapper modelMapper) {
+		super(modelMapper, ReservationEntity.class, TableBookingRequest.class, TableBookingResponse.class);
+	}
 
-    // ❌ KHÔNG dùng @Override vì BaseMapper không khai báo hàm này
-    public ReservationEntity toEntity(TableBookingRequest request) {
-        ReservationEntity entity = new ReservationEntity();
+	public ReservationEntity toEntity(TableBookingRequest request) {
+		ReservationEntity entity = new ReservationEntity();
 
-        entity.setCustomerName(request.getCustomerName());
-        entity.setCustomerPhone(request.getCustomerPhone());
-        entity.setReservationDate(request.getReservationDate());
-        entity.setReservationTime(request.getReservationTime());
-        entity.setIsDeleted(false);
+		entity.setCustomerName(request.getCustomerName());
+		entity.setCustomerPhone(request.getCustomerPhone());
+		entity.setReservationDate(request.getReservationDate());
+		entity.setReservationTime(request.getReservationTime());
+		entity.setIsDeleted(false);
 
-        return entity;
-    }
+		return entity;
+	}
 }

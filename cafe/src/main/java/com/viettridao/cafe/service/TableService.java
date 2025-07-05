@@ -10,15 +10,14 @@ import com.viettridao.cafe.model.InvoiceEntity;
 import com.viettridao.cafe.model.ReservationEntity;
 
 public interface TableService {
-	 Page<TableResponse> getAllTables(int page, int size);
+	Page<TableResponse> getAllTables(int page, int size);
 
-	 List<TableMenuItemResponse> getTableMenuItems(Integer tableId);
-	 
-	 Integer getOrCreateInvoiceIdByTableId(Integer tableId);
+	List<TableMenuItemResponse> getTableMenuItems(Integer tableId);
 
-	 ReservationEntity getLatestReservationByTableId(Integer tableId);
-	 
-	 InvoiceEntity getLatestUnpaidInvoiceByTableId(Integer tableId);
+	Integer getOrCreateInvoiceIdByTableId(Integer tableId);
+
+	ReservationEntity getLatestReservationByTableId(Integer tableId);
+
+	InvoiceEntity getLatestUnpaidInvoiceByTableId(Integer tableId);
 
 }
-

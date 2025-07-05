@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <title>Thêm Chi Tiêu</title>
     <meta charset="UTF-8">
 </head>
 <body>
+<div layout:fragment="content">
+
 <h2>Thêm Chi Tiêu</h2>
 
-<!-- Thông báo flash -->
-<div th:if="${error}" style="color:red;" th:text="${error}"></div>
-<div th:if="${success}" style="color:green;" th:text="${success}"></div>
+
 
 <form th:action="@{/budget/add}" method="post" th:object="${expenseRequest}">
     <label>Ngày:</label><br/>
@@ -31,6 +33,7 @@
     <a th:href="@{/budget/list}">↩ Quay lại</a>
 </form>
 
+</div>
 
 </body>
 </html>

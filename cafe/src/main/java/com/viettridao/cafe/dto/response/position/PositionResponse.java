@@ -6,9 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PositionResponse {
-    private Integer id;
+	
+	private Integer id;
 
-    private String positionName;
+	private String positionName;
 
-    private Double salary;
+	private Double salary;
+	
 }

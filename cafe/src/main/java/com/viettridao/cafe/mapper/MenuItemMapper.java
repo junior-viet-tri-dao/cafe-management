@@ -20,7 +20,6 @@ public class MenuItemMapper extends BaseMapper<MenuItemEntity, MenuItemRequest, 
 
 	private final ProductRepository productRepository;
 
-	// ✅ Gọi rõ ràng constructor cha
 	public MenuItemMapper(ModelMapper modelMapper, ProductRepository productRepository) {
 		super(modelMapper, MenuItemEntity.class, MenuItemRequest.class, MenuItemResponse.class);
 		this.productRepository = productRepository;

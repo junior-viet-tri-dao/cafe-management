@@ -8,9 +8,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MenuItemPageResponse {
-    private List<MenuItemResponse> items;
-    private int currentPage;
-    private int totalPages;
-    private long totalItems;
-}
 
+	private List<MenuItemResponse> items;
+
+	private int currentPage;
+
+	private int totalPages;
+
+	private long totalItems;
+	
+}

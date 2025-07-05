@@ -12,7 +12,7 @@ public class IncomeMapper {
 		BudgetViewResponse dto = new BudgetViewResponse();
 		dto.setDate(entity.getCreatedAt().toLocalDate());
 		dto.setIncome(entity.getTotalAmount());
-		dto.setExpense(0.0); // Đây là khoản thu, không phải chi
+		dto.setExpense(0.0);
 		return dto;
 	}
 }

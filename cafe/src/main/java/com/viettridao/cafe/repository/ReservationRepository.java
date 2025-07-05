@@ -13,11 +13,12 @@ import com.viettridao.cafe.model.ReservationKey;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, ReservationKey> {
-    boolean existsByTableIdAndReservationDateAndReservationTimeAndIsDeletedFalse(
-        Integer tableId, LocalDate date, LocalTime time
-    );
-    Optional<ReservationEntity> findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(Integer tableId);
-    
-    List<ReservationEntity> findByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
+	boolean existsByTableIdAndReservationDateAndReservationTimeAndIsDeletedFalse(Integer tableId, LocalDate date,
+			LocalTime time);
+
+	Optional<ReservationEntity> findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(
+			Integer tableId);
+
+	List<ReservationEntity> findByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
 
 }

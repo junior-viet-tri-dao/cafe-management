@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+      
 <head>
     <title>Thông Tin Bàn</title>
     <meta charset="UTF-8">
 </head>
 <body>
+<div layout:fragment="content">
 
 <h2>🍽 Danh sách món ăn của bàn</h2>
 
@@ -27,7 +31,6 @@
 
 <br/>
 
-<!-- ✅ Thông tin đặt trước -->
 <h3>📋 Thông tin đặt trước</h3>
 <div th:if="${reservation != null}">
     <p><strong>👤 Tên khách:</strong> <span th:text="${reservation.customerName}">Tên khách</span></p>
@@ -51,6 +54,7 @@
 
 <br/>
 <a href="/sale">← Quay lại danh sách bàn</a>
+</div>
 
 </body>
 </html>

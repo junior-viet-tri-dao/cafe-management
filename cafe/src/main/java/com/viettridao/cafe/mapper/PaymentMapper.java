@@ -15,12 +15,9 @@ public class PaymentMapper extends BaseMapper<InvoiceEntity, PaymentRequest, Pay
 		super(modelMapper, InvoiceEntity.class, PaymentRequest.class, PaymentResponse.class);
 	}
 
-	// Nếu bạn cần custom thêm mapping ngoài mặc định
 	@Override
 	public InvoiceEntity fromRequest(PaymentRequest request) {
 		InvoiceEntity invoice = super.fromRequest(request);
-		// Không gán trực tiếp totalAmount, status, v.v. nếu nó là logic xử lý phía
-		// service
 		return invoice;
 	}
 
@@ -29,7 +26,6 @@ public class PaymentMapper extends BaseMapper<InvoiceEntity, PaymentRequest, Pay
 		PaymentResponse response = new PaymentResponse();
 		response.setInvoiceId(entity.getId());
 		response.setTotalAmount(entity.getTotalAmount());
-		// Các field khác như customerCash, change, message cần service set sau
 		return response;
 	}
 }

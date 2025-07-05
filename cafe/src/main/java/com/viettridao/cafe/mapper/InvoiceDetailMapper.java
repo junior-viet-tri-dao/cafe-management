@@ -20,9 +20,7 @@ public class InvoiceDetailMapper extends BaseMapper<InvoiceDetailEntity, Invoice
 	public InvoiceItemResponse toDto(InvoiceDetailEntity entity) {
 		InvoiceItemResponse response = new InvoiceItemResponse();
 
-		// ⚠ Không dùng setId(InvoiceKey) vì response chỉ có Integer id (sửa thành
-		// invoiceId hoặc null)
-		response.setId(entity.getId().getIdInvoice()); // Hoặc có thể set null vì bạn không cần ID composite
+		response.setId(entity.getId().getIdInvoice());
 		response.setItemName(entity.getMenuItem().getItemName());
 		response.setQuantity(entity.getQuantity());
 		response.setUnitPrice(entity.getPrice());
@@ -35,7 +33,6 @@ public class InvoiceDetailMapper extends BaseMapper<InvoiceDetailEntity, Invoice
 	public InvoiceDetailEntity fromRequest(InvoiceItemRequest request) {
 		InvoiceDetailEntity entity = new InvoiceDetailEntity();
 
-		// Gán ID phức hợp
 		InvoiceKey key = new InvoiceKey();
 		key.setIdInvoice(request.getInvoiceId());
 		key.setIdMenuItem(request.getMenuItemId());
@@ -44,7 +41,6 @@ public class InvoiceDetailMapper extends BaseMapper<InvoiceDetailEntity, Invoice
 		entity.setQuantity(request.getQuantity());
 		entity.setIsDeleted(false);
 
-		// ⚠ Giá và liên kết Invoice/MenuItem sẽ được gán bên ngoài (trong service)
 		return entity;
 	}
 }

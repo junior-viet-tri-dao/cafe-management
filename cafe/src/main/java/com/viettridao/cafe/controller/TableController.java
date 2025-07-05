@@ -24,58 +24,61 @@ public class TableController {
 
 	private final TableService tableService;
 
-	// ✅ Danh sách bàn (có phân trang)
 	@GetMapping
 	public String getAllTables(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
 			Model model) {
+		try {
+			if (page < 0) {
+				return "redirect:/sale?page=0";
+			}
 
-		// Ngăn truy cập âm
-		if (page < 0) {
-			return "redirect:/sale?page=0";
+			Page<TableResponse> tablePage = tableService.getAllTables(page, size);
+
+			if (page >= tablePage.getTotalPages() && tablePage.getTotalPages() > 0) {
+				return "redirect:/sale?page=" + (tablePage.getTotalPages() - 1);
+			}
+
+			model.addAttribute("tables", tablePage.getContent());
+			model.addAttribute("currentPage", tablePage.getNumber());
+			model.addAttribute("totalPages", tablePage.getTotalPages());
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi tải danh sách bàn: " + e.getMessage());
 		}
 
-		Page<TableResponse> tablePage = tableService.getAllTables(page, size);
-
-		// Nếu vượt trang cuối
-		if (page >= tablePage.getTotalPages() && tablePage.getTotalPages() > 0) {
-			return "redirect:/sale?page=" + (tablePage.getTotalPages() - 1);
-		}
-
-		model.addAttribute("tables", tablePage.getContent());
-		model.addAttribute("currentPage", tablePage.getNumber());
-		model.addAttribute("totalPages", tablePage.getTotalPages());
-		return "sale/list"; // templates/sale/list.html
+		return "sale/list";
 	}
 
-	// ✅ Xem món đã đặt + thông tin đặt trước (gồm tên nhân viên)
 	@GetMapping("/{tableId}/menu")
 	public String getTableMenu(@PathVariable Integer tableId, Model model) {
-		// Danh sách món đã đặt (nếu có)
-		List<TableMenuItemResponse> menuItems = tableService.getTableMenuItems(tableId);
-		model.addAttribute("menuItems", menuItems);
+		try {
+			List<TableMenuItemResponse> menuItems = tableService.getTableMenuItems(tableId);
+			model.addAttribute("menuItems", menuItems);
 
-		// Thông tin đặt trước (nếu có)
-		ReservationEntity reservation = tableService.getLatestReservationByTableId(tableId);
-		model.addAttribute("reservation", reservation);
+			ReservationEntity reservation = tableService.getLatestReservationByTableId(tableId);
+			model.addAttribute("reservation", reservation);
 
-		// ✅ Lấy trạng thái hóa đơn (nếu có món → có hóa đơn), ngược lại → "Chưa có hóa
-		// đơn"
-		String invoiceStatus;
-		if (menuItems == null || menuItems.isEmpty()) {
-			invoiceStatus = "Chưa có hóa đơn";
-		} else {
-			var invoice = tableService.getLatestUnpaidInvoiceByTableId(tableId);
-			invoiceStatus = (invoice != null) ? invoice.getStatus().name() : "Chưa có hóa đơn";
+			String invoiceStatus;
+			if (menuItems == null || menuItems.isEmpty()) {
+				invoiceStatus = "Chưa có hóa đơn";
+			} else {
+				var invoice = tableService.getLatestUnpaidInvoiceByTableId(tableId);
+				invoiceStatus = (invoice != null) ? invoice.getStatus().name() : "Chưa có hóa đơn";
+			}
+			model.addAttribute("invoiceStatus", invoiceStatus);
+		} catch (Exception e) {
+			model.addAttribute("error", "Lỗi khi hiển thị thông tin bàn: " + e.getMessage());
 		}
-		model.addAttribute("invoiceStatus", invoiceStatus);
 
 		return "sale/menu";
 	}
 
-	// ✅ Tạo hoặc lấy hóa đơn đang mở của bàn
 	@GetMapping("/invoice/create-or-get")
 	public String getOrCreateInvoice(@RequestParam("tableId") Integer tableId) {
-		Integer invoiceId = tableService.getOrCreateInvoiceIdByTableId(tableId);
-		return "redirect:/invoice/item-form?invoiceId=" + invoiceId;
+		try {
+			Integer invoiceId = tableService.getOrCreateInvoiceIdByTableId(tableId);
+			return "redirect:/invoice/item-form?invoiceId=" + invoiceId;
+		} catch (Exception e) {
+			return "redirect:/sale?error=" + e.getMessage();
+		}
 	}
 }

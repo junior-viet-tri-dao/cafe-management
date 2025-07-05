@@ -5,7 +5,12 @@ import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.tables.TableBookingRequest;
 import com.viettridao.cafe.dto.response.tables.TableBookingResponse;
@@ -21,69 +26,61 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservationController {
 
-    private final ReservationService reservationService;
-    private final EmployeeRepository employeeRepository;
+	private final ReservationService reservationService;
+	private final EmployeeRepository employeeRepository;
 
-    // Hiển thị form đặt bàn
-    @GetMapping
-    public String showBookingForm(@RequestParam("tableId") Integer tableId,
-                                  Model model,
-                                  Principal principal) {
-        TableBookingRequest request = new TableBookingRequest();
-        request.setTableId(tableId);
+	@GetMapping
+	public String showBookingForm(@RequestParam("tableId") Integer tableId, Model model, Principal principal) {
+		TableBookingRequest request = new TableBookingRequest();
+		request.setTableId(tableId);
 
-        try {
-            // ✅ Lấy username từ tài khoản đăng nhập
-            String username = principal.getName();
+		try {
+			String username = principal.getName();
 
-            // ✅ Tìm nhân viên qua account.username
-            EmployeeEntity employee = employeeRepository.findByAccountUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với username: " + username));
+			EmployeeEntity employee = employeeRepository.findByAccountUsername(username)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với username: " + username));
 
-            // ✅ Gán employeeId & hiển thị tên
-            request.setEmployeeId(employee.getId());
-            model.addAttribute("employeeName", employee.getFullName());
+			request.setEmployeeId(employee.getId());
+			model.addAttribute("employeeName", employee.getFullName());
 
-        } catch (Exception ex) {
-            model.addAttribute("error", "Không thể lấy thông tin nhân viên.");
-            return "booking/form";
-        }
+		} catch (Exception ex) {
+			model.addAttribute("error", "Không thể lấy thông tin nhân viên.");
+			model.addAttribute("booking", request);
+			return "booking/form";
+		}
 
-        model.addAttribute("booking", request);
-        return "booking/form";
-    }
+		model.addAttribute("booking", request);
+		return "booking/form";
+	}
 
-    // Xử lý form đặt bàn
-    @PostMapping
-    public String bookTable(@ModelAttribute("booking") @Valid TableBookingRequest request,
-                            BindingResult result,
-                            Model model,
-                            Principal principal) {
+	@PostMapping
+	public String bookTable(@ModelAttribute("booking") @Valid TableBookingRequest request, BindingResult result,
+			Model model, Principal principal, RedirectAttributes redirectAttributes) {
 
-        if (result.hasErrors()) {
-            return "booking/form";
-        }
+		if (result.hasErrors()) {
+			return "booking/form";
+		}
 
-        try {
-            // Gán lại nhân viên từ phiên đăng nhập (bảo vệ phía server)
-            String username = principal.getName();
-            EmployeeEntity employee = employeeRepository.findByAccountUsername(username)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên."));
-            request.setEmployeeId(employee.getId());
-            model.addAttribute("employeeName", employee.getFullName());
+		try {
+			String username = principal.getName();
+			EmployeeEntity employee = employeeRepository.findByAccountUsername(username)
+					.orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên."));
+			request.setEmployeeId(employee.getId());
+			model.addAttribute("employeeName", employee.getFullName());
 
-        } catch (Exception e) {
-            model.addAttribute("error", "Lỗi xác định nhân viên đăng nhập.");
-            return "booking/form";
-        }
+			TableBookingResponse response = reservationService.bookTable(request);
 
-        TableBookingResponse response = reservationService.bookTable(request);
+			if (!response.isSuccess()) {
+				model.addAttribute("error", response.getMessage());
+				return "booking/form";
+			}
 
-        if (!response.isSuccess()) {
-            model.addAttribute("error", response.getMessage());
-            return "booking/form";
-        }
+			redirectAttributes.addFlashAttribute("success", "Đặt bàn thành công.");
+			return "redirect:/sale";
 
-        return "redirect:/sale";
-    }
+		} catch (Exception e) {
+			model.addAttribute("error", "Đã xảy ra lỗi trong quá trình đặt bàn.");
+			return "booking/form";
+		}
+	}
 }

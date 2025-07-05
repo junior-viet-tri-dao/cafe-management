@@ -30,122 +30,122 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
-    private final PositionService positionService;
-    private final AccountRepository accountRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final EmployeeMapper employeeMapper;
+	private final EmployeeRepository employeeRepository;
+	private final PositionService positionService;
+	private final AccountRepository accountRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final EmployeeMapper employeeMapper;
 
-    @Override
-    public EmployeePageResponse getAllEmployees(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<EmployeeEntity> employeeEntities;
+	@Override
+	public EmployeePageResponse getAllEmployees(String keyword, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<EmployeeEntity> employeeEntities;
 
-        if (StringUtils.hasText(keyword)) {
-            employeeEntities = employeeRepository.getAllEmployeesBySearch(keyword, pageable);
-        } else {
-            employeeEntities = employeeRepository.getAllEmployees(pageable);
-        }
+		if (StringUtils.hasText(keyword)) {
+			employeeEntities = employeeRepository.getAllEmployeesBySearch(keyword, pageable);
+		} else {
+			employeeEntities = employeeRepository.getAllEmployees(pageable);
+		}
 
-        List<EmployeeResponse> employeeResponses = employeeMapper.toDtoList(employeeEntities.getContent());
+		List<EmployeeResponse> employeeResponses = employeeMapper.toDtoList(employeeEntities.getContent());
 
-        EmployeePageResponse employeePageResponse = new EmployeePageResponse();
-        employeePageResponse.setPageNumber(employeeEntities.getNumber());
-        employeePageResponse.setPageSize(employeeEntities.getSize());
-        employeePageResponse.setTotalElements(employeeEntities.getTotalElements());
-        employeePageResponse.setTotalPages(employeeEntities.getTotalPages());
-        employeePageResponse.setEmployees(employeeResponses); // ✅ QUAN TRỌNG
+		EmployeePageResponse employeePageResponse = new EmployeePageResponse();
+		employeePageResponse.setPageNumber(employeeEntities.getNumber());
+		employeePageResponse.setPageSize(employeeEntities.getSize());
+		employeePageResponse.setTotalElements(employeeEntities.getTotalElements());
+		employeePageResponse.setTotalPages(employeeEntities.getTotalPages());
+		employeePageResponse.setEmployees(employeeResponses); // ✅ QUAN TRỌNG
 
-        return employeePageResponse;
-    }
+		return employeePageResponse;
+	}
 
-    @Transactional
-    @Override
-    public EmployeeEntity createEmployee(CreateEmployeeRequest request) {
-        EmployeeEntity employee = new EmployeeEntity();
-        employee.setFullName(request.getFullName().trim());
-        employee.setPhoneNumber(request.getPhoneNumber().trim());
-        employee.setAddress(request.getAddress().trim());
-        employee.setIsDeleted(false);
+	@Transactional
+	@Override
+	public EmployeeEntity createEmployee(CreateEmployeeRequest request) {
+		EmployeeEntity employee = new EmployeeEntity();
+		employee.setFullName(request.getFullName().trim());
+		employee.setPhoneNumber(request.getPhoneNumber().trim());
+		employee.setAddress(request.getAddress().trim());
+		employee.setIsDeleted(false);
 
-        if (request.getPositionId() != null) {
-            PositionEntity position = positionService.getPositionById(request.getPositionId());
-            employee.setPosition(position);
-        }
+		if (request.getPositionId() != null) {
+			PositionEntity position = positionService.getPositionById(request.getPositionId());
+			employee.setPosition(position);
+		}
 
-        if (StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
-            AccountEntity account = new AccountEntity();
-            account.setUsername(request.getUsername().trim());
-            account.setPassword(passwordEncoder.encode(request.getPassword().trim()));
-            account.setImageUrl(request.getImageUrl().trim());
-            account.setIsDeleted(false);
-            account.setPermission("EMPLOYEE");
+		if (StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
+			AccountEntity account = new AccountEntity();
+			account.setUsername(request.getUsername().trim());
+			account.setPassword(passwordEncoder.encode(request.getPassword().trim()));
+			account.setImageUrl(request.getImageUrl().trim());
+			account.setIsDeleted(false);
+			account.setPermission("EMPLOYEE");
 
-            accountRepository.save(account);
-            employee.setAccount(account);
-        }
+			accountRepository.save(account);
+			employee.setAccount(account);
+		}
 
-        return employeeRepository.save(employee);
-    }
+		return employeeRepository.save(employee);
+	}
 
-    @Transactional
-    @Override
-    public void deleteEmployee(Integer id) {
-        EmployeeEntity employee = getEmployeeById(id);
-        employee.setIsDeleted(true);
-        employeeRepository.save(employee);
-    }
+	@Transactional
+	@Override
+	public void deleteEmployee(Integer id) {
+		EmployeeEntity employee = getEmployeeById(id);
+		employee.setIsDeleted(true);
+		employeeRepository.save(employee);
+	}
 
-    @Transactional
-    @Override
-    public void updateEmployee(UpdateEmployeeRequest request) {
-        EmployeeEntity employee = getEmployeeById(request.getId());
+	@Transactional
+	@Override
+	public void updateEmployee(UpdateEmployeeRequest request) {
+		EmployeeEntity employee = getEmployeeById(request.getId());
 
-        employee.setFullName(request.getFullName().trim());
-        employee.setPhoneNumber(request.getPhoneNumber().trim());
-        employee.setAddress(request.getAddress().trim());
+		employee.setFullName(request.getFullName().trim());
+		employee.setPhoneNumber(request.getPhoneNumber().trim());
+		employee.setAddress(request.getAddress().trim());
 
-        if (request.getPositionId() != null) {
-            PositionEntity position = positionService.getPositionById(request.getPositionId());
-            employee.setPosition(position);
-        }
+		if (request.getPositionId() != null) {
+			PositionEntity position = positionService.getPositionById(request.getPositionId());
+			employee.setPosition(position);
+		}
 
-        if (StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
-            String username = request.getUsername().trim();
-            Optional<AccountEntity> optionalAccount = accountRepository.findByUsername(username);
+		if (StringUtils.hasText(request.getUsername()) && StringUtils.hasText(request.getPassword())) {
+			String username = request.getUsername().trim();
+			Optional<AccountEntity> optionalAccount = accountRepository.findByUsername(username);
 
-            if (optionalAccount.isPresent()) {
-                AccountEntity existingAccount = optionalAccount.get();
+			if (optionalAccount.isPresent()) {
+				AccountEntity existingAccount = optionalAccount.get();
 
-                if (!existingAccount.getEmployee().getId().equals(employee.getId())) {
-                    throw new RuntimeException("Tên đăng nhập đã tồn tại cho nhân viên khác!");
-                }
+				if (!existingAccount.getEmployee().getId().equals(employee.getId())) {
+					throw new RuntimeException("Tên đăng nhập đã tồn tại cho nhân viên khác!");
+				}
 
-                existingAccount.setPassword(passwordEncoder.encode(request.getPassword()));
-                existingAccount.setImageUrl(request.getImageUrl().trim());
-                accountRepository.save(existingAccount);
-            } else {
-                AccountEntity newAccount = new AccountEntity();
-                newAccount.setUsername(username);
-                newAccount.setPassword(passwordEncoder.encode(request.getPassword()));
-                newAccount.setPermission("EMPLOYEE");
-                newAccount.setEmployee(employee);
+				existingAccount.setPassword(passwordEncoder.encode(request.getPassword()));
+				existingAccount.setImageUrl(request.getImageUrl().trim());
+				accountRepository.save(existingAccount);
+			} else {
+				AccountEntity newAccount = new AccountEntity();
+				newAccount.setUsername(username);
+				newAccount.setPassword(passwordEncoder.encode(request.getPassword()));
+				newAccount.setPermission("EMPLOYEE");
+				newAccount.setEmployee(employee);
 
-                if (StringUtils.hasText(request.getImageUrl())) {
-                    newAccount.setImageUrl(request.getImageUrl().trim());
-                }
+				if (StringUtils.hasText(request.getImageUrl())) {
+					newAccount.setImageUrl(request.getImageUrl().trim());
+				}
 
-                accountRepository.save(newAccount);
-                employee.setAccount(newAccount);
-            }
-        }
+				accountRepository.save(newAccount);
+				employee.setAccount(newAccount);
+			}
+		}
 
-        employeeRepository.save(employee);
-    }
+		employeeRepository.save(employee);
+	}
 
-    @Override
-    public EmployeeEntity getEmployeeById(Integer id) {
-        return employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên có id = " + id));
-    }
+	@Override
+	public EmployeeEntity getEmployeeById(Integer id) {
+		return employeeRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên có id = " + id));
+	}
 }

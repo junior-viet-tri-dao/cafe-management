@@ -1,55 +1,62 @@
 package com.viettridao.cafe.service.impl;
 
-import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
-import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
-import com.viettridao.cafe.model.ImportEntity;
-import com.viettridao.cafe.model.ProductEntity;
-import com.viettridao.cafe.repository.ImportRepository;
-import com.viettridao.cafe.repository.ProductRepository;
-import com.viettridao.cafe.service.ImportService;
-import com.viettridao.cafe.service.ProductService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.viettridao.cafe.dto.request.imports.ImportRequest;
+import com.viettridao.cafe.dto.response.imports.ImportResponse;
+import com.viettridao.cafe.mapper.ImportMapper;
+import com.viettridao.cafe.model.EmployeeEntity;
+import com.viettridao.cafe.model.ImportEntity;
+import com.viettridao.cafe.model.ProductEntity;
+import com.viettridao.cafe.repository.EmployeeRepository;
+import com.viettridao.cafe.repository.ImportRepository;
+import com.viettridao.cafe.repository.ProductRepository;
+import com.viettridao.cafe.service.ImportService;
+
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ImportServiceImpl implements ImportService {
-    private final ImportRepository importRepository;
-    private final ProductRepository productRepository;
-    private final ProductService productService;
 
-    @Transactional
-    @Override
-    public ImportEntity createImport(CreateImportRequest request) {
-        ImportEntity importEntity = new ImportEntity();
-        importEntity.setImportDate(request.getImportDate());
-        importEntity.setQuantity(request.getQuantity());
+	private final ImportRepository importRepository;
+	private final ProductRepository productRepository;
+	private final EmployeeRepository employeeRepository;
+	private final ImportMapper importMapper;
 
-        ProductEntity product = productService.getProductById(request.getProductId());
-        product.setQuantity(product.getQuantity() + request.getQuantity());
+	@Override
+	public ImportResponse createImport(ImportRequest request) {
+		ProductEntity product = productRepository.findByIdAndIsDeletedFalse(request.getProductId())
+				.orElseThrow(() -> new RuntimeException("Hàng hóa không tồn tại"));
 
-        productRepository.save(product);
-        importEntity.setProduct(product);
+		EmployeeEntity employee = employeeRepository.findById(request.getEmployeeId())
+				.orElseThrow(() -> new RuntimeException("Nhân viên không tồn tại"));
 
-        return importRepository.save(importEntity);
-    }
+		ImportEntity entity = importMapper.fromRequest(request);
+		entity.setProduct(product);
+		entity.setEmployee(employee);
+		entity.setIsDeleted(false);
 
-    @Transactional
-    @Override
-    public void updateImport(UpdateImportRequest request) {
-        ImportEntity importEntity = getImportById(request.getId());
-        importEntity.setImportDate(request.getImportDate());
-        importEntity.setQuantity(request.getQuantity());
+		entity.setTotalAmount(request.getQuantity() * request.getProductPrice());
 
-        ProductEntity product = productService.getProductById(request.getProductId());
-        importEntity.setProduct(product);
+		product.setQuantity(product.getQuantity() + request.getQuantity());
 
-        importRepository.save(importEntity);
-    }
+		importRepository.save(entity);
+		return importMapper.toDto(entity);
+	}
 
-    @Override
-    public ImportEntity getImportById(Integer id) {
-        return importRepository.findById(id).orElseThrow(()-> new RuntimeException("Không tìm thấy đơn nhập có id=" + id));
-    }
+	@Override
+	public List<ImportResponse> getImportsByProduct(Integer productId) {
+		List<ImportEntity> list = importRepository.findByProductIdAndIsDeletedFalse(productId);
+		return importMapper.toDtoList(list);
+	}
+
+	@Override
+	public List<ImportResponse> getAll() {
+		return importMapper.toDtoList(importRepository.findByIsDeletedFalse());
+	}
 }

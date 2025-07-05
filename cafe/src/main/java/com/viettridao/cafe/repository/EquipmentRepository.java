@@ -14,12 +14,12 @@ import com.viettridao.cafe.model.EquipmentEntity;
 
 @Repository
 public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Integer> {
-    @Query("select e from EquipmentEntity e where e.isDeleted = false")
-    List<EquipmentEntity> getAllEquipments();
+	@Query("select e from EquipmentEntity e where e.isDeleted = false")
+	List<EquipmentEntity> getAllEquipments();
 
-    @Query("select e from EquipmentEntity e where e.isDeleted = false")
-    Page<EquipmentEntity> getAllEquipmentsByPage(Pageable pageable);
-    
-    @Query("SELECT e FROM EquipmentEntity e WHERE e.purchaseDate BETWEEN :from AND :to AND e.isDeleted = false")
-    List<EquipmentEntity> findEquipmentsBetweenDates(@Param("from") LocalDate from, @Param("to") LocalDate to);
+	@Query("select e from EquipmentEntity e where e.isDeleted = false")
+	Page<EquipmentEntity> getAllEquipmentsByPage(Pageable pageable);
+
+	@Query("SELECT e FROM EquipmentEntity e WHERE e.purchaseDate BETWEEN :from AND :to AND e.isDeleted = false")
+	List<EquipmentEntity> findEquipmentsBetweenDates(@Param("from") LocalDate from, @Param("to") LocalDate to);
 }

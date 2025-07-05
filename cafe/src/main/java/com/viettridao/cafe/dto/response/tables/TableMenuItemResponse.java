@@ -6,9 +6,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TableMenuItemResponse {
-    private Integer menuItemId; 
+	
+	private Integer menuItemId;
+	
 	private String itemName;
+	
 	private Integer quantity;
-	private Double price;  
+	
+	private Double price;
+	
 	private Double amount;
 }

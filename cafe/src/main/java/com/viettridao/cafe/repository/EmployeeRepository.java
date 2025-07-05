@@ -28,4 +28,9 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
 			""")
 	Optional<EmployeeEntity> findByAccountUsername(@Param("username") String username);
 
+	@Query("SELECT SUM(e.position.salary) FROM EmployeeEntity e WHERE e.isDeleted = false AND e.position IS NOT NULL")
+	Double sumAllSalaries();
+
+	Optional<EmployeeEntity> findByIdAndIsDeletedFalse(Integer id);
+
 }

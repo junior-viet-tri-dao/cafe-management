@@ -6,7 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TableBookingResponse {
+	
 	private boolean success;
+	
 	private String message;
 
 	public TableBookingResponse() {

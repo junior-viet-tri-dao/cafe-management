@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.viettridao.cafe.dto.request.Pay.PaymentRequest;
 import com.viettridao.cafe.dto.response.Pay.PaymentResponse;
@@ -20,69 +24,82 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    private final TableService tableService;
-    private final PaymentService paymentService;
+	private final TableService tableService;
+	private final PaymentService paymentService;
 
-    // ✅ Hiển thị form thanh toán cho bàn được chọn
-    @GetMapping("/{tableId}")
-    public String showPaymentForm(@PathVariable Integer tableId, Model model) {
-        List<TableMenuItemResponse> items = tableService.getTableMenuItems(tableId);
+	@GetMapping("/{tableId}")
+	public String showPaymentForm(@PathVariable Integer tableId, Model model) {
+		List<TableMenuItemResponse> items = tableService.getTableMenuItems(tableId);
 
-        double total = items.stream()
-                .mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0)
-                .sum();
+		double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
 
-        PaymentRequest request = new PaymentRequest();
-        request.setTableId(tableId);
-        request.setCustomerCash(0.0);
-        request.setFreeTable(true);
+		PaymentRequest request = new PaymentRequest();
+		request.setTableId(tableId);
+		request.setCustomerCash(0.0);
+		request.setFreeTable(true);
 
-        // ✅ Lấy nhân viên đặt bàn
-        ReservationEntity reservation = tableService.getLatestReservationByTableId(tableId);
-        String employeeName = (reservation != null && reservation.getEmployee() != null)
-                ? reservation.getEmployee().getFullName()
-                : "Không xác định";
+		ReservationEntity reservation = tableService.getLatestReservationByTableId(tableId);
+		String employeeName = (reservation != null && reservation.getEmployee() != null)
+				? reservation.getEmployee().getFullName()
+				: "Không xác định";
 
-        model.addAttribute("tableId", tableId);
-        model.addAttribute("menuItems", items);
-        model.addAttribute("totalAmount", total);
-        model.addAttribute("employeeName", employeeName);
-        model.addAttribute("paymentRequest", request);
+		model.addAttribute("tableId", tableId);
+		model.addAttribute("menuItems", items);
+		model.addAttribute("totalAmount", total);
+		model.addAttribute("employeeName", employeeName);
+		model.addAttribute("paymentRequest", request);
 
-        return "sale/form";
-    }
+		return "sale/form";
+	}
 
-    // ✅ Xử lý thanh toán sau khi submit form
-    @PostMapping("/process")
-    public String processPayment(@ModelAttribute("paymentRequest") PaymentRequest request, Model model) {
-        PaymentResponse response = paymentService.processPayment(request);
+	@PostMapping("/process")
+	public String processPayment(@ModelAttribute("paymentRequest") PaymentRequest request, Model model) {
+		try {
+			PaymentResponse response = paymentService.processPayment(request);
 
-        if (!Boolean.TRUE.equals(response.isSuccess())) {
-            // ⚠️ Trả lại trang thanh toán khi thất bại
-            model.addAttribute("error", response.getMessage());
+			if (!Boolean.TRUE.equals(response.isSuccess())) {
+				model.addAttribute("error", response.getMessage());
 
-            List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
-            double total = items.stream()
-                    .mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0)
-                    .sum();
+				List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
+				double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0)
+						.sum();
 
-            ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
-            String employeeName = (reservation != null && reservation.getEmployee() != null)
-                    ? reservation.getEmployee().getFullName()
-                    : "Không xác định";
+				ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
+				String employeeName = (reservation != null && reservation.getEmployee() != null)
+						? reservation.getEmployee().getFullName()
+						: "Không xác định";
 
-            model.addAttribute("tableId", request.getTableId());
-            model.addAttribute("menuItems", items);
-            model.addAttribute("totalAmount", total);
-            model.addAttribute("employeeName", employeeName);
-            model.addAttribute("paymentRequest", request);
+				model.addAttribute("tableId", request.getTableId());
+				model.addAttribute("menuItems", items);
+				model.addAttribute("totalAmount", total);
+				model.addAttribute("employeeName", employeeName);
+				model.addAttribute("paymentRequest", request);
 
-            return "sale/form";
-        }
+				return "sale/form";
+			}
 
-        // ✅ Trường hợp thanh toán thành công
-        model.addAttribute("response", response);
-        model.addAttribute("success", response.getMessage());
-        return "sale/result";
-    }
+			model.addAttribute("response", response);
+			model.addAttribute("success", response.getMessage());
+			return "sale/result";
+
+		} catch (Exception e) {
+			model.addAttribute("error", "Đã xảy ra lỗi khi xử lý thanh toán.");
+
+			List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
+			double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
+
+			ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
+			String employeeName = (reservation != null && reservation.getEmployee() != null)
+					? reservation.getEmployee().getFullName()
+					: "Không xác định";
+
+			model.addAttribute("tableId", request.getTableId());
+			model.addAttribute("menuItems", items);
+			model.addAttribute("totalAmount", total);
+			model.addAttribute("employeeName", employeeName);
+			model.addAttribute("paymentRequest", request);
+
+			return "sale/form";
+		}
+	}
 }

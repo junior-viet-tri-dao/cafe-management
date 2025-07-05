@@ -12,13 +12,6 @@
 
     <h1 class="text-2xl font-bold mb-4">Gộp bàn</h1>
 
-    <div th:if="${successMessage}" class="bg-green-100 text-green-800 p-3 rounded mb-4">
-        ✅ <span th:text="${successMessage}"></span>
-    </div>
-    <div th:if="${errorMessage}" class="bg-red-100 text-red-800 p-3 rounded mb-4">
-        ❌ <span th:text="${errorMessage}"></span>
-    </div>
-
     <form th:action="@{/sale/merge-tables}" method="post" class="space-y-6">
 
         <div>

@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UnitResponse {
-    private Integer id;
 
-    private String unitName;
+	private Integer id;
+
+	private String unitName;
 }
