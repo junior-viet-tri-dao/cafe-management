@@ -1,5 +1,6 @@
 package com.viettridao.cafe.service;
 
+import com.viettridao.cafe.model.AccountEntity;
 import com.viettridao.cafe.repository.AccountRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,11 @@ public class UserServiceDetail implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản có username = " + username));
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        if (account.getEmployee() == null) {
+            throw new RuntimeException("No Employee associated with account: " + username);
+        }
+        return account; // Assuming AccountEntity implements UserDetails
     }
 }

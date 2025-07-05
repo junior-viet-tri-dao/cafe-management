@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,4 +21,16 @@ public class InvoiceKey {
 
     @Column(name = "menu_item_id")
     private Integer idMenuItem;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        InvoiceKey that = (InvoiceKey) o;
+        return Objects.equals(idInvoice, that.idInvoice) && Objects.equals(idMenuItem, that.idMenuItem);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idInvoice, idMenuItem);
+    }
 }

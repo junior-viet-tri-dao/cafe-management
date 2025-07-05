@@ -21,7 +21,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class AppConfig {
     private static final String[] AUTH_WHITELIST = {
-            "/login", "/js/**"
+            "/login", "/js/**", "/sale/**"
     };
     private final UserServiceDetail userServiceDetail;
 

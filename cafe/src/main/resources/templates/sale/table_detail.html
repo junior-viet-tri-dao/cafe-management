@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title layout:title-pattern="Chi tiết bàn - Cafe Management">Chi tiết bàn</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="container my-5">
+    <strong><h2 class="text-center text-primary mb-4">
+      ☕ Chi tiết
+      <span th:text="${table.getTableName()}">Tên bàn</span>
+    </h2></strong>
+
+
+    <div th:if="${errorMessage}" class="alert alert-warning text-center" th:text="${errorMessage}">Không có dữ liệu</div>
+
+    <div th:if="${invoice != null}">
+      <h4>🔖 Hóa đơn</h4>
+      <ul class="list-group mb-3">
+        <li class="list-group-item"><strong>Mã hóa đơn:</strong> <span th:text="${invoice.id}">ID</span></li>
+        <li class="list-group-item"><strong>Trạng thái:</strong> <span th:text="${invoice.status}">Trạng thái</span></li>
+        <li class="list-group-item"><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(invoice.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày</span></li>
+        <li class="list-group-item"><strong>Tổng tiền:</strong> <span th:text="${invoice.totalAmount} + ' đ'">0</span></li>
+      </ul>
+
+      <h4>🧾 Chi tiết món</h4>
+      <table class="table table-bordered table-hover">
+        <thead class="table-light">
+        <tr>
+          <th>Tên món</th>
+          <th>Số lượng</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="detail : ${invoice.invoiceDetails}">
+          <td th:text="${detail.menuItem.itemName}">Tên</td>
+          <td th:text="${detail.quantity}">SL</td>
+          <td th:text="${detail.price} + ' VNĐ'">Đơn giá</td>
+          <td th:text="${detail.quantity * detail.price} + ' đ'">Thành tiền</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <h4>👤 Đặt bàn</h4>
+      <div th:if="${reservation != null}" class="card p-3">
+        <p><strong>Tên khách:</strong> <span th:text="${reservation.customerName}">Tên</span></p>
+        <p><strong>Số điện thoại:</strong> <span th:text="${reservation.customerPhone}">SĐT</span></p>
+        <p><strong>Thời gian:</strong> <span th:text="${#temporals.format(reservation.reservationDate, 'dd/MM/yyyy HH:mm')}">Giờ</span></p>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a th:href="@{/sale}" class="btn btn-secondary">⬅ Quay lại danh sách bàn</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

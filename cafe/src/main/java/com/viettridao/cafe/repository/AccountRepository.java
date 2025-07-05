@@ -21,4 +21,5 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Integer>
     @EntityGraph(attributePaths = {"employee", "employee.position"})
     Optional<AccountEntity> findById(Integer id);
 
+    AccountEntity getAccountByUsername(String username);
 }

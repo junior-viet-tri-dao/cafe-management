@@ -31,7 +31,7 @@ public class AccountEntity implements Serializable, UserDetails {
     @Column(name = "permissions")
     private String permission;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 1024)
     private String imageUrl;
 
     @Column(name = "is_deleted")

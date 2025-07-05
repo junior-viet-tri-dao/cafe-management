@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Thanh toán</title>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const amountPaidInput = document.getElementById("amountPaid");
+            const changeInput = document.querySelector("input[readonly]"); // tiền thối lại
+            const totalAmount = /*[[${invoice.totalAmount}]]*/ 0;
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+            }
+
+            function updateChange() {
+                const paid = parseFloat(amountPaidInput.value) || 0;
+                const change = paid - totalAmount;
+                changeInput.value = (change >= 0 ? formatCurrency(change) : "0 đ");
+            }
+
+            amountPaidInput.addEventListener("input", updateChange);
+            updateChange(); // khởi tạo
+        });
+    </script>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container my-5">
+
+        <h2 class="text-primary text-center mb-4">🧾 Thanh toán hóa đơn</h2>
+
+        <div th:if="${errorMessage}" class="alert alert-danger text-center" th:text="${errorMessage}">Lỗi</div>
+        <div th:if="${successMessage}" class="alert alert-success text-center" th:text="${successMessage}">Thành công</div>
+
+        <div class="card p-4 mb-4">
+            <h5>Thông tin hóa đơn</h5>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Bàn:</strong> <span th:text="${table.tableName}">Tên bàn</span></li>
+                <li class="list-group-item"><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(invoice.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày</span></li>
+                <li class="list-group-item"><strong>Tổng tiền:</strong> <span th:text="${invoice.totalAmount} + ' đ'">0</span></li>
+            </ul>
+        </div>
+
+        <form th:action="@{/sale/payment}" method="post" class="mb-4">
+            <input type="hidden" name="tableId" th:value="${table.id}" />
+
+            <div class="mb-3">
+                <label for="amountPaid" class="form-label">💵 Tiền khách đưa (VNĐ)</label>
+                <input type="number" class="form-control" id="amountPaid" name="amountPaid"
+                       th:value="${amountPaid}" required min="0" step="1000">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">💰 Tiền thối lại</label>
+                <input type="text" class="form-control" readonly th:value="${change} + ' đ'" />
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a th:href="@{/sale}" class="btn btn-secondary">⬅ Quay lại</a>
+                <button type="submit" class="btn btn-success">✅ Xác nhận thanh toán</button>
+                <a th:href="@{/sale/payment/pdf(tableId=${table.id})}" class="btn btn-outline-primary mt-3">
+                    📄 Xuất PDF
+                </a>
+
+            </div>
+        </form>
+
+        <div>
+            <h5>Chi tiết món</h5>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Tên món</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detail : ${invoice.invoiceDetails}">
+                    <td th:text="${detail.menuItem.itemName}">Món</td>
+                    <td th:text="${detail.quantity}">SL</td>
+                    <td th:text="${detail.price} + ' đ'">Giá</td>
+                    <td th:text="${detail.price * detail.quantity} + ' đ'">Tổng</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

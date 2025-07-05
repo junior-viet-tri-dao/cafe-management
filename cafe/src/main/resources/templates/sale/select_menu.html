@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title layout:fragment="title">Chọn món</title>
+
+    <script th:inline="javascript">
+        let menuItems = /*[[${menuItems}]]*/ [];
+
+        function addMenuRow() {
+            const tableBody = document.getElementById("menuTableBody");
+            const rowCount = tableBody.rows.length;
+
+            const newRow = document.createElement("tr");
+
+            const menuOptions = menuItems.map(item =>
+                `<option value="${item.id}" data-price="${item.currentPrice}">${item.itemName}</option>`
+            ).join("");
+
+            newRow.innerHTML = `
+                <td>
+                    <select class="form-select" name="invoiceDetails[${rowCount}].menuItemId"
+                            onchange="updatePrice(this, ${rowCount})" required>
+                        <option value="">-- Chọn món --</option>
+                        ${menuOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="form-control"
+                           name="invoiceDetails[${rowCount}].price"
+                           id="price-${rowCount}" step="0.01" readonly placeholder="Giá (VNĐ)">
+                </td>
+                <td>
+                    <input type="number" class="form-control" min="0"
+                           name="invoiceDetails[${rowCount}].quantity"
+                           placeholder="Số lượng" required>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button>
+                </td>
+            `;
+
+            tableBody.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            const row = button.closest("tr");
+            row.remove();
+        }
+
+        function updatePrice(selectElement, index) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const price = selectedOption.getAttribute("data-price") || "";
+            document.getElementById("price-" + index).value = price;
+        }
+    </script>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container my-5">
+        <h2 class="text-center text-primary mb-4">🍽️ Chọn món cho <span th:text="${table.tableName}">Bàn</span></h2>
+
+        <form method="post" th:action="@{/sale/select}" th:object="${invoiceRequest}">
+            <input type="hidden" th:field="*{tableId}" />
+
+            <table class="table table-bordered align-middle">
+                <thead class="table-primary">
+                <tr>
+                    <th>Món</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="menuTableBody">
+                <!-- Ban đầu trống -->
+                </tbody>
+            </table>
+
+            <button type="button" class="btn btn-outline-primary mb-3" onclick="addMenuRow()">+ Thêm món</button>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success">✅ Xác nhận chọn món</button>
+                <a th:href="@{/sale}" class="btn btn-secondary">⬅ Quay lại</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

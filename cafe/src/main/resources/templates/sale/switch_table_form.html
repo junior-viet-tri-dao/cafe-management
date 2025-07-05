@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chuyển bàn</title>
+</head>
+<body>
+<h2>Chuyển bàn</h2>
+
+<form th:action="@{/sale/switch}" method="post" onsubmit=" return validateSwitchForm()">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <label for="targetTableId">Chọn bàn đích:</label>
+    <select name="targetTableId" id="targetTableId" class="form-control">
+        <option value="">-- Chọn bàn --</option>
+        <option th:each="table : ${tables}" th:value="${table.id}" th:text="${table.tableName}"
+                th:if="${table.id != currentTableId}"></option>
+    </select>
+
+    <input type="hidden" name="sourceTableId" th:value="${currentTableId}"/>
+
+    <button type="submit" class="btn btn-primary mt-2">Chuyển bàn</button>
+</form>
+<a href="/sale">← Quay lại danh sách bàn</a>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout}">
+<head>
+    <title>Tách bàn</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h2 class="mb-4">🔀 Tách bàn</h2>
+
+        <!-- Thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <div class="row">
+            <!-- Bàn nguồn -->
+            <!-- Bàn nguồn -->
+            <div class="col-md-5">
+                <h5 class="text-center text-primary" th:text="'🪑 ' + ${sourceTable.tableName}">Bàn nguồn</h5>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Món</th>
+                        <th>Còn lại</th>
+                        <th>Chuyển món</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${sourceInvoice.invoiceDetails}">
+                        <td th:text="${item.menuItem.itemName}"></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td>
+                            <form th:action="@{/sale/split-item}" method="post" class="d-inline">
+                                <input type="hidden" name="itemId" th:value="${item.menuItem.id}" />
+                                <input type="hidden" name="sourceTableId" th:value="${sourceTable.id}" />
+                                <input type="hidden" name="targetTableId" th:value="${targetTableId}" />
+                                <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" required
+                                       class="form-control form-control-sm d-inline-block" style="width: 60px;" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">➡</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bàn đích -->
+            <div class="col-md-5">
+                <h5 class="text-center text-primary" th:text="'🪑 ' + ${targetTableName}">Bàn đích</h5>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Món</th>
+                        <th>Đã chuyển</th>
+                        <th>Trả lại</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${targetInvoice.invoiceDetails}">
+                        <td th:text="${item.menuItem.itemName}"></td>
+                        <td th:text="${item.quantity}"></td>
+                        <td>
+                            <form th:action="@{/sale/split-item}" method="post" class="d-inline">
+                                <input type="hidden" name="itemId" th:value="${item.menuItem.id}" />
+                                <input type="hidden" name="sourceTableId" th:value="${targetTableId}" />
+                                <input type="hidden" name="targetTableId" th:value="${sourceTable.id}" />
+                                <input type="number" name="quantity" min="1" th:attr="max=${item.quantity}" required
+                                       class="form-control form-control-sm d-inline-block" style="width: 60px;" />
+                                <button type="submit" class="btn btn-sm btn-outline-success">⬅</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Quay lại -->
+        <div class="text-center mt-4">
+            <a href="/sale" class="btn btn-outline-secondary">← Quay lại</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

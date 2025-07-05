@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout}">
+<head>
+    <title>Gộp bàn</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <h2 class="mb-4">🪑 Gộp bàn</h2>
+
+        <!-- Thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Form gộp bàn -->
+        <form th:action="@{/sale/merge}" method="post" onsubmit="return validateMergeForm()"
+              class="border p-4 bg-white shadow rounded-3">
+
+            <!-- Chọn bàn đích -->
+            <div class="mb-3">
+                <label for="targetTableId" class="form-label fw-semibold">Chọn bàn đích:</label>
+                <select name="targetTableId" id="targetTableId" class="form-select" required>
+                    <option value="">-- Chọn bàn --</option>
+                    <option th:each="table : ${tables}"
+                            th:value="${table.id}"
+                            th:text="${table.tableName}"></option>
+                </select>
+            </div>
+
+            <!-- Chọn các bàn cần gộp -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Chọn các bàn cần gộp vào:</label>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2">
+                    <div th:each="table : ${tables}">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="sourceTableIds"
+                                   th:value="${table.id}"
+                                   th:id="'table_' + ${table.id}" />
+                            <label class="form-check-label" th:for="'table_' + ${table.id}"
+                                   th:text="${table.tableName}">Bàn</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-3">🔗 Gộp bàn</button>
+        </form>
+
+        <div class="mt-4">
+            <a href="/sale" class="btn btn-outline-secondary">← Quay lại danh sách bàn</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

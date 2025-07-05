@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title layout:title-pattern="Cafe Management">Đặt bàn</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="container my-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-success">📝 Đặt bàn</h2>
+        </div>
+
+        <form th:action="@{/sale/reservation}" th:object="${reservation}" method="post" class="card shadow p-4 mx-auto" style="max-width: 600px;">
+
+            <!-- tableId ẩn vì đã truyền từ trang trước -->
+            <input type="hidden" th:field="*{tableId}"/>
+
+            <div class="mb-3">
+                <label for="customerName" class="form-label">Tên khách hàng</label>
+                <input type="text" class="form-control" th:field="*{customerName}" id="customerName" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="customerPhone" class="form-label">SĐT khách hàng</label>
+                <input type="text" class="form-control" th:field="*{customerPhone}" id="customerPhone" required pattern="0[0-9]{9,10}" title="SĐT hợp lệ bắt đầu bằng 0 và có 10-11 số">
+            </div>
+
+            <div class="mb-3">
+                <label for="reservationDate" class="form-label">Thời gian đặt bàn</label>
+                <input type="datetime-local" class="form-control" th:field="*{reservationDate}" id="reservationDate" required>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a th:href="@{/sale}" class="btn btn-secondary">← Quay lại</a>
+                <button type="submit" class="btn btn-primary">Xác nhận đặt bàn</button>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>
