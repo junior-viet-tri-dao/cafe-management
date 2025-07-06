@@ -5,90 +5,111 @@
 <head>
     <meta charset="UTF-8">
     <title>Báo cáo thống kê</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div layout:fragment="content">
+<body class="bg-gray-100 text-gray-800">
+<div layout:fragment="content" class="max-w-6xl mx-auto p-6 bg-white mt-8 rounded shadow">
 
-<h1>Báo cáo thống kê</h1>
+    <h1 class="text-2xl font-bold text-blue-700 mb-6">📊 Báo cáo thống kê</h1>
 
-<!-- Form chọn thời gian và loại báo cáo -->
-<form method="get" th:action="@{/report/statistics}">
-    <label>Từ ngày:
-        <input type="date" name="from" th:value="${from}" required />
-    </label>
-    <label>Đến ngày:
-        <input type="date" name="to" th:value="${to}" required />
-    </label>
-    <label>Loại báo cáo:
-        <select name="type" required>
-            <option value="" disabled th:if="${type == null}">-- Chọn loại báo cáo --</option>
-            <option th:each="t : ${types}"
-                    th:value="${t}"
-                    th:text="${t}"
-                    th:selected="${t == type}">
-            </option>
-        </select>
-    </label>
-    <button type="submit">Xem</button>
-</form>
+    <!-- Form chọn thời gian và loại báo cáo -->
+    <form method="get" th:action="@{/report/statistics}" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div>
+            <label class="block font-medium mb-1">Từ ngày:</label>
+            <input type="date" name="from" th:value="${from}" required class="w-full border px-3 py-2 rounded" />
+        </div>
+        <div>
+            <label class="block font-medium mb-1">Đến ngày:</label>
+            <input type="date" name="to" th:value="${to}" required class="w-full border px-3 py-2 rounded" />
+        </div>
+        <div>
+            <label class="block font-medium mb-1">Loại báo cáo:</label>
+            <select name="type" required class="w-full border px-3 py-2 rounded">
+                <option value="" disabled th:if="${type == null}">-- Chọn loại --</option>
+                <option th:each="t : ${types}" th:value="${t}" th:text="${t}" th:selected="${t == type}"></option>
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Xem</button>
+        </div>
+    </form>
 
-<!-- Bảng dữ liệu -->
-<table border="1">
-    <thead>
-    <tr>
-        <th>Ngày</th>
-        <th>Thu</th>
-        <th>Chi</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="report : ${reports}">
-        <td th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}"></td>
-        <td th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
-        <td th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
-    </tr>
-    </tbody>
-</table>
+    <!-- Bảng dữ liệu -->
+    <div class="overflow-x-auto mb-8">
+        <table class="min-w-full border border-gray-300 bg-white text-center">
+            <thead class="bg-gray-200">
+            <tr>
+                <th class="py-2 px-4 border">📅 Ngày</th>
+                <th class="py-2 px-4 border text-green-700">Thu</th>
+                <th class="py-2 px-4 border text-red-700">Chi</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report : ${reports}" class="hover:bg-gray-50">
+                <td class="border py-2 px-4" th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}"></td>
+                <td class="border py-2 px-4 text-green-600" th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+                <td class="border py-2 px-4 text-red-600" th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="bg-gray-100 font-semibold">
+                <td class="py-2 px-4 text-right">Tổng:</td>
+                <td class="py-2 px-4 text-green-700" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td class="py-2 px-4 text-red-700" th:text="${#numbers.formatDecimal(totalExpense, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
 
-<!-- Xuất báo cáo -->
-<h2>Xuất báo cáo</h2>
-<form method="get" th:action="@{/report/export}">
-    <input type="hidden" name="from" th:value="${from}" />
-    <input type="hidden" name="to" th:value="${to}" />
-    <input type="hidden" name="type" th:value="${type}" />
+    <!-- Xuất báo cáo -->
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">📤 Xuất báo cáo</h2>
+        <form method="get" th:action="@{/report/export}" class="flex flex-col md:flex-row items-center gap-4">
+            <input type="hidden" name="from" th:value="${from}" />
+            <input type="hidden" name="to" th:value="${to}" />
+            <input type="hidden" name="type" th:value="${type}" />
+            <div class="flex gap-3 items-center">
+                <label class="font-medium">Định dạng:</label>
+                <label><input type="radio" name="format" value="TXT" checked class="mr-1">.txt</label>
+                <label><input type="radio" name="format" value="XLS" class="ml-3 mr-1">.xls</label>
+                <label><input type="radio" name="format" value="SQL" class="ml-3 mr-1">.sql</label>
+            </div>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                💾 Xuất file
+            </button>
+        </form>
+    </div>
 
-    <label>Định dạng:
-        <input type="radio" name="format" value="TXT" checked /> .txt
-        <input type="radio" name="format" value="XLS" /> .xls
-        <input type="radio" name="format" value="SQL" /> .sql
-    </label>
-    <button type="submit">Xuất file</button>
-</form>
-
-<!-- In báo cáo -->
-<h2>In báo cáo</h2>
-<form method="post" th:action="@{/report/print}">
-    <label>Khổ giấy:
-        <select name="paperSize" required>
-            <option value="A4">A4</option>
-            <option value="A5">A5</option>
-            <option value="Letter">Letter</option>
-        </select>
-    </label>
-
-    <label>Máy in:
-        <select name="printerName" required>
-            <option value="Printer1">Printer1</option>
-            <option value="Printer2">Printer2</option>
-        </select>
-    </label>
-
-    <label>Số lượng:
-        <input type="number" name="copies" min="1" value="1" required />
-    </label>
-
-    <button type="submit">In</button>
-</form>
+    <!-- In báo cáo -->
+    <div>
+        <h2 class="text-xl font-semibold mb-2">🖨️ In báo cáo</h2>
+        <form method="post" th:action="@{/report/print}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label class="block font-medium mb-1">Khổ giấy:</label>
+                <select name="paperSize" required class="w-full border px-3 py-2 rounded">
+                    <option value="A4">A4</option>
+                    <option value="A5">A5</option>
+                    <option value="Letter">Letter</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-medium mb-1">Máy in:</label>
+                <select name="printerName" required class="w-full border px-3 py-2 rounded">
+                    <option value="Printer1">Printer1</option>
+                    <option value="Printer2">Printer2</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-medium mb-1">Số lượng:</label>
+                <input type="number" name="copies" min="1" value="1" required class="w-full border px-3 py-2 rounded" />
+            </div>
+            <div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                    🖨️ In
+                </button>
+            </div>
+        </form>
+    </div>
 
 </div>
 </body>

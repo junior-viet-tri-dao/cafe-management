@@ -30,76 +30,97 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReportController {
 
-	private final ReportService reportService;
+    private final ReportService reportService;
 
-	@GetMapping("/statistics")
-	public String viewReport(
-			@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-			@RequestParam(name = "type", required = false, defaultValue = "ALL") ReportType type, Model model) {
-		try {
-			if (from == null)
-				from = LocalDate.now().minusDays(7);
-			if (to == null)
-				to = LocalDate.now();
+    @GetMapping("/statistics")
+    public String viewReport(
+            @RequestParam(name = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(name = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(name = "type", required = false, defaultValue = "ALL") ReportType type,
+            Model model) {
 
-			List<ReportItemResponse> reports = reportService.getReport(from, to, type);
+        try {
+            if (from == null) from = LocalDate.now().minusDays(7);
+            if (to == null) to = LocalDate.now();
 
-			model.addAttribute("reports", reports);
-			model.addAttribute("from", from);
-			model.addAttribute("to", to);
-			model.addAttribute("type", type);
-			model.addAttribute("types", Arrays.asList(ReportType.values()));
-		} catch (Exception e) {
-			model.addAttribute("error", "Đã xảy ra lỗi khi tải dữ liệu thống kê.");
-		}
+            List<ReportItemResponse> reports = reportService.getReport(from, to, type);
 
-		return "report/statistics";
-	}
+            double totalRevenue = reports.stream()
+                    .mapToDouble(r -> r.getRevenue() != null ? r.getRevenue() : 0.0)
+                    .sum();
+            double totalExpense = reports.stream()
+                    .mapToDouble(r -> r.getExpense() != null ? r.getExpense() : 0.0)
+                    .sum();
 
-	@GetMapping("/export")
-	public ResponseEntity<Resource> exportReport(
-			@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-			@RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-			@RequestParam("type") ReportType type, @RequestParam("format") String format) {
-		try {
-			List<ReportItemResponse> reports = reportService.getReport(from, to, type);
+            model.addAttribute("reports", reports);
+            model.addAttribute("from", from);
+            model.addAttribute("to", to);
+            model.addAttribute("type", type);
+            model.addAttribute("types", Arrays.asList(ReportType.values()));
+            model.addAttribute("totalRevenue", totalRevenue);
+            model.addAttribute("totalExpense", totalExpense);
 
-			StringBuilder content = new StringBuilder("Ngày\tThu\tChi\n");
-			for (ReportItemResponse r : reports) {
-				content.append(r.getDate()).append("\t").append(r.getRevenue()).append("\t").append(r.getExpense())
-						.append("\n");
-			}
+        } catch (Exception e) {
+            model.addAttribute("error", "Đã xảy ra lỗi khi tải dữ liệu thống kê.");
+        }
 
-			byte[] data = content.toString().getBytes(StandardCharsets.UTF_8);
-			String fileName = "report." + format.toLowerCase();
-			ByteArrayResource resource = new ByteArrayResource(data);
+        return "report/statistics";
+    }
 
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-					.contentLength(data.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportReport(
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam("type") ReportType type,
+            @RequestParam("format") String format) {
 
-		} catch (Exception e) {
-			byte[] errorData = "Lỗi khi xuất báo cáo.".getBytes(StandardCharsets.UTF_8);
-			ByteArrayResource resource = new ByteArrayResource(errorData);
+        try {
+            List<ReportItemResponse> reports = reportService.getReport(from, to, type);
 
-			return ResponseEntity.internalServerError()
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=error.txt")
-					.contentLength(errorData.length).contentType(MediaType.TEXT_PLAIN).body(resource);
-		}
-	}
+            StringBuilder content = new StringBuilder("Ngày\tThu\tChi\n");
+            for (ReportItemResponse r : reports) {
+                content.append(r.getDate()).append("\t")
+                       .append(r.getRevenue() != null ? r.getRevenue() : 0).append("\t")
+                       .append(r.getExpense() != null ? r.getExpense() : 0).append("\n");
+            }
 
-	@PostMapping("/print")
-	public String printReport(@RequestParam("paperSize") String paperSize,
-			@RequestParam("printerName") String printerName, @RequestParam("copies") int copies,
-			RedirectAttributes redirectAttributes) {
-		try {
-			String message = String.format("Đã gửi lệnh in: %d bản, khổ giấy %s, máy in %s", copies, paperSize,
-					printerName);
-			redirectAttributes.addFlashAttribute("success", message);
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi in báo cáo.");
-		}
+            byte[] data = content.toString().getBytes(StandardCharsets.UTF_8);
+            String fileName = "report." + format.toLowerCase();
+            ByteArrayResource resource = new ByteArrayResource(data);
 
-		return "redirect:/report/statistics";
-	}
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                    .contentLength(data.length)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+
+        } catch (Exception e) {
+            byte[] errorData = "Lỗi khi xuất báo cáo.".getBytes(StandardCharsets.UTF_8);
+            ByteArrayResource resource = new ByteArrayResource(errorData);
+
+            return ResponseEntity.internalServerError()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=error.txt")
+                    .contentLength(errorData.length)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(resource);
+        }
+    }
+
+    @PostMapping("/print")
+    public String printReport(
+            @RequestParam("paperSize") String paperSize,
+            @RequestParam("printerName") String printerName,
+            @RequestParam("copies") int copies,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            String message = String.format("Đã gửi lệnh in: %d bản, khổ giấy %s, máy in %s",
+                    copies, paperSize, printerName);
+            redirectAttributes.addFlashAttribute("success", message);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi in báo cáo.");
+        }
+
+        return "redirect:/report/statistics";
+    }
 }

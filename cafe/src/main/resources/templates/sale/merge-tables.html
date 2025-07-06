@@ -7,46 +7,70 @@
     <title>Gộp bàn</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div layout:fragment="content" class="max-w-2xl mx-auto p-6 bg-white shadow rounded">
+<body class="bg-gray-100 text-gray-800">
+<div layout:fragment="content" class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
 
-    <h1 class="text-2xl font-bold mb-4">Gộp bàn</h1>
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">🔗 Gộp bàn</h1>
 
     <form th:action="@{/sale/merge-tables}" method="post" class="space-y-6">
 
+        <!-- Dropdown bàn mục tiêu -->
         <div>
             <label class="block font-semibold mb-2">Chọn bàn gộp đến (mục tiêu):</label>
-            <div class="grid grid-cols-2 gap-2">
-                <div th:each="table : ${tables}">
-                    <input type="radio" name="targetTableId" th:id="'target_' + ${table.id}" th:value="${table.id}" required>
-                    <label th:for="'target_' + ${table.id}" th:text="${table.tableName + ' (' + table.status + ')'}"></label>
-                </div>
-            </div>
+            <select name="targetTableId"
+                    class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
+                    required>
+                <option value="" disabled selected>-- Chọn bàn --</option>
+                <option th:each="table : ${tables}"
+                        th:value="${table.id}"
+                        th:text="${table.tableName + ' (' + table.status + ')'}">
+                </option>
+            </select>
         </div>
 
+        <!-- Checkbox bàn nguồn -->
         <div>
             <label class="block font-semibold mb-2">Chọn các bàn cần gộp (nguồn):</label>
-            <div class="grid grid-cols-2 gap-2">
-                <div th:each="table : ${tables}">
-                    <input type="checkbox" name="sourceTableIds" th:id="'source_' + ${table.id}" th:value="${table.id}">
-                    <label th:for="'source_' + ${table.id}" th:text="${table.tableName + ' (' + table.status + ')'}"></label>
+            <div class="grid grid-cols-2 gap-3">
+                <div th:each="table : ${tables}" class="flex items-center space-x-2">
+                    <input type="checkbox"
+                           name="sourceTableIds"
+                           th:id="'source_' + ${table.id}"
+                           th:value="${table.id}"
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label th:for="'source_' + ${table.id}"
+                           th:text="${table.tableName + ' (' + table.status + ')'}"
+                           class="text-sm text-gray-700"></label>
                 </div>
             </div>
         </div>
 
+        <!-- Tên khách -->
         <div>
-            <label class="block font-semibold mb-1">Tên khách:</label>
-            <input type="text" name="customerName" class="w-full border px-3 py-2 rounded" placeholder="Nhập tên khách">
+            <label class="block font-semibold mb-1">👤 Tên khách:</label>
+            <input type="text" name="customerName"
+                   class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
+                   placeholder="Nhập tên khách">
         </div>
 
+        <!-- Số điện thoại -->
         <div>
-            <label class="block font-semibold mb-1">Số điện thoại:</label>
-            <input type="text" name="customerPhone" class="w-full border px-3 py-2 rounded" placeholder="Nhập số điện thoại">
+            <label class="block font-semibold mb-1">📞 Số điện thoại:</label>
+            <input type="text" name="customerPhone"
+                   class="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300"
+                   placeholder="Nhập số điện thoại">
         </div>
 
+        <!-- Nút hành động -->
         <div class="flex justify-end gap-4">
-            <a th:href="@{/sale}" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Hủy</a>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Gộp</button>
+            <a th:href="@{/sale}"
+               class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition">
+                ❌ Hủy
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                ✅ Gộp
+            </button>
         </div>
 
     </form>

@@ -5,47 +5,65 @@
 <head>
     <meta charset="UTF-8">
     <title>Đặt Bàn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div layout:fragment="content">
+<body class="bg-gray-100 text-gray-800">
+<div layout:fragment="content" class="max-w-xl mx-auto bg-white p-6 mt-10 rounded shadow-md">
 
-<h2>Đặt Bàn</h2>
+    <h2 class="text-2xl font-bold text-blue-700 mb-6">📅 Đặt Bàn</h2>
 
-<form th:action="@{/booking}" th:object="${booking}" method="post">
-    <!-- tableId & employeeId hidden -->
-    <input type="hidden" th:field="*{tableId}" />
-    <input type="hidden" th:field="*{employeeId}" />
+    <form th:action="@{/booking}" th:object="${booking}" method="post" class="space-y-5">
+        <!-- tableId & employeeId hidden -->
+        <input type="hidden" th:field="*{tableId}" />
+        <input type="hidden" th:field="*{employeeId}" />
 
-    <!-- Tên khách hàng -->
-    <label>Tên khách hàng:</label>
-    <input type="text" th:field="*{customerName}" required minlength="2" maxlength="30"
-           placeholder="Nguyễn Văn A" />
-    <div th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}" style="color:red;"></div>
+        <!-- Tên khách hàng -->
+        <div>
+            <label class="block font-semibold mb-1">👤 Tên khách hàng:</label>
+            <input type="text" th:field="*{customerName}" required minlength="2" maxlength="30"
+                   placeholder="Nguyễn Văn A"
+                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+            <div th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}"
+                 class="text-red-600 text-sm mt-1"></div>
+        </div>
 
-    <!-- Số điện thoại -->
-   <label>Số điện thoại:</label>
-	<input type="text" th:field="*{customerPhone}" required
-	       pattern="^0\d{9,10}$"
-	       placeholder="0912345678"
-	       title="Số điện thoại bắt đầu bằng 0 và có 10 hoặc 11 chữ số" />
-	<div th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}" style="color:red;"></div>
+        <!-- Số điện thoại -->
+        <div>
+            <label class="block font-semibold mb-1">📞 Số điện thoại:</label>
+            <input type="text" th:field="*{customerPhone}" required pattern="^0\d{9,10}$"
+                   placeholder="0912345678"
+                   title="Số điện thoại bắt đầu bằng 0 và có 10 hoặc 11 chữ số"
+                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+            <div th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}"
+                 class="text-red-600 text-sm mt-1"></div>
+        </div>
 
+        <!-- Ngày đặt -->
+        <div>
+            <label class="block font-semibold mb-1">📆 Ngày đặt:</label>
+            <input type="date" th:field="*{reservationDate}" required
+                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+            <div th:if="${#fields.hasErrors('reservationDate')}" th:errors="*{reservationDate}"
+                 class="text-red-600 text-sm mt-1"></div>
+        </div>
 
-    <!-- Ngày đặt -->
-    <label>Ngày đặt:</label>
-    <input type="date" th:field="*{reservationDate}" required />
-    <div th:if="${#fields.hasErrors('reservationDate')}" th:errors="*{reservationDate}" style="color:red;"></div>
+        <!-- Giờ đặt -->
+        <div>
+            <label class="block font-semibold mb-1">⏰ Giờ đặt:</label>
+            <input type="time" th:field="*{reservationTime}" required
+                   class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
+            <div th:if="${#fields.hasErrors('reservationTime')}" th:errors="*{reservationTime}"
+                 class="text-red-600 text-sm mt-1"></div>
+        </div>
 
-    <!-- Giờ đặt -->
-    <label>Giờ đặt:</label>
-    <input type="time" th:field="*{reservationTime}" required />
-    <div th:if="${#fields.hasErrors('reservationTime')}" th:errors="*{reservationTime}" style="color:red;"></div>
-
-    <br/><br/>
-    <input type="submit" value="✅ Đặt bàn" />
-    <a href="/sale"><button type="button">❌ Hủy</button></a>
-</form>
-
+        <!-- Nút hành động -->
+        <div class="flex justify-end gap-4 pt-4">
+            <a href="/sale"
+               class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition">❌ Hủy</a>
+            <input type="submit" value="✅ Đặt bàn"
+                   class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" />
+        </div>
+    </form>
 </div>
 
 <!-- JS đặt min ngày hôm nay -->

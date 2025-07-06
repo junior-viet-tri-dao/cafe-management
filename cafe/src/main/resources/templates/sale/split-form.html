@@ -7,80 +7,85 @@
     <title>Tách bàn</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-100 text-gray-800">
 <div layout:fragment="content">
 
-<div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Tách bàn</h2>
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
+        <h2 class="text-2xl font-bold text-blue-700 mb-6">🔀 Tách bàn</h2>
 
+        <form th:action="@{/sale/split}" method="post" th:object="${splitWrapper}" class="space-y-6">
+            <input type="hidden" name="fromTableId" th:value="${fromTableId}" />
 
+            <!-- Bàn đích -->
+            <div>
+                <label for="toTableId" class="block font-semibold mb-1">📍 Chọn bàn cần tách đến:</label>
+                <select name="toTableId" required
+                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
+                    <option value="" disabled selected>-- Chọn bàn --</option>
+                    <option th:each="table : ${allTables}"
+                            th:value="${table.id}"
+                            th:text="${table.tableName + ' (' + table.status + ')'}">
+                    </option>
+                </select>
+            </div>
 
-    <form th:action="@{/sale/split}" method="post" th:object="${splitWrapper}">
-        <input type="hidden" name="fromTableId" th:value="${fromTableId}" />
+            <!-- Tên khách -->
+            <div>
+                <label class="block font-semibold mb-1">👤 Tên khách:</label>
+                <input type="text" name="customerName"
+                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                       required />
+            </div>
 
-        <!-- Bàn đích -->
-        <div class="mb-4">
-            <label for="toTableId" class="block font-semibold mb-1">Chọn bàn cần tách đến:</label>
-            <select name="toTableId" required class="w-full border rounded px-3 py-2">
-                <option value="" disabled selected>-- Chọn bàn --</option>
-                <option th:each="table : ${allTables}"
-                        th:value="${table.id}"
-                        th:text="${table.tableName + ' (' + table.status + ')'}">
-                </option>
-            </select>
-        </div>
+            <!-- Số điện thoại -->
+            <div>
+                <label class="block font-semibold mb-1">📞 Số điện thoại:</label>
+                <input type="text" name="customerPhone"
+                       class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                       required />
+            </div>
 
-        <!-- Tên khách -->
-        <div class="mb-4">
-            <label class="block font-semibold mb-1">Tên khách:</label>
-            <input type="text" name="customerName" class="w-full border rounded px-3 py-2" required />
-        </div>
+            <!-- Danh sách món -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-300 mb-6 text-sm">
+                    <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="py-2 px-3 border text-left">Chọn</th>
+                        <th class="py-2 px-3 border text-left">Tên món</th>
+                        <th class="py-2 px-3 border text-left">Số lượng hiện có</th>
+                        <th class="py-2 px-3 border text-left">Số lượng muốn tách</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item, iterStat : ${menuItems}" class="border-t hover:bg-gray-50">
+                        <td class="text-center border px-3 py-2">
+                            <input type="hidden" th:name="|items[${iterStat.index}].menuItemId|" th:value="${item.menuItemId}" />
+                            <input type="checkbox"
+                                   th:field="*{items[__${iterStat.index}__].selected}"
+                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        </td>
+                        <td class="border px-3 py-2" th:text="${item.itemName}"></td>
+                        <td class="border px-3 py-2" th:text="${item.quantity}"></td>
+                        <td class="border px-3 py-2">
+                            <input type="number"
+                                   class="w-full border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-300"
+                                   th:name="|items[${iterStat.index}].quantityToMove|"
+                                   min="0"
+                                   th:attr="max=${item.quantity}" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Số điện thoại -->
-        <div class="mb-4">
-            <label class="block font-semibold mb-1">Số điện thoại:</label>
-            <input type="text" name="customerPhone" class="w-full border rounded px-3 py-2" required />
-        </div>
+            <!-- Hành động -->
+            <div class="flex justify-end gap-4">
+                <a th:href="@{/sale}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition">❌ Hủy</a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">✅ Tách bàn</button>
+            </div>
+        </form>
+    </div>
 
-        <!-- Danh sách món -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-300 mb-6">
-                <thead class="bg-gray-200">
-                <tr>
-                    <th class="py-2 px-3 border">Chọn</th>
-                    <th class="py-2 px-3 border">Tên món</th>
-                    <th class="py-2 px-3 border">Số lượng hiện có</th>
-                    <th class="py-2 px-3 border">Số lượng muốn tách</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item, iterStat : ${menuItems}">
-                    <td class="text-center border px-3 py-2">
-                        <input type="hidden" th:name="|items[${iterStat.index}].menuItemId|" th:value="${item.menuItemId}" />
-                        <input type="checkbox"
-                               th:field="*{items[__${iterStat.index}__].selected}" />
-                    </td>
-                    <td class="border px-3 py-2" th:text="${item.itemName}"></td>
-                    <td class="border px-3 py-2" th:text="${item.quantity}"></td>
-                    <td class="border px-3 py-2">
-                        <input type="number"
-                               class="w-full border rounded px-2 py-1"
-                               th:name="|items[${iterStat.index}].quantityToMove|"
-                               min="0"
-                               th:attr="max=${item.quantity}" />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Hành động -->
-        <div class="flex justify-end gap-4">
-            <a th:href="@{/sale}" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Hủy</a>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Tách bàn</button>
-        </div>
-    </form>
-</div>
 </div>
 </body>
 </html>

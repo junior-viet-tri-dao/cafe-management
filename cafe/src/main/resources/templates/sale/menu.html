@@ -2,58 +2,72 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-      
+
 <head>
     <title>Thông Tin Bàn</title>
     <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div layout:fragment="content">
+<body class="bg-gray-50 text-gray-800">
 
-<h2>🍽 Danh sách món ăn của bàn</h2>
+<div layout:fragment="content" class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-8">
 
-<table border="1" cellpadding="5" cellspacing="0">
-    <thead>
-    <tr>
-        <th>Tên món</th>
-        <th>Số lượng</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="item : ${menuItems}">
-        <td th:text="${item.itemName}">Tên món</td>
-        <td th:text="${item.quantity}">Số lượng</td>
-    </tr>
-    </tbody>
-</table>
+    <h2 class="text-2xl font-semibold mb-4">🍽 Danh sách món ăn của bàn</h2>
 
-<p><strong>🥣 Tổng số món:</strong> <span th:text="${menuItems.size()}">0</span></p>
+    <table class="min-w-full bg-white border border-gray-300 rounded-md">
+        <thead>
+        <tr class="bg-gray-100 text-left">
+            <th class="py-2 px-4 border-b">Tên món</th>
+            <th class="py-2 px-4 border-b">Số lượng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${menuItems}" class="hover:bg-gray-50">
+            <td class="py-2 px-4 border-b" th:text="${item.itemName}">Tên món</td>
+            <td class="py-2 px-4 border-b" th:text="${item.quantity}">Số lượng</td>
+        </tr>
+        </tbody>
+    </table>
 
-<br/>
-
-<h3>📋 Thông tin đặt trước</h3>
-<div th:if="${reservation != null}">
-    <p><strong>👤 Tên khách:</strong> <span th:text="${reservation.customerName}">Tên khách</span></p>
-    <p><strong>📞 Số điện thoại:</strong> <span th:text="${reservation.customerPhone}">SĐT</span></p>
-    <p><strong>📅 Ngày đặt:</strong> <span th:text="${#temporals.format(reservation.reservationDate, 'dd/MM/yyyy')}">dd/MM/yyyy</span></p>
-    <p><strong>⏰ Giờ đặt:</strong> <span th:text="${reservation.reservationTime}">HH:mm</span></p>
-    <p><strong>🧾 Trạng thái hóa đơn:</strong> <span th:text="${invoiceStatus}">Chưa có</span></p>
-    <p><strong>🧑‍💼 Nhân viên đặt:</strong>
-        <span th:text="${reservation.employee != null ? reservation.employee.fullName : 'Không rõ'}">Tên nhân viên</span>
+    <p class="mt-4"><strong>🥣 Tổng số món:</strong> 
+        <span class="font-medium text-blue-600" th:text="${menuItems.size()}">0</span>
     </p>
 
-    <!-- ✅ Nút chuyển đến thanh toán nếu có -->
-    <form th:action="@{/payment/{id}(id=${reservation.table.id})}" method="get">
-        <button type="submit">💰 Tiến hành thanh toán</button>
-    </form>
-</div>
+    <hr class="my-6">
 
-<div th:if="${reservation == null}">
-    <p><i>Không có thông tin đặt trước cho bàn này.</i></p>
-</div>
+    <h3 class="text-xl font-semibold mb-3">📋 Thông tin đặt trước</h3>
 
-<br/>
-<a href="/sale">← Quay lại danh sách bàn</a>
+    <div th:if="${reservation != null}" class="space-y-2">
+        <p><strong>👤 Tên khách:</strong> <span th:text="${reservation.customerName}">Tên khách</span></p>
+        <p><strong>📞 Số điện thoại:</strong> <span th:text="${reservation.customerPhone}">SĐT</span></p>
+        <p><strong>📅 Ngày đặt:</strong> 
+            <span th:text="${#temporals.format(reservation.reservationDate, 'dd/MM/yyyy')}">dd/MM/yyyy</span>
+        </p>
+        <p><strong>⏰ Giờ đặt:</strong> <span th:text="${reservation.reservationTime}">HH:mm</span></p>
+        <p><strong>🧾 Trạng thái hóa đơn:</strong> <span th:text="${invoiceStatus}">Chưa có</span></p>
+        <p><strong>🧑‍💼 Nhân viên đặt:</strong> 
+            <span th:text="${reservation.employee != null ? reservation.employee.fullName : 'Không rõ'}">Tên nhân viên</span>
+        </p>
+
+        <form th:action="@{/payment/{id}(id=${reservation.table.id})}" method="get" class="mt-4">
+            <button type="submit"
+                    class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition duration-200">
+                💰 Tiến hành thanh toán
+            </button>
+        </form>
+    </div>
+
+    <div th:if="${reservation == null}" class="text-gray-600 italic mt-4">
+        Không có thông tin đặt trước cho bàn này.
+    </div>
+
+    <br/>
+
+    <a href="/sale"
+       class="inline-block mt-6 text-blue-600 hover:underline hover:text-blue-800 transition">
+        ← Quay lại danh sách bàn
+    </a>
+
 </div>
 
 </body>

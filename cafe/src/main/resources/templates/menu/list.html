@@ -3,53 +3,72 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Danh sách món</title>
     <meta charset="UTF-8">
+    <title>Danh sách món</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<div layout:fragment="content">
+<body class="bg-gray-100 text-gray-800">
+<div layout:fragment="content" class="max-w-6xl mx-auto mt-10 bg-white p-6 rounded shadow">
 
-<h2>Danh sách thực đơn</h2>
+    <h2 class="text-2xl font-bold text-blue-600 mb-6">📋 Danh sách thực đơn</h2>
 
-<form method="get" th:action="@{/menu}">
-    <input type="text" name="keyword" placeholder="Tìm kiếm..." th:value="${keyword}">
-    <button type="submit">Tìm</button>
-</form>
+    <!-- Form tìm kiếm -->
+    <form method="get" th:action="@{/menu}" class="mb-6 flex gap-2">
+        <input type="text" name="keyword" placeholder="Tìm kiếm..." th:value="${keyword}"
+               class="border rounded px-3 py-2 w-full max-w-sm" />
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+            🔍 Tìm
+        </button>
+    </form>
 
-<table border="1">
-    <thead>
-        <tr>
-            <th>STT</th>
-            <th>Tên món</th>
-            <th>Giá tiền</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr th:each="item, iterStat : ${items.content}">
-            <td th:text="${iterStat.index + 1}"></td>
-            <td th:text="${item.itemName}"></td>
-            <td th:text="${item.currentPrice}"></td>
-            <td>
-                <a th:href="@{'/menu/edit/' + ${item.id}}">Sửa</a> |
-                <form th:action="@{'/menu/delete/' + ${item.id}}" method="post" style="display:inline">
-                    <button type="submit" onclick="return confirm('Bạn chắc chắn muốn xóa?')">Xóa</button>
-                </form>
-            </td>
-        </tr>
-    </tbody>
-</table>
+    <!-- Bảng danh sách -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead class="bg-gray-200">
+            <tr>
+                <th class="py-2 px-4 border text-left">STT</th>
+                <th class="py-2 px-4 border text-left">Tên món</th>
+                <th class="py-2 px-4 border text-right">Giá tiền</th>
+                <th class="py-2 px-4 border text-center">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iterStat : ${items.content}" class="hover:bg-gray-50">
+                <td class="py-2 px-4 border" th:text="${iterStat.index + 1}"></td>
+                <td class="py-2 px-4 border" th:text="${item.itemName}"></td>
+                <td class="py-2 px-4 border text-right"
+                    th:text="${#numbers.formatDecimal(item.currentPrice, 0, 'COMMA', 0, 'POINT') + ' đ'}"></td>
+                <td class="py-2 px-4 border text-center">
+                    <a th:href="@{'/menu/edit/' + ${item.id}}"
+                       class="text-blue-600 hover:underline mr-3">Sửa</a>
+                    <form th:action="@{'/menu/delete/' + ${item.id}}" method="post" class="inline"
+                          onsubmit="return confirm('Bạn chắc chắn muốn xóa?')">
+                        <button type="submit" class="text-red-600 hover:underline">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-<p th:if="${items.totalPages > 1}">
-    <span th:each="i : ${#numbers.sequence(0, items.totalPages - 1)}">
-        <a th:href="@{/menu(page=${i}, keyword=${keyword})}" 
-           th:text="${i + 1}" 
-           th:classappend="${items.number == i} ? 'current' : ''">1</a>
-    </span>
-</p>
+    <!-- Phân trang -->
+    <div th:if="${items.totalPages > 1}" class="mt-6 flex gap-2">
+        <a th:each="i : ${#numbers.sequence(0, items.totalPages - 1)}"
+           th:href="@{/menu(page=${i}, keyword=${keyword})}"
+           th:text="${i + 1}"
+           th:classappend="${items.number == i} ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'"
+           class="px-3 py-1 rounded border text-sm"></a>
+    </div>
 
-<a th:href="@{/menu/add}">Thêm món mới</a>
+    <!-- Thêm món -->
+    <div class="mt-6">
+        <a th:href="@{/menu/add}"
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded inline-block">
+            ➕ Thêm món mới
+        </a>
+    </div>
+
 </div>
-
 </body>
 </html>
