@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang bán hàng</title>
+</head>
+<body>
+
+
+<div layout:fragment="content">
+
+    <style>
+        /* CSS cho container chứa toàn bộ giao diện */
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 800px;
+        }
+
+        /* CSS cho tiêu đề "Quản lý bán hàng" */
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: left;
+            color: #333;
+        }
+
+        /* CSS cho lưới các bàn (sử dụng CSS Grid) */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        /* CSS cho từng ô bàn */
+        .table-item {
+            background-color: #e0e9f1;
+            border: 1px solid #c9d7e5;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        /* CSS cho ô bàn đang có khách (màu xám) */
+        .table-item.occupied {
+            background-color: #cccccc;
+            color: #555;
+            border: 1px solid #b3b3b3;
+        }
+
+        /* Hiệu ứng khi di chuột qua ô bàn (áp dụng cho bàn trống) */
+        .table-item:hover {
+            background-color: #d1e0f0;
+        }
+
+        /* Hiệu ứng khi di chuột qua ô bàn (áp dụng cho bàn đang có khách) */
+        .table-item.occupied:hover {
+            background-color: #b0b0b0;
+        }
+
+        /* CSS cho trạng thái "trống" của bàn */
+        .table-item .status {
+            font-size: 14px;
+            font-weight: normal;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* CSS cho nhóm các nút nghiệp vụ chính */
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        /* CSS cho các nút nghiệp vụ chính */
+        .action-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            flex-grow: 1;
+        }
+
+        /* Hiệu ứng cho nút Hủy bàn khi được chọn */
+        .action-button#cancelTableBtn {
+            background-color: #0056b3; /* Màu xanh đậm hơn */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng nút đã bấm */
+        }
+
+
+        /* Hiệu ứng khi di chuột qua nút */
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* CSS cho nhóm các hành động phía dưới (Chọn thực đơn, Thanh toán, In ấn) */
+        .bottom-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* CSS cho từng mục hành động phía dưới */
+        .bottom-action-item {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        /* Hiệu ứng khi di chuột qua mục hành động phía dưới */
+        .bottom-action-item:hover {
+            background-color: #e2e6ea;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHUNG CHO POPUP (MODAL) */
+        /* ======================================================================= */
+
+        /* Lớp phủ nền mờ cho popup */
+        .modal {
+            display: none; /* Mặc định ẩn */
+            position: fixed; /* Định vị cố định trên màn hình */
+            z-index: 1000; /* Đảm bảo nằm trên cùng */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Cho phép cuộn nếu nội dung dài */
+            background-color: rgba(0, 0, 0, 0.4); /* Nền đen mờ */
+            justify-content: center; /* Căn giữa nội dung modal */
+            align-items: center; /* Căn giữa nội dung modal */
+        }
+
+        /* Hiển thị modal khi có lớp 'active' */
+        .modal.active {
+            display: flex;
+        }
+
+        /* Hộp nội dung của popup */
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 450px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            position: relative;
+            transform: translateY(0);
+        }
+
+        /* Tiêu đề popup */
+        .modal-content h3 {
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Các phần trong popup (Món đã gọi, Đặt trước) */
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        /* Bảng món đã gọi */
+        .modal-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .modal-section th, .modal-section td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .modal-section th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        /* Cuộn cho bảng món */
+        .scrollable-table {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .scrollable-table table {
+            border: none;
+        }
+
+        .scrollable-table th, .scrollable-table td {
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+
+        .scrollable-table th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+            z-index: 1;
+        }
+
+
+        /* Vùng thông tin đặt trước */
+        .booking-info {
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+            color: #333;
+        }
+
+        /* Nút Đóng/Hủy trong popup footer */
+        .modal-footer {
+            text-align: center;
+            margin-top: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .modal-footer button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin: 0 5px;
+        }
+
+        .modal-footer button:hover {
+            background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHO POPUP CHUYỂN BÀN (TỪ YÊU CẦU TRƯỚC) */
+        /* ======================================================================= */
+        .transfer-modal-content {
+            width: 350px;
+            text-align: center;
+        }
+
+        .transfer-modal-content .form-group {
+            margin-bottom: 20px;
+        }
+
+        .transfer-modal-content label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .transfer-modal-content select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+
+        .transfer-modal-content select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .transfer-modal-content .modal-footer #confirmTransferBtn {
+            background-color: #28a745;
+        }
+        .transfer-modal-content .modal-footer #confirmTransferBtn:hover {
+            background-color: #218838;
+        }
+
+        .transfer-modal-content .modal-footer #cancelTransferBtn {
+             background-color: #6c757d;
+        }
+        .transfer-modal-content .modal-footer #cancelTransferBtn:hover {
+             background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHO POPUP GỘP BÀN (TỪ YÊU CẦU TRƯỚC) */
+        /* ======================================================================= */
+        .merge-modal-content {
+            width: 600px;
+        }
+
+        .merge-modal-content .modal-body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .merge-modal-content .selection-column {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fcfcfc;
+            min-height: 200px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .merge-modal-content .selection-column .column-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+
+        .merge-modal-content .list-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #444;
+        }
+
+        .merge-modal-content .list-item input[type="checkbox"],
+        .merge-modal-content .list-item input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+
+        .merge-modal-content .middle-arrow {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            margin-top: 80px;
+        }
+
+        .merge-modal-content .middle-arrow button {
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            color: #555;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: not-allowed;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .merge-modal-content .modal-footer #confirmMergeBtn {
+            background-color: #28a745;
+        }
+        .merge-modal-content .modal-footer #confirmMergeBtn:hover {
+            background-color: #218838;
+        }
+
+        .merge-modal-content .modal-footer #cancelMergeBtn {
+             background-color: #6c757d;
+        }
+        .merge-modal-content .modal-footer #cancelMergeBtn:hover {
+             background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHO POPUP TÁCH BÀN (TỪ YÊU CẦU TRƯỚC) */
+        /* ======================================================================= */
+        .split-modal-content {
+            width: 700px;
+        }
+
+        .split-modal-content .modal-body {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .split-modal-content .split-column {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #fcfcfc;
+            min-height: 250px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .split-modal-content .column-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .split-modal-content .column-header select {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 8px center;
+            background-size: 10px;
+            padding-right: 25px;
+        }
+
+        .split-modal-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .split-modal-content th,
+        .split-modal-content td {
+            border-bottom: 1px solid #eee;
+            padding: 8px 5px;
+            text-align: left;
+        }
+
+        .split-modal-content th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .split-modal-content td input[type="checkbox"] {
+            margin-right: 5px;
+            transform: scale(1.1);
+        }
+
+        .split-modal-content td input[type="number"] {
+            width: 40px;
+            padding: 3px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .split-modal-content .middle-split-arrow {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .split-modal-content .middle-split-arrow button {
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            color: #555;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            width: 50px;
+            text-align: center;
+        }
+         .split-modal-content .middle-split-arrow button:hover {
+            background-color: #d0d0d0;
+        }
+
+        .split-modal-content .modal-footer #confirmSplitBtn {
+            background-color: #28a745;
+        }
+        .split-modal-content .modal-footer #confirmSplitBtn:hover {
+            background-color: #218838;
+        }
+
+        .split-modal-content .modal-footer #cancelSplitBtn {
+             background-color: #6c757d;
+        }
+        .split-modal-content .modal-footer #cancelSplitBtn:hover {
+             background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHO POPUP ĐẶT BÀN (TỪ YÊU CẦU TRƯỚC) */
+        /* ======================================================================= */
+        .book-modal-content {
+            width: 450px;
+        }
+
+        .book-modal-content .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .book-modal-content .form-group label {
+            flex-basis: 100px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0;
+        }
+
+        .book-modal-content .form-group input[type="text"],
+        .book-modal-content .form-group input[type="tel"],
+        .book-modal-content .form-group input[type="date"] {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+
+        .book-modal-content .time-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .book-modal-content .time-inputs select {
+            padding: 8px 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 5px center;
+            background-size: 10px;
+            padding-right: 20px;
+        }
+
+        .book-modal-content .time-inputs input[type="number"] {
+            width: 45px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .book-modal-content .modal-footer #confirmBookBtn {
+            background-color: #28a745;
+        }
+        .book-modal-content .modal-footer #confirmBookBtn:hover {
+            background-color: #218838;
+        }
+
+        .book-modal-content .modal-footer #cancelBookBtn {
+             background-color: #6c757d;
+        }
+        .book-modal-content .modal-footer #cancelBookBtn:hover {
+             background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS MỚI CHO POPUP HỦY BÀN (CHỌN BÀN) */
+        /* ======================================================================= */
+        .cancel-select-modal-content {
+            width: 380px;
+            text-align: center;
+        }
+
+        .cancel-select-modal-content .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cancel-select-modal-content .form-group label {
+            font-weight: bold;
+            margin-right: 15px;
+            color: #333;
+        }
+
+        .cancel-select-modal-content select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+            width: 150px; /* Chiều rộng cố định cho dropdown bàn */
+        }
+        .cancel-select-modal-content select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .cancel-select-modal-content .modal-footer #confirmCancelSelectBtn {
+            background-color: #dc3545; /* Màu đỏ cho nút hủy */
+        }
+        .cancel-select-modal-content .modal-footer #confirmCancelSelectBtn:hover {
+            background-color: #c82333;
+        }
+
+        /* ======================================================================= */
+        /* CSS MỚI CHO POPUP HỦY BÀN (XÁC NHẬN) */
+        /* ======================================================================= */
+        .cancel-confirm-modal-content {
+            width: 350px;
+            text-align: center;
+        }
+
+        .cancel-confirm-modal-content .modal-body {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .cancel-confirm-modal-content .modal-footer button {
+            padding: 10px 30px; /* Lớn hơn một chút */
+            font-size: 16px;
+        }
+
+        .cancel-confirm-modal-content .modal-footer #yesCancelBtn {
+            background-color: #dc3545; /* Màu đỏ cho "Có" */
+        }
+        .cancel-confirm-modal-content .modal-footer #yesCancelBtn:hover {
+            background-color: #c82333;
+        }
+
+        .cancel-confirm-modal-content .modal-footer #noCancelBtn {
+            background-color: #6c757d; /* Màu xám cho "Không" */
+        }
+        .cancel-confirm-modal-content .modal-footer #noCancelBtn:hover {
+            background-color: #5a6268;
+        }
+        /* ======================================================================= */
+        /* CSS MỚI CHO POPUP CHỌN THỰC ĐƠN */
+        /* ======================================================================= */
+        .select-menu-modal-content {
+            width: 450px;
+        }
+
+        .select-menu-modal-content .form-group {
+            margin-bottom: 20px;
+        }
+
+        .select-menu-modal-content label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .select-menu-modal-content select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+
+        .select-menu-modal-content select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .select-menu-modal-content .menu-items-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .select-menu-modal-content .menu-item-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .select-menu-modal-content .menu-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .select-menu-modal-content .menu-item-row input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .select-menu-modal-content .menu-item-row .item-name {
+            flex-grow: 1;
+            font-size: 16px;
+            color: #444;
+        }
+
+        .select-menu-modal-content .menu-item-row .item-quantity {
+            display: flex;
+            align-items: center;
+        }
+
+        .select-menu-modal-content .menu-item-row .item-quantity input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 15px;
+            text-align: center;
+            margin-left: 10px;
+        }
+
+        .select-menu-modal-content .modal-footer #saveMenuBtn {
+            background-color: #28a745; /* Màu xanh lá cho nút Lưu */
+        }
+        .select-menu-modal-content .modal-footer #saveMenuBtn:hover {
+            background-color: #218838;
+        }
+
+        /* ======================================================================= */
+        /* CSS MỚI CHO POPUP THANH TOÁN */
+        /* ======================================================================= */
+        .payment-modal-content {
+            width: 450px;
+        }
+
+        .payment-modal-content .form-group {
+            margin-bottom: 15px;
+        }
+
+        .payment-modal-content label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .payment-modal-content select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5.9%200-11.4%203.2-13.2%206.5-1.9%203.4-.8%207.6%202.4%2010.5l126.9%20127.8a17.6%2017.6%200%200%200%2024.9%200l126.9-127.8c3.2-2.9%204.3-7.1%202.4-10.5z%22%2F%3E%3C%2Fsvg%3E') no-repeat right 8px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+        .payment-modal-content select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .payment-modal-content .ordered-items-table-container {
+            max-height: 180px; /* Điều chỉnh chiều cao cho bảng món */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .payment-modal-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .payment-modal-content th,
+        .payment-modal-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .payment-modal-content th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .payment-modal-content .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .payment-modal-content .summary-row span:last-child {
+            color: #007bff; /* Màu cho tổng tiền */
+        }
+
+        .payment-modal-content .payment-inputs {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .payment-modal-content .payment-inputs label {
+            margin-bottom: 0;
+        }
+
+        .payment-modal-content .payment-inputs input[type="number"],
+        .payment-modal-content .payment-inputs input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .payment-modal-content .return-amount {
+            color: #dc3545; /* Màu đỏ cho tiền thối lại */
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .payment-modal-content .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .payment-modal-content .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .payment-modal-content .action-buttons-payment {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .payment-modal-content .action-buttons-payment button {
+            flex-grow: 1;
+            margin: 0 5px;
+            padding: 10px 15px;
+            font-size: 15px;
+        }
+
+        .payment-modal-content .action-buttons-payment #printBillBtn {
+            background-color: #17a2b8; /* Màu xanh ngọc cho In phiếu */
+        }
+        .payment-modal-content .action-buttons-payment #printBillBtn:hover {
+            background-color: #138496;
+        }
+
+        .payment-modal-content .action-buttons-payment #processPaymentBtn {
+            background-color: #28a745; /* Màu xanh lá cho Thanh toán */
+        }
+        .payment-modal-content .action-buttons-payment #processPaymentBtn:hover {
+            background-color: #218838;
+        }
+
+        .payment-modal-content .action-buttons-payment #cancelPaymentBtn {
+            background-color: #6c757d; /* Màu xám cho Hủy */
+        }
+        .payment-modal-content .action-buttons-payment #cancelPaymentBtn:hover {
+            background-color: #5a6268;
+        }
+
+        /* ======================================================================= */
+        /* CSS CHUNG CHO POPUP THÔNG BÁO */
+        /* ======================================================================= */
+        .alert-modal-content {
+            width: 300px;
+            text-align: center;
+            padding: 30px;
+        }
+        .alert-modal-content h3 {
+            border-bottom: none;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .alert-modal-content .modal-footer {
+            margin-top: 0;
+            border-top: none;
+            padding-top: 0;
+        }
+        .alert-modal-content .modal-footer button {
+            background-color: #007bff;
+            padding: 8px 20px;
+        }
+        .alert-modal-content .modal-footer button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+
+    <script>
+
+
+        window.addEventListener('load', function () {
+                        // =======================================================================
+        // LOGIC CHUNG CHO CÁC POPUP
+        // =======================================================================
+        // Hàm đóng tất cả modals
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+            document.body.style.overflow = ''; // Cho phép cuộn trang chính trở lại
+        }
+
+        // Đóng modal khi click ra ngoài (áp dụng cho tất cả modals)
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                closeAllModals();
+            }
+        });
+
+        // Hàm hiển thị popup thông báo chung
+        function showAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        document.getElementById('closeAlertModalBtn').addEventListener('click', () => {
+            document.getElementById('alertModal').classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Hàm lấy danh sách tất cả các bàn
+        const allTables = [];
+        for (let i = 1; i <= 20; i++) {
+            allTables.push(`Bàn ${String(i).padStart(2, '0')}`);
+        }
+
+        // Dữ liệu giả lập cho các bàn đang có khách (ví dụ)
+        const occupiedTables = {
+            "Bàn 05": [
+                { name: "Sữa chua", quantity: 2, price: 15000 },
+                { name: "Cà phê sữa", quantity: 1, price: 20000 }
+            ],
+            "Bàn 06": [
+                { name: "Sinh tố", quantity: 3, price: 22000 },
+                { name: "Pepsi", quantity: 2, price: 10000 }
+            ],
+            "Bàn 07": [
+                { name: "Trà Lipton", quantity: 2, price: 12000 },
+                { name: "Mì tôm", quantity: 1, price: 25000 }
+            ],
+            "Bàn 08": [
+                { name: "Nước cam", quantity: 1, price: 20000 },
+                { name: "Bánh mì", quantity: 2, price: 18000 }
+            ],
+            "Bàn 11": [ // Bàn đã đặt
+                { name: "Phở bò", quantity: 1, price: 40000 },
+                { name: "Bún chả", quantity: 1, price: 35000 }
+            ],
+            "Bàn 13": [
+                { name: "Kem", quantity: 2, price: 15000 }
+            ],
+            "Bàn 14": [
+                { name: "Cà phê sữa", quantity: 2, price: 20000 },
+                { name: "Sinh tố", quantity: 1, price: 22000 }
+            ],
+            "Bàn 15": [
+                { name: "Sữa chua", quantity: 2, price: 15000 },
+                { name: "Cà phê sữa", quantity: 3, price: 20000 },
+                { name: "Pepsi", quantity: 3, price: 10000 },
+                { name: "Trà Lipton", quantity: 0, price: 12000 } // ví dụ món đã gọi nhưng số lượng 0
+            ]
+        };
+
+        function isTableOccupied(tableNumber) {
+            return Object.keys(occupiedTables).includes(tableNumber);
+        }
+
+        // =======================================================================
+        // LOGIC CHO POPUP XEM THÔNG TIN BÀN
+        // =======================================================================
+        const viewTableBtn = document.getElementById('viewTableBtn');
+        const viewTableModal = document.getElementById('viewTableModal');
+        const closeViewModalBtn = document.getElementById('closeViewModalBtn');
+
+        viewTableBtn.addEventListener('click', () => {
+            closeAllModals();
+            viewTableModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeViewModalBtn.addEventListener('click', () => {
+            viewTableModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+
+        // =======================================================================
+        // LOGIC CHO POPUP CHUYỂN BÀN
+        // =======================================================================
+        const transferTableBtn = document.getElementById('transferTableBtn');
+        const transferTableModal = document.getElementById('transferTableModal');
+        const currentTransferTableSpan = document.getElementById('currentTransferTable');
+        const destinationTableSelect = document.getElementById('destinationTableSelect');
+        const confirmTransferBtn = document.getElementById('confirmTransferBtn');
+        const cancelTransferBtn = document.getElementById('cancelTransferBtn');
+
+        function populateTransferTableOptions() {
+            destinationTableSelect.innerHTML = '';
+            // Chỉ cho phép chuyển đến các bàn không phải bàn nguồn và đang trống
+            const availableTablesForTransfer = allTables.filter(table =>
+                table !== currentTransferTableSpan.textContent && !isTableOccupied(table)
+            );
+
+            if (availableTablesForTransfer.length === 0) {
+                 const option = document.createElement('option');
+                 option.value = '';
+                 option.textContent = 'Không có bàn trống nào';
+                 destinationTableSelect.appendChild(option);
+                 destinationTableSelect.disabled = true;
+                 confirmTransferBtn.disabled = true;
+            } else {
+                destinationTableSelect.disabled = false;
+                confirmTransferBtn.disabled = false;
+                availableTablesForTransfer.forEach(table => {
+                    const option = document.createElement('option');
+                    option.value = table;
+                    option.textContent = table;
+                    destinationTableSelect.appendChild(option);
+                });
+            }
+        }
+
+        transferTableBtn.addEventListener('click', () => {
+            closeAllModals();
+            // Giả định bàn 14 là bàn đang được chọn để chuyển. Trong thực tế sẽ lấy từ UI.
+            const sourceTable = "Bàn 14";
+            currentTransferTableSpan.textContent = sourceTable;
+            populateTransferTableOptions();
+            transferTableModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        confirmTransferBtn.addEventListener('click', async () => {
+            const sourceTable = currentTransferTableSpan.textContent;
+            const destinationTable = destinationTableSelect.value;
+
+            if (sourceTable === destinationTable) {
+                showAlert('Không thể chuyển bàn đến chính nó. Vui lòng chọn bàn khác.');
+                return;
+            }
+            if (!destinationTable) {
+                 showAlert('Vui lòng chọn bàn cần chuyển đến.');
+                 return;
+            }
+
+            const transferData = {
+                sourceTable: sourceTable,
+                destinationTable: destinationTable
+            };
+
+            try {
+                const response = await fetch('/api/transfer-table', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(transferData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Chuyển bàn thành công: ${sourceTable} -> ${destinationTable}`);
+                    console.log('Phản hồi từ backend:', result);
+                    // Cập nhật trạng thái UI của bàn (ví dụ: đổi màu bàn)
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi chuyển bàn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu chuyển bàn:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals();
+            }
+        });
+
+        cancelTransferBtn.addEventListener('click', () => {
+            closeAllModals();
+        });
+
+        // =======================================================================
+        // LOGIC CHO POPUP GỘP BÀN
+        // =======================================================================
+        const mergeTableBtn = document.getElementById('mergeTableBtn');
+        const mergeTableModal = document.getElementById('mergeTableModal');
+        const sourceTablesCheckboxesDiv = document.getElementById('sourceTablesCheckboxes');
+        const destinationTableRadiosDiv = document.getElementById('destinationTableRadios');
+        const confirmMergeBtn = document.getElementById('confirmMergeBtn');
+        const cancelMergeBtn = document.getElementById('cancelMergeBtn');
+
+
+        function populateSourceTablesCheckboxes() {
+            sourceTablesCheckboxesDiv.innerHTML = '';
+            // Chỉ cho phép chọn các bàn đang có khách để gộp
+            const occupied = Object.keys(occupiedTables);
+            occupied.forEach(table => {
+                const div = document.createElement('div');
+                div.classList.add('list-item');
+                div.innerHTML = `
+                    <input type="checkbox" id="source-${table}" value="${table}">
+                    <label for="source-${table}">${table}</label>
+                `;
+                sourceTablesCheckboxesDiv.appendChild(div);
+            });
+            if (occupied.length === 0) {
+                 sourceTablesCheckboxesDiv.innerHTML = '<p style="text-align:center; color:#777;">Không có bàn nào đang có khách.</p>';
+                 confirmMergeBtn.disabled = true;
+            } else {
+                 confirmMergeBtn.disabled = false;
+            }
+        }
+
+        function populateDestinationTableRadios() {
+            destinationTableRadiosDiv.innerHTML = '';
+            // Cho phép gộp đến tất cả các bàn (trống hoặc có khách), nhưng bàn đích không thể là bàn nguồn đang được chọn.
+            allTables.forEach(table => {
+                const div = document.createElement('div');
+                div.classList.add('list-item');
+                div.innerHTML = `
+                    <input type="radio" name="destinationTable" id="dest-${table}" value="${table}">
+                    <label for="dest-${table}">${table}</label>
+                `;
+                destinationTableRadiosDiv.appendChild(div);
+            });
+        }
+
+        mergeTableBtn.addEventListener('click', () => {
+            closeAllModals();
+            populateSourceTablesCheckboxes();
+            populateDestinationTableRadios();
+            mergeTableModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        confirmMergeBtn.addEventListener('click', async () => {
+            const selectedSourceTables = Array.from(sourceTablesCheckboxesDiv.querySelectorAll('input[type="checkbox"]:checked'))
+                                            .map(cb => cb.value);
+
+            const selectedDestinationRadio = destinationTableRadiosDiv.querySelector('input[type="radio"]:checked');
+            const destinationTable = selectedDestinationRadio ? selectedDestinationRadio.value : null;
+
+            if (selectedSourceTables.length === 0) {
+                showAlert('Vui lòng chọn ít nhất một bàn cần gộp.');
+                return;
+            }
+
+            if (!destinationTable) {
+                showAlert('Vui lòng chọn bàn gộp đến.');
+                return;
+            }
+
+            if (selectedSourceTables.includes(destinationTable)) {
+                showAlert('Bàn đích không thể nằm trong danh sách các bàn cần gộp.');
+                return;
+            }
+
+            const mergeData = {
+                sourceTables: selectedSourceTables,
+                destinationTable: destinationTable
+            };
+
+            try {
+                const response = await fetch('/api/merge-tables', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(mergeData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Gộp bàn thành công: Các bàn [${selectedSourceTables.join(', ')}] đã gộp vào ${destinationTable}`);
+                    console.log('Phản hồi từ backend:', result);
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi gộp bàn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu gộp bàn:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals();
+            }
+        });
+
+        cancelMergeBtn.addEventListener('click', () => {
+            closeAllModals();
+        });
+
+
+        // =======================================================================
+        // LOGIC CHO POPUP TÁCH BÀN
+        // =======================================================================
+        const splitTableBtn = document.getElementById('splitTableBtn');
+        const splitTableModal = document.getElementById('splitTableModal');
+        const splitSourceTableDisplay = document.getElementById('splitSourceTableDisplay');
+        const splitSourceTableContent = document.getElementById('splitSourceTableContent');
+        const splitDestinationTableDisplay = document.getElementById('splitDestinationTableDisplay');
+        const splitDestinationTableSelect = document.getElementById('splitDestinationTableSelect');
+        const sourceItemsTableBody = document.querySelector('#sourceItemsTable tbody');
+        const destinationItemsTableBody = document.querySelector('#destinationItemsTable tbody');
+        const confirmSplitBtn = document.getElementById('confirmSplitBtn');
+        const cancelSplitBtn = document.getElementById('cancelSplitBtn');
+
+        // Dữ liệu giả lập cho các món của Bàn 15 khi tách
+        const table15ItemsForSplit = [
+            { name: "Cà phê sữa", totalQuantity: 3, currentQuantity: 3, price: 20000 },
+            { name: "Sinh tố", totalQuantity: 1, currentQuantity: 1, price: 22000 },
+            { name: "Pepsi", totalQuantity: 4, currentQuantity: 4, price: 10000 },
+            { name: "Trà Lipton", totalQuantity: 0, currentQuantity: 0, price: 12000 },
+        ];
+        let currentSourceTableItems = []; // Biến để lưu trạng thái hiện tại của món tại bàn nguồn
+
+        function populateSplitDestinationTableOptions(sourceTable) {
+            splitDestinationTableSelect.innerHTML = '';
+            const availableDestTables = allTables.filter(table => table !== sourceTable);
+
+            availableDestTables.forEach(table => {
+                const option = document.createElement('option');
+                option.value = table;
+                option.textContent = table;
+                splitDestinationTableSelect.appendChild(option);
+            });
+
+            // Mặc định chọn bàn đầu tiên hoặc bàn 04 nếu có
+            splitDestinationTableSelect.value = availableDestTables.includes("Bàn 04") ? "Bàn 04" : availableDestTables[0];
+            splitDestinationTableDisplay.textContent = splitDestinationTableSelect.value.replace('Bàn ', '');
+        }
+
+        function populateSplitTableData(tableItems) {
+            sourceItemsTableBody.innerHTML = '';
+            destinationItemsTableBody.innerHTML = '';
+            currentSourceTableItems = JSON.parse(JSON.stringify(tableItems)); // Sao chép sâu dữ liệu
+
+            currentSourceTableItems.forEach((item, index) => {
+                const row = sourceItemsTableBody.insertRow();
+                row.dataset.itemName = item.name;
+                row.innerHTML = `
+                    <td><input type="checkbox" data-item-index="${index}"></td>
+                    <td>${item.name}</td>
+                    <td>
+                        <input type="number" value="${item.currentQuantity}" min="0" max="${item.totalQuantity}" data-original-qty="${item.totalQuantity}" data-item-index="${index}">/${item.totalQuantity}
+                    </td>
+                `;
+
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                const numberInput = row.querySelector('input[type="number"]');
+
+                // Vô hiệu hóa nếu số lượng ban đầu là 0
+                if (item.totalQuantity === 0) {
+                    checkbox.disabled = true;
+                    numberInput.disabled = true;
+                }
+
+                // Cập nhật checkbox khi số lượng thay đổi
+                numberInput.addEventListener('input', (event) => {
+                    let val = parseInt(event.target.value);
+                    if (isNaN(val) || val < 0) {
+                        val = 0;
+                    }
+                    if (val > item.totalQuantity) {
+                        val = item.totalQuantity;
+                    }
+                    event.target.value = val;
+                    currentSourceTableItems[index].currentQuantity = val;
+                    checkbox.checked = (val > 0);
+                });
+
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked && parseInt(numberInput.value) === 0 && item.totalQuantity > 0) {
+                        numberInput.value = 1; // Mặc định là 1 nếu chọn mà số lượng đang 0
+                        currentSourceTableItems[index].currentQuantity = 1;
+                    } else if (!checkbox.checked) {
+                        numberInput.value = 0;
+                        currentSourceTableItems[index].currentQuantity = 0;
+                    }
+                });
+            });
+        }
+
+        splitDestinationTableSelect.addEventListener('change', () => {
+            const selectedTable = splitDestinationTableSelect.value;
+            splitDestinationTableDisplay.textContent = selectedTable.replace('Bàn ', '');
+            destinationItemsTableBody.innerHTML = ''; // Reset bàn đích khi thay đổi bàn
+        });
+
+        splitTableBtn.addEventListener('click', () => {
+            closeAllModals();
+            // Giả định bàn 15 đang được chọn để tách
+            const sourceTable = "Bàn 15";
+            splitSourceTableDisplay.textContent = sourceTable;
+            splitSourceTableContent.textContent = sourceTable;
+
+            populateSplitDestinationTableOptions(sourceTable);
+            // Sử dụng dữ liệu giả lập cho bàn 15
+            populateSplitTableData(table15ItemsForSplit);
+
+            splitTableModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('moveToSourceBtn').addEventListener('click', () => {
+            // Chuyển món từ bàn nguồn sang bàn đích
+            const checkboxes = sourceItemsTableBody.querySelectorAll('input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.dataset.itemIndex);
+                const item = currentSourceTableItems[index];
+                const row = checkbox.closest('tr');
+                const qtyInput = row.querySelector('input[type="number"]');
+                const quantityToMove = parseInt(qtyInput.value); // Số lượng hiện tại trong input
+
+                if (quantityToMove > 0) {
+                    // Cập nhật ở bàn đích
+                    let existingRow = destinationItemsTableBody.querySelector(`tr[data-item-name="${item.name}"]`);
+                    if (existingRow) {
+                        let currentDestQty = parseInt(existingRow.cells[1].textContent);
+                        existingRow.cells[1].textContent = currentDestQty + quantityToMove;
+                    } else {
+                        const newRow = destinationItemsTableBody.insertRow();
+                        newRow.dataset.itemName = item.name;
+                        newRow.innerHTML = `<td>${item.name}</td><td>${quantityToMove}</td>`;
+                    }
+
+                    // Cập nhật ở bàn nguồn (giảm số lượng)
+                    const newSourceQty = item.totalQuantity - quantityToMove;
+                    item.totalQuantity = newSourceQty; // Cập nhật totalQuantity trong currentSourceTableItems
+                    item.currentQuantity = newSourceQty; // Đảm bảo currentQuantity cũng giảm
+                    qtyInput.value = newSourceQty;
+                    qtyInput.max = newSourceQty; // Cập nhật max
+                    row.cells[2].innerHTML = `<input type="number" value="${newSourceQty}" min="0" max="${newSourceQty}" data-original-qty="${newSourceQty}" data-item-index="${index}">/${newSourceQty}`;
+
+                    if (newSourceQty === 0) {
+                        checkbox.disabled = true;
+                        qtyInput.disabled = true;
+                        checkbox.checked = false;
+                    }
+                }
+            });
+        });
+
+        document.getElementById('moveToDestBtn').addEventListener('click', () => {
+            // Logic chuyển món từ bàn đích về bàn nguồn
+            // Đây là một chức năng phức tạp hơn, cần theo dõi món ở bàn đích và chuyển ngược lại.
+            // Để đơn giản, hiện tại chỉ có thông báo.
+            showAlert("Chức năng chuyển món từ bàn đích về bàn nguồn chưa được triển khai đầy đủ.");
+        });
+
+        confirmSplitBtn.addEventListener('click', async () => {
+            const sourceTable = splitSourceTableDisplay.textContent;
+            const destinationTable = splitDestinationTableSelect.value;
+
+            const itemsToSplit = [];
+            destinationItemsTableBody.querySelectorAll('tr').forEach(row => {
+                const itemName = row.dataset.itemName;
+                const quantity = parseInt(row.cells[1].textContent);
+
+                if (itemName && quantity > 0) {
+                    itemsToSplit.push({ name: itemName, quantity: quantity });
+                }
+            });
+
+            if (itemsToSplit.length === 0) {
+                showAlert('Vui lòng chọn ít nhất một món để tách.');
+                return;
+            }
+
+            if (!destinationTable) {
+                showAlert('Vui lòng chọn bàn đích để tách đến.');
+                return;
+            }
+
+            const splitData = {
+                sourceTable: sourceTable,
+                destinationTable: destinationTable,
+                itemsToSplit: itemsToSplit
+            };
+
+            try {
+                const response = await fetch('/api/split-table', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(splitData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Tách bàn thành công: Món từ ${sourceTable} đã chuyển sang ${destinationTable}`);
+                    console.log('Phản hồi từ backend:', result);
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi tách bàn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu tách bàn:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals();
+            }
+        });
+
+        cancelSplitBtn.addEventListener('click', () => {
+            closeAllModals();
+        });
+
+
+        // =======================================================================
+        // LOGIC CHO POPUP ĐẶT BÀN
+        // =======================================================================
+        const bookTableBtn = document.getElementById('bookTableBtn');
+        const bookTableModal = document.getElementById('bookTableModal');
+        const bookTableDisplay = document.getElementById('bookTableDisplay');
+        const customerNameInput = document.getElementById('customerName');
+        const customerPhoneInput = document.getElementById('customerPhone');
+        const bookDateInput = document.getElementById('bookDate');
+        const bookHourSelect = document.getElementById('bookHour');
+        const bookMinuteSelect = document.getElementById('bookMinute');
+        const confirmBookBtn = document.getElementById('confirmBookBtn');
+        const cancelBookBtn = document.getElementById('cancelBookBtn');
+
+        function populateTimeDropdowns() {
+            bookHourSelect.innerHTML = '';
+            bookMinuteSelect.innerHTML = '';
+
+            for (let i = 0; i < 24; i++) {
+                const hour = String(i).padStart(2, '0');
+                const option = document.createElement('option');
+                option.value = hour;
+                option.textContent = hour;
+                bookHourSelect.appendChild(option);
+            }
+
+            for (let i = 0; i < 60; i += 5) {
+                const minute = String(i).padStart(2, '0');
+                const option = document.createElement('option');
+                option.value = minute;
+                option.textContent = minute;
+                bookMinuteSelect.appendChild(option);
+            }
+
+            const now = new Date();
+            const currentHour = String(now.getHours()).padStart(2, '0');
+            const currentMinute = String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0');
+
+            if (bookHourSelect.querySelector(`option[value="${currentHour}"]`)) {
+                bookHourSelect.value = currentHour;
+            }
+            if (bookMinuteSelect.querySelector(`option[value="${currentMinute}"]`)) {
+                bookMinuteSelect.value = currentMinute;
+            }
+
+            bookDateInput.valueAsDate = now;
+        }
+
+        bookTableBtn.addEventListener('click', () => {
+            closeAllModals();
+            // Giả định bàn 11 là bàn được chọn để đặt
+            const selectedTable = "Bàn 11";
+            bookTableDisplay.textContent = selectedTable;
+
+            customerNameInput.value = '';
+            customerPhoneInput.value = '';
+            populateTimeDropdowns();
+
+            bookTableModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        confirmBookBtn.addEventListener('click', async () => {
+            const tableToBook = bookTableDisplay.textContent;
+            const customerName = customerNameInput.value.trim();
+            const customerPhone = customerPhoneInput.value.trim();
+            const bookDate = bookDateInput.value;
+            const bookHour = bookHourSelect.value;
+            const bookMinute = bookMinuteSelect.value;
+
+            if (!customerName) {
+                showAlert('Vui lòng nhập tên khách hàng.');
+                return;
+            }
+            if (!customerPhone) {
+                showAlert('Vui lòng nhập số điện thoại.');
+                return;
+            }
+            if (!bookDate) {
+                showAlert('Vui lòng chọn ngày đặt bàn.');
+                return;
+            }
+
+            const bookingData = {
+                table: tableToBook,
+                customerName: customerName,
+                customerPhone: customerPhone,
+                bookingDateTime: `${bookDate}T${bookHour}:${bookMinute}:00`
+            };
+
+            try {
+                const response = await fetch('/api/book-table', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Đặt bàn ${tableToBook} thành công cho ${customerName} vào lúc ${bookHour}:${bookMinute} ngày ${bookDate}.`);
+                    console.log('Phản hồi từ backend:', result);
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi đặt bàn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu đặt bàn:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals();
+            }
+        });
+
+        cancelBookBtn.addEventListener('click', () => {
+            closeAllModals();
+        });
+
+        // =======================================================================
+        // LOGIC MỚI CHO POPUP HỦY BÀN
+        // =======================================================================
+        const cancelTableBtn = document.getElementById('cancelTableBtn'); // Nút "Hủy bàn" chính
+        const cancelSelectTableModal = document.getElementById('cancelSelectTableModal'); // Popup chọn bàn cần hủy
+        const tableToCancelSelect = document.getElementById('tableToCancelSelect'); // Dropdown chọn bàn
+        const confirmCancelSelectBtn = document.getElementById('confirmCancelSelectBtn'); // Nút "Hủy bàn" trong popup chọn bàn
+        const cancelCancelSelectBtn = document.getElementById('cancelCancelSelectBtn'); // Nút "Hủy" trong popup chọn bàn
+
+        const cancelConfirmModal = document.getElementById('cancelConfirmModal'); // Popup xác nhận hủy bàn
+        const confirmCancelTableDisplay = document.getElementById('confirmCancelTableDisplay'); // Span hiển thị bàn trong popup xác nhận
+        const yesCancelBtn = document.getElementById('yesCancelBtn'); // Nút "Có" trong popup xác nhận
+        const noCancelBtn = document.getElementById('noCancelBtn'); // Nút "Không" trong popup xác nhận
+
+        let selectedTableToCancel = null; // Biến lưu bàn được chọn để hủy
+
+        // Hàm điền danh sách bàn vào dropdown của popup "Chọn bàn cần hủy"
+        function populateCancelTableOptions() {
+            tableToCancelSelect.innerHTML = ''; // Xóa các option cũ
+            // Chỉ cho phép hủy các bàn đang có khách hoặc đã được đặt
+            const cancelableTables = allTables.filter(table => isTableOccupied(table));
+
+            if (cancelableTables.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Không có bàn nào để hủy';
+                tableToCancelSelect.appendChild(option);
+                tableToCancelSelect.disabled = true;
+                confirmCancelSelectBtn.disabled = true;
+            } else {
+                tableToCancelSelect.disabled = false;
+                confirmCancelSelectBtn.disabled = false;
+                cancelableTables.forEach(table => {
+                    const option = document.createElement('option');
+                    option.value = table;
+                    option.textContent = table;
+                    tableToCancelSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Khi nút "Hủy bàn" chính được click
+        cancelTableBtn.addEventListener('click', () => {
+            closeAllModals(); // Đóng các modal khác
+            populateCancelTableOptions(); // Điền dropdown danh sách bàn
+            cancelSelectTableModal.classList.add('active'); // Hiển thị popup chọn bàn
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Khi nút "Hủy bàn" trong popup chọn bàn được click
+        confirmCancelSelectBtn.addEventListener('click', () => {
+            selectedTableToCancel = tableToCancelSelect.value;
+
+            if (!selectedTableToCancel) {
+                showAlert('Vui lòng chọn bàn cần hủy.');
+                return;
+            }
+
+            cancelSelectTableModal.classList.remove('active'); // Ẩn popup chọn bàn
+            confirmCancelTableDisplay.textContent = selectedTableToCancel; // Hiển thị tên bàn trong popup xác nhận
+            cancelConfirmModal.classList.add('active'); // Hiển thị popup xác nhận
+        });
+
+        // Khi nút "Hủy" trong popup chọn bàn được click
+        cancelCancelSelectBtn.addEventListener('click', () => {
+            closeAllModals(); // Đóng tất cả
+        });
+
+        // Khi nút "Có" trong popup xác nhận được click
+        yesCancelBtn.addEventListener('click', async () => {
+            if (selectedTableToCancel) {
+                const cancelData = {
+                    table: selectedTableToCancel
+                };
+
+                try {
+                    // Gửi yêu cầu POST về backend
+                    // Thay đổi URL này thành endpoint API thực tế của bạn
+                    const response = await fetch('/api/cancel-table', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(cancelData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        showAlert(`Hủy bàn ${selectedTableToCancel} thành công.`);
+                        console.log('Phản hồi từ backend:', result);
+                        // Cập nhật UI: ví dụ, đổi màu bàn thành trống
+                    } else {
+                        const errorData = await response.json();
+                        showAlert(`Lỗi khi hủy bàn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                        console.error('Lỗi phản hồi từ backend:', errorData);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi gửi yêu cầu hủy bàn:', error);
+                    showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+                } finally {
+                    closeAllModals(); // Đóng tất cả các modal
+                    selectedTableToCancel = null; // Reset biến
+                }
+            }
+        });
+
+        // Khi nút "Không" trong popup xác nhận được click
+        noCancelBtn.addEventListener('click', () => {
+            cancelConfirmModal.classList.remove('active'); // Đóng popup xác nhận
+            cancelSelectTableModal.classList.add('active'); // Hiện lại popup chọn bàn
+        });
+
+        // =======================================================================
+        // LOGIC MỚI CHO POPUP CHỌN THỰC ĐƠN
+        // =======================================================================
+        const selectMenuBtn = document.getElementById('selectMenuBtn'); // Nút "Chọn thực đơn"
+        const selectMenuModal = document.getElementById('selectMenuModal'); // Popup chọn thực đơn
+        const selectMenuTableDisplay = document.getElementById('selectMenuTableDisplay'); // Span hiển thị bàn trong popup
+        const tableToSelectMenu = document.getElementById('tableToSelectMenu'); // Dropdown chọn bàn
+        const menuItemsSection = selectMenuModal.querySelector('.menu-items-section'); // Khu vực chứa các món ăn
+        const saveMenuBtn = document.getElementById('saveMenuBtn'); // Nút "Lưu"
+        const cancelMenuBtn = document.getElementById('cancelMenuBtn'); // Nút "Hủy"
+
+        // Danh sách các món ăn có sẵn (giả lập)
+        const availableMenuItems = [
+            { name: "Cà phê sữa", price: 20000 },
+            { name: "Sinh tố", price: 22000 },
+            { name: "Pepsi", price: 10000 },
+            { name: "Trà Lipton", price: 12000 },
+            { name: "Sữa chua", price: 15000 },
+            { name: "Nước cam", price: 20000 },
+            { name: "Bánh mì", price: 18000 },
+            { name: "Phở bò", price: 40000 },
+            { name: "Bún chả", price: 35000 },
+            { name: "Trà đá", price: 5000 },
+            { name: "Kem", price: 15000 },
+            { name: "Mì tôm", price: 25000 },
+        ];
+
+        // Hàm điền danh sách bàn vào dropdown của popup "Chọn thực đơn"
+        function populateSelectMenuTableOptions() {
+            tableToSelectMenu.innerHTML = '';
+            // Cho phép chọn tất cả các bàn để gọi món (có thể điều chỉnh nếu có logic riêng)
+            allTables.forEach(table => {
+                const option = document.createElement('option');
+                option.value = table;
+                option.textContent = table;
+                tableToSelectMenu.appendChild(option);
+            });
+            // Mặc định chọn bàn 15 như trong hình hoặc bàn đầu tiên nếu bàn 15 không có
+            tableToSelectMenu.value = "Bàn 15";
+            selectMenuTableDisplay.textContent = "15";
+        }
+
+        // Hàm điền danh sách món ăn vào section và load số lượng hiện có của bàn
+        function populateMenuItems(selectedTable) {
+            menuItemsSection.innerHTML = ''; // Xóa các món cũ
+
+            const currentOrderedItems = occupiedTables[selectedTable] || [];
+
+            availableMenuItems.forEach((item, index) => {
+                const existingItem = currentOrderedItems.find(oi => oi.name === item.name);
+                const defaultQty = existingItem ? existingItem.quantity : 0;
+
+                const row = document.createElement('div');
+                row.classList.add('menu-item-row');
+                row.innerHTML = `
+                    <input type="checkbox" id="menu-item-${index}" value="${item.name}" ${defaultQty > 0 ? 'checked' : ''}>
+                    <label for="menu-item-${index}" class="item-name">${item.name}</label>
+                    <div class="item-quantity">
+                        <input type="number" id="qty-menu-${index}" value="${defaultQty}" min="0" data-item-name="${item.name}">
+                    </div>
+                `;
+                menuItemsSection.appendChild(row);
+
+                // Gắn sự kiện cho input number để cập nhật checkbox
+                const qtyInput = row.querySelector(`#qty-menu-${index}`);
+                const checkbox = row.querySelector(`#menu-item-${index}`);
+
+                qtyInput.addEventListener('input', () => {
+                    let val = parseInt(qtyInput.value);
+                    if (isNaN(val) || val < 0) {
+                        val = 0;
+                    }
+                    qtyInput.value = val;
+                    checkbox.checked = (val > 0);
+                });
+
+                // Gắn sự kiện cho checkbox để cập nhật số lượng
+                checkbox.addEventListener('change', () => {
+                    if (!checkbox.checked) {
+                        qtyInput.value = 0;
+                    } else {
+                        if (parseInt(qtyInput.value) === 0) {
+                            qtyInput.value = 1; // Mặc định số lượng là 1 nếu chọn checkbox và số lượng đang là 0
+                        }
+                    }
+                });
+            });
+        }
+
+        // Khi nút "Chọn thực đơn" được click
+        selectMenuBtn.addEventListener('click', () => {
+            closeAllModals();
+            populateSelectMenuTableOptions(); // Điền dropdown bàn
+            // Tải món cho bàn mặc định (Bàn 15)
+            populateMenuItems(tableToSelectMenu.value);
+            selectMenuModal.classList.add('active'); // Hiển thị popup
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Khi dropdown chọn bàn thay đổi
+        tableToSelectMenu.addEventListener('change', () => {
+            const selectedTable = tableToSelectMenu.value;
+            selectMenuTableDisplay.textContent = selectedTable.replace('Bàn ', '');
+            populateMenuItems(selectedTable); // Tải lại món cho bàn mới
+        });
+
+        // Khi nút "Lưu" trong popup chọn thực đơn được click
+        saveMenuBtn.addEventListener('click', async () => {
+            const selectedTable = tableToSelectMenu.value;
+            const selectedItems = [];
+
+            menuItemsSection.querySelectorAll('.menu-item-row').forEach(row => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                const qtyInput = row.querySelector('input[type="number"]');
+
+                if (checkbox.checked && parseInt(qtyInput.value) > 0) {
+                    const itemPrice = availableMenuItems.find(item => item.name === checkbox.value)?.price || 0;
+                    selectedItems.push({
+                        name: checkbox.value,
+                        quantity: parseInt(qtyInput.value),
+                        price: itemPrice // Bao gồm giá
+                    });
+                }
+            });
+
+            if (!selectedTable) {
+                showAlert('Vui lòng chọn bàn.');
+                return;
+            }
+
+            if (selectedItems.length === 0) {
+                showAlert('Vui lòng chọn ít nhất một món.');
+                return;
+            }
+
+            const menuData = {
+                table: selectedTable,
+                items: selectedItems
+            };
+
+            try {
+                // Gửi yêu cầu POST về backend
+                // Thay đổi URL này thành endpoint API thực tế của bạn
+                const response = await fetch('/api/select-menu', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(menuData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Đã lưu thực đơn cho ${selectedTable} thành công.`);
+                    console.log('Phản hồi từ backend:', result);
+                    // Cập nhật occupiedTables giả lập
+                    occupiedTables[selectedTable] = selectedItems;
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi lưu thực đơn: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu lưu thực đơn:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals(); // Đóng tất cả các modal
+            }
+        });
+
+        // Khi nút "Hủy" trong popup chọn thực đơn được click
+        cancelMenuBtn.addEventListener('click', () => {
+            closeAllModals(); // Đóng tất cả
+        });
+
+        // =======================================================================
+        // LOGIC MỚI CHO POPUP THANH TOÁN
+        // =======================================================================
+        const paymentBtn = document.getElementById('paymentBtn');
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentTableDisplay = document.getElementById('paymentTableDisplay');
+        const tableToPaySelect = document.getElementById('tableToPaySelect');
+        const orderedItemsTableBody = document.querySelector('#orderedItemsTable tbody');
+        const totalAmountSpan = document.getElementById('totalAmount');
+        const customerGivenAmountInput = document.getElementById('customerGivenAmount');
+        const returnAmountSpan = document.getElementById('returnAmount');
+        const resetTableStatusCheckbox = document.getElementById('resetTableStatusCheckbox');
+        const printBillBtn = document.getElementById('printBillBtn');
+        const processPaymentBtn = document.getElementById('processPaymentBtn');
+        const cancelPaymentBtn = document.getElementById('cancelPaymentBtn');
+
+        // Hàm điền danh sách bàn vào dropdown của popup "Thanh toán"
+        function populatePaymentTableOptions() {
+            tableToPaySelect.innerHTML = '';
+            // Chỉ cho phép thanh toán các bàn đang có khách
+            const payabledTables = allTables.filter(table => isTableOccupied(table));
+
+            if (payabledTables.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Không có bàn nào đang có khách';
+                tableToPaySelect.appendChild(option);
+                tableToPaySelect.disabled = true;
+                printBillBtn.disabled = true;
+                processPaymentBtn.disabled = true;
+                orderedItemsTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Không có món nào</td></tr>';
+                totalAmountSpan.textContent = '0 đ';
+                customerGivenAmountInput.value = '0';
+                returnAmountSpan.textContent = '0 đ';
+            } else {
+                tableToPaySelect.disabled = false;
+                printBillBtn.disabled = false;
+                processPaymentBtn.disabled = false;
+                payabledTables.forEach(table => {
+                    const option = document.createElement('option');
+                    option.value = table;
+                    option.textContent = table;
+                    tableToPaySelect.appendChild(option);
+                });
+                // Tự động chọn bàn đầu tiên và load món
+                tableToPaySelect.value = payabledTables[0];
+                paymentTableDisplay.textContent = payabledTables[0].replace('Bàn ', '');
+                loadOrderedItemsForTable(payabledTables[0]);
+            }
+        }
+
+        // Hàm tải các món đã đặt của bàn và tính tổng tiền
+        function loadOrderedItemsForTable(tableName) {
+            orderedItemsTableBody.innerHTML = '';
+            const items = occupiedTables[tableName] || [];
+            let total = 0;
+
+            if (items.length === 0) {
+                orderedItemsTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Không có món nào</td></tr>';
+            } else {
+                items.forEach(item => {
+                    const row = orderedItemsTableBody.insertRow();
+                    const itemTotal = item.quantity * item.price;
+                    total += itemTotal;
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>${itemTotal.toLocaleString('vi-VN')} đ</td>
+                    `;
+                });
+            }
+            totalAmountSpan.textContent = total.toLocaleString('vi-VN') + ' đ';
+            calculateReturnAmount(); // Tính lại tiền thối khi món thay đổi
+        }
+
+        // Hàm tính tiền thối lại
+        function calculateReturnAmount() {
+            const totalAmountText = totalAmountSpan.textContent.replace(/[.đ\s]/g, ''); // Loại bỏ dấu chấm, 'đ', khoảng trắng
+            const total = parseInt(totalAmountText) || 0;
+            const customerGiven = parseInt(customerGivenAmountInput.value) || 0;
+            const returnAmount = customerGiven - total;
+            returnAmountSpan.textContent = returnAmount.toLocaleString('vi-VN') + ' đ';
+
+            // Nếu số tiền khách đưa ít hơn tổng tiền, hiển thị màu đỏ
+            if (returnAmount < 0) {
+                returnAmountSpan.style.color = '#dc3545';
+            } else {
+                returnAmountSpan.style.color = '#28a745'; // Màu xanh lá hoặc màu mặc định
+            }
+        }
+
+        // Event listener cho nút "Thanh toán......"
+        paymentBtn.addEventListener('click', () => {
+            closeAllModals();
+            populatePaymentTableOptions();
+            paymentModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            customerGivenAmountInput.value = '0'; // Đặt lại tiền khách đưa
+            calculateReturnAmount(); // Đảm bảo tiền thối lại được tính lại
+        });
+
+        // Event listener khi chọn bàn thanh toán
+        tableToPaySelect.addEventListener('change', () => {
+            const selectedTable = tableToPaySelect.value;
+            paymentTableDisplay.textContent = selectedTable.replace('Bàn ', '');
+            loadOrderedItemsForTable(selectedTable);
+            customerGivenAmountInput.value = '0'; // Đặt lại tiền khách đưa khi đổi bàn
+            calculateReturnAmount(); // Đảm bảo tiền thối lại được tính lại
+        });
+
+        // Event listener khi nhập số tiền khách đưa
+        customerGivenAmountInput.addEventListener('input', calculateReturnAmount);
+
+        // Event listener cho nút "In phiếu thanh toán"
+        printBillBtn.addEventListener('click', async () => {
+            const table = tableToPaySelect.value;
+            const totalAmountText = totalAmountSpan.textContent.replace(/[.đ\s]/g, '');
+            const total = parseInt(totalAmountText) || 0;
+            const items = occupiedTables[table] || [];
+
+            if (!table) {
+                showAlert('Vui lòng chọn bàn để in phiếu.');
+                return;
+            }
+            if (items.length === 0) {
+                showAlert('Bàn này chưa có món nào để in phiếu.');
+                return;
+            }
+
+            const printData = {
+                table: table,
+                items: items,
+                totalAmount: total
+            };
+
+            try {
+                // Giả lập gọi API in
+                const response = await fetch('/api/print-bill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(printData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) { // Giả sử backend trả về { success: true } nếu in thành công
+                        showAlert('In hóa đơn thành công.');
+                        console.log('Phản hồi in thành công:', result);
+                    } else { // Giả sử backend trả về { success: false, message: "Không tìm thấy máy in" }
+                        showAlert(result.message || 'Không tìm thấy máy in.');
+                        console.error('Lỗi khi in:', result);
+                    }
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi yêu cầu in: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu in phiếu:', error);
+                showAlert('Không thể kết nối đến máy chủ in. Vui lòng thử lại sau.');
+            }
+        });
+
+        // Event listener cho nút "Thanh toán"
+        processPaymentBtn.addEventListener('click', async () => {
+            const table = tableToPaySelect.value;
+            const totalAmountText = totalAmountSpan.textContent.replace(/[.đ\s]/g, '');
+            const total = parseInt(totalAmountText) || 0;
+            const customerGiven = parseInt(customerGivenAmountInput.value) || 0;
+            const returnAmount = customerGiven - total;
+            const resetStatus = resetTableStatusCheckbox.checked;
+            const itemsPaid = occupiedTables[table] || [];
+
+
+            if (!table) {
+                showAlert('Vui lòng chọn bàn để thanh toán.');
+                return;
+            }
+            if (itemsPaid.length === 0) {
+                showAlert('Bàn này không có món nào để thanh toán.');
+                return;
+            }
+            if (customerGiven < total) {
+                showAlert('Số tiền khách đưa không đủ.');
+                return;
+            }
+
+            const paymentData = {
+                table: table,
+                itemsPaid: itemsPaid,
+                totalAmount: total,
+                customerGivenAmount: customerGiven,
+                returnAmount: returnAmount,
+                resetTableStatus: resetStatus
+            };
+
+            try {
+                const response = await fetch('/api/process-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`Thanh toán thành công cho ${table}. Tiền thối lại: ${returnAmount.toLocaleString('vi-VN')} đ.`);
+                    console.log('Phản hồi thanh toán thành công:', result);
+                    // Cập nhật trạng thái bàn trong UI nếu checkbox được chọn
+                    if (resetStatus) {
+                        delete occupiedTables[table]; // Xóa bàn khỏi danh sách bàn có khách
+                        // Cập nhật UI để bàn trở về trạng thái trống
+                        const tableDiv = document.querySelector(`.table-item:contains("${table}")`); // Sửa để chọn đúng bàn
+                        if(tableDiv) {
+                            tableDiv.classList.remove('occupied');
+                            let statusDiv = tableDiv.querySelector('.status');
+                            if (!statusDiv) {
+                                statusDiv = document.createElement('div');
+                                statusDiv.classList.add('status');
+                                tableDiv.appendChild(statusDiv);
+                            }
+                            statusDiv.textContent = '<trống>';
+                        }
+                    }
+                } else {
+                    const errorData = await response.json();
+                    showAlert(`Lỗi khi thanh toán: ${errorData.message || 'Có lỗi xảy ra.'}`);
+                    console.error('Lỗi phản hồi từ backend:', errorData);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gửi yêu cầu thanh toán:', error);
+                showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+            } finally {
+                closeAllModals(); // Đóng modal sau khi xử lý
+            }
+        });
+
+        // Event listener cho nút "Hủy" trong popup thanh toán
+        cancelPaymentBtn.addEventListener('click', () => {
+            closeAllModals();
+        });
+
+
+        });
+    </script>
+
+
+    <div class="table-grid">
+        <div class="table-item">
+            Bàn 01
+            <div class="status">&lt;trống&gt;</div>
+        </div>
+        <div class="table-item">Bàn 02</div>
+        <div class="table-item">Bàn 03</div>
+        <div class="table-item">Bàn 04</div>
+
+        <div class="table-item occupied">Bàn 05</div>
+        <div class="table-item occupied">Bàn 06</div>
+        <div class="table-item occupied">Bàn 07</div>
+        <div class="table-item occupied">Bàn 08</div>
+
+        <div class="table-item">Bàn 09</div>
+        <div class="table-item">Bàn 10</div>
+        <div class="table-item occupied">Bàn 11</div>
+        <div class="table-item">Bàn 12</div>
+
+        <div class="table-item occupied">Bàn 13</div>
+        <div class="table-item occupied">Bàn 14</div>
+        <div class="table-item occupied">Bàn 15</div>
+        <div class="table-item">Bàn 16</div>
+
+        <div class="table-item">Bàn 17</div>
+        <div class="table-item">Bàn 18</div>
+        <div class="table-item">Bàn 19</div>
+        <div class="table-item">Bàn 20</div>
+    </div>
+
+    <div class="action-buttons">
+        <button id="viewTableBtn" class="action-button">Xem bàn</button>
+        <button id="transferTableBtn" class="action-button">Chuyển bàn</button>
+        <button id="splitTableBtn" class="action-button">Tách bàn</button>
+        <button id="mergeTableBtn" class="action-button">Gộp bàn</button>
+        <button id="cancelTableBtn" class="action-button">Hủy bàn</button>
+        <button id="bookTableBtn" class="action-button">Đặt bàn</button>
+    </div>
+
+    <div class="bottom-actions">
+        <div id="selectMenuBtn" class="bottom-action-item">Chọn thực đơn......</div>
+        <div id="paymentBtn" class="bottom-action-item">Thanh toán......</div>
+        <div class="bottom-action-item">Cài đặt In ấn......</div>
+    </div>
+
+
+    <div id="viewTableModal" class="modal">
+        <div class="modal-content">
+            <h3>Xem thông tin bàn 15</h3>
+
+            <div class="modal-section">
+                <label>Các món đã gọi</label>
+                <div class="scrollable-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Tên món</th>
+                            <th>SL</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Sữa chua</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Cà phê sữa</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>Cô ca cô la</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Nước cam</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Bánh mì</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Phở bò</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Bún chả</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Trà đá</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>Kem</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Mì tôm</td>
+                            <td>1</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <label>Đặt trước</label>
+                <div class="booking-info">
+                    Lê Na, 10h 25/12/2014
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="closeViewModalBtn">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="transferTableModal" class="modal">
+        <div class="modal-content transfer-modal-content">
+            <h3>Chuyển bàn <span id="currentTransferTable">14</span></h3>
+
+            <div class="form-group">
+                <label for="destinationTableSelect">Chọn bàn cần chuyển đến:</label>
+                <select id="destinationTableSelect">
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirmTransferBtn">Chuyển</button>
+                <button id="cancelTransferBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mergeTableModal" class="modal">
+        <div class="modal-content merge-modal-content">
+            <h3>Gộp bàn</h3>
+
+            <div class="modal-body">
+                <div class="selection-column">
+                    <div class="column-title">Chọn các bàn cần gộp</div>
+                    <div id="sourceTablesCheckboxes">
+                    </div>
+                </div>
+
+                <div class="middle-arrow">
+                    <button>>>>></button>
+                </div>
+
+                <div class="selection-column">
+                    <div class="column-title">Chọn bàn gộp đến</div>
+                    <div id="destinationTableRadios">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirmMergeBtn">Gộp</button>
+                <button id="cancelMergeBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="splitTableModal" class="modal">
+        <div class="modal-content split-modal-content">
+            <h3>Tách bàn <span id="splitSourceTableDisplay">15</span></h3>
+
+            <div class="modal-body">
+                <div class="split-column">
+                    <div class="column-header">
+                        <span>Bàn <span id="splitSourceTableContent">15</span></span>
+                    </div>
+                    <div class="scrollable-table">
+                        <table id="sourceItemsTable">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Tên món</th>
+                                <th>SL</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="middle-split-arrow">
+                    <button id="moveToDestBtn"><<></button>
+                    <button id="moveToSourceBtn">>>></button>
+                </div>
+
+                <div class="split-column">
+                    <div class="column-header">
+                        <span>Bàn <span id="splitDestinationTableDisplay">04</span></span>
+                        <select id="splitDestinationTableSelect">
+                        </select>
+                    </div>
+                    <div class="scrollable-table">
+                        <table id="destinationItemsTable">
+                            <thead>
+                            <tr>
+                                <th>Tên món</th>
+                                <th>SL</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirmSplitBtn">Tách</button>
+                <button id="cancelSplitBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bookTableModal" class="modal">
+        <div class="modal-content book-modal-content">
+            <h3>Đặt bàn <span id="bookTableDisplay">11</span></h3>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="customerName">Khách hàng:</label>
+                    <input type="text" id="customerName" placeholder="Tên khách hàng">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">SĐT:</label>
+                    <input type="tel" id="customerPhone" placeholder="Số điện thoại" pattern="[0-9]{10,11}">
+                </div>
+                <div class="form-group">
+                    <label for="bookDate">Ngày:</label>
+                    <input type="date" id="bookDate">
+                </div>
+                <div class="form-group">
+                    <label for="bookHour">Giờ:</label>
+                    <div class="time-inputs">
+                        <select id="bookHour"></select> : <select id="bookMinute"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirmBookBtn">Đặt bàn</button>
+                <button id="cancelBookBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cancelSelectTableModal" class="modal">
+        <div class="modal-content cancel-select-modal-content">
+            <h3>Hủy bàn</h3>
+            <div class="form-group">
+                <label for="tableToCancelSelect">Chọn bàn cần hủy:</label>
+                <select id="tableToCancelSelect">
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmCancelSelectBtn">Hủy bàn</button>
+                <button id="cancelCancelSelectBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cancelConfirmModal" class="modal">
+        <div class="modal-content cancel-confirm-modal-content">
+            <div class="modal-body">
+                Bạn có chắc muốn hủy bàn <span id="confirmCancelTableDisplay"></span> này hay không ?
+            </div>
+            <div class="modal-footer">
+                <button id="yesCancelBtn">Có</button>
+                <button id="noCancelBtn">Không</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="selectMenuModal" class="modal">
+        <div class="modal-content select-menu-modal-content">
+            <h3>Chọn món bàn <span id="selectMenuTableDisplay">15</span></h3>
+
+            <div class="form-group">
+                <label for="tableToSelectMenu">Chọn bàn:</label>
+                <select id="tableToSelectMenu">
+                </select>
+            </div>
+
+            <div class="menu-items-section">
+                <div class="menu-item-row">
+                    <input type="checkbox" id="item-0" value="Cà phê sữa">
+                    <label for="item-0" class="item-name">Cà phê sữa</label>
+                    <div class="item-quantity">
+                        <input type="number" id="qty-0" value="0" min="0" data-item-name="Cà phê sữa">
+                    </div>
+                </div>
+                <div class="menu-item-row">
+                    <input type="checkbox" id="item-1" value="Sinh tố">
+                    <label for="item-1" class="item-name">Sinh tố</label>
+                    <div class="item-quantity">
+                        <input type="number" id="qty-1" value="0" min="0" data-item-name="Sinh tố">
+                    </div>
+                </div>
+                <div class="menu-item-row">
+                    <input type="checkbox" id="item-2" value="Pepsi">
+                    <label for="item-2" class="item-name">Pepsi</label>
+                    <div class="item-quantity">
+                        <input type="number" id="qty-2" value="0" min="0" data-item-name="Pepsi">
+                    </div>
+                </div>
+                <div class="menu-item-row">
+                    <input type="checkbox" id="item-3" value="Trà Lipton">
+                    <label for="item-3" class="item-name">Trà Lipton</label>
+                    <div class="item-quantity">
+                        <input type="number" id="qty-3" value="0" min="0" data-item-name="Trà Lipton">
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="saveMenuBtn">Lưu</button>
+                <button id="cancelMenuBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal-content">
+            <h3>Thanh toán bàn <span id="paymentTableDisplay">15</span></h3>
+
+            <div class="form-group">
+                <label for="tableToPaySelect">Chọn bàn để thanh toán:</label>
+                <select id="tableToPaySelect">
+                </select>
+            </div>
+
+            <div class="ordered-items-table-container">
+                <table id="orderedItemsTable">
+                    <thead>
+                    <tr>
+                        <th>Tên món</th>
+                        <th>SL</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-row">
+                <span>Tổng:</span>
+                <span id="totalAmount">0 đ</span>
+            </div>
+
+            <div class="payment-inputs">
+                <label for="customerGivenAmount">Khách đưa:</label>
+                <input type="number" id="customerGivenAmount" value="0" min="0">
+
+                <label>Thối lại:</label>
+                <span id="returnAmount" class="return-amount">0 đ</span>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="resetTableStatusCheckbox" checked>
+                <label for="resetTableStatusCheckbox">Đổi trạng thái bàn sang trống sau khi thanh toán</label>
+            </div>
+
+            <div class="action-buttons-payment">
+                <button id="printBillBtn">In phiếu thanh toán</button>
+                <button id="processPaymentBtn">Thanh toán</button>
+                <button id="cancelPaymentBtn">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertModal" class="modal">
+        <div class="modal-content alert-modal-content">
+            <h3 id="alertMessage">Thông báo</h3>
+            <div class="modal-footer">
+                <button id="closeAlertModalBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+</body>
+</html>

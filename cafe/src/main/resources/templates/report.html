@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+
+    <style>
+
+
+
+        .report-container {
+            width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-right: 10px;
+        }
+        .radio-group label {
+            margin-right: 20px;
+        }
+        .date-selection {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .date-selection label {
+            margin-right: 10px;
+        }
+        .date-selection input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .date-selection button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .date-selection button:hover {
+            background-color: #45a049;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .report-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            position: relative; /* For sort arrows */
+        }
+        .report-table .text-right {
+            text-align: right;
+        }
+        .report-table tfoot td {
+            font-weight: bold;
+            background-color: #e9e9e9;
+        }
+        .sort-arrow {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            color: #888;
+        }
+        .sortable-header {
+            cursor: pointer;
+            padding-right: 20px; /* Make space for arrow */
+        }
+
+        .action-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .export-section, .print-section {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            width: 48%; /* Adjust as needed */
+        }
+        .export-section label, .print-section label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .export-section input[type="radio"] {
+            margin-right: 5px;
+        }
+        .export-section button, .print-section button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .export-section button:hover, .print-section button:hover {
+            background-color: #0056b3;
+        }
+        .print-section select, .print-section input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 18px); /* Adjust for padding/border */
+            margin-bottom: 10px;
+        }
+        .print-section .form-field {
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <form id="reportForm" action="/report" method="GET">
+        <div class="form-group radio-group">
+            <label><input type="radio" name="reportType" value="all" checked>Tất cả</label>
+            <label><input type="radio" name="reportType" value="import-export">Nhập-xuất</label>
+            <label><input type="radio" name="reportType" value="import">Nhập</label>
+            <label><input type="radio" name="reportType" value="sales">Bán hàng</label>
+            <label><input type="radio" name="reportType" value="salary">Lương</label>
+            <label><input type="radio" name="reportType" value="employee">TT nhân viên</label>
+            <label><input type="radio" name="reportType" value="export">Xuất</label>
+            <label><input type="radio" name="reportType" value="other-fees">Phí khác</label>
+        </div>
+
+        <div class="date-selection">
+            <label for="fromDate">Từ ngày</label>
+            <input type="date" id="fromDate" name="fromDate" value="2014-12-23">
+            <label for="toDate">đến ngày</label>
+            <input type="date" id="toDate" name="toDate" value="2014-12-25">
+            <button type="submit">Xem</button>
+        </div>
+    </form>
+
+    <div class="report-results">
+        <table class="report-table" id="reportDataTable">
+            <thead>
+            <tr>
+                <th class="sortable-header" data-sort-by="date">Ngày <span class="sort-arrow"></span></th>
+                <th class="sortable-header" data-sort-by="thu">Thu <span class="sort-arrow"></span></th>
+                <th class="sortable-header" data-sort-by="chi">Chi <span class="sort-arrow"></span></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr th:each="report : ${reports}">
+                <td th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}"></td>
+                <td th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+                <td th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="action-group">
+        <div class="export-section">
+            <h3>Xuất file</h3>
+            <form id="exportForm" action="/api/report/export" method="POST">
+                <label><input type="radio" name="exportFormat" value="txt" checked> .txt - Text File</label>
+                <label><input type="radio" name="exportFormat" value="xls"> .xls - Excel File</label>
+                <label><input type="radio" name="exportFormat" value="sql"> .sql - SQL File</label>
+                <button type="submit">Xuất file</button>
+            </form>
+        </div>
+
+        <div class="print-section">
+            <h3>In file</h3>
+            <form id="printForm" action="/api/report/print" method="POST">
+                <div class="form-field">
+                    <label for="paperSize">Khổ giấy:</label>
+                    <select id="paperSize" name="paperSize">
+                        <option value="A4">A4</option>
+                        <option value="A3">A3</option>
+                        <option value="Letter">Letter</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="printer">Máy in:</label>
+                    <select id="printer" name="printer">
+                        <option value="Hp Laser">Hp Laser</option>
+                        <option value="Epson Inkjet">Epson Inkjet</option>
+                        <option value="Canon Pixma">Canon Pixma</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="copies">Số lượng:</label>
+                    <input type="number" id="copies" name="copies" value="3" min="1">
+                </div>
+                <button type="submit">In</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript for handling form submissions and (optional) basic sorting
+    document.addEventListener('DOMContentLoaded', () => {
+        const reportForm = document.getElementById('reportForm');
+        const exportForm = document.getElementById('exportForm');
+        const printForm = document.getElementById('printForm');
+        const reportTable = document.getElementById('reportDataTable');
+        const headerCells = reportTable.querySelectorAll('th.sortable-header');
+
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc'; // 'asc' for ascending, 'desc' for descending
+
+        // Function to get cell value for sorting
+        function getCellValue(row, columnIndex, sortBy) {
+            const cells = Array.from(row.querySelectorAll('td'));
+            const cell = cells[columnIndex];
+
+            if (!cell) return null; // Handle cases where cell might not exist for some rows
+
+            // For numeric columns (Thu, Chi)
+            if (sortBy === 'thu' || sortBy === 'chi') {
+                // Get data-value for raw number, otherwise parse text content
+                return parseFloat(cell.dataset.value || cell.textContent.replace(/\./g, '').replace(',', '.'));
+            }
+            // For date column (Ngày)
+            if (sortBy === 'date') {
+                // Assuming date format DD/MM/YYYY for display, convert to YYYY-MM-DD for sorting
+                const dateParts = cell.textContent.trim().split('/');
+                if (dateParts.length === 3) {
+                    return new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+                }
+                return null; // Invalid date format
+            }
+            // Default to text content for other columns
+            return cell.textContent.trim().toLowerCase();
+        }
+
+        // Function to sort the table
+        function sortTable(columnIndex, direction, sortBy) {
+            const tbody = reportTable.querySelector('tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((rowA, rowB) => {
+                const valueA = getCellValue(rowA, columnIndex, sortBy);
+                const valueB = getCellValue(rowB, columnIndex, sortBy);
+
+                if (valueA === null || valueB === null) {
+                    // Handle cases where values might be invalid or missing
+                    return 0;
+                }
+
+                if (valueA < valueB) {
+                    return direction === 'asc' ? -1 : 1;
+                }
+                if (valueA > valueB) {
+                    return direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+
+            // Remove existing rows and append sorted rows
+            const fragment = document.createDocumentFragment();
+            rows.forEach(row => fragment.appendChild(row));
+            tbody.innerHTML = ''; // Clear existing rows
+            tbody.appendChild(fragment);
+        }
+
+        // Add click event listeners to sortable headers
+        headerCells.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                const sortBy = header.dataset.sortBy;
+                let direction;
+
+                // If clicking the same column, toggle sort direction
+                if (currentSortColumn === sortBy) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    // If clicking a new column, reset to ascending
+                    currentSortColumn = sortBy;
+                    currentSortDirection = 'asc';
+                }
+                direction = currentSortDirection;
+
+                // Clear sort arrows from all headers
+                document.querySelectorAll('.sort-arrow').forEach(arrow => arrow.textContent = '');
+
+                // Update the sort arrow for the clicked header
+                const sortArrow = header.querySelector('.sort-arrow');
+                if (direction === 'asc') {
+                    sortArrow.textContent = '▲';
+                } else {
+                    sortArrow.textContent = '▼';
+                }
+
+                sortTable(index, direction, sortBy);
+            });
+        });
+
+
+        // Handle "Xem" button click (Report Form Submission)
+        reportForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this);
+            const params = new URLSearchParams();
+            for (const pair of formData) {
+                params.append(pair[0], pair[1]);
+            }
+
+            // Construct the URL with query parameters
+            const url = `${this.action}?${params.toString()}`;
+            console.log('Sending GET request to Backend (Xem):', url);
+
+            // Here you would typically use fetch API to send the request
+            // fetch(url)
+            //     .then(response => response.json()) // or .text() depending on your backend
+            //     .then(data => {
+            //         console.log('Backend response (Xem):', data);
+            //         // Update the report table with received data
+            //         // For this example, we'll just log
+            //     })
+            //     .catch(error => {
+            //         console.error('Error fetching report:', error);
+            //     });
+
+            alert('Request "Xem" đã được gửi đến Backend. Xem console để biết chi tiết.');
+        });
+
+        // Handle "Xuất file" button click (Export Form Submission)
+        exportForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this);
+            const exportFormat = formData.get('exportFormat'); // e.g., 'txt', 'xls', 'sql'
+
+            // You might want to get the current report parameters (date range, report type)
+            // from the main reportForm if the backend needs them for export.
+            const reportType = document.querySelector('input[name="reportType"]:checked').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            const exportData = {
+                format: exportFormat,
+                reportType: reportType,
+                fromDate: fromDate,
+                toDate: toDate
+            };
+
+            // Construct the URL and send POST request
+            const url = this.action; // /api/report/export
+            console.log('Sending POST request to Backend (Xuất file):', url, 'with data:', exportData);
+
+            // fetch(url, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(exportData),
+            // })
+            // .then(response => {
+            //     if (response.ok) {
+            //         // For file downloads, you might handle it differently, e.g.,
+            //         // response.blob().then(blob => {
+            //         //    const url = window.URL.createObjectURL(blob);
+            //         //    const a = document.createElement('a');
+            //         //    a.href = url;
+            //         //    a.download = `report.${exportFormat}`;
+            //         //    document.body.appendChild(a);
+            //         //    a.click();
+            //         //    a.remove();
+            //         //    window.URL.revokeObjectURL(url);
+            //         // });
+            //         console.log('File export initiated successfully!');
+            //     } else {
+            //         console.error('File export failed!');
+            //     }
+            // })
+            // .catch(error => {
+            //     console.error('Error during file export:', error);
+            // });
+
+            alert(`Request "Xuất file (${exportFormat})" đã được gửi đến Backend. Xem console để biết chi tiết.`);
+        });
+
+        // Handle "In" button click (Print Form Submission)
+        printForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData(this);
+            const paperSize = formData.get('paperSize');
+            const printer = formData.get('printer');
+            const copies = formData.get('copies');
+
+            // Again, you might want to send current report parameters
+            const reportType = document.querySelector('input[name="reportType"]:checked').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            const printData = {
+                paperSize: paperSize,
+                printer: printer,
+                copies: parseInt(copies, 10), // Ensure copies is an integer
+                reportType: reportType,
+                fromDate: fromDate,
+                toDate: toDate
+            };
+
+            const url = this.action; // /api/report/print
+            console.log('Sending POST request to Backend (In):', url, 'with data:', printData);
+
+            // fetch(url, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify(printData),
+            // })
+            // .then(response => {
+            //     if (response.ok) {
+            //         console.log('Print request sent successfully!');
+            //     } else {
+            //         console.error('Print request failed!');
+            //     }
+            // })
+            // .catch(error => {
+            //     console.error('Error sending print request:', error);
+            // });
+
+            alert('Request "In" đã được gửi đến Backend. Xem console để biết chi tiết.');
+        });
+    });
+</script>
+
+
+
+</div>
+</body>
+</html>

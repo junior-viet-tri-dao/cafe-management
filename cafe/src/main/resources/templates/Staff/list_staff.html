@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Danh Sách Nhân Viên </title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .table-container {
+            /* border: 1px solid #ddd; */ /* Bỏ border ngoài container vì các cell đã có border */
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: flex;
+            background-color: #f2f2f2;
+            font-weight: bold;
+            /* border-bottom: 1px solid #ddd; */ /* Bỏ border dưới header vì các cell đã có border */
+        }
+
+        .table-row {
+            display: flex !important;
+            /* border-bottom: 1px solid #eee; */ /* Bỏ border dưới hàng vì các cell đã có border */
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        /* THAY ĐỔI QUAN TRỌNG: THÊM BORDER CHO CÁC CELL */
+        .table-cell, .table-header-cell {
+            padding: 8px;
+            flex: 1;
+            box-sizing: border-box;
+            border: 1px solid #ddd; /* Thêm border cho tất cả các cạnh của cell */
+        }
+
+        /* Điều chỉnh border để chúng không bị trùng lặp không cần thiết */
+        .table-header-cell:not(:last-child) {
+            border-right: none; /* Bỏ viền phải để các cell header dính liền */
+        }
+        .table-cell:not(:last-child) {
+            border-right: none; /* Bỏ viền phải để các cell dữ liệu dính liền */
+        }
+
+        .table-header-cell {
+            border-bottom: none; /* Bỏ viền dưới cho header cell để nó dính với hàng đầu tiên */
+        }
+
+        /* Viền trên cùng cho hàng dữ liệu đầu tiên */
+        .table-row:first-of-type .table-cell {
+            border-top: 1px solid #ddd;
+        }
+
+
+        /* Tùy chỉnh chiều rộng cho từng cột */
+        .table-header-cell.name, .table-cell.name {
+            flex: 2;
+        }
+        .table-header-cell.position, .table-cell.position {
+            flex: 1.5;
+        }
+        .table-header-cell.salary, .table-cell.salary {
+            flex: 1;
+            text-align: right;
+        }
+
+        .table-header-cell {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .table-header-cell:hover {
+            background-color: #e0e0e0;
+        }
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 5px;
+            min-width: 10px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div layout:fragment="content">
+
+
+
+
+
+    <div class="table-container" id="employeeTable">
+        <div class="table-header">
+            <div class="table-header-cell name" data-sort-by="name">Họ tên <span class="sort-arrow"></span></div>
+            <div class="table-header-cell position" data-sort-by="position">Chức vụ <span class="sort-arrow"></span></div>
+            <div class="table-header-cell salary" data-sort-by="salary">Lương <span class="sort-arrow"></span></div>
+        </div>
+
+        <div class="table-row">
+            <div class="table-cell name">Nguyễn Văn A</div>
+            <div class="table-cell position">Trưởng phòng</div>
+            <div class="table-cell salary" data-value="25000000">25.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Trần Thị B</div>
+            <div class="table-cell position">Nhân viên</div>
+            <div class="table-cell salary" data-value="12000000">12.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Lê Văn C</div>
+            <div class="table-cell position">Giám đốc</div>
+            <div class="table-cell salary" data-value="40000000">40.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Phạm Thị D</div>
+            <div class="table-cell position">Kế toán</div>
+            <div class="table-cell salary" data-value="15000000">15.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Hoàng Văn E</div>
+            <div class="table-cell position">Trưởng nhóm</div>
+            <div class="table-cell salary" data-value="18000000">18.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Đỗ Thị F</div>
+            <div class="table-cell position">Thực tập sinh</div>
+            <div class="table-cell salary" data-value="5000000">5.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Vũ Văn G</div>
+            <div class="table-cell position">Chuyên viên</div>
+            <div class="table-cell salary" data-value="20000000">20.000.000 VNĐ</div>
+        </div>
+        <div class="table-row">
+            <div class="table-cell name">Ngô Thị H</div>
+            <div class="table-cell position">Thư ký</div>
+            <div class="table-cell salary" data-value="10000000">10.000.000 VNĐ</div>
+        </div>
+    </div>
+
+    <script>
+        const employeeTable = document.getElementById('employeeTable');
+        const headerCells = document.querySelectorAll('.table-header-cell');
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc'; // 'asc' for ascending, 'desc' for descending
+
+        function getCellValue(row, columnIndex) {
+            // Lấy các ô dữ liệu trong hàng
+            const cells = Array.from(row.querySelectorAll('.table-cell'));
+            const cell = cells[columnIndex];
+
+            // Đặc biệt xử lý cột lương để lấy giá trị số từ data-value
+            if (cell.classList.contains('salary')) {
+                return parseFloat(cell.dataset.value);
+            }
+            // Mặc định, lấy textContent
+            return cell.textContent.trim();
+        }
+
+        function sortDivTable(columnIndex, direction) {
+            const tableRows = Array.from(employeeTable.querySelectorAll('.table-row'));
+
+            tableRows.sort((rowA, rowB) => {
+                let valueA = getCellValue(rowA, columnIndex);
+                let valueB = getCellValue(rowB, columnIndex);
+
+                // Chuyển đổi sang chữ thường nếu là chuỗi để sắp xếp không phân biệt hoa thường
+                if (typeof valueA === 'string') {
+                    valueA = valueA.toLowerCase();
+                    valueB = valueB.toLowerCase();
+                }
+
+                if (valueA < valueB) {
+                    return direction === 'asc' ? -1 : 1;
+                }
+                if (valueA > valueB) {
+                    return direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+
+            // Xóa các hàng hiện có và thêm các hàng đã sắp xếp
+            const fragment = document.createDocumentFragment();
+            tableRows.forEach(row => {
+                fragment.appendChild(row);
+            });
+            // Tìm vị trí để chèn các hàng, sau header
+            const header = employeeTable.querySelector('.table-header');
+            employeeTable.insertBefore(fragment, header.nextSibling);
+        }
+
+        headerCells.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.sortBy;
+                let direction;
+
+                // Nếu click vào cùng cột, đảo ngược hướng sắp xếp
+                if (currentSortColumn === column) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else { // Nếu click vào cột khác, đặt lại hướng về 'asc'
+                    currentSortColumn = column;
+                    currentSortDirection = 'asc';
+                }
+                direction = currentSortDirection;
+
+                // Xóa mũi tên sắp xếp cũ trên tất cả các tiêu đề
+                document.querySelectorAll('.sort-arrow').forEach(arrow => arrow.textContent = '');
+
+                // Cập nhật mũi tên sắp xếp mới
+                const sortArrow = header.querySelector('.sort-arrow');
+                if (direction === 'asc') {
+                    sortArrow.textContent = '▲'; // Mũi tên lên (tăng dần)
+                } else {
+                    sortArrow.textContent = '▼'; // Mũi tên xuống (giảm dần)
+                }
+
+                // Tìm chỉ mục của cột được click
+                const columnIndex = Array.from(headerCells).indexOf(header);
+                sortDivTable(columnIndex, direction);
+            });
+        });
+    </script>
+
+
+
+
+
+</div>
+</body>
+</html>
