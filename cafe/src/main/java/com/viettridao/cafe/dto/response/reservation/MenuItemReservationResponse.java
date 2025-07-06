@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MenuItemReservationResponse {
+    private Integer id;
+
     private String itemName;
 
     private Integer quantity;

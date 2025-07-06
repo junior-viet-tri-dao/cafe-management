@@ -37,6 +37,7 @@ public class ReservationMapper {
            for(InvoiceDetailEntity invoiceDetail : entity.getInvoice().getInvoiceDetails()){
                MenuItemReservationResponse menuItemResponse = new MenuItemReservationResponse();
 
+               menuItemResponse.setId(invoiceDetail.getMenuItem().getId());
                menuItemResponse.setItemName(invoiceDetail.getMenuItem().getItemName());
                menuItemResponse.setQuantity(invoiceDetail.getQuantity());
                menuItemResponse.setPrice(invoiceDetail.getPrice());

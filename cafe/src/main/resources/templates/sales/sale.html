@@ -74,7 +74,9 @@
             Chuyển bàn
           </button>
           <button
-            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                  type="button"
+                  class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                  onclick="openSplitTableModalFromSelection()"
           >
             Tách bàn
           </button>
@@ -353,6 +355,54 @@
               <button type="button" onclick="closeModalMergeTable()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
             </div>
           </form>
+        </div>
+      </div>
+
+
+      <!-- Modal tách bàn -->
+      <div id="splitTableModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-2xl shadow-lg relative">
+          <h2 class="text-xl font-bold mb-4">Tách bàn <span id="splitFromTableName"></span></h2>
+
+          <form id="splitTableForm" th:action="@{/sale/split}" method="post">
+            <input type="hidden" name="fromTableId" id="splitFromTableId" />
+            <input type="hidden" name="splitItemsJson" id="splitItemsJson">
+            <div class="flex gap-6">
+              <!-- Danh sách món từ bàn gốc -->
+              <div class="w-1/2 border p-3 rounded">
+                <h3 class="font-semibold mb-2">Bàn gốc (<span id="fromTableLabel">...</span>)</h3>
+                <div class="space-y-2 max-h-56 overflow-y-auto" id="splitSourceItems">
+                  <!-- JS sẽ render món ăn -->
+                </div>
+              </div>
+
+              <!-- Danh sách món sang bàn mới -->
+              <div class="w-1/2 border p-3 rounded">
+                <div class="mb-2">
+                  <label class="font-semibold">Chọn bàn cần tách đến:</label>
+                  <select name="toTableId" id="splitToTableId" class="border rounded w-full px-2 py-1 mt-1">
+                    <option value="">-- Chọn bàn --</option>
+                    <option th:each="table : ${tables}" th:if="${table.status == 'AVAILABLE'}"
+                            th:value="${table.id}" th:text="${table.tableName}"></option>
+                  </select>
+                </div>
+
+                <h3 class="font-semibold mt-4 mb-2">Bàn mới (<span id="toTableLabel">...</span>)</h3>
+                <div class="space-y-2 max-h-56 overflow-y-auto border p-2 rounded" id="splitTargetItems">
+                  <!-- JS sẽ render -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút -->
+            <div class="flex justify-end gap-4 mt-6">
+              <button type="button" onclick="submitSplitForm()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Tách</button>
+              <button type="button" onclick="closeSplitTableModal()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Hủy</button>
+            </div>
+          </form>
+
+          <!-- Nút đóng -->
+          <button onclick="closeSplitTableModal()" class="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl">&times;</button>
         </div>
       </div>
 
@@ -773,6 +823,166 @@
             return;
           }
         });
+
+        // tách bàn
+        function openSplitTableModalFromSelection() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning("Vui lòng chọn một bàn để tách!");
+            return;
+          }
+
+          const tableId = checked.value;
+          const tableDiv = checked.closest('div');
+          const tableName = checked.nextElementSibling.innerText;
+
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+
+          // Kiểm tra trạng thái
+          if (statusText != "🔴 Đang sử dụng") {
+            showWarning('Chỉ có bàn đang sử dụng mới được tách');
+            return;
+          }
+
+
+          fetch("/sale/api/view/" + tableId)
+                  .then(res => res.json())
+                  .then(data => {
+                    if (!data.menuItems || data.menuItems.length === 0) {
+                      showWarning("Không có món để tách!");
+                      return;
+                    }
+
+                    openSplitTableModal(tableId, tableName, data.menuItems);
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    showError("Không thể lấy dữ liệu bàn!");
+                  });
+        }
+
+        function openSplitTableModal(tableId, tableName, items) {
+          document.getElementById('splitFromTableId').value = tableId;
+          document.getElementById('splitFromTableName').innerText = tableName;
+          document.getElementById('fromTableLabel').innerText = tableName;
+          document.getElementById('splitToTableId').value = "";
+          document.getElementById('toTableLabel').innerText = "...";
+
+          const sourceContainer = document.getElementById("splitSourceItems");
+          sourceContainer.innerHTML = "";
+
+          items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "flex items-center gap-2";
+            div.innerHTML = `
+            <input type="checkbox" name="selectedItems" value="${item.id}" onchange="toggleQuantityInput(this)" />
+            <span class="flex-1">${item.itemName}</span>
+            <span class="text-sm text-gray-600">/ Tổng SL: ${item.quantity}</span>
+            <input type="number" name="quantities" min="1" max="${item.quantity}"
+                   class="border rounded w-16 px-1 py-0.5"
+                   disabled
+                   oninput="renderTargetItems()" />
+          `;
+            sourceContainer.appendChild(div);
+          });
+
+
+          document.getElementById("splitTargetItems").innerHTML = ""; // Để sau nếu cần render trước
+          document.getElementById("splitTableModal").classList.remove("hidden");
+        }
+
+        function toggleQuantityInput(checkbox) {
+          const input = checkbox.parentElement.querySelector('input[type="number"]');
+          if (checkbox.checked) {
+            input.disabled = false;
+            input.value = 1;
+          } else {
+            input.disabled = true;
+            input.value = "";
+          }
+          renderTargetItems();
+        }
+
+
+        function closeSplitTableModal() {
+          document.getElementById("splitTableModal").classList.add("hidden");
+        }
+
+        function submitSplitForm() {
+          const toTableId = document.getElementById("splitToTableId").value;
+          if (!toTableId) {
+            showWarning("Vui lòng chọn bàn cần tách đến!");
+            return;
+          }
+
+          const checkedItems = document.querySelectorAll('input[name="selectedItems"]:checked');
+          if (checkedItems.length === 0) {
+            showWarning("Vui lòng chọn ít nhất một món để tách!");
+            return;
+          }
+
+          let valid = true;
+          const itemsData = [];
+
+          checkedItems.forEach(chk => {
+            const qtyInput = chk.parentElement.querySelector('input[type="number"]');
+            const max = parseInt(qtyInput.max, 10);
+            const val = parseInt(qtyInput.value, 10);
+
+            if (isNaN(val) || val <= 0 || val > max) {
+              valid = false;
+            } else {
+              itemsData.push({
+                itemId: parseInt(chk.value, 10),
+                quantity: val
+              });
+            }
+          });
+
+          if (!valid) {
+            showWarning("Vui lòng nhập số lượng hợp lệ cho tất cả món đã chọn!");
+            return;
+          }
+
+          // Gán JSON vào hidden input
+          document.getElementById("splitItemsJson").value = JSON.stringify(itemsData);
+
+          // Submit form
+          document.getElementById("splitTableForm").submit();
+        }
+
+        function renderTargetItems() {
+          const container = document.getElementById("splitTargetItems");
+          container.innerHTML = "";
+
+          const checkedItems = document.querySelectorAll('input[name="selectedItems"]:checked');
+
+          if (checkedItems.length === 0) {
+            container.innerHTML = "<p class='text-gray-500'>Chưa chọn món.</p>";
+            return;
+          }
+
+          checkedItems.forEach(chk => {
+            const qtyInput = chk.parentElement.querySelector('input[type="number"]');
+            const val = qtyInput.value;
+            const name = chk.parentElement.querySelector('span.flex-1').innerText;
+
+            if (val && parseInt(val) > 0) {
+              const div = document.createElement("div");
+              div.className = "flex justify-between text-sm";
+              div.innerHTML = `
+              <span>${name}</span>
+              <span>x${val}</span>
+            `;
+              container.appendChild(div);
+            }
+          });
+
+          if (container.innerHTML.trim() === "") {
+            container.innerHTML = "<p class='text-gray-500'>Chưa chọn món.</p>";
+          }
+        }
       </script>
     </div>
   </body>

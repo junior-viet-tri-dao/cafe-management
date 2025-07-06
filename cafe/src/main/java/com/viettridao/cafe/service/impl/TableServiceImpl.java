@@ -2,6 +2,7 @@ package com.viettridao.cafe.service.impl;
 
 import com.viettridao.cafe.common.InvoiceStatus;
 import com.viettridao.cafe.common.TableStatus;
+import com.viettridao.cafe.dto.request.table.SplitItemRequest;
 import com.viettridao.cafe.dto.request.table.TableRequest;
 import com.viettridao.cafe.model.*;
 import com.viettridao.cafe.repository.InvoiceDetailRepository;
@@ -213,6 +214,9 @@ public class TableServiceImpl implements TableService {
 
                 invoiceRepository.save(invoice);
             }
+
+            reservation.setIsDeleted(true);
+            reservationRepository.save(reservation);
             table.setStatus(TableStatus.AVAILABLE);
         }
     }
@@ -379,6 +383,144 @@ public class TableServiceImpl implements TableService {
         // Đảm bảo bàn đích là OCCUPIED
         tableTarget.setStatus(TableStatus.OCCUPIED);
         tableRepository.save(tableTarget);
+    }
+
+    @Transactional
+    @Override
+    public void splitTable(Integer fromTableId, Integer toTableId, List<SplitItemRequest> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Không có món nào để tách.");
+        }
+
+        TableEntity fromTable = getTableById(fromTableId);
+        TableEntity toTable = getTableById(toTableId);
+
+        if (!fromTable.getStatus().equals(TableStatus.OCCUPIED)) {
+            throw new RuntimeException("Bàn nguồn phải đang sử dụng.");
+        }
+
+        if (!toTable.getStatus().equals(TableStatus.AVAILABLE)) {
+            throw new RuntimeException("Bàn đích phải đang trống.");
+        }
+
+        Optional<ReservationEntity> fromReservationOpt = reservationRepository
+                .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(fromTableId, false);
+
+        if (!fromReservationOpt.isPresent()) {
+            throw new RuntimeException("Bàn nguồn không có thông tin đặt bàn.");
+        }
+
+        ReservationEntity fromReservation = fromReservationOpt.get();
+        InvoiceEntity fromInvoice = fromReservation.getInvoice();
+
+        if (fromInvoice == null) {
+            throw new RuntimeException("Bàn nguồn không có hóa đơn.");
+        }
+
+        InvoiceEntity toInvoice = new InvoiceEntity();
+        toInvoice.setStatus(InvoiceStatus.UNPAID);
+        toInvoice.setIsDeleted(false);
+        toInvoice.setTotalAmount(0.0);
+        toInvoice.setCreatedAt(LocalDateTime.now());
+        invoiceRepository.save(toInvoice);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AccountEntity account = accountService.getAccountByUsername(auth.getName());
+
+        if (account.getEmployee() == null) {
+            throw new IllegalStateException("Bạn phải cập nhật thông tin nhân viên.");
+        }
+
+        ReservationEntity toReservation = new ReservationEntity();
+        ReservationKey toKey = new ReservationKey();
+        toKey.setIdTable(toTable.getId());
+        toKey.setIdInvoice(toInvoice.getId());
+        toKey.setIdEmployee(account.getEmployee().getId());
+
+        toReservation.setId(toKey);
+        toReservation.setInvoice(toInvoice);
+        toReservation.setEmployee(account.getEmployee());
+        toReservation.setTable(toTable);
+        toReservation.setReservationDate(LocalDateTime.now());
+        toReservation.setIsDeleted(false);
+
+        reservationRepository.save(toReservation);
+
+        double fromTotal = 0.0;
+        double toTotal = 0.0;
+
+        // Tách từng món
+        for (SplitItemRequest splitItem : items) {
+            Integer itemId = splitItem.getItemId();
+            Integer quantityToSplit = splitItem.getQuantity();
+
+            if (quantityToSplit <= 0) continue;
+
+            InvoiceKey fromKey = new InvoiceKey(fromInvoice.getId(), itemId);
+            Optional<InvoiceDetailEntity> fromDetailOpt = invoiceDetailRepository.findById(fromKey);
+
+            if (!fromDetailOpt.isPresent()) {
+                throw new RuntimeException("Không tìm thấy món cần tách trong hóa đơn bàn nguồn.");
+            }
+
+            InvoiceDetailEntity fromDetail = fromDetailOpt.get();
+
+            if (fromDetail.getQuantity() < quantityToSplit) {
+                throw new RuntimeException("Số lượng tách vượt quá số lượng hiện có.");
+            }
+
+            fromDetail.setQuantity(fromDetail.getQuantity() - quantityToSplit);
+            if (fromDetail.getQuantity() == 0) {
+                fromDetail.setIsDeleted(true);
+            }
+            invoiceDetailRepository.save(fromDetail);
+
+            // Thêm vào hóa đơn bàn đích
+            InvoiceKey toKeyItem = new InvoiceKey(toInvoice.getId(), itemId);
+            Optional<InvoiceDetailEntity> toDetailOpt = invoiceDetailRepository.findById(toKeyItem);
+
+            if (toDetailOpt.isPresent()) {
+                InvoiceDetailEntity toDetail = toDetailOpt.get();
+                toDetail.setQuantity(toDetail.getQuantity() + quantityToSplit);
+                invoiceDetailRepository.save(toDetail);
+            } else {
+                InvoiceDetailEntity newDetail = new InvoiceDetailEntity();
+                newDetail.setId(toKeyItem);
+                newDetail.setInvoice(toInvoice);
+                newDetail.setMenuItem(fromDetail.getMenuItem());
+                newDetail.setQuantity(quantityToSplit);
+                newDetail.setPrice(fromDetail.getPrice());
+                newDetail.setIsDeleted(false);
+                invoiceDetailRepository.save(newDetail);
+            }
+
+            // Cộng tiền
+            double price = fromDetail.getPrice();
+            fromTotal += (fromDetail.getQuantity()) * price;
+            toTotal += quantityToSplit * price;
+        }
+
+        // Cập nhật tổng tiền
+        double newFromTotal = invoiceDetailRepository
+                .findAllByInvoice_Id(fromInvoice.getId())
+                .stream()
+                .filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()))
+                .mapToDouble(d -> d.getQuantity() * d.getPrice())
+                .sum();
+        fromInvoice.setTotalAmount(newFromTotal);
+        invoiceRepository.save(fromInvoice);
+
+        double newToTotal = invoiceDetailRepository
+                .findAllByInvoice_Id(toInvoice.getId())
+                .stream()
+                .filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()))
+                .mapToDouble(d -> d.getQuantity() * d.getPrice())
+                .sum();
+        toInvoice.setTotalAmount(newToTotal);
+        invoiceRepository.save(toInvoice);
+
+        toTable.setStatus(TableStatus.OCCUPIED);
+        tableRepository.save(toTable);
     }
 
 

@@ -1,6 +1,9 @@
 package com.viettridao.cafe.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viettridao.cafe.dto.request.reservation.ReservationCreateRequest;
+import com.viettridao.cafe.dto.request.table.SplitItemRequest;
 import com.viettridao.cafe.dto.request.table.TableRequest;
 import com.viettridao.cafe.dto.response.reservation.ReservationResponse;
 import com.viettridao.cafe.dto.response.table.TableResponse;
@@ -184,6 +187,26 @@ public class SaleController {
             return "redirect:/sale";
         }
 
+    }
+
+    @PostMapping("/split")
+    public String splitTable(
+            @RequestParam Integer fromTableId,
+            @RequestParam Integer toTableId,
+            @RequestParam String splitItemsJson,
+            RedirectAttributes redirectAttributes) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            List<SplitItemRequest> items = mapper.readValue(splitItemsJson, new TypeReference<>() {});
+
+            tableService.splitTable(fromTableId, toTableId, items);
+
+            redirectAttributes.addFlashAttribute("success", "Tách bàn thành công!");
+            return "redirect:/sale";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Tách bàn thất bại: " + e.getMessage());
+            return "redirect:/sale";
+        }
     }
 
 

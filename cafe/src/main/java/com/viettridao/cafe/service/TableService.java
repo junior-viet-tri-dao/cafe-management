@@ -1,5 +1,6 @@
 package com.viettridao.cafe.service;
 
+import com.viettridao.cafe.dto.request.table.SplitItemRequest;
 import com.viettridao.cafe.dto.request.table.TableRequest;
 import com.viettridao.cafe.model.TableEntity;
 
@@ -14,4 +15,5 @@ public interface TableService {
     void payment(Integer tableId);
     void moveTable(Integer fromTableId, Integer toTableId);
     void merge(List<Integer> sourceTableIds, Integer targetTableId);
+    void splitTable(Integer fromTableId, Integer toTableId, List<SplitItemRequest> items);
 }
