@@ -21,16 +21,19 @@
             <div class="mb-3">
                 <label for="customerName" class="form-label">Tên khách hàng</label>
                 <input type="text" class="form-control" th:field="*{customerName}" id="customerName" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('customerName')}" th:errors="*{customerName}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="customerPhone" class="form-label">SĐT khách hàng</label>
                 <input type="text" class="form-control" th:field="*{customerPhone}" id="customerPhone" required pattern="0[0-9]{9,10}" title="SĐT hợp lệ bắt đầu bằng 0 và có 10-11 số">
+                <div class="text-danger" th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}"></div>
             </div>
 
             <div class="mb-3">
                 <label for="reservationDate" class="form-label">Thời gian đặt bàn</label>
                 <input type="datetime-local" class="form-control" th:field="*{reservationDate}" id="reservationDate" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('reservationDate')}" th:errors="*{reservationDate}"></div>
             </div>
 
             <div class="d-flex justify-content-between">

@@ -24,12 +24,14 @@
                     <input type="date" id="startDate" name="startDate"
                            class="form-control"
                            th:value="${filter.startDate != null ? #temporals.format(filter.startDate, 'yyyy-MM-dd') : ''}">
+                    <div class="text-danger" th:if="${#fields.hasErrors('startDate')}"></div>
                 </div>
                 <div class="col-md-4">
                     <label for="endDate" class="form-label">Đến ngày:</label>
                     <input type="date" id="endDate" name="endDate"
                            class="form-control"
                            th:value="${filter.endDate != null ? #temporals.format(filter.endDate, 'yyyy-MM-dd') : ''}">
+                    <div class="text-danger" th:if="${#fields.hasErrors('endDate')}"></div>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">🔍 Xem</button>
@@ -64,6 +66,10 @@
                 </table>
             </div>
 
+            <div class="col-12">
+                <div class="text-danger" th:if="${#fields.hasGlobalErrors()}"
+                     th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
         </div>
     </div>
 </div>

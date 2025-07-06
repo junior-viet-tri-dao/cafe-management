@@ -20,21 +20,25 @@
                         th:value="${product.id}"
                         th:text="${product.productName}">Tên hàng</option>
             </select>
+            <div class="text-danger small" th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}"></div>
         </div>
 
         <div class="mb-3">
-            <label for="exportDate" class="form-label">Ngày nhập</label>
+            <label for="exportDate" class="form-label">Ngày xuất</label>
             <input type="date" class="form-control" id="exportDate" th:field="*{exportDate}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('exportDate')}" th:errors="*{exportDate}"></div>
         </div>
 
         <div class="mb-3">
             <label for="quantity" class="form-label">Số lượng</label>
             <input type="number" class="form-control" id="quantity" th:field="*{quantity}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
         </div>
 
         <div class="mb-3">
             <label for="totalExportAmount" class="form-label">Tổng tiền</label>
             <input type="number" class="form-control" id="totalExportAmount" th:field="*{totalExportAmount}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('totalExportAmount')}" th:errors="*{totalExportAmount}"></div>
         </div>
 
         <div class="text-center">

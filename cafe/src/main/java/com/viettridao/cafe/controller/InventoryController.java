@@ -1,5 +1,15 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
 import com.viettridao.cafe.dto.request.export.ExportCreateRequest;
 import com.viettridao.cafe.dto.request.export.ExportUpdateRequest;
 import com.viettridao.cafe.dto.request.imports.ImportCreateRequest;
@@ -10,11 +20,6 @@ import com.viettridao.cafe.repository.ProductRepository;
 import com.viettridao.cafe.service.exports.IExportService;
 import com.viettridao.cafe.service.imports.IImportService;
 import com.viettridao.cafe.service.inventory.IInventoryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -45,7 +50,13 @@ public class InventoryController {
     }
 
     @PostMapping("/import")
-    public String createImport(@ModelAttribute ImportCreateRequest request) {
+    public String createImport(@ModelAttribute("importRequest") @Valid ImportCreateRequest request,
+                               BindingResult result,
+                               Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("products", productRepository.findProductByDeletedFalse());
+            return "inventory/import-inventory";
+        }
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Integer employeeId = employeeRepository.findByAccount_Username(username)
                 .map(EmployeeEntity::getId)
@@ -54,6 +65,7 @@ public class InventoryController {
         importService.createImport(request);
         return "redirect:/inventory";
     }
+
 
     @GetMapping("/export/new")
     public String showExportForm(Model model, @RequestParam(value = "productId", required = false) Integer productId) {
@@ -67,15 +79,24 @@ public class InventoryController {
     }
 
     @PostMapping("/export")
-    public String createExport(@ModelAttribute ExportCreateRequest request) {
+    public String createExport(@ModelAttribute("exportRequest") @Valid ExportCreateRequest request,
+                               BindingResult result,
+                               Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("products", productRepository.findProductByDeletedFalse());
+            return "inventory/export-inventory";
+        }
+
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Integer employeeId = employeeRepository.findByAccount_Username(username)
                 .map(EmployeeEntity::getId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với username: " + username));
+
         request.setEmployeeId(employeeId);
         exportService.createExport(request);
         return "redirect:/inventory";
     }
+
 
     @GetMapping("import/edit/{id}")
     public String showEditImportForm(@PathVariable Integer id, Model model) {
@@ -100,21 +121,19 @@ public class InventoryController {
     }
 
     @PostMapping("import/{id}")
-    public String updateImport(@PathVariable Integer id, @ModelAttribute("import") ImportUpdateRequest request, Model model) {
-        if (id == null) {
-            model.addAttribute("error", "Import ID must not be null");
+    public String updateImport(@PathVariable Integer id,
+                               @ModelAttribute("import") @Valid ImportUpdateRequest request,
+                               BindingResult result,
+                               Model model) {
+        if (result.hasErrors()) {
             model.addAttribute("products", productRepository.findProductByDeletedFalse());
             return "inventory/form-import-edit";
         }
-        try {
-            importService.updateImport(id, request);
-            return "redirect:/inventory";
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("products", productRepository.findProductByDeletedFalse());
-            return "inventory/form-import-edit";
-        }
+
+        importService.updateImport(id, request);
+        return "redirect:/inventory";
     }
+
 
     @GetMapping("export/edit/{id}")
     public String showEditExportForm(@PathVariable Integer id, Model model) {
@@ -141,21 +160,19 @@ public class InventoryController {
     }
 
     @PostMapping("export/{id}")
-    public String updateExport(@PathVariable Integer id, @ModelAttribute("export") ExportUpdateRequest request, Model model) {
-        if (id == null) {
-            model.addAttribute("error", "Export ID must not be null");
+    public String updateExport(@PathVariable Integer id,
+                               @ModelAttribute("export") @Valid ExportUpdateRequest request,
+                               BindingResult result,
+                               Model model) {
+        if (result.hasErrors()) {
             model.addAttribute("products", productRepository.findProductByDeletedFalse());
             return "inventory/form-export-edit";
         }
-        try {
-            exportService.updateExport(id, request);
-            return "redirect:/inventory";
-        } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("products", productRepository.findProductByDeletedFalse());
-            return "inventory/form-export-edit";
-        }
+
+        exportService.updateExport(id, request);
+        return "redirect:/inventory";
     }
+
 
     @PostMapping("import/delete/{id}")
     public String deleteImport(@PathVariable Integer id) {

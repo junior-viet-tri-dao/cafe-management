@@ -28,12 +28,20 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">* Họ và tên:</label>
-                    <input type="text" th:field="*{fullName}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <input type="text" th:field="*{fullName}"
+                           required minlength="2" maxlength="100"
+                           pattern="^[^\d]+$"
+                           title="Họ tên không chứa số, từ 2 đến 100 ký tự"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('fullName')}"
+                       th:errors="*{fullName}">Lỗi</p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">* Địa chỉ:</label>
                     <input type="text" th:field="*{address}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('address')}"
+                       th:errors="*{address}">Lỗi</p>
                 </div>
 
                 <div class="flex items-center space-x-4">
@@ -63,7 +71,12 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">* Số điện thoại:</label>
-                    <input type="text" th:field="*{phoneNumber}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <input type="tel" th:field="*{phoneNumber}"
+                           required pattern="^0\d{9,10}$"
+                           title="Số điện thoại phải bắt đầu bằng 0, gồm 10–11 số"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
+
                 </div>
 
                 <div class="flex justify-center space-x-4">

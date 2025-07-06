@@ -19,6 +19,7 @@
                 <div class="col-md-12">
                     <label for="promotionName" class="form-label">* Tên khuyến mãi:</label>
                     <input type="text" id="promotionName" th:field="*{promotionName}" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('promotionName')}" th:errors="*{promotionName}"></div>
                 </div>
 
                 <div class="col-md-6">
@@ -26,6 +27,7 @@
                     <input type="date" id="startDate" name="startDate"
                            th:value="${promotion.startDate != null ? #temporals.format(promotion.startDate, 'yyyy-MM-dd') : ''}"
                            class="form-control" required />
+                    <div class="text-danger" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
                 </div>
 
                 <div class="col-md-6">
@@ -33,12 +35,14 @@
                     <input type="date" id="endDate" name="endDate"
                            th:value="${promotion.endDate != null ? #temporals.format(promotion.endDate, 'yyyy-MM-dd') : ''}"
                            class="form-control" required />
+                    <div class="text-danger" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
                 </div>
 
                 <div class="col-md-6">
                     <label for="discountValue" class="form-label">* % Giảm giá:</label>
                     <input type="number" id="discountValue" th:field="*{discountValue}"
                            min="0" max="100" step="0.01" class="form-control" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('discountValue')}" th:errors="*{discountValue}"></div>
                 </div>
 
                 <div class="col-md-6">
@@ -47,12 +51,18 @@
                         <option value="true">Hoạt động</option>
                         <option value="false">Ngừng</option>
                     </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
                 </div>
 
                 <div class="col-md-12">
                     <label for="description" class="form-label">Mô tả:</label>
                     <textarea id="description" th:field="*{description}" class="form-control" rows="4"></textarea>
                 </div>
+
+                <div class="col-12">
+                    <div class="text-danger" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
 
                 <div class="col-12 mt-4">
                     <button type="submit" class="btn btn-primary me-2">💾 Lưu</button>

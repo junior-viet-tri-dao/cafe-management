@@ -5,18 +5,25 @@ import com.itextpdf.layout.*;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+
+import java.text.DecimalFormat;
+
+import java.time.format.DateTimeFormatter;
+
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.viettridao.cafe.common.ReportType;
 import com.viettridao.cafe.dto.response.revenue.RevenueItemResponse;
 import com.viettridao.cafe.dto.response.revenue.RevenueResponse;
 import com.viettridao.cafe.model.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayOutputStream;
-import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -209,18 +216,87 @@ public class PdfExportService implements IPdfExportService{
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Document doc = createDoc(out, "BÁO CÁO NHẬP - XUẤT HÀNG");
 
-        doc.add(new Paragraph("\n📥 NHẬP HÀNG").setBold());
-        doc.add(new Paragraph("\n"));
-        doc.add(new Paragraph(new String(generateImportReport((List<ImportEntity>) map.get("imports")))));
+        DecimalFormat df = new DecimalFormat("#,###");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/yyyy");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        List<ImportEntity> imports = (List<ImportEntity>) map.get("imports");
+        List<ExportEntity> exports = (List<ExportEntity>) map.get("exports");
+
+        // -------------------- NHẬP HÀNG --------------------
+        doc.add(new Paragraph("📥 NHẬP HÀNG").setBold().setFontSize(14));
+
+        if (imports.isEmpty()) {
+            doc.add(new Paragraph("Không có dữ liệu nhập hàng."));
+        } else {
+            Map<String, List<ImportEntity>> groupedImports = imports.stream()
+                    .collect(Collectors.groupingBy(i -> i.getImportDate().format(dtf)));
+
+            for (String month : groupedImports.keySet()) {
+                doc.add(new Paragraph("Tháng " + month).setBold());
+
+                Table table = new Table(UnitValue.createPercentArray(new float[]{4, 3, 2, 2})).useAllAvailableWidth();
+                table.addHeaderCell("Tên sản phẩm");
+                table.addHeaderCell("Ngày nhập");
+                table.addHeaderCell("Số lượng");
+                table.addHeaderCell("Tổng tiền");
+
+                double totalMonthImport = 0.0;
+
+                for (ImportEntity i : groupedImports.get(month)) {
+                    table.addCell(i.getProduct().getProductName());
+                    table.addCell(i.getImportDate().format(dateFormat));
+                    table.addCell(i.getQuantity().toString());
+                    table.addCell(df.format(i.getTotalAmount()));
+                    totalMonthImport += i.getTotalAmount();
+                }
+
+                doc.add(table);
+                doc.add(new Paragraph("Tổng tiền nhập tháng " + month + ": " + df.format(totalMonthImport) + " VNĐ").setBold());
+                doc.add(new Paragraph("\n"));
+            }
+        }
 
         doc.add(new AreaBreak());
-        doc.add(new Paragraph("📤 XUẤT HÀNG").setBold());
-        doc.add(new Paragraph("\n"));
-        doc.add(new Paragraph(new String(generateExportReport((List<ExportEntity>) map.get("exports")))));
+
+        // -------------------- XUẤT HÀNG --------------------
+        doc.add(new Paragraph("📤 XUẤT HÀNG").setBold().setFontSize(14));
+
+        if (exports.isEmpty()) {
+            doc.add(new Paragraph("Không có dữ liệu xuất hàng."));
+        } else {
+            Map<String, List<ExportEntity>> groupedExports = exports.stream()
+                    .collect(Collectors.groupingBy(e -> e.getExportDate().format(dtf)));
+
+            for (String month : groupedExports.keySet()) {
+                doc.add(new Paragraph("Tháng " + month).setBold());
+
+                Table table = new Table(UnitValue.createPercentArray(new float[]{4, 3, 2, 2})).useAllAvailableWidth();
+                table.addHeaderCell("Tên sản phẩm");
+                table.addHeaderCell("Ngày xuất");
+                table.addHeaderCell("Số lượng");
+                table.addHeaderCell("Tổng tiền");
+
+                double totalMonthExport = 0.0;
+
+                for (ExportEntity e : groupedExports.get(month)) {
+                    table.addCell(e.getProduct().getProductName());
+                    table.addCell(e.getExportDate().format(dateFormat));
+                    table.addCell(e.getQuantity().toString());
+                    table.addCell(df.format(e.getTotalExportAmount()));
+                    totalMonthExport += e.getTotalExportAmount();
+                }
+
+                doc.add(table);
+                doc.add(new Paragraph("Tổng tiền xuất tháng " + month + ": " + df.format(totalMonthExport) + " VNĐ").setBold());
+                doc.add(new Paragraph("\n"));
+            }
+        }
 
         doc.close();
         return out.toByteArray();
     }
+
 
     private static Document createDoc(ByteArrayOutputStream out, String title) {
         PdfWriter writer = new PdfWriter(out);

@@ -2,6 +2,8 @@ package com.viettridao.cafe.dto.request.imports;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,16 +11,25 @@ import lombok.Setter;
 @Setter
 public class ImportUpdateRequest {
 
+    @NotNull(message = "ID không được để trống")
     private Integer id;
 
+    @NotNull(message = "Ngày nhập không được để trống")
+    @PastOrPresent(message = "Ngày nhập không được vượt quá ngày hôm nay")
     private LocalDate importDate;
 
+    @NotNull(message = "Tổng tiền không được để trống")
+    @Positive(message = "Tổng tiền phải lớn hơn 0")
     private Double totalAmount;
 
+    @NotNull(message = "Số lượng không được để trống")
+    @Min(value = 1, message = "Số lượng tối thiểu là 1")
     private Integer quantity;
 
+    @NotNull(message = "Nhân viên không được để trống")
     private Integer employeeId;
 
+    @NotNull(message = "Sản phẩm không được để trống")
     private Integer productId;
 
 }

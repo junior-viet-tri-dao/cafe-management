@@ -28,7 +28,7 @@
                         th:text="${product.productName}"
                         th:selected="${product.id == export.productId}">Tên hàng</option>
             </select>
-            <span th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}" class="text-danger"></span>
+            <span class="text-danger small" th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}"></span>
         </div>
 
         <div class="mb-3">
@@ -40,19 +40,21 @@
                        th:value="${export.exportDate != null ? #temporals.format(export.exportDate, 'yyyy-MM-dd') : ''}"
                        class="form-control"
                        required>
-                <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('exportDate')}" th:errors="*{exportDate}"></p>
+                <div class="text-danger small" th:if="${#fields.hasErrors('exportDate')}" th:errors="*{exportDate}"></div>
         </div>
 
         <div class="mb-3">
             <label for="quantity" class="form-label">Số lượng</label>
             <input type="number" class="form-control" id="quantity" th:field="*{quantity}" required>
             <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-danger"></span>
+            <span class="text-danger small" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></span>
         </div>
 
         <div class="mb-3">
             <label for="totalAmount" class="form-label">Tổng tiền</label>
             <input type="number" step="0.01" class="form-control" id="totalAmount" th:field="*{totalAmount}" required>
             <span th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}" class="text-danger"></span>
+            <span class="text-danger small" th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}"></span>
         </div>
 
             <input type="hidden" id="employeeId" th:field="*{employeeId}">

@@ -1,10 +1,11 @@
 package com.viettridao.cafe.service.account;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.request.account.AccountCreateRequest;
@@ -14,7 +15,6 @@ import com.viettridao.cafe.dto.response.profile.ProfileResponse;
 import com.viettridao.cafe.mapper.AccountMapper;
 import com.viettridao.cafe.mapper.ProfileMapper;
 import com.viettridao.cafe.model.AccountEntity;
-import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.repository.AccountRepository;
 
 @Service

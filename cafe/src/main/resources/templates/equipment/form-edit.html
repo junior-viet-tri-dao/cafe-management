@@ -17,11 +17,13 @@
         <div class="mb-3">
             <label class="form-label">Tên thiết bị</label>
             <input type="text" th:field="*{equipmentName}" class="form-control" required />
+            <div class="text-danger small" th:if="${#fields.hasErrors('equipmentName')}" th:errors="*{equipmentName}"></div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Số lượng</label>
-            <input type="number" th:field="*{quantity}" class="form-control" required />
+            <input type="number" th:field="*{quantity}" class="form-control" required min="1"/>
+            <div class="text-danger small" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
         </div>
 
         <div class="mb-3">
@@ -31,6 +33,7 @@
                        th:value="${#numbers.formatDecimal(equipment.purchasePrice, 0, 'POINT', 0, 'COMMA')}"
                        class="form-control" pattern="[0-9.,]*" placeholder="VD: 1.000.000" required />
                 <span class="input-group-text">VND</span>
+                <div class="text-danger small" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
             </div>
         </div>
 
@@ -40,18 +43,13 @@
                    th:field="*{purchaseDate}"
                    th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                    class="form-control" required />
-<!--            <div>-->
-<!--                <label for="purchaseDate" class="block text-gray-700 font-medium mb-1">Ngày mua</label>-->
-<!--                <input type="date" th:field="{purchaseDate}" id="purchaseDate"-->
-<!--                       th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required-->
-<!--                       class="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring focus:ring-blue-300 outline-none"/>-->
-<!--                <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('purchaseDate')}" th:errors="{purchaseDate}"></p>-->
-<!--            </div>-->
+            <div class="text-danger small" th:if="${#fields.hasErrors('purchaseDate')}" th:errors="*{purchaseDate}"></div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Ghi chú</label>
             <textarea th:field="*{notes}" class="form-control" rows="3"></textarea>
+            <div class="text-danger small" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></div>
         </div>
 
         <div class="text-end">

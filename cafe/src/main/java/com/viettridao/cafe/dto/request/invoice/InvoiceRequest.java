@@ -2,10 +2,10 @@ package com.viettridao.cafe.dto.request.invoice;
 
 import java.util.List;
 
-import com.viettridao.cafe.dto.request.invoicedetail.InvoiceDetailRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.viettridao.cafe.dto.request.invoicedetail.InvoiceDetailRequest;
 
 @Getter
 @Setter

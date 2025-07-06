@@ -1,5 +1,17 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+
 import com.viettridao.cafe.dto.request.expense.ExpenseCreateRequest;
 import com.viettridao.cafe.dto.request.expense.ExpenseUpdateRequest;
 import com.viettridao.cafe.mapper.ExpenseMapper;
@@ -8,13 +20,6 @@ import com.viettridao.cafe.model.ExpenseEntity;
 import com.viettridao.cafe.repository.AccountRepository;
 import com.viettridao.cafe.repository.ExpenseRepository;
 import com.viettridao.cafe.service.expense.IExpenseService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,7 +45,13 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public String createExpense(@ModelAttribute("expense") ExpenseCreateRequest request) {
+    public String createExpense(@ModelAttribute("expense") @Valid ExpenseCreateRequest request,
+                                BindingResult result,
+                                Model model) {
+        if (result.hasErrors()) {
+            return "expense/form-create";
+        }
+
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         AccountEntity account = accountRepository.findByUsernameAndDeletedFalse(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản: " + username));
@@ -60,10 +71,19 @@ public class ExpenseController {
     }
 
     @PostMapping("/{id}")
-    public String updateExpense(@PathVariable Integer id, @ModelAttribute("Expense") ExpenseUpdateRequest request) {
+    public String updateExpense(@PathVariable Integer id,
+                                @ModelAttribute("Expense") @Valid ExpenseUpdateRequest request,
+                                BindingResult result,
+                                Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("ExpenseId", id);
+            model.addAttribute("today", LocalDate.now());
+            return "expense/form-edit";
+        }
         expenseService.updateExpense(id, request);
         return "redirect:/expense";
     }
+
 
     @PostMapping("/delete/{id}")
     public String deleteEquiment(@PathVariable Integer id) {

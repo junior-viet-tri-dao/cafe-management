@@ -1,7 +1,9 @@
 package com.viettridao.cafe.service.imports;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.request.imports.ImportCreateRequest;
@@ -26,13 +28,11 @@ public class ImportServiceImpl implements IImportService {
     public void createImport(ImportCreateRequest request) {
         ImportEntity entity = importMapper.toEntity(request);
 
-        // Gắn lại employee từ DB để tránh detached
         entity.setEmployee(
                 employeeRepository.findById(request.getEmployeeId())
                         .orElseThrow(() -> new RuntimeException("Employee not found"))
         );
 
-        // Gắn lại product từ DB (tương tự)
         entity.setProduct(
                 productRepository.findById(request.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found"))
@@ -54,7 +54,6 @@ public class ImportServiceImpl implements IImportService {
 
         importMapper.updateEntityFromRequest(request, existing);
 
-        // Gắn lại product từ DB (tương tự)
         existing.setProduct(
                 productRepository.findById(request.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found"))

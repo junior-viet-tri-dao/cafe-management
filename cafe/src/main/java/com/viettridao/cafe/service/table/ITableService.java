@@ -1,10 +1,10 @@
 package com.viettridao.cafe.service.table;
 
-import com.viettridao.cafe.dto.response.table.TableResponse;
-import com.viettridao.cafe.model.TableEntity;
-
 import java.util.List;
 import java.util.Map;
+
+import com.viettridao.cafe.dto.response.table.TableResponse;
+import com.viettridao.cafe.model.TableEntity;
 
 public interface ITableService {
 

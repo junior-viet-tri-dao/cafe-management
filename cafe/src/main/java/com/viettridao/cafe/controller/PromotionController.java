@@ -1,13 +1,16 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.viettridao.cafe.dto.request.promotion.PromotionCreateRequest;
 import com.viettridao.cafe.dto.request.promotion.PromotionUpdateRequest;
-import com.viettridao.cafe.mapper.PromotionMapper;
 import com.viettridao.cafe.service.promotion.IPromotionService;
 
 @Controller
@@ -30,10 +33,16 @@ public class PromotionController {
     }
 
     @PostMapping
-    public String createPromotion(@ModelAttribute("promotion") PromotionCreateRequest request) {
+    public String createPromotion(@Valid @ModelAttribute("promotion") PromotionCreateRequest request,
+                                  BindingResult bindingResult,
+                                  Model model) {
+        if (bindingResult.hasErrors()) {
+            return "promotion/form-create";
+        }
         promotionService.createPromotion(request);
         return "redirect:/promotion";
     }
+
 
     @GetMapping("/{id}/edit")
     public String showEditForm (@PathVariable Integer id, Model model) {
@@ -44,10 +53,19 @@ public class PromotionController {
     }
 
     @PostMapping("/{id}")
-    public String updatePromotion(@PathVariable Integer id, @ModelAttribute("promotion") PromotionUpdateRequest request) {
-        promotionService.updatePromotion(id,request);
+    public String updatePromotion(@PathVariable Integer id,
+                                  @Valid @ModelAttribute("promotion") PromotionUpdateRequest request,
+                                  BindingResult bindingResult,
+                                  Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("id", id);
+            return "promotion/form-edit";
+        }
+
+        promotionService.updatePromotion(id, request);
         return "redirect:/promotion";
     }
+
 
     @PostMapping("/{id}/delete")
     public String deleteEmployee(@PathVariable Integer id) {

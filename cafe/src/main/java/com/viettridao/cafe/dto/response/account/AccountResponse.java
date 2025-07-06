@@ -1,11 +1,7 @@
 package com.viettridao.cafe.dto.response.account;
 
-import java.util.List;
-
 import lombok.*;
 
-import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
-import com.viettridao.cafe.dto.response.expense.ExpenseResponse;
 
 @Getter
 @Setter

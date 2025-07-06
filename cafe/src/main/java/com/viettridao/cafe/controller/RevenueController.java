@@ -1,9 +1,7 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.dto.request.revenue.RevenueFilterRequest;
-import com.viettridao.cafe.dto.response.revenue.RevenueResponse;
-import com.viettridao.cafe.service.revenue.IRevenueService;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+
+import com.viettridao.cafe.dto.request.revenue.RevenueFilterRequest;
+import com.viettridao.cafe.dto.response.revenue.RevenueResponse;
+import com.viettridao.cafe.service.revenue.IRevenueService;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,9 +31,9 @@ public class RevenueController {
 
             Model model
     ) {
-        // Nếu chưa nhập thì lấy toàn bộ dữ liệu
+        // Nếu chưa nhập thì lấy cố định là đầu năm 2025
         if (startDate == null) {
-            startDate = LocalDate.of(2000, 1, 1); // hoặc ngày sớm nhất bạn muốn hiển thị
+            startDate = LocalDate.of(2025, 1, 1);
         }
         if (endDate == null) {
             endDate = LocalDate.now();

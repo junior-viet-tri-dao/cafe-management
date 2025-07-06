@@ -1,10 +1,9 @@
 package com.viettridao.cafe.controller;
 
-import com.viettridao.cafe.common.ReportType;
-import com.viettridao.cafe.dto.request.report.ReportFilterRequest;
-import com.viettridao.cafe.service.report.IReportService;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.time.LocalDate;
+
+import com.viettridao.cafe.common.ReportType;
+import com.viettridao.cafe.dto.request.report.ReportFilterRequest;
+import com.viettridao.cafe.service.report.IReportService;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,7 +39,13 @@ public class ReportController {
         ReportFilterRequest request = new ReportFilterRequest();
         request.setStartDate(startDate);
         request.setEndDate(endDate);
-        request.setType(Enum.valueOf(ReportType.class, type));
+        try {
+            request.setType(ReportType.valueOf(type));
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Loại báo cáo không hợp lệ");
+            return;
+        }
+
 
         byte[] pdfData = reportService.generateReport(request);
 

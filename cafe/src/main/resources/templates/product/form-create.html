@@ -14,14 +14,17 @@
     <div class="mb-3">
       <label for="productName" class="form-label">Tên hàng hóa</label>
       <input type="text" class="form-control" id="productName" th:field="*{productName}" required>
+      <div class="text-danger" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></div>
     </div>
     <div class="mb-3">
       <label for="quantity" class="form-label">Số lượng</label>
       <input type="number" class="form-control" id="quantity" th:field="*{quantity}" value="0" readonly>
+      <div class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
     </div>
     <div class="mb-3">
       <label for="price" class="form-label">Đơn giá</label>
       <input type="number" class="form-control" id="price" th:field="*{price}" required>
+      <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
     </div>
     <button type="submit" class="btn btn-primary">Tiếp tục</button>
   </form>

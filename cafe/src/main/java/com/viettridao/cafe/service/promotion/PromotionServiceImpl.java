@@ -3,7 +3,9 @@ package com.viettridao.cafe.service.promotion;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.request.promotion.PromotionCreateRequest;
@@ -40,6 +42,10 @@ public class PromotionServiceImpl implements IPromotionService{
     @Transactional
     public void createPromotion(PromotionCreateRequest request) {
 
+        if (request.getStartDate().isAfter(request.getEndDate())) {
+            throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc");
+        }
+
         PromotionEntity entity = promotionMapper.toEntity(request);
 
         promotionRepository.save(entity);
@@ -58,6 +64,10 @@ public class PromotionServiceImpl implements IPromotionService{
     public void updatePromotion(Integer id, PromotionUpdateRequest request) {
 
         PromotionEntity existing = findPromotionOrThrow(id);
+
+        if (request.getStartDate().isAfter(request.getEndDate())) {
+            throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc");
+        }
 
         promotionMapper.updateEntityFromRequest(request,existing);
 

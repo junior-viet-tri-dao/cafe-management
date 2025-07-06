@@ -1,5 +1,6 @@
 package com.viettridao.cafe.dto.request.account;
 
+import jakarta.validation.constraints.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,23 +11,21 @@ public class AccountCreateRequest {
 
     private Integer id;
 
+    @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
 
+    @NotBlank(message = "Địa chỉ không được để trống")
     private String address;
 
     private String imageUrl;
 
+    @NotNull(message = "Chức vụ không được để trống")
     private Integer positionId;
 
     private String positionName;
-
-    private Double salary;
-
-    private String username;
-
-    private String password;
-
 
 }

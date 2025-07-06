@@ -1,6 +1,10 @@
 package com.viettridao.cafe.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import jakarta.validation.Valid;
+
+import org.springframework.validation.BindingResult;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +34,11 @@ public class AccountController {
     }
 
     @PostMapping
-    public String createAccount(@ModelAttribute("account") AccountCreateRequest request) {
+    public String createAccount(@ModelAttribute("account") @Valid AccountCreateRequest request,
+                                BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "account/form-create";
+        }
         accountService.createAccount(request);
         return "redirect:/account";
     }
@@ -44,10 +52,18 @@ public class AccountController {
     }
 
     @PostMapping("/{id}")
-    public String updateAccount(@PathVariable Integer id, @ModelAttribute("account") AccountUpdateRequest request) {
+    public String updateAccount(@PathVariable Integer id,
+                                @ModelAttribute("account") @Valid AccountUpdateRequest request,
+                                BindingResult result,
+                                Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("accountId", id);
+            return "account/form-edit";
+        }
         accountService.updateAccount(id, request);
         return "redirect:/account";
     }
+
 
     @GetMapping("/delete/{id}")
     public String deleteAccount(@PathVariable Integer id) {

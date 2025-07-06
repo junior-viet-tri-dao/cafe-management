@@ -2,11 +2,14 @@ package com.viettridao.cafe.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.product.ProductCreateRequest;
 import com.viettridao.cafe.dto.request.product.ProductUpdateRequest;
@@ -36,9 +39,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public String createProduct(@ModelAttribute ProductCreateRequest request,
+    public String createProduct(@Valid @ModelAttribute("product") ProductCreateRequest request,
+                                BindingResult bindingResult,
                                 @RequestParam(required = false) boolean redirectToImport,
-                                RedirectAttributes redirectAttributes) {
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("units", unitRepository.findByDeletedFalse());
+            return "product/form-create";
+        }
+
         ProductResponse saved = productService.createProduct(request);
 
         if (redirectToImport) {
@@ -59,10 +68,20 @@ public class ProductController {
     }
 
     @PostMapping("/{id}")
-    public String updateProduct(@PathVariable Integer id, @ModelAttribute("product") ProductUpdateRequest request) {
+    public String updateProduct(@PathVariable Integer id,
+                                @Valid @ModelAttribute("product") ProductUpdateRequest request,
+                                BindingResult bindingResult,
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("productId", id);
+            model.addAttribute("units", unitRepository.findByDeletedFalse());
+            return "product/form-edit";
+        }
+
         productService.updateProduct(id, request);
         return "redirect:/product";
     }
+
 
     @PostMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Integer id) {

@@ -16,10 +16,12 @@
                 <div class="col-md-6">
                     <label for="itemName" class="form-label">Tên món</label>
                     <input type="text" th:field="*{itemName}" id="itemName" class="form-control" placeholder="Nhập tên món" required>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}"></div>
                 </div>
                 <div class="col-md-6">
                     <label for="currentPrice" class="form-label">Giá tiền</label>
                     <input type="number" step="0.01" th:field="*{currentPrice}" id="currentPrice" class="form-control" placeholder="Nhập giá" required>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('currentPrice')}" th:errors="*{currentPrice}"></div>
                 </div>
             </div>
 
@@ -43,9 +45,19 @@
                                     th:text="${product.productName}">
                             </option>
                         </select>
+                        <div class="text-danger small"
+                             th:if="${#fields.hasErrors('menuDetails[0].productId')}"
+                             th:errors="*{menuDetails[0].productId}"></div>
                     </td>
                     <td><input type="number" name="menuDetails[0].quantity" class="form-control" required></td>
+                    <div class="text-danger small"
+                         th:if="${#fields.hasErrors('menuDetails[0].quantity')}"
+                         th:errors="*{menuDetails[0].quantity}"></div>
+
                     <td><input type="text" name="menuDetails[0].unitName" class="form-control" required></td>
+                    <div class="text-danger small"
+                         th:if="${#fields.hasErrors('menuDetails[0].unitName')}"
+                         th:errors="*{menuDetails[0].unitName}"></div>
                     <td>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button>
                     </td>

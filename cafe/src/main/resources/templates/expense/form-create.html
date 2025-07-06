@@ -16,17 +16,20 @@
         <div class="mb-3">
             <label class="form-label">Tên thiết bị</label>
             <input type="text" th:field="*{expenseName}" class="form-control" required />
+            <div class="text-danger small" th:if="${#fields.hasErrors('expenseName')}" th:errors="*{expenseName}"></div>
         </div>
 
 
         <div class="mb-3">
             <label for="expenseDate" class="form-label">Ngày nhập</label>
             <input type="date" class="form-control" id="expenseDate" th:field="*{expenseDate}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('expenseDate')}" th:errors="*{expenseDate}"></div>
         </div>
 
         <div class="mb-3">
             <label for="amount" class="form-label">Tổng tiền</label>
             <input type="number" class="form-control" id="amount" th:field="*{amount}" required>
+            <div class="text-danger small" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
         </div>
 
 

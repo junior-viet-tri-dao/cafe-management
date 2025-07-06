@@ -1,9 +1,9 @@
 package com.viettridao.cafe.service.reservation;
 
+import java.util.List;
+
 import com.viettridao.cafe.dto.request.reservation.ReservationCreateRequest;
 import com.viettridao.cafe.dto.response.reservation.ReservationResponse;
-
-import java.util.List;
 
 public interface IReservationService {
 

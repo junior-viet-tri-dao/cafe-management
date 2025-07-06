@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.response.inventory.InventoryTransactionResponse;
@@ -24,12 +25,27 @@ public class IventoryServiceImpl implements IInventoryService {
     public List<InventoryTransactionResponse> getAllTransactions() {
         List<InventoryTransactionResponse> result = new ArrayList<>();
 
+        // Lấy danh sách import và map
         importRepository.findAllByDeletedFalse()
-                .forEach(imp -> result.add(inventoryTransactionMapper.fromImport(imp)));
+                .forEach(imp -> {
+                    try {
+                        result.add(inventoryTransactionMapper.fromImport(imp));
+                    } catch (Exception e) {
+                        System.err.println("Lỗi khi mapping import: " + e.getMessage());
+                    }
+                });
 
+        // Lấy danh sách export và map
         exportRepository.findAllByDeletedFalse()
-                .forEach(exp -> result.add(inventoryTransactionMapper.fromExport(exp)));
+                .forEach(exp -> {
+                    try {
+                        result.add(inventoryTransactionMapper.fromExport(exp));
+                    } catch (Exception e) {
+                        System.err.println("Lỗi khi mapping export: " + e.getMessage());
+                    }
+                });
 
+        // Sắp xếp theo ngày gần nhất
         result.sort(Comparator.comparing(
                 tx -> tx.getImportDate() != null ? tx.getImportDate() : tx.getExportDate(),
                 Comparator.reverseOrder())

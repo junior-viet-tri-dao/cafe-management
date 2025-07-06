@@ -3,6 +3,7 @@ package com.viettridao.cafe.model;
 import java.util.List;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

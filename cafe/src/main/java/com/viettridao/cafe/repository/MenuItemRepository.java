@@ -2,7 +2,6 @@ package com.viettridao.cafe.repository;
 
 import java.util.List;
 
-import com.viettridao.cafe.model.MenuKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

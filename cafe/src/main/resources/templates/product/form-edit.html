@@ -16,6 +16,7 @@
         <div class="col-md-6">
           <label for="productName" class="form-label">Tên hàng hóa</label>
           <input type="text" th:field="*{productName}" id="productName" class="form-control" placeholder="Nhập tên món" required>
+          <div class="text-danger" th:if="${#fields.hasErrors('productName')}" th:errors="*{productName}"></div>
         </div>
         <div class="col-md-6">
           <label for="quantity" class="form-label">Số lượng</label>
@@ -23,6 +24,7 @@
             <div class="input-group">
               <input type="number" step="0.01" th:field="*{quantity}" id="quantity"
                      class="form-control" placeholder="Nhập giá" required>
+              <div class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
             </div>
           </div>
           <div class="col-md-6">
@@ -35,6 +37,7 @@
                       th:selected="${unit.id == product.unitId}">
               </option>
             </select>
+            <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
           </div>
         </div>
       </div>

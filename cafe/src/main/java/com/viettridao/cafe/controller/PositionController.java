@@ -1,9 +1,11 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.viettridao.cafe.dto.request.position.PositionCreateRequest;
@@ -30,7 +32,11 @@ public class PositionController {
     }
 
     @PostMapping
-    public String createPosition(@ModelAttribute("position") PositionCreateRequest request) {
+    public String createPosition(@Valid @ModelAttribute("position") PositionCreateRequest request,
+                                 BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "position/form-create";
+        }
         positionService.createPosition(request);
         return "redirect:/position";
     }
@@ -44,7 +50,13 @@ public class PositionController {
     }
 
     @PostMapping("/{id}")
-    public String updatePosition(@PathVariable Integer id, @ModelAttribute("position") PositionUpdateRequest request) {
+    public String updatePosition(@PathVariable Integer id,
+                                 @Valid @ModelAttribute("position") PositionUpdateRequest request,
+                                 BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("positionId", id);
+            return "position/form-edit";
+        }
         positionService.updatePosition(id, request);
         return "redirect:/position";
     }

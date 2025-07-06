@@ -1,8 +1,12 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.viettridao.cafe.dto.request.menuitem.MenuItemCreateRequest;
@@ -32,7 +36,12 @@ public class MenuItemController {
     }
 
     @PostMapping
-    public String createmenuItem(@ModelAttribute("menuItem") MenuItemCreateRequest request) {
+    public String createMenuItem(@Valid @ModelAttribute("menuItem") MenuItemCreateRequest request,
+                                 BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("products", productService.getProductAll());
+            return "menuItem/form-create";
+        }
         menuItemService.createMenuItem(request);
         return "redirect:/menuItem";
     }
@@ -47,7 +56,14 @@ public class MenuItemController {
     }
 
     @PostMapping("/{id}")
-    public String updateEmployee(@PathVariable Integer id, @ModelAttribute("menuItem") MenuItemUpdateRequest request) {
+    public String updateMenuItem(@PathVariable Integer id,
+                                 @Valid @ModelAttribute("menuItem") MenuItemUpdateRequest request,
+                                 BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("products", productService.getProductAll());
+            model.addAttribute("menuItemId", id);
+            return "menuItem/form-edit";
+        }
         menuItemService.updateMenuItem(id, request);
         return "redirect:/menuItem";
     }

@@ -2,9 +2,10 @@ package com.viettridao.cafe.service.position;
 
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 import com.viettridao.cafe.dto.request.position.PositionCreateRequest;
 import com.viettridao.cafe.dto.request.position.PositionUpdateRequest;

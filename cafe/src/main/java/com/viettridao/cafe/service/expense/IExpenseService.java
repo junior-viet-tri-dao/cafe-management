@@ -1,6 +1,5 @@
 package com.viettridao.cafe.service.expense;
 
-import com.viettridao.cafe.dto.request.equipment.EquipmentUpdateRequest;
 import com.viettridao.cafe.dto.request.expense.ExpenseCreateRequest;
 import com.viettridao.cafe.dto.request.expense.ExpenseUpdateRequest;
 import com.viettridao.cafe.dto.response.expense.ExpenseResponse;

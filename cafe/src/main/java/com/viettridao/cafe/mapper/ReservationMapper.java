@@ -1,10 +1,10 @@
 package com.viettridao.cafe.mapper;
 
-import com.viettridao.cafe.dto.request.reservation.ReservationCreateRequest;
-import com.viettridao.cafe.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.viettridao.cafe.dto.request.reservation.ReservationCreateRequest;
+import com.viettridao.cafe.model.*;
 import com.viettridao.cafe.dto.response.reservation.ReservationResponse;
 
 @Mapper(componentModel = "spring")

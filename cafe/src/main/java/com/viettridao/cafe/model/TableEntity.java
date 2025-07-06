@@ -1,13 +1,15 @@
 package com.viettridao.cafe.model;
 
-import com.viettridao.cafe.common.TableStatus;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+
+import com.viettridao.cafe.common.TableStatus;
 
 @Entity
 @Getter

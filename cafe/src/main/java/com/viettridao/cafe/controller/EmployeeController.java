@@ -1,8 +1,12 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.viettridao.cafe.dto.request.employee.EmployeeCreateRequest;
@@ -32,7 +36,12 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public String createEmployee(@ModelAttribute("employee") EmployeeCreateRequest request) {
+    public String createEmployee(@ModelAttribute("employee") @Valid EmployeeCreateRequest request,
+                                 BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("positions", positionService.getPositionAll());
+            return "employee/form-create";
+        }
         employeeService.createEmployee(request);
         return "redirect:/employee";
     }
@@ -48,10 +57,18 @@ public class EmployeeController {
     }
 
     @PostMapping("/{id}")
-    public String updateEmployee(@PathVariable Integer id, @ModelAttribute("employee") EmployeeUpdateRequest request) {
+    public String updateEmployee(@PathVariable Integer id,
+                                 @ModelAttribute("employee") @Valid EmployeeUpdateRequest request,
+                                 BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("employeeId", id);
+            model.addAttribute("positions", positionService.getPositionAll());
+            return "employee/form-edit";
+        }
         employeeService.updateEmployee(id, request);
         return "redirect:/employee";
     }
+
 
     @PostMapping("/delete/{id}")
     public String deleteEmployee(@PathVariable Integer id) {

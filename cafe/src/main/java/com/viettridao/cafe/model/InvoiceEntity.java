@@ -1,7 +1,7 @@
 package com.viettridao.cafe.model;
 
-import com.viettridao.cafe.common.InvoiceStatus;
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.viettridao.cafe.common.InvoiceStatus;
 
 @Entity
 @Getter
