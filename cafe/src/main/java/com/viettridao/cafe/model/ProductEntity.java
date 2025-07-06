@@ -33,8 +33,4 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<MenuDetailEntity> menuDetails;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "unit_id")
-    private UnitEntity unit;
 }

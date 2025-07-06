@@ -9,11 +9,13 @@
 <body>
 <h1>Ví dụ về kế thừa layout nó đang lỗi chưa làm chức năng</h1>
 <div layout:fragment="content">
-    <form th:action="@{/account/update}" th:object="${account}" method="post" class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-6">
+
+    <form th:action="@{/account/update}"  method="post" class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-6">
+        <input type="hidden" name="id" th:value="${user.id}"/>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             <div class="flex flex-col items-center justify-between space-y-4">
-                <img th:src="${account.anh != null} ? ${account.anh} : 'https://via.placeholder.com/100x120'"
+                <img th:src="${user.imageUrl != null} ? ${user.imageUrl} : 'https://via.placeholder.com/100x120'"
                      alt="avatar"
                      class="w-36 h-36 rounded-full border-4 border-[#4e342e] shadow-md"/>
                 <label class="text-sm font-medium text-gray-700">
@@ -38,45 +40,45 @@
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <label class="font-semibold">Họ và tên:</label>
-                        <input type="text" name="fullName" th:field="*{hoTen}"
+                        <input type="text" name="fullName" th:field="${user.employee.fullName}"
                                class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
 
                     <div>
                         <label class="font-semibold">Chức vụ:</label>
-                        <input type="text" name="position" th:field="*{chucVu}"
+                        <input type="text" name="position" th:field="${user.employee.position.positionName}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
 
                     <div class="col-span-2">
                         <label class="font-semibold">Địa chỉ:</label>
-                        <input type="text" name="address" th:field="*{diaChi}"
+                        <input type="text" name="address" th:field="${user.employee.address}"
                                class="mt-1 w-full px-3 py-2 border rounded">
                     </div>
 
                     <div>
                         <label class="font-semibold">Số điện thoại:</label>
-                        <input type="text" name="phone" th:field="*{sdt}"
+                        <input type="text" name="phone" th:field="${user.employee.phoneNumber}"
                                class="mt-1 w-full px-3 py-2 border rounded">
                     </div>
 
                     <div>
                         <label class="font-semibold">Lương:</label>
                         <input type="text"
-                               th:value="${#numbers.formatDecimal(account.luong, 0, 'POINT', 0, 'COMMA')}"
+                               th:value="${#numbers.formatDecimal(user.employee.position.salary, 0, 'POINT', 0, 'COMMA')}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
-                        <input type="hidden" th:field="*{luong}" />
+                        <input type="hidden" th:field="${user.employee.position.salary}" />
                     </div>
 
                     <div>
                         <label class="font-semibold">Tài khoản:</label>
-                        <input type="text" name="username" th:field="*{tenDangNhap}"
+                        <input type="text" name="username" th:field="${user.username}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
 
                     <div>
                         <label class="font-semibold">Mật khẩu:</label>
-                        <input type="password" name="password" th:value="${account.getMatKhau()}"
+                        <input type="password" name="password" value="********"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
                 </div>

@@ -8,7 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
     <script th:src="@{/js/alert-utils.js}"></script>
 </head>
 <body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
@@ -51,8 +52,11 @@
                         <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/employee}" class="block py-1 hover:underline">Danh sách nhân viên</a>
-                        <a th:href="@{/employee/create}" class="block py-1 hover:underline">Thêm nhân viên</a>
+                        <a th:href="@{/list-staff}" class="block py-1 hover:underline">Danh sách nhân viên</a>
+                        <a th:href="@{/insert-staff}" class="block py-1 hover:underline">Thêm nhân viên</a>
+                        <a th:href="@{/edit-staff}" class="block py-1 hover:underline">Chỉnh Sửa nhân viên</a>
+                        <a th:href="@{/delete-staff}" class="block py-1 hover:underline">Xóa nhân viên</a>
+                        <a th:href="@{/search-staff}" class="block py-1 hover:underline">Tìm Kiếm nhân viên</a>
                     </div>
                 </div>
                 <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý thiết bị</a>
@@ -64,7 +68,7 @@
                         <span x-text="openCommodity ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/commodity}" th:classappend="${currentPath == '/commodity'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
+                        <a th:href="@{/list-product}" th:classappend="${currentPath == '/list-product'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
                         <a th:href="@{/commodity/create}" th:classappend="${currentPath == '/commodity/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
                         <a th:href="@{/commodity/create/export}" th:classappend="${currentPath == '/commodity/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
                     </div>

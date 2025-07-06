@@ -33,4 +33,7 @@ public class EquipmentEntity {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
+    private List<ImportEntity> imports;
 }
