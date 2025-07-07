@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo mới chi tiêu</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>TẠO MỚI CHI TIÊU</h1>
+            <form
+                th:action="@{/admin/thuchi/chitieu-create}"
+                method="post"
+                th:object="${chiTieu}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Mã Chi Tiêu<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{maChiTieu}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{maChiTieu}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Khoản Chi<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenKhoanChi}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenKhoanChi}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Số Tiền<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-phone-square-alt"></i>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    class="form-control"
+                                    th:field="*{soTien}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{soTien}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Ngày Chi<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-calendar-alt"></i>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    th:field="*{ngayChi}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{ngayChi}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-4"></div>
+                </div>
+                <div
+                    style="
+                        margin-top: 30px;
+                        display: flex;
+                        justify-content: center;
+                        gap: 5px;
+                    "
+                >
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="reset" class="btn btn-info">Reset</button>
+                    <a
+                        th:href="@{/admin/chitieu/chitieu-list}"
+                        class="btn btn-warning text-decoration-none"
+                        >Cancel</a
+                    >
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

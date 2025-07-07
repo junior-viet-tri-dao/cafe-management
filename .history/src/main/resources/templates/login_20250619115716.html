@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Login Page</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+            integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+        <link th:href="@{/css/css.css}" rel="stylesheet" />
+    </head>
+    <body style="background: #ddd">
+        <div class="login-modal">
+            <div class="login-header">
+                <img
+                    src="/img/giason.png"
+                    alt="Gia Son Coffee Logo"
+                    style="
+                        display: block;
+                        margin: 0 auto 16px auto;
+                        width: 168px;
+                        height: 145px;
+                    "
+                />
+                <h2>ĐĂNG NHẬP HỆ THỐNG</h2>
+            </div>
+            <div th:if="${param.error}">
+                <p class="text-danger">
+                    Invalid username or password. Please try again.
+                </p>
+            </div>
+            <form th:action="@{/login}" method="post" class="login-form">
+                <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Username"
+                    name="username"
+                    required
+                />
+                <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Password"
+                    name="password"
+                    required
+                />
+                <button type="submit" class="btn btn-signin w-100">
+                    Sign in
+                </button>
+            </form>
+            <div class="login-footer">
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+        </div>
+    </body>
+</html>

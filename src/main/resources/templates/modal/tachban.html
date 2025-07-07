@@ -1,0 +1,66 @@
+<!-- Modal Tách Bàn -->
+<div
+    class="modal fade"
+    id="tachBanModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="tachBanModalLabel"
+    aria-hidden="true"
+    th:fragment="tachbanModal"
+>
+    <div class="modal-dialog" role="document">
+        <form onsubmit="submitTachBan(event)">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tachBanModalLabel">Tách Bàn</h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="tachBan_maBanNguon" />
+                    <input type="hidden" id="tachBan_hoaDonNguon" />
+                    <div class="form-group">
+                        <label>Chọn bàn đích</label>
+                        <div id="tachBan_banDichList"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Danh sách món trên bàn</label>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tên món</th>
+                                    <th>Số lượng hiện có</th>
+                                    <th>Giá</th>
+                                    <th>Số lượng tách</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tachBan_tableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label>Tổng tiền món tách:</label>
+                        <span id="tachBan_tongTien">0</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Đóng
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Xác nhận tách
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

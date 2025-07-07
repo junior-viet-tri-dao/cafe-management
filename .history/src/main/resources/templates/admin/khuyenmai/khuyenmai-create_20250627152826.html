@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo Mới Khuyến Mãi</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>TẠO MỚI Khuyến Mãi</h1>
+            <form
+                th:action="@{/admin/khuyenmai/khuyenmai-create}"
+                method="post"
+                th:object="${khuyenMai}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Khuyến Mãi<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenKhuyenMai}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenKhuyenMai}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="font-weight-bold">
+                            Ngày Bắt Đầu
+                            <span class="text-danger">(*)</span>
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input
+                                style="margin-left: 10px"
+                                type="date"
+                                class="form-control"
+                                th:field="*{ngayBatDau}"
+                                required
+                            />
+                        </div>
+                        <div
+                            th:errors="*{ngayBatDau}"
+                            class="ml-5 text-danger"
+                        ></div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="font-weight-bold">
+                            Ngày Kết Thúc
+                            <span class="text-danger">(*)</span>
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input
+                                style="margin-left: 10px"
+                                type="date"
+                                class="form-control"
+                                th:field="*{ngayKetThuc}"
+                                required
+                            />
+                        </div>
+                        <div
+                            th:errors="*{ngayKetThuc}"
+                            class="ml-5 text-danger"
+                        ></div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Khuyến Mãi<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenKhuyenMai}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenKhuyenMai}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div
+                        style="
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/thietbi/thietbi-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

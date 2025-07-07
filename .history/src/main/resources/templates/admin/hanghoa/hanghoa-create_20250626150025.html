@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo Mới Hàng Hóa</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>TẠO MỚI HÀNG HÓA</h1>
+            <form
+                th:action="@{/admin/hanghoa/hanghoa-create}"
+                method="post"
+                th:object="${hangHoa}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Mã Hàng Hóa<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{maHangHoa}"
+                                    min="1"
+                                    required
+                                    placeholder="Nhập mã số hàng hóa"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{maHangHoa}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Hàng Hóa<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenHangHoa}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenHangHoa}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Số Lượng
+                                <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-custom-group">
+                                <i class="fas fa-boxes"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{soLuong}"
+                                    min="0"
+                                    step="1"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{soLuong}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6"></div>
+                    </div>
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Đơn Giá <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-money-bill-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    style="margin-left: 5px"
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{donGiaMua}"
+                                    min="0"
+                                    step="any"
+                                    placeholder="Nhập giá (₫)"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{donGiaMua}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Đơn Vị Tính <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-custom-group">
+                                <i class="fa-solid fa-balance-scale"></i>
+                                <select
+                                    class="form-control"
+                                    th:field="*{donViTinh}"
+                                    required
+                                >
+                                    <option value="" disabled selected>
+                                        -- Chọn đơn vị tính --
+                                    </option>
+                                    <option
+                                        th:each="dvt : ${donViTinhList}"
+                                        th:value="${dvt.maDonViTinh}"
+                                        th:text="${dvt.tenDonVi}"
+                                    ></option>
+                                </select>
+                            </div>
+                            <div
+                                th:errors="*{donViTinh}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/thietbi/thietbi-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

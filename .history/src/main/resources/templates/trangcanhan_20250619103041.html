@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Trang Cá Nhân</title>
+        <style>
+            body {
+                background-color: #f5f5f5;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+            }
+            .profile-container {
+                max-width: 700px;
+                margin: 0 auto;
+                background-color: #e3f2fc;
+                border: 1px solid #aacde8;
+                border-radius: 4px;
+                padding: 20px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .profile-header {
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .separator {
+                border-top: 1px solid #aacde8;
+                margin: 15px 0;
+            }
+            .profile-main {
+                display: flex;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            .profile-details {
+                flex: 1;
+            }
+            .profile-details dl {
+                margin: 0;
+            }
+            .profile-details dt {
+                float: left;
+                clear: left;
+                width: 120px;
+                font-weight: bold;
+            }
+            .profile-details dd {
+                margin: 0 0 8px 130px;
+            }
+            .profile-photo {
+                width: 140px;
+                height: 160px;
+                background-color: #ccc;
+                /* background-image: url("https://via.placeholder.com/140x160?text=Ảnh"); */
+                background-size: cover;
+                background-position: center;
+                border: 1px solid #aaa;
+            }
+            .profile-login {
+                display: flex;
+                gap: 40px;
+                margin: 15px 0;
+            }
+            .profile-login dl {
+                margin: 0;
+            }
+            .profile-login dt {
+                float: left;
+                clear: left;
+                width: 100px;
+                font-weight: bold;
+            }
+            .profile-login dd {
+                margin: 0 0 8px 110px;
+            }
+            .edit-btn {
+                display: block;
+                margin: 20px auto 0;
+                padding: 8px 20px;
+                border: 1px solid #888;
+                border-radius: 3px;
+                background-color: #fff;
+                cursor: pointer;
+                font-size: 0.95em;
+            }
+            .edit-btn:hover {
+                background-color: #f0f0f0;
+            }
+        </style>
+    </head>
+    <body>
+        <main class="main-content">
+            <div class="profile-container">
+                <div class="profile-header">Trang cá nhân</div>
+
+                <div class="profile-main">
+                    <div class="profile-details">
+                        <dl>
+                            <dt>Họ và tên:</dt>
+                            <dd th:text="${user.hoTen}"></dd>
+
+                            <dt>Chức vụ:</dt>
+                            <dd
+                                th:text="${user.chucVu != null ? user.chucVu.tenChucVu : 'Chưa cập nhật'}"
+                            ></dd>
+
+                            <dt>Địa chỉ:</dt>
+                            <dd th:text="${user.diaChi}"></dd>
+
+                            <dt>Số điện thoại:</dt>
+                            <dd th:text="${user.soDienThoai}"></dd>
+
+                            <dt>Lương:</dt>
+                            <dd
+                                th:text="${user.chucVu != null ? #numbers.formatDecimal(user.chucVu.luong, 0, 'COMMA', 0, 'POINT') : 'Chưa cập nhật'} + ' VNĐ'"
+                            ></dd>
+                        </dl>
+                    </div>
+
+                    <!-- <div
+                        class="profile-photo"
+                        th:style="${user.image != null && !#strings.isEmpty(user.image) ? 'background-image: url(' + user.image + ');' : ''}"
+                    ></div> -->
+                    <div class="profile-photo">
+                        <img
+                            th:src="${baseUrl} + ${#authentication.principal.usersDB.image}"
+                            th:if="${#authentication.principal.usersDB.image}"
+                            alt="User Image"
+                        />
+                        <span
+                            th:if="${#authentication.principal.usersDB.image == null}"
+                            >Chưa có ảnh</span
+                        >
+                    </div>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="profile-login">
+                    <dl>
+                        <dt>Tên đăng nhập:</dt>
+                        <dd th:text="${user.username}"></dd>
+                    </dl>
+                    <dl>
+                        <dt>Mật khẩu:</dt>
+                        <dd
+                            th:text="${user.password != null ? '********' : ''}"
+                        ></dd>
+                    </dl>
+                    <dl>
+                        <dt>Email:</dt>
+                        <dd th:text="${user.email}"></dd>
+                    </dl>
+                    <dl>
+                        <dt>Vai trò:</dt>
+                        <dd th:text="${user.role}"></dd>
+                    </dl>
+                </div>
+
+                <button class="edit-btn">Chỉnh sửa</button>
+            </div>
+        </main>
+    </body>
+</html>

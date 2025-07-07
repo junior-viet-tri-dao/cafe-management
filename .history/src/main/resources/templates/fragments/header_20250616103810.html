@@ -1,0 +1,14 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <nav th:fragment="header" class="header">
+        <div class="container-fluid">
+            <a class="navbar-brand" style="color: rgb(61, 6, 6)" th:href="@{/}">
+                <img th:src="@{/img/giason.png}" />
+                <span style="margin-left: 20px">
+                    Gia Son Coffee Management
+                </span>
+            </a>
+        </div>
+    </nav>
+</html>

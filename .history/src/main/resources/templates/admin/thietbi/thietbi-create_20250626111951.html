@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo Mới Thiết Bị</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>TẠO MỚI THIẾT BỊ</h1>
+            <!-- Hiển thị thông báo lỗi -->
+            <div
+                th:if="${param.success}"
+                class="alert alert-success"
+                th:text="${param.success}"
+            ></div>
+            <div
+                th:if="${error}"
+                class="alert alert-danger"
+                th:text="${error}"
+            ></div>
+            <form
+                th:action="@{/admin/thietbi/thietbi-create}"
+                method="post"
+                th:object="${thietBi}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Mã Thiết Bị<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{maThietBi}"
+                                    min="1"
+                                    required
+                                    placeholder="Nhập mã số thiết bị"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{maThietBi}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Thiết Bị<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenThietBi}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenThietBi}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Ngày Nhập <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    th:field="*{ngayNhap}"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:errors="*{ngayNhap}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Số Lượng
+                                <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-custom-group">
+                                <i class="fas fa-boxes"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{soLuong}"
+                                    min="0"
+                                    step="1"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{soLuong}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Đơn Giá <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-money-bill-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    style="margin-left: 5px"
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{donGiaMua}"
+                                    min="0"
+                                    step="any"
+                                    placeholder="Nhập giá (₫)"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{donGiaMua}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="row g-3 mt-4">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Ngày Nhập <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    th:field="*{ngayNhap}"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:errors="*{ngayNhap}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div> -->
+
+                    <div
+                        style="
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/thietbi/thietbi-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

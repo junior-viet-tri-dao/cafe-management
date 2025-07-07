@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tạo mới chi tiết thực đơn</title>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            window.thucDons = /*[[${thucDons}]]*/ [];
+            /*]]>*/
+        </script>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>TẠO MỚI CHI TIẾT THỰC ĐƠN</h1>
+            <form
+                th:action="@{/admin/thucdon/chitietthucdon-create}"
+                method="post"
+                th:object="${chiTietThucDonForm}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div
+                            class="col-lg-6"
+                            style="display: flex; justify-content: center"
+                        >
+                            <label class="font-weight-bold"
+                                >Tên Món<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <select
+                                    id="thucDonSelect"
+                                    class="form-control"
+                                    th:field="*{maThucDon}"
+                                >
+                                    <option value="">-- Chọn món --</option>
+                                    <option
+                                        th:each="td : ${thucDons}"
+                                        th:value="${td.maThucDon}"
+                                        th:text="${td.tenMon}"
+                                        th:selected="${td.maThucDon} == ${selectedThucDon}"
+                                    ></option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Giá tiền hiện tại:</label
+                            >
+                            <span id="giaTienHienTai"></span>
+                        </div> -->
+                    </div>
+
+                    <h2 class="mt-4" style="font-weight: 500; font-size: 20px">
+                        Thành Phần
+                    </h2>
+                    <table class="table" id="thanhPhanTable">
+                        <thead>
+                            <tr>
+                                <th>Tên thành phần</th>
+                                <th>Khối lượng</th>
+                                <th>Đơn vị tính</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="tp,iter : *{thanhPhanList}">
+                                <td>
+                                    <select
+                                        class="form-control"
+                                        th:field="*{thanhPhanList[__${iter.index}__].maHangHoa}"
+                                    >
+                                        <option value="">
+                                            -- Chọn thành phần --
+                                        </option>
+                                        <option
+                                            th:each="hh : ${hangHoas}"
+                                            th:value="${hh.maHangHoa}"
+                                            th:text="${hh.tenHangHoa}"
+                                        ></option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        class="form-control"
+                                        th:field="*{thanhPhanList[__${iter.index}__].khoiLuong}"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        th:field="*{thanhPhanList[__${iter.index}__].donViTinh}"
+                                    />
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger"
+                                        onclick="removeThanhPhanRow(this)"
+                                    >
+                                        Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button
+                        type="button"
+                        class="btn btn-info"
+                        onclick="addThanhPhanRow()"
+                    >
+                        Thêm thành phần
+                    </button>
+                    <div
+                        style="
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/thucdon/thucdon-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+            <template id="thanhPhanRowTemplate">
+                <tr>
+                    <td>
+                        <select
+                            class="form-control"
+                            name="thanhPhanList[__index__].maHangHoa"
+                        >
+                            <option value="">-- Chọn thành phần --</option>
+                            <option
+                                th:each="hh : ${hangHoas}"
+                                th:value="${hh.maHangHoa}"
+                                th:text="${hh.tenHangHoa}"
+                            ></option>
+                        </select>
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            class="form-control"
+                            name="thanhPhanList[__index__].khoiLuong"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="thanhPhanList[__index__].donViTinh"
+                        />
+                    </td>
+                    <td>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="removeThanhPhanRow(this)"
+                        >
+                            Xóa
+                        </button>
+                    </td>
+                </tr>
+            </template>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/js/chitietthucdon.js"></script>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,35 @@
+<!-- Modal Chuyển Bàn -->
+<div
+    class="modal fade"
+    id="chuyenBanModal"
+    tabindex="-1"
+    aria-labelledby="chuyenBanModalLabel"
+    aria-hidden="true"
+    th:fragment="chuyenbanModal"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chuyenBanModalLabel">Chuyển Bàn</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="maBanCuInput" />
+                <div class="mb-3">
+                    <label for="maBanMoiSelect" class="form-label"
+                        >Chọn bàn để chuyển đến:</label
+                    >
+                    <div id="chuyenBanDanhSach"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="submitChuyenBan()"
+                >
+                    Chuyển đến
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

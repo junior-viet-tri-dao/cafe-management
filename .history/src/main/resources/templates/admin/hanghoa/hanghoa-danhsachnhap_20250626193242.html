@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Nhập Hàng</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Nhập Hàng</h1>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllVaccine"
+                                        readonly
+                                    />
+                                </th>
+                                <th>Tên Hàng Nhập</th>
+                                <th>Ngày Nhập</th>
+                                <th>Số Lượng</th>
+                                <th>Đơn Vị</th>
+                                <th>Đơn Giá</th>
+                                <th>Tổng Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody class="son"></tbody>
+                    </table>
+                </div>
+            </div>
+            <script src="/js/hanghoa.js"></script>
+        </main>
+    </body>
+</html>

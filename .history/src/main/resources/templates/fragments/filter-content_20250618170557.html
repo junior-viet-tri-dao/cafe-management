@@ -1,0 +1,88 @@
+<!-- Fragment: fragments/pagination.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Pagination Fragment</title>
+    </head>
+    <body>
+        <div
+            class="filter-content"
+            th:fragment="filter-content(posts, keyword, url, size)"
+        >
+            <div class="filter-wrapper">
+                <span>Hiển Thị</span>
+                <div class="filter-container">
+                    <div class="active-item">
+                        <span th:text="${size}"></span>
+                        <svg
+                            width="12"
+                            height="7"
+                            viewBox="0 0 12 7"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M1.13672 1.03448L6.06775 5.96552L10.9988 1.03448"
+                                stroke="#000"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                            <path
+                                d="M1.13672 1.03448L6.06775 5.96552L10.9988 1.03448"
+                                stroke="#000"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                    </div>
+                    <ul class="filter">
+                        <li>
+                            <a th:href="@{${url}(size=1, keyword = ${keyword})}"
+                                >1</a
+                            >
+                        </li>
+                        <li>
+                            <a th:href="@{${url}(size=3, keyword = ${keyword})}"
+                                >3</a
+                            >
+                        </li>
+                        <li>
+                            <a th:href="@{${url}(size=5, keyword = ${keyword})}"
+                                >5</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                th:href="@{${url}(size=10, keyword = ${keyword})}"
+                                >10</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                th:href="@{${url}(size=${posts.totalElements}, keyword = ${keyword})}"
+                                >All</a
+                            >
+                        </li>
+                    </ul>
+                </div>
+                <span>entries</span>
+            </div>
+            <form method="get" th:action="@{${url}}" class="d-flex">
+                <input type="hidden" name="size" th:value="${size}" />
+                <div class="form-control">
+                    <label>Tìm Kiếm:</label>
+                    <input
+                        th:value="${param.keyword}"
+                        class="form-control"
+                        type="search"
+                        name="keyword"
+                        placeholder="Search..."
+                        aria-label="Search"
+                    />
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

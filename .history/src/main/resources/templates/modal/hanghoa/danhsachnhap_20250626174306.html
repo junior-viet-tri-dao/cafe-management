@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Nhập Hàng</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Nhập Hàng</h1>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                            posts=${posts},
+                            keyword=${keyword},
+                            url='/admin/employee/list',
+                            size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllVaccine"
+                                        readonly
+                                    />
+                                </th>
+                                <th>Họ Tên</th>
+                                <th>Chức Vụ</th>
+                                <th>Lương</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${posts}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectedEmployee"
+                                        th:value="${u.maNhanVien}"
+                                    />
+                                </td>
+                                <td th:text="${u.hoTen}"></td>
+                                <td
+                                    th:text="${u.chucVu != null ? u.chucVu.tenChucVu : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.chucVu != null ? #numbers.formatDecimal(u.chucVu.luong, 0, 'COMMA', 0, 'POINT') : 'Chưa cập nhật'} + ' VNĐ'"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                            posts=${posts},
+                            pageNumbers=${pageNumbers},
+                            keyword=${keyword},
+                            url='/admin/employee/list',
+                            size=${size})"
+                    ></div>
+
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/employee/create}"
+                            class="btn btn-success text-decoration-none"
+                            >Đăng Ký</a
+                        >
+                        <button
+                            id="btnUpdateCustomer"
+                            class="btn btn-warning text-light"
+                            onclick="updateEmployee()"
+                        >
+                            Cập Nhật Thông Tin
+                        </button>
+                        <button
+                            id="btnDeleteCustomer"
+                            class="btn btn-danger text-light"
+                            onclick="deleteEmployee()"
+                        >
+                            Xóa Nhân Viên
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="/js/employee.js"></script>
+        </main>
+    </body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Nhân Viên</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Nhân Viên</h1>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                    posts=${posts},
+                    keyword=${keyword},
+                    url='/admin/employee/list',
+                    size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllVaccine"
+                                    />
+                                </th>
+                                <th>Họ Tên</th>
+                                <th>Chức Vụ</th>
+                                <th>Lương</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${employees}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectedEmployee"
+                                        th:value="${u.maNhanVien}" />
+                                </td>
+                                <td th:text="${u.hoTen}"></td>
+                                <td th:text="${u.chucVu != null ? u.chucVu.tenChucVu : 'Chưa cập nhật'}"></td>
+                                <td th:text="${u.chucVu != null ? #numbers.formatDecimal(u.chucVu.luong, 0, 'COMMA', 0, 'POINT') : 'Chưa cập nhật'} + ' VNĐ'"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                    posts=${posts},
+                    pageNumbers=${pageNumbers},
+                    keyword=${keyword},
+                    url='/admin/employee/list',
+                    size=${size})"
+                    ></div>
+
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/employee/create}"
+                            class="btn btn-success text-decoration-none"
+                            >Đăng Ký</a
+                        >
+                        <button
+                            id="btnUpdateCustomer"
+                            class="btn btn-warning text-light"
+                            onclick="updateEmployee()"
+                        >
+                            Cập Nhật Thông Tin
+                        </button>
+                        <button
+                            id="btnDeleteCustomer"
+                            class="btn btn-danger text-light"
+                            onclick="deleteEmployee()"
+                        >
+                            Xóa Nhân Viên
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="/js/employee.js"></script>
+        </main>
+    </body>
+</html> -->

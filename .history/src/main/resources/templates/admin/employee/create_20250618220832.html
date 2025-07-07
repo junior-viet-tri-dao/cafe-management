@@ -1,0 +1,303 @@
+<!-- <!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Create Employee</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>ĐĂNG KÝ THÔNG TIN NHÂN VIÊN</h1>
+            <form
+                th:action="@{/admin/employee/create}"
+                method="post"
+                th:object="${user}"
+                enctype="multipart/form-data"
+            >
+                <input hidden="hidden" value="Employee" name="role" />
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold"
+                                >Họ Tên<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="fullName"
+                                    th:field="*{fullName}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{fullName}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold"
+                                >Ngày Sinh<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="far fa-calendar"></i>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="dateOfBirth"
+                                    th:field="*{dateOfBirth}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{dateOfBirth}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold">Giới Tính</label>
+                            <div class="input-custom-group">
+                                <i class="far fa-grin-tongue-squint"></i>
+                                <div class="form-control radio-control">
+                                    <div class="d-flex mr-5">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            th:field="${user.gender}"
+                                            value="Male"
+                                            id="male"
+                                            class="mr-2"
+                                        />
+                                        <label for="male">Nam</label>
+                                    </div>
+                                    <div class="d-flex">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            th:field="${user.gender}"
+                                            value="Female"
+                                            id="female"
+                                            class="mr-2"
+                                        />
+                                        <label for="female">Nữ</label>
+                                    </div>
+                                </div>
+                                <div
+                                    id="genderError"
+                                    class="ml-5 text-danger"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-4">
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold"
+                                >CMND<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="far fa-id-card"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="identityCard"
+                                    th:field="*{identityCard}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{identityCard}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold"
+                                >Địa Chỉ<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="address"
+                                    th:field="*{address}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{address}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-light shadow form-group-fields">
+                    <p
+                        class="pl-3 pt-3 pb-3 border-bottom border-secondary-subtle"
+                    >
+                        Thông Tin Tài Khoản
+                    </p>
+                    <div class="row g-3">
+                        <div class="flex-column col-lg-4">
+                            <label class="font-weight-bold"
+                                >Tên Tài Khoản<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-user-circle"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="username"
+                                    th:field="*{username}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{username}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="flex-column col-lg-4">
+                            <label class="font-weight-bold"
+                                >Mật Khẩu<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-lock"></i>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    name="password"
+                                    th:field="*{password}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{password}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="flex-column col-lg-4">
+                            <label class="font-weight-bold"
+                                >Xác Thực Mật Khẩu<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-lock"></i>
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    name="rePassword"
+                                    th:field="*{rePassword}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{rePassword}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="flex-column col-lg-4">
+                            <label class="font-weight-bold"
+                                >Email<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="far fa-envelope"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="email"
+                                    th:field="*{email}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{email}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold"
+                                >Số Điện Thoại<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-phone-square-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="phone"
+                                    th:field="*{phone}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{phone}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="flex-column col-lg-4">
+                            <label class="font-weight-bold">Vị Trí</label>
+                            <div class="input-custom-group">
+                                <i class="fa-solid fa-crosshairs-simple"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="position"
+                                    th:field="*{position}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{position}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-lg-4">
+                            <label class="font-weight-bold">Image</label>
+                            <div class="input-custom-group">
+                                <i class="fa-solid fa-image"></i>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    class="form-control"
+                                    name="imageFile"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{image}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div class="pl-3 pb-5 action mt-4">
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/employee/create}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html> -->

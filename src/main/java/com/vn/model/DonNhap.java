@@ -1,0 +1,40 @@
+package com.vn.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.Date;
+
+@Entity
+@Getter
+@Setter
+@ToString
+@Table(name = "DonNhap")
+public class DonNhap {
+    @Id
+    @Column(name = "MaDonNhap", length = 50)
+    private String maDonNhap;
+
+    @ManyToOne
+    @JoinColumn(name = "MaNhanVien", referencedColumnName = "MaNhanVien")
+    private Users nhanVien;
+
+    @ManyToOne
+    @JoinColumn(name = "MaHangHoa", referencedColumnName = "MaHangHoa")
+    private HangHoa hangHoa;
+
+    @Column(name = "NgayNhap", nullable = false)
+    @Temporal(TemporalType.DATE)
+    private Date ngayNhap;
+
+    @Column(name = "TongTien", nullable = false)
+    private Double tongTien;
+
+    @Column(name = "SoLuong", nullable = false)
+    private Integer soLuong;
+    
+} 
+
+
+ // @ManyToOne
+    // @JoinColumn(name = "MaThietBi", referencedColumnName = "MaThietBi")
+    // private ThietBi thietBi;

@@ -1,0 +1,56 @@
+<!-- Modal Xem Bàn -->
+<div
+    class="modal fade"
+    id="xemBanModal"
+    tabindex="-1"
+    aria-labelledby="xemBanModalLabel"
+    aria-hidden="true"
+    th:fragment="xemBanModal"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="xemBanModalLabel">
+                    Thông Tin Đặt Bàn
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên Khách Hàng:</label>
+                    <span id="xemBan_tenKhachHang"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại khách:</label>
+                    <span id="xemBan_sdtKhachHang"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngày Giờ Đặt:</label>
+                    <span id="xemBan_ngayGioDat"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mã Hóa Đơn:</label>
+                    <span id="xemBan_maHoaDon"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mã Nhân Viên:</label>
+                    <span id="xemBan_maNhanVien"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Danh sách món đã gọi:</label>
+                    <table class="table table-bordered" id="xemBan_monTable">
+                        <thead>
+                            <tr>
+                                <th>Tên món</th>
+                                <th>Số lượng</th>
+                                <th>Giá bán</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

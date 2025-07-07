@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Hàng Hóa</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh sách Hàng Hóa</h1>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                            posts=${posts},
+                            keyword=${keyword},
+                            url='/admin/hanghoa/hanghoa-list',
+                            size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectHangHoa" />
+                                </th>
+                                <th>Mã Hàng Hóa</th>
+                                <th>Tên Hàng Hóa</th>
+                                <th>Số Lượng</th>
+                                <th>Đơn Vị Tính</th>
+                                <th>Đơn Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${posts}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectHangHoa"
+                                        th:value="${u.maHangHoa}"
+                                    />
+                                </td>
+                                <td th:text="${u.maHangHoa}"></td>
+                                <td
+                                    th:text="${u.tenHangHoa != null ? u.tenHangHoa : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.soLuong != null ? u.soLuong : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.donViTinh != null ? u.donViTinh.tenDonVi : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.donGia != null ? u.donGia : 'Chưa cập nhật'}"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                            posts=${posts},
+                            pageNumbers=${pageNumbers},
+                            keyword=${keyword},
+                            url='/admin/thietbi/thietbi-list',
+                            size=${size})"
+                    ></div>
+
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/hanghoa/hanghoa-create}"
+                            class="btn btn-success text-decoration-none"
+                            >Tạo Mới Hàng Hóa</a
+                        >
+                        <button
+                            id="btnCapNhatHangHoa"
+                            class="btn btn-warning text-light"
+                            onclick="updateHangHoa()"
+                        >
+                            Cập Nhật Hàng Hóa
+                        </button>
+                        <button
+                            id="btnXoaHangHoa"
+                            class="btn btn-danger text-light"
+                            onclick="deleteHangHoa()"
+                        >
+                            Xóa Hàng Hóa
+                        </button>
+                        <button
+                            id="btnXoaHangHoa"
+                            class="btn btn-info text-light"
+                            onclick="deleteHangHoa()"
+                        >
+                            Nhập Hàng Hóa
+                        </button>
+                        <button
+                            id="btnXoaHangHoa"
+                            class="btn btn-success text-light"
+                            onclick="xuatHangHoa()"
+                        >
+                            Xuất Hàng Hóa
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/js/hanghoa.js"></script>
+        </main>
+    </body>
+</html>

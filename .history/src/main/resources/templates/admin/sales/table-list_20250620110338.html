@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Bàn</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Bàn</h1>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                            posts=${posts},
+                            keyword=${keyword},
+                            url='/admin/sales/table-list',
+                            size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectTable" />
+                                </th>
+                                <th>Mã Bàn</th>
+                                <th>Tên Bàn</th>
+                                <th>Tình Trạng</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${posts}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectedTable"
+                                        th:value="${u.maBan}"
+                                    />
+                                </td>
+                                <td th:text="${u.maBan}"></td>
+                                <td
+                                    th:text="${u.tenBan != null ? u.tenBan : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.tinhTrang != null ? u.tinhTrang.name : 'Chưa cập nhật'}"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                            posts=${posts},
+                            pageNumbers=${pageNumbers},
+                            keyword=${keyword},
+                            url='/admin/sales/table-list',
+                            size=${size})"
+                    ></div>
+
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/sales/table-create}"
+                            class="btn btn-success text-decoration-none"
+                            >Đăng Ký</a
+                        >
+
+                        <button
+                            id="btnGopBan"
+                            class="btn btn-info text-light"
+                            onclick="gopBan()"
+                        >
+                            Gộp Bàn
+                        </button>
+
+                        <button
+                            id="btnTachBan"
+                            class="btn text-light"
+                            onclick="tachBan()"
+                        >
+                            Tách Bàn
+                        </button>
+
+                        <button
+                            id="btnChuyenBan"
+                            class="btn btn-warning text-light"
+                            onclick="chuyenBan()"
+                        >
+                            Chuyển Bàn
+                        </button>
+
+                        <button
+                            id="btnHuyBan"
+                            class="btn btn-danger text-light"
+                            onclick="huyBan()"
+                        >
+                            Hủy Bàn
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="/js/table.js"></script>
+        </main>
+    </body>
+</html>

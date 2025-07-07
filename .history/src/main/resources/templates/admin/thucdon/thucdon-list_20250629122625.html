@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Thực Đơn</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Thực Đơn</h1>
+            <div
+                th:if="${successMessage}"
+                class="alert alert-success"
+                th:text="${successMessage}"
+                id="successMessageAlert"
+            ></div>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                posts=${posts},
+                keyword=${keyword},
+                url='/admin/thucdon/thucdon-list',
+                size=${size})"
+                    ></div>
+                    <table
+                        id="tableThucDon"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectThucDon" />
+                                </th>
+                                <th>Mã Thực Đơn</th>
+                                <th>Tên Món</th>
+                                <th>Loại Món</th>
+                                <th>Giá Tiền Hiện Tại</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${posts}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectThucDon"
+                                        th:value="${u.maThucDon}"
+                                    />
+                                </td>
+                                <td th:text="${u.maThucDon}"></td>
+                                <td
+                                    th:text="${u.tenMon != null ? u.tenMon : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.loaiMon != null ? u.loaiMon : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.giaTienHienTai != null ? #numbers.formatDecimal(u.giaTienHienTai, 0, 'POINT', 0, 'NONE') + ' VND' : 'Chưa cập nhật'}"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                posts=${posts},
+                pageNumbers=${pageNumbers},
+                keyword=${keyword},
+                url='/admin/thucdon/thucdon-list',
+                size=${size})"
+                    ></div>
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/thucdon/thucdon-create}"
+                            class="btn btn-success text-decoration-none"
+                            >Tạo Mới Món Ăn</a
+                        >
+                        <button
+                            id="btnCapNhatThucDon"
+                            class="btn btn-warning text-light"
+                            onclick="updateThucDon()"
+                        >
+                            Cập Nhật Thông Tin
+                        </button>
+                        <button
+                            id="btnXoaThucDon"
+                            class="btn btn-danger text-light"
+                            onclick="deleteThucDon()"
+                        >
+                            Xóa Món Ăn
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/js/thucdon.js"></script>
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+                        $("#successMessageAlert").fadeOut("slow");
+                    }, 1500);
+                });
+            </script>
+        </main>
+    </body>
+</html>

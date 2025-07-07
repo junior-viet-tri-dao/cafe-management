@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Trang Cá Nhân</title>
+        <style>
+
+        </style>
+    </head>
+    <body>
+        <main class="main-content"> 
+            <div class="profile-header">Trang cá nhân</div>
+            <div class="profile-container" style="display: flex; justify-content: space-evenly;">
+                    <div class="profile-main" style ="width: 50%;">
+                        <div class="profile-details">
+                            <dl>
+                                <dt>Họ và tên:</dt>
+                                <dd th:text="${user.hoTen}"></dd>
+
+                                <dt>Chức vụ:</dt>
+                                <dd
+                                    th:text="${user.chucVu != null ? user.chucVu.tenChucVu : 'Chưa cập nhật'}"
+                                ></dd>
+
+                                <dt>Địa chỉ:</dt>
+                                <dd th:text="${user.diaChi}"></dd>
+
+                                <dt>Số điện thoại:</dt>
+                                <dd th:text="${user.soDienThoai}"></dd>
+
+                                <dt>Lương:</dt>
+                                <dd
+                                    th:text="${user.chucVu != null ? #numbers.formatDecimal(user.chucVu.luong, 0, 'COMMA', 0, 'POINT') : 'Chưa cập nhật'} + ' VNĐ'"
+                                ></dd>
+                            </dl>
+
+                         
+                        </div>
+                        <div class="profile-login">
+                            <dl>
+                                <dt>Tên đăng nhập:</dt>
+                                <dd th:text="${user.username}"></dd>
+                            </dl>
+                            <dl>
+                                <dt>Mật khẩu:</dt>
+                                <dd
+                                    th:text="${user.password != null ? '********' : ''}"
+                                ></dd>
+                            </dl>
+                            <dl>
+                                <dt>Email:</dt>
+                                <dd th:text="${user.email}"></dd>
+                            </dl>
+                            <dl>
+                                <dt>Vai trò:</dt>
+                                <dd th:text="${user.role}"></dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                       <img style="width: 50%; height: 50vh;"
+                            th:src="${baseUrl} + ${#authentication.principal.usersDB.image}"
+                            th:if="${#authentication.principal.usersDB.image}"
+                            alt="User Image"
+                             />
+                    
+                    
+            </div>
+                 <!-- <div
+                            class="profile-photo"
+                            th:style="${user.image != null && !#strings.isEmpty(user.image) ? 'background-image: url(' + user.image + ');' : ''}"
+                        ></div> -->
+
+                <button class="edit-btn">Chỉnh sửa</button>
+            </div>
+            
+        </main>
+    </body>
+
+
+    
+</html>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+            

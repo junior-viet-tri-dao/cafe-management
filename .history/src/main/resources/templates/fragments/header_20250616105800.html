@@ -1,0 +1,19 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <nav th:fragment="header" class="header">
+        <div
+            class="container-fluid"
+            style="
+                background-color: rgb(28, 87, 52);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <a class="navbar-brand" style="color: rgb(61, 6, 6)" th:href="@{/}">
+                <img style="width: 84px" th:src="@{/img/giason.png}" />
+            </a>
+        </div>
+    </nav>
+</html>

@@ -1,0 +1,220 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+    <nav th:fragment="sidebar" class="sidebar">
+        <div class="current-user">
+            <img
+                th:src="${baseUrl} + ${#authentication.principal.usersDB.image}"
+                th:if="${#authentication.principal.usersDB.image}"
+                alt="User Image"
+            />
+            <span class="user-role" sec:authentication="principal.usersDB.role">
+            </span>
+            <span
+                class="user-email"
+                sec:authentication="principal.usersDB.email"
+            ></span>
+            <a th:href="@{/logout}">Đăng Xuất</a>
+        </div>
+        <ul class="navbar-nav sidebar-dark accordion" id="accordionSidebar">
+            <li class="nav-item" id="home">
+                <a class="nav-link" th:href="@{/}"><span>Trang Chủ</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/trangcanhan}"
+                    ><span>Trang Cá Nhân</span></a
+                >
+            </li>
+
+            <li
+                class="nav-item"
+                id="employee"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Quản Lý Nhân Viên</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            class="collapse-item h6"
+                            th:href="@{/admin/employee/list}"
+                            sub_tab="list"
+                            >Xem Xóa Tìm Kiếm Nhân Viên</a
+                        >
+                        <a
+                            class="collapse-item h6"
+                            th:href="@{/admin/employee/create}"
+                            sub_tab="create"
+                            >Tạo Mới Nhân Viên</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item" id="customer">
+                <a class="nav-link">
+                    <span class="text">Quản Lý Bán Hàng</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/admin/sales/table-list}"
+                            class="collapse-item h6"
+                            >Xem Danh Sách Bàn</a
+                        >
+                        <a
+                            sub_tab="create"
+                            th:href="@{/admin/sales/table-create}"
+                            class="collapse-item h6"
+                            >Thêm Bàn</a
+                        >
+                    </div>
+                </div>
+            </li>
+
+            <li
+                class="nav-item"
+                id="vaccine-type"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link collapsed">
+                    <span class="text">Quản Lý Trang Thiết Bị</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            class="collapse-item h6"
+                            th:href="@{/admin/thietbi/thietbi-list}"
+                            >Danh Sách Thiết Bị</a
+                        >
+                        <a
+                            sub_tab="create"
+                            class="collapse-item h6"
+                            th:href="@{/admin/thietbi/thietbi-create}"
+                            >Tạo Mới Thiết Bị</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li
+                id="vaccine"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link" data-toggle="collapse">
+                    <span class="text">Quản Lý Kho Hàng</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a sub_tab="list" class="collapse-item h6"
+                            >Danh Sách Hàng Hóa</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Nhập Hàng Hóa</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Xuất Hàng Hóa</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Chỉnh Sửa Hàng Hóa</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Xóa Hàng Hóa</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li
+                id="injection-schedule"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Quản Lý Thực Đơn</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a sub_tab="list" class="collapse-item h6"
+                            >Xem Thực Đơn</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Thêm Thực Đơn</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li
+                id="injection-result"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Quản Lý Marketing</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a sub_tab="list" class="collapse-item h6"
+                            >Thêm Khuyến Mãi</a
+                        >
+                        <a sub_tab="create" class="collapse-item h6"
+                            >Xóa Khuyến Mãi</a
+                        >
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item" sec:authorize="hasAuthority('Admin')">
+                <a class="nav-link">
+                    <span class="text">Quản Lý Ngân Sách</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item h6">Quản lý Thu Chi</a>
+                    </div>
+                </div>
+            </li>
+
+            <li
+                id="report"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Thống Kê Báo Cáo</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a sub_tab="injection-result" class="collapse-item h6"
+                            >Thống Kê Nhập Xuất</a
+                        >
+                        <a sub_tab="customer" class="collapse-item h6"
+                            >Báo Cáo Bán Hàng</a
+                        >
+                        <a sub_tab="vaccine" class="collapse-item h6"
+                            >Lương Nhân Viên</a
+                        >
+                        <a sub_tab="vaccine" class="collapse-item h6"
+                            >Thông Tin Nhân Viên</a
+                        >
+                        <a sub_tab="vaccine" class="collapse-item h6"
+                            >Các Loại Phí Khác</a
+                        >
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</html>

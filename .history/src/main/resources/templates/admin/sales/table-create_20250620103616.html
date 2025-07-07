@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Thêm Bàn Mới</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>THÊM BÀN MỚI</h1>
+            <form
+                th:action="@{/admin/sales/table-create}"
+                method="post"
+                th:object="${table}"
+            >
+                <!-- <input hidden="hidden" value="Employee" name="role" /> -->
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Mã Bàn<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{maBan}"
+                                    readonly
+                                />
+                            </div>
+                            <div
+                                th:errors="*{maBan}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tên Bàn<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tenBan}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tenBan}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Tình Trạng Bàn<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{tinhTrang}"
+                                />
+                            </div>
+                            <div
+                                th:errors="*{tinhTrang}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div
+                        style="
+                            margin-top: 20px;
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/sales/table-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

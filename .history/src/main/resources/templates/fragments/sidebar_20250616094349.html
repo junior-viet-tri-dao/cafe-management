@@ -1,0 +1,248 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.w3.org/1999/xhtml"
+>
+    <nav th:fragment="sidebar" class="sidebar">
+        <div class="current-user">
+            <!-- <img th:src="${baseUrl} + ${#authentication.principal.usersDB.image}" th:if="${#authentication.principal.usersDB.image}" alt="User Image" /> -->
+            <img
+                th:if="${#authentication != null and #authentication.principal != null and #authentication.principal.usersDB != null and #authentication.principal.usersDB.image != null}"
+                th:src="@{'/' + ${#authentication.principal.usersDB.image}}"
+                alt="User Image"
+            />
+            <span class="user-role" sec:authentication="principal.usersDB.role">
+            </span>
+            <span
+                class="user-email"
+                sec:authentication="principal.usersDB.email"
+            ></span>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+        <ul class="navbar-nav sidebar-dark accordion" id="accordionSidebar">
+            <li class="nav-item" id="home">
+                <a class="nav-link" th:href="@{/}"><span>Home</span></a>
+            </li>
+            <li
+                class="nav-item"
+                id="employee"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Quản Lý Nhân Viên</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            th:href="@{/admin/employee/list}"
+                            class="collapse-item h6"
+                            sub_tab="list"
+                            >Danh Sách Nhân Viên</a
+                        >
+                        <a
+                            th:href="@{/admin/employee/create}"
+                            class="collapse-item h6"
+                            sub_tab="create"
+                            >Tạo Mới Nhân Viên</a
+                        >
+                    </div>
+                </div>
+            </li>
+
+            <li
+                class="nav-item"
+                id="customer"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Quản Lý Bán Hàng</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/admin/customer/list}"
+                            class="collapse-item h6"
+                            >Xem Bàn</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Đặt Bàn</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Chuyển Bàn</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Gộp Bàn</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Tách Bàn</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Hủy Bàn</a
+                        >
+                    </div>
+                </div>
+            </li>
+
+            <li
+                class="nav-item"
+                id="vaccine-type"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link collapsed">
+                    <span class="text">Quản Lý Trang Thiết Bị</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/admin/vaccine-type/list}"
+                            class="collapse-item h6"
+                            >Danh Sách Thiết Bị</a
+                        >
+                        <a
+                            sub_tab="create"
+                            th:href="@{/admin/vaccine-type/create}"
+                            class="collapse-item h6"
+                            >Tạo Mới Thiết Bị</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li
+                id="vaccine"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link" data-toggle="collapse">
+                    <span class="text">Quản Lý Kho Hàng</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/admin/vaccine/list}"
+                            class="collapse-item h6"
+                            >Danh Sách Kho Hàng</a
+                        >
+                        <a
+                            sub_tab="create"
+                            th:href="@{/admin/vaccine/create}"
+                            class="collapse-item h6"
+                            >Nhập Hàng Hóa</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Xuất Hàng Hóa</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Chỉnh Sửa Hàng Hóa</a
+                        >
+                        <a sub_tab="create" th:href="#" class="collapse-item h6"
+                            >Xóa Hàng Hóa</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li id="injection-schedule" class="nav-item">
+                <a class="nav-link">
+                    <span class="text">Quản Lý Thực Đơn</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/injection-schedule/list}"
+                            class="collapse-item h6"
+                            >Injection Schedule List</a
+                        >
+                        <a
+                            sub_tab="create"
+                            sec:authorize="hasAuthority('Admin')"
+                            th:href="@{/admin/injection-schedule/create}"
+                            class="collapse-item h6"
+                            >Create Injection Schedule</a
+                        >
+                    </div>
+                </div>
+            </li>
+            <li
+                id="injection-result"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Injection Result</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="list"
+                            th:href="@{/admin/injection-result/list}"
+                            class="collapse-item h6"
+                            >Injection Result List</a
+                        >
+                        <a
+                            sub_tab="create"
+                            th:href="@{/admin/injection-result/create}"
+                            class="collapse-item h6"
+                            >Create Injection Result</a
+                        >
+                    </div>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link">
+                    <span class="text">News</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item h6">News List</a>
+                        <a class="collapse-item h6">Create News</a>
+                    </div>
+                </div>
+            </li>
+
+            <li
+                id="report"
+                class="nav-item"
+                sec:authorize="hasAuthority('Admin')"
+            >
+                <a class="nav-link">
+                    <span class="text">Report</span>
+                    <span class="plus"></span>
+                </a>
+                <div class="collapse">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a
+                            sub_tab="injection-result"
+                            th:href="@{/admin/report/injection-result}"
+                            class="collapse-item h6"
+                            >Report Injection Result</a
+                        >
+                        <a
+                            sub_tab="customer"
+                            th:href="@{/admin/report/customer}"
+                            class="collapse-item h6"
+                            >Report Customer</a
+                        >
+                        <a
+                            sub_tab="vaccine"
+                            th:href="@{/admin/report/vaccine}"
+                            class="collapse-item h6"
+                            >Report Vaccine</a
+                        >
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</html>

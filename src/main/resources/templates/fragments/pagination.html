@@ -1,0 +1,78 @@
+<!-- Fragment: fragments/pagination.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Pagination Fragment</title>
+    </head>
+    <body>
+        <div th:fragment="pagination(posts, pageNumbers, keyword, url, size)">
+            <nav class="pagination-wrapper">
+                <p
+                    th:if="${posts.totalPages > 0}"
+                    th:text="'Showing ' + (${posts.number * posts.size + 1}) + ' to ' +
+        (${posts.number * posts.size + (posts.size > posts.totalElements - (posts.number * posts.size) ? posts.totalElements - (posts.number * posts.size) : posts.size)}) +
+        ' of ' + ${posts.totalElements} + ' entries'"
+                ></p>
+
+                <ul
+                    class="pagination"
+                    th:if="${pageNumbers != null and pageNumbers.size() > 0 and posts.totalPages > 1}"
+                >
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            th:if="${posts.number > 0}"
+                            th:href="@{${url}( page=0, size=${size}, keyword=${keyword})}"
+                            >Đầu Tiên</a
+                        >
+                    </li>
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            th:if="${posts.hasPrevious()}"
+                            th:href="@{${url}(page=${posts.number - 1}, size=${size}, keyword=${keyword})}"
+                            >Trước</a
+                        >
+                    </li>
+                    <li class="page-link" th:if="${pageNumbers[0] > 1}">...</li>
+
+                    <li
+                        class="page-item"
+                        th:each="pageNum : ${pageNumbers}"
+                        th:classappend="${pageNum == posts.number + 1} ? 'active' : ''"
+                    >
+                        <a
+                            class="page-link"
+                            th:href="@{${url}(page=${pageNum - 1}, size=${size}, keyword=${keyword})}"
+                            th:text="${pageNum}"
+                        ></a>
+                    </li>
+
+                    <li
+                        class="page-link"
+                        th:if="${pageNumbers[pageNumbers.size() - 1] < posts.totalPages}"
+                    >
+                        ...
+                    </li>
+
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            th:if="${posts.hasNext()}"
+                            th:href="@{${url}(page=${posts.number + 1}, size=${size}, keyword=${keyword})}"
+                            >Kế Tiếp</a
+                        >
+                    </li>
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            th:if="${posts.number < posts.totalPages - 1}"
+                            th:href="@{${url}(page=${posts.totalPages - 1}, size=${size}, keyword=${keyword})}"
+                            >Cuối Cùng</a
+                        >
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+package com.vn;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.vn.model.Users;
+import com.vn.model.Role;
+import com.vn.model.GioiTinh;
+import com.vn.repository.UserRepository;
+import com.vn.utils.upload;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDate;
+
+@SpringBootApplication
+public class Nhom1Fjb01VacxinApplication {
+
+	public static void main(String[] args) {
+        // BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        // String hashed = encoder.encode("password1");
+        // System.out.println(hashed);
+		SpringApplication.run(Nhom1Fjb01VacxinApplication.class, args);
+	}
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CommandLineRunner createDefaultAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+		return args -> {
+			String username = "sondepzai2";
+			if (!userRepository.existsByUsername(username)) {
+				Users user = new Users();
+				
+				user.setUsername(username);
+				user.setPassword(passwordEncoder.encode("sondepzai2"));
+				user.setRole(Role.Customer);
+				user.setHoTen("Son Dep Zai 2");
+				user.setEmail("sondepzai2@gmail.com");
+				user.setSoDienThoai("0900000002");
+				user.setCMND("123456782");
+				user.setAddress("Hanoi");
+				user.setDateOfBirth(LocalDate.of(1995, 1, 1));
+				user.setGioiTinh(GioiTinh.Male);
+				user.setImage("uploads/sondepzai2.jpg");
+				userRepository.save(user);
+				System.out.println("Default admin user created: sondepzai");
+			} else {
+				System.out.println("Default admin user already exists: sondepzai");
+			}
+		};
+	}
+
+}

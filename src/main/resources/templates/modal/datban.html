@@ -1,0 +1,69 @@
+<!-- Modal Đặt Bàn -->
+<div
+    class="modal fade"
+    id="datBanModal"
+    tabindex="-1"
+    aria-labelledby="datBanModalLabel"
+    aria-hidden="true"
+    th:fragment="datbanModal"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/datban/submit}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="datBanModalLabel">Đặt Bàn</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tenKhachHang" class="form-label"
+                            >Tên Khách Hàng</label
+                        >
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="tenKhachHang"
+                            name="tenKhachHang"
+                            required
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label for="sdtKhachHang" class="form-label"
+                            >Số điện thoại khách</label
+                        >
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="sdtKhachHang"
+                            name="sdtKhachHang"
+                            required
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ngayGioDat" class="form-label"
+                            >Ngày Giờ Đặt</label
+                        >
+                        <input
+                            type="datetime-local"
+                            class="form-control"
+                            id="ngayGioDat"
+                            name="ngayGioDat"
+                            required
+                        />
+                    </div>
+                    <input type="hidden" id="maBanInput" name="maBan" />
+                    <input type="hidden" id="maHoaDonInput" name="maHoaDon" />
+                    <input
+                        type="hidden"
+                        id="maNhanVienInput"
+                        name="maNhanVien"
+                    />
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">
+                        Xác nhận đặt bàn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

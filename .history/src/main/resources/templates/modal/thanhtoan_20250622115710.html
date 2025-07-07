@@ -1,0 +1,71 @@
+<div
+    class="modal fade"
+    id="thanhtoanModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="thanhtoanModalLabel"
+    aria-hidden="true"
+    th:fragment="thanhtoanModal"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form onsubmit="submitThanhToan(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="thanhtoanModalLabel">
+                        Thanh Toán Bàn
+                    </h5>
+                    <!-- <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body">
+                    <div><b>Mã Bàn:</b> <span id="tt_maBan"></span></div>
+                    <div><b>Mã Hóa Đơn:</b> <span id="tt_maHoaDon"></span></div>
+                    <table class="table table-bordered mt-2">
+                        <thead>
+                            <tr>
+                                <th>Tên Món</th>
+                                <th>Số Lượng</th>
+                                <th>Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tt_tableBody">
+                            <!-- Dữ liệu món sẽ được render ở đây -->
+                        </tbody>
+                    </table>
+                    <div class="text-right">
+                        <b>Tổng Số Tiền:</b> <span id="tt_tongTien"></span>
+                    </div>
+                    <input type="hidden" id="tt_maBanInput" name="maBan" />
+                    <input
+                        type="hidden"
+                        id="tt_maHoaDonInput"
+                        name="maHoaDon"
+                    />
+                    <input
+                        type="hidden"
+                        id="tt_tongTienInput"
+                        name="tongTien"
+                    />
+                </div>
+                <div class="modal-footer">
+                    <!-- <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Đóng
+                    </button> -->
+                    <button type="submit" class="btn btn-primary">
+                        Xác Nhận Thanh Toán
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

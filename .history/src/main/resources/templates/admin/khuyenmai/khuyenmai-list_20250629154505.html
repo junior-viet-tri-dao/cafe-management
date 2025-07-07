@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Khuyến Mãi</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh sách Khuyến Mãi</h1>
+            <div
+                th:if="${successMessage}"
+                class="alert alert-success"
+                th:text="${successMessage}"
+                id="successMessageAlert"
+            ></div>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                            posts=${posts},
+                            keyword=${keyword},
+                            url='/admin/khuyenmai/khuyenmai-list',
+                            size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-striped table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        id="selectKhuyenMai"
+                                    />
+                                </th>
+                                <th>Tên Khuyến Mãi</th>
+                                <th>Ngày Bắt Đầu</th>
+                                <th>Ngày Kết Thúc</th>
+                                <th>Loại Khuyến Mãi</th>
+                                <th>Giá Trị Giảm Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr th:each="u : ${posts}">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectKhuyenMai"
+                                        th:value="${u.maKhuyenMai}"
+                                    />
+                                </td>
+
+                                <td
+                                    th:text="${u.tenKhuyenMai != null ? u.tenKhuyenMai : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.ngayBatDau != null ? #dates.format(u.ngayBatDau, 'dd/MM/yyyy') : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.ngayKetThuc != null ? #dates.format(u.ngayKetThuc, 'dd/MM/yyyy') : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.loaiKhuyenMai != null ? u.loaiKhuyenMai : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.giaTriGiam != null ? (u.giaTriGiam <= 1 ? (u.giaTriGiam * 100) + ' %' : #numbers.formatDecimal(u.giaTriGiam, 0, 'POINT', 0, 'NONE') + ' VND') : 'Chưa cập nhật'}"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                            posts=${posts},
+                            pageNumbers=${pageNumbers},
+                            keyword=${keyword},
+                            url='/admin/khuyenmai/khuyenmai-list',
+                            size=${size})"
+                    ></div>
+
+                    <div class="pl-4 mb-5">
+                        <a
+                            th:href="@{/admin/khuyenmai/khuyenmai-create}"
+                            class="btn btn-success text-decoration-none"
+                            >Tạo Mới Khuyến Mãi</a
+                        >
+                        <button
+                            id="btnCapNhatKhuyenMai"
+                            class="btn btn-warning text-light"
+                            onclick="updateKhuyenMai()"
+                        >
+                            Cập Nhật Thông Tin
+                        </button>
+                        <button
+                            id="btnXoaKhuyenMai"
+                            class="btn btn-danger text-light"
+                            onclick="deleteKhuyenMai()"
+                        >
+                            Xóa Khuyến Mãi
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/js/khuyenmai.js"></script>
+        </main>
+    </body>
+</html>
