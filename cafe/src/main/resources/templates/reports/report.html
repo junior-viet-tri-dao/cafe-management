@@ -1,126 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+      layout:decorate="~{/layout}">
 <head>
-  <meta charset="UTF-8">
-  <title>Thống kê, báo cáo</title>
+  <title>Báo cáo thống kê</title>
 </head>
-<body>
-<div layout:fragment="content">
-  <div class="bg-white shadow-xl rounded-xl p-6 mt-6 max-w-7xl mx-auto">
-    <h2 class="text-2xl font-bold text-[#4e342e] mb-6">📊 Thống kê & Báo cáo</h2>
 
-    <!-- Bộ lọc thống kê -->
-    <form th:action="@{/report}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 items-end">
-      <!-- Chọn mục -->
-      <div class="md:col-span-2">
-        <label class="block font-semibold text-gray-700 mb-1">Chọn mục:</label>
-        <select name="category" class="w-full border border-gray-300 px-3 py-2 rounded-md">
-          <option value="all">Tất cả</option>
-          <option value="import_export">Nhập - Xuất</option>
-          <option value="import">Nhập</option>
-          <option value="sell">Bán hàng</option>
-          <option value="salary">Lương</option>
-          <option value="staff">TT nhân viên</option>
-          <option value="export">Xuất</option>
-          <option value="other">Phí khác</option>
+<body>
+<main layout:fragment="content">
+  <div class="container mt-5">
+    <h2 class="mb-4 text-primary fw-bold">📈 Báo cáo thống kê</h2>
+    <form method="get" action="/report/download" target="_blank" class="border rounded-3 p-4 bg-white shadow-sm">
+
+      <div class="mb-3">
+        <label for="start" class="form-label">Từ ngày:</label>
+        <input type="date" name="startDate" id="start" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="end" class="form-label">Đến ngày:</label>
+        <input type="date" name="endDate" id="end" class="form-control" required>
+      </div>
+
+      <div class="mb-4">
+        <label for="type" class="form-label">Loại báo cáo:</label>
+        <select name="type" id="type" class="form-select" required>
+          <option value="EMPLOYEE_SALARY">👥 Nhân viên & Lương</option>
+          <option value="INVOICE_MONTHLY">🧾 Hóa đơn theo tháng</option>
+          <option value="REVENUE_SUMMARY">📊 Doanh thu</option>
+          <option value="EXPENSE_ONLY">💸 Chi tiêu</option>
+          <option value="IMPORT_ONLY">📥 Nhập hàng</option>
+          <option value="EXPORT_ONLY">📤 Xuất hàng</option>
+          <option value="IMPORT_EXPORT">🔄 Nhập - Xuất</option>
         </select>
       </div>
 
-      <!-- Từ ngày -->
-      <div>
-        <label class="block font-semibold text-gray-700 mb-1">Từ ngày:</label>
-        <input type="date" name="fromDate" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500"/>
-      </div>
-
-      <!-- Đến ngày -->
-      <div>
-        <label class="block font-semibold text-gray-700 mb-1">Đến ngày:</label>
-        <input type="date" name="toDate" class="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500"/>
-      </div>
-
-      <div class="md:col-span-4 text-right mt-2">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md">
-          Xem báo cáo
-        </button>
-      </div>
+      <button type="submit" class="btn btn-primary">
+        📥 Tải PDF
+      </button>
     </form>
-
-    <!-- Bảng kết quả -->
-    <div class="overflow-x-auto mt-6">
-      <table class="min-w-full table-auto border border-gray-300 rounded-lg">
-        <thead class="bg-blue-100 text-gray-800 text-sm font-bold uppercase">
-        <tr>
-          <th class="px-4 py-2 text-center">Ngày</th>
-          <th class="px-4 py-2 text-right">Thu</th>
-          <th class="px-4 py-2 text-right">Chi</th>
-        </tr>
-        </thead>
-        <tbody class="text-sm text-gray-700 divide-y divide-gray-200">
-        <tr th:each="item : ${reportList}">
-          <td class="px-4 py-2 text-center" th:text="${item.ngay}">23/12/2014</td>
-          <td class="px-4 py-2 text-right" th:text="${#numbers.formatDecimal(item.thu, 0, 'POINT', 0, 'COMMA')}">1.000.000</td>
-          <td class="px-4 py-2 text-right" th:text="${#numbers.formatDecimal(item.chi, 0, 'POINT', 0, 'COMMA')}">500.000</td>
-        </tr>
-        <tr class="font-bold bg-gray-50">
-          <td class="px-4 py-2 text-center">Tổng</td>
-          <td class="px-4 py-2 text-right" th:text="${tongThu}">3.000.000</td>
-          <td class="px-4 py-2 text-right" th:text="${tongChi}">1.600.000</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Xuất file & In file -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-      <!-- Xuất file -->
-      <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-lg font-semibold mb-3">📁 Xuất file</h3>
-        <div class="space-y-2">
-          <label><input type="radio" name="fileFormat" value="txt" class="mr-2"> .txt - Text File</label><br/>
-          <label><input type="radio" name="fileFormat" value="xls" class="mr-2"> .xls - Excel File</label><br/>
-          <label><input type="radio" name="fileFormat" value="sql" class="mr-2"> .sql - SQL File</label>
-        </div>
-        <button class="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md">
-          Xuất file
-        </button>
-      </div>
-
-      <!-- In file -->
-      <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-lg font-semibold mb-3">🖨️ In file</h3>
-        <div class="space-y-3">
-          <div>
-            <label class="block font-medium mb-1">Khổ giấy:</label>
-            <select class="w-full border border-gray-300 px-3 py-2 rounded-md">
-              <option>A4</option>
-              <option>A5</option>
-              <option>Letter</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-medium mb-1">Máy in:</label>
-            <select class="w-full border border-gray-300 px-3 py-2 rounded-md">
-              <option>Hp Laser</option>
-              <option>Canon</option>
-              <option>Epson</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-medium mb-1">Số lượng:</label>
-            <input type="number" min="1" value="1" class="w-full border border-gray-300 px-3 py-2 rounded-md"/>
-          </div>
-
-          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md">
-            In
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
-</div>
+</main>
 </body>
 </html>

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Integer> {
     @Query("select e from EmployeeEntity e where e.isDeleted = false and lower(e.fullName) like lower(CONCAT('%', :keyword, '%')) ")
@@ -15,4 +17,6 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
 
     @Query("select e from EmployeeEntity e where e.isDeleted = false")
     Page<EmployeeEntity> getAllEmployees(Pageable pageable);
+
+    List<EmployeeEntity> findEmployeeByIsDeletedFalse();
 }
