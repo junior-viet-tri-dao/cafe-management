@@ -1,6 +1,6 @@
 package com.viettridao.cafe.common;
 
 public enum InvoiceStatus {
-    UNPAID, PAID, PROCESSING, CANCELLED, PENDING, REFUNDED
-    //Chưa thanh toán, Đã thanh toán, Đang xử lý, Đã hủy, Đang chờ thanh toán, Hoàn tiền
+    PENDING_PAYMENT, PAID, UNDER_REVIEW, RESERVED, CANCELLED
+    //Đang chờ thanh toán, Đã thanh toán, Đang kiểm tra, Đã đặt trước, Đã hủy
 }

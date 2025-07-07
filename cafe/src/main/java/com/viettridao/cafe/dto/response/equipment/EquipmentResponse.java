@@ -7,6 +7,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * DTO cho việc biểu diễn dữ liệu liên quan đến thiết bị.
+ * Bao gồm thông tin về tên thiết bị, số lượng, ghi chú, ngày mua và giá mua.
+ */
 @Getter
 @Setter
 public class EquipmentResponse {
@@ -24,6 +28,5 @@ public class EquipmentResponse {
     private Double purchasePrice;
 
     private Boolean isDeleted;
-
 
 }

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<AccountEntity, Integer> {
+    // Tìm tài khoản theo tên đăng nhập
     Optional<AccountEntity> findByUsername(String username);
 }

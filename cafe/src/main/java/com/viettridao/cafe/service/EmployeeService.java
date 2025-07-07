@@ -1,0 +1,55 @@
+package com.viettridao.cafe.service;
+
+// Import các thư viện cần thiết
+import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
+import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
+import com.viettridao.cafe.dto.response.employee.EmployeePageResponse;
+import com.viettridao.cafe.model.EmployeeEntity;
+
+/**
+ * Service cho thực thể EmployeeEntity.
+ * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến nhân viên (Employee).
+ */
+public interface EmployeeService {
+
+    /**
+     * Lấy danh sách tất cả nhân viên theo từ khóa tìm kiếm và phân trang.
+     *
+     * @param keyword Từ khóa tìm kiếm theo tên nhân viên.
+     * @param page    Số trang cần lấy.
+     * @param size    Số lượng bản ghi trên mỗi trang.
+     * @return Đối tượng EmployeePageResponse chứa danh sách nhân viên và thông tin
+     *         phân trang.
+     */
+    EmployeePageResponse getAllEmployees(String keyword, int page, int size);
+
+    /**
+     * Tạo mới một nhân viên.
+     *
+     * @param request Đối tượng chứa thông tin cần thiết để tạo nhân viên mới.
+     * @return Thực thể EmployeeEntity vừa được tạo.
+     */
+    EmployeeEntity createEmployee(CreateEmployeeRequest request);
+
+    /**
+     * Xóa một nhân viên dựa trên ID.
+     *
+     * @param id ID của nhân viên cần xóa.
+     */
+    void deleteEmployee(Integer id);
+
+    /**
+     * Cập nhật thông tin nhân viên.
+     *
+     * @param request Đối tượng chứa thông tin cần cập nhật cho nhân viên.
+     */
+    void updateEmployee(UpdateEmployeeRequest request);
+
+    /**
+     * Lấy thông tin chi tiết của một nhân viên dựa trên ID.
+     *
+     * @param id ID của nhân viên cần lấy thông tin.
+     * @return Thực thể EmployeeEntity tương ứng với ID.
+     */
+    EmployeeEntity getEmployeeById(Integer id);
+}

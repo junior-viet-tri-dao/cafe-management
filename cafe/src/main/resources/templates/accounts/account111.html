@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang cá nhân</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/account.css}">
+</head>
+<body>
+<div layout:fragment="content">
+    <main class="page-content">
+        <form class="profile-card" th:action="@{/account/update}" th:object="${account}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <!-- Header -->
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <img alt="Ảnh đại diện" class="avatar" id="avatarImage"
+                         th:src="*{imageUrl != null} ? *{imageUrl} : 'https://randomuser.me/api/portraits/men/32.jpg'">
+                    <input type="hidden" id="avatarUrlInput" th:field="*{imageUrl}">
+                    <span class="edit-icon" id="editAvatar" style="display: none;"><i class="fas fa-pen"></i></span>
+                </div>
+                <h3 class="text-2xl font-bold" th:text="*{fullName}">Tên người dùng</h3>
+                <p class="text-md" th:text="*{positionName}">Chức vụ</p>
+            </div>
+
+            <!-- Thông tin cá nhân -->
+            <div class="grid-container">
+                <div class="info-field">
+                    <label for="username">TÊN ĐĂNG NHẬP</label>
+                    <input id="username" th:field="*{username}" readonly type="text">
+                </div>
+
+                <div class="info-field">
+                    <label for="password">MẬT KHẨU</label>
+                    <input id="password" value="*******" readonly type="password">
+                </div>
+
+                <div class="info-field">
+                    <label for="phoneNumber">SỐ ĐIỆN THOẠI</label>
+                    <div class="input-wrapper">
+                        <input id="phoneNumber" th:field="*{phoneNumber}" readonly type="text">
+                        <span class="edit-icon" style="display: none;"><i class="fas fa-pen"></i></span>
+                    </div>
+                </div>
+
+                <div class="info-field">
+                    <label for="salary">LƯƠNG</label>
+                    <input id="salary" readonly th:value="*{formattedSalary}" type="text">
+                </div>
+
+                <div class="info-field full-width">
+                    <label for="address">ĐỊA CHỈ</label>
+                    <div class="input-wrapper">
+                        <input id="address" th:field="*{address}" readonly type="text">
+                        <span class="edit-icon" style="display: none;"><i class="fas fa-pen"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="profile-actions">
+                <button class="btn-edit" id="editButton" type="button"><i class="fas fa-pen"></i> Chỉnh sửa</button>
+                <button class="btn-save" id="saveButton" style="display:none;" type="submit"><i class="fas fa-save"></i> Lưu thay đổi</button>
+                <button class="btn-cancel" id="cancelButton" style="display:none;" type="button"><i class="fas fa-times"></i> Hủy</button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editButton = document.getElementById('editButton');
+            const saveButton = document.getElementById('saveButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const avatarImage = document.getElementById('avatarImage');
+            const avatarUrlInput = document.getElementById('avatarUrlInput');
+            const avatarEditIcon = document.getElementById('editAvatar');
+            const editIcons = document.querySelectorAll('.edit-icon');
+            const editableInputs = [
+                document.getElementById('phoneNumber'),
+                document.getElementById('address')
+            ];
+            const originalValues = {};
+
+            function setEditMode(editing) {
+                editableInputs.forEach(input => {
+                    input.readOnly = !editing;
+                    const field = input.closest('.info-field');
+                    if (editing) {
+                        field.classList.add('editing');
+                        if (!originalValues[input.id]) originalValues[input.id] = input.value;
+                    } else {
+                        field.classList.remove('editing');
+                    }
+                });
+
+                editIcons.forEach(icon => icon.style.display = editing ? 'flex' : 'none');
+                editButton.style.display = editing ? 'none' : 'flex';
+                saveButton.style.display = editing ? 'flex' : 'none';
+                cancelButton.style.display = editing ? 'flex' : 'none';
+
+                if (editing && !originalValues.avatar) {
+                    originalValues.avatar = avatarImage.src;
+                    originalValues.avatarUrlInput = avatarUrlInput.value;
+                }
+            }
+
+            editButton.addEventListener('click', () => setEditMode(true));
+            cancelButton.addEventListener('click', () => {
+                editableInputs.forEach(input => input.value = originalValues[input.id]);
+                avatarImage.src = originalValues.avatar;
+                avatarUrlInput.value = originalValues.avatarUrlInput;
+                setEditMode(false);
+            });
+
+            avatarEditIcon.addEventListener('click', () => {
+                const newUrl = prompt("Nhập URL ảnh đại diện mới:", avatarUrlInput.value);
+                if (newUrl) {
+                    avatarImage.src = newUrl;
+                    avatarUrlInput.value = newUrl;
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

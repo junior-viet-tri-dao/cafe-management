@@ -1,5 +1,6 @@
 package com.viettridao.cafe.service;
 
+// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
 import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
 import com.viettridao.cafe.dto.response.equipment.EquipmentPageResponse;
@@ -7,11 +8,56 @@ import com.viettridao.cafe.model.EquipmentEntity;
 
 import java.util.List;
 
+/**
+ * Service cho thực thể EquipmentEntity.
+ * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến thiết bị (Equipment).
+ */
 public interface EquipmentService {
+
+    /**
+     * Lấy danh sách tất cả thiết bị (không phân trang).
+     *
+     * @return Danh sách các thực thể EquipmentEntity.
+     */
     List<EquipmentEntity> getAllEquipments();
-    EquipmentEntity createEquipment(CreateEquipmentRequest request);
-    void deleteEquipment(Integer id);
-    EquipmentEntity getEquipmentById(Integer id);
-    void updateEquipment(UpdateEquipmentRequest request);
+
+    /**
+     * Lấy danh sách tất cả thiết bị có phân trang.
+     *
+     * @param page Số trang cần lấy.
+     * @param size Số lượng bản ghi trên mỗi trang.
+     * @return Đối tượng EquipmentPageResponse chứa danh sách thiết bị và thông tin
+     *         phân trang.
+     */
     EquipmentPageResponse getAllEquipmentsPage(int page, int size);
+
+    /**
+     * Tạo mới một thiết bị.
+     *
+     * @param request Đối tượng chứa thông tin cần thiết để tạo thiết bị mới.
+     * @return Thực thể EquipmentEntity vừa được tạo.
+     */
+    EquipmentEntity createEquipment(CreateEquipmentRequest request);
+
+    /**
+     * Xóa một thiết bị dựa trên ID.
+     *
+     * @param id ID của thiết bị cần xóa.
+     */
+    void deleteEquipment(Integer id);
+
+    /**
+     * Lấy thông tin chi tiết của một thiết bị dựa trên ID.
+     *
+     * @param id ID của thiết bị cần lấy thông tin.
+     * @return Thực thể EquipmentEntity tương ứng với ID.
+     */
+    EquipmentEntity getEquipmentById(Integer id);
+
+    /**
+     * Cập nhật thông tin thiết bị.
+     *
+     * @param request Đối tượng chứa thông tin cần cập nhật cho thiết bị.
+     */
+    void updateEquipment(UpdateEquipmentRequest request);
 }

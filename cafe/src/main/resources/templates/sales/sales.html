@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý bán hàng</title>
+    <style>
+      .modal {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid #ddd;
+        padding: 20px;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+        transform: translateY(100%);
+      }
+      .modal.active {
+        transform: translateY(0);
+      }
+      .table-selected {
+        border: 2px solid #f44336; /* Red border */
+        background-color: #ffebee; /* Light red background */
+        position: relative;
+      }
+      .table-selected::after {
+        content: '\2713';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        color: #f44336; /* Red checkmark */
+      }
+      .form-container {
+        box-shadow: 0 8px 32px 0 rgba(34, 60, 80, 0.2);
+        border: 1.5px solid #b5c99a;
+      }
+      .form-container input:focus {
+        outline: none;
+        border-color: #3e2723;
+        box-shadow: 0 0 0 2px #b5c99a33;
+      }
+      .form-container label {
+        letter-spacing: 0.01em;
+      }
+      @media (max-width: 640px) {
+        .form-container {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex flex-col">
+      <!-- Main Content -->
+      <main class="w-full">
+        <div
+          layout:fragment="content"
+          class="bg-[#fefae0] min-h-screen w-full px-6 py-8"
+        >
+          <div class="max-w-[1500px] mx-auto">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <!-- Tiêu đề -->
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-[#3e2723]">Danh sách bàn</h2>
+              </div>
+
+              <!-- Grid layout hiển thị trạng thái bàn -->
+              <div class="grid grid-cols-5 gap-4 mb-6">
+                <!-- Render danh sách bàn động từ model -->
+                <div
+                  th:each="table : ${tables}"
+                  class="rounded-lg shadow-md hover:shadow-lg transition p-4 cursor-pointer"
+                  th:classappend="${table.status.name() == 'AVAILABLE' ? 'bg-green-100' : (table.status.name() == 'OCCUPIED' ? 'bg-red-100' : (table.status.name() == 'RESERVED' ? 'bg-yellow-100' : 'bg-gray-100'))}"
+                  data-table
+                  th:attr="data-status=${table.status.name()}, data-table-id=${table.id}"
+                >
+                  <h3
+                    th:text="${table.tableName}"
+                    class="text-lg font-semibold text-gray-800 mb-2"
+                  ></h3>
+                  <p
+                    th:text="${table.status.name() == 'AVAILABLE' ? 'Trống' : (table.status.name() == 'OCCUPIED' ? 'Đang sử dụng' : (table.status.name() == 'RESERVED' ? 'Đã đặt' : 'Không xác định'))}"
+                    class="text-sm text-gray-600"
+                  ></p>
+                </div>
+              </div>
+
+              <!-- Chức năng -->
+              <div class="flex justify-center space-x-4 mb-4">
+                <button
+                  id="view-table-button"
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  type="button"
+                >
+                  Xem bàn
+                </button>
+                <button
+                  class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  Chuyển bàn
+                </button>
+                <button
+                  class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                >
+                  Tách bàn
+                </button>
+                <button
+                  id="merge-table-button"
+                  class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  type="button"
+                  onclick="console.log('Direct onclick triggered'); window.directMergeClick();"
+                >
+                  Gộp bàn
+                </button>
+                <button
+                  id="cancel-table-button"
+                  class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  type="button"
+                >
+                  Hủy bàn
+                </button>
+                <button
+                  type="button"
+                  class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                  id="reservation-button"
+                >
+                  Đặt bàn
+                </button>
+              </div>
+              <div class="flex justify-center space-x-4">
+                <form
+                  th:action="@{/sale/show-select-menu-form}"
+                  method="get"
+                  id="select-menu-form"
+                  style="display: inline"
+                >
+                  <input
+                    type="hidden"
+                    name="tableId"
+                    id="select-menu-table-id"
+                  />
+                  <button
+                    class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                    id="select-menu-button"
+                    type="submit"
+                  >
+                    Chọn thực đơn
+                  </button>
+                </form>
+                <button
+                  class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600"
+                >
+                  Thanh toán
+                </button>
+                <button
+                  class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                >
+                  In ấn
+                </button>
+                <button
+                  onclick="window.location.href='/sale?showMergeModal=true&selectedTableId=1'"
+                  class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                  type="button"
+                >
+                  Test Modal
+                </button>
+              </div>
+
+              <!-- Form chọn thực đơn hiển thị khi showSelectMenuForm = true -->
+              <div
+                th:if="${showSelectMenuForm}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 17l4 4 4-4m0-5V3m-8 4v4a4 4 0 004 4h4"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Chọn thực đơn -
+                      <span
+                        th:text="${selectedTable?.tableName ?: 'Bàn ' + (selectMenuRequest?.tableId ?: '')}"
+                      ></span>
+                    </h3>
+                    <form
+                      th:action="@{/sale/select-menu-on-sales}"
+                      th:object="${selectMenuRequest}"
+                      method="post"
+                      class="space-y-6"
+                      autocomplete="off"
+                    >
+                      <input type="hidden" th:field="*{tableId}" />
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label
+                            for="customerName"
+                            class="block text-base font-semibold text-[#3e2723] mb-1"
+                            >Khách hàng</label
+                          >
+                          <input
+                            type="text"
+                            th:field="*{customerName}"
+                            id="customerName"
+                            class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
+                            placeholder="Nhập tên khách hàng"
+                          />
+                          <p
+                            class="text-red-500 text-sm mt-1 min-h-[20px]"
+                            th:if="${#fields.hasErrors('customerName')}"
+                            th:errors="*{customerName}"
+                          ></p>
+                        </div>
+                        <div>
+                          <label
+                            for="customerPhone"
+                            class="block text-base font-semibold text-[#3e2723] mb-1"
+                            >Số điện thoại</label
+                          >
+                          <input
+                            type="text"
+                            th:field="*{customerPhone}"
+                            id="customerPhone"
+                            class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
+                            placeholder="Nhập số điện thoại"
+                          />
+                          <p
+                            class="text-red-500 text-sm mt-1 min-h-[20px]"
+                            th:if="${#fields.hasErrors('customerPhone')}"
+                            th:errors="*{customerPhone}"
+                          ></p>
+                        </div>
+                      </div>
+                      <div class="overflow-x-auto mb-6">
+                        <table class="min-w-full border rounded-lg">
+                          <thead>
+                            <tr class="bg-gray-200">
+                              <th class="px-4 py-2 text-left">Chọn</th>
+                              <th class="px-4 py-2 text-left">Tên món</th>
+                              <th class="px-4 py-2 text-center">Số lượng</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr
+                              th:each="item,iter : ${menuItems}"
+                              class="menu-row hover:bg-blue-50 transition"
+                            >
+                              <td class="px-4 py-2 text-center">
+                                <input
+                                  type="checkbox"
+                                  th:id="'item-' + ${item.id}"
+                                  th:name="items[__${iter.index}__].menuItemId"
+                                  th:value="${item.id}"
+                                  onchange="toggleQuantityInput(this)"
+                                />
+                              </td>
+                              <td
+                                class="px-4 py-2"
+                                th:text="${item.itemName}"
+                              ></td>
+                              <td class="px-4 py-2 text-center">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="99"
+                                  class="w-16 text-center rounded border-gray-300"
+                                  th:name="items[__${iter.index}__].quantity"
+                                  th:value="0"
+                                  th:disabled="true"
+                                  onfocus="this.select()"
+                                />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <!-- Hiển thị lỗi toàn cục nếu có -->
+                      <div
+                        th:if="${#fields.hasGlobalErrors()}"
+                        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
+                      >
+                        <div
+                          th:each="error : ${#fields.globalErrors()}"
+                          th:text="${error}"
+                        ></div>
+                      </div>
+                      <!-- Hiển thị lỗi cho từng món nếu có -->
+                      <div
+                        th:if="${#fields.hasErrors('items')}"
+                        class="text-red-500 text-sm mt-1 min-h-[20px]"
+                      >
+                        <span th:errors="*{items}"></span>
+                      </div>
+                      <div class="flex justify-end mt-8 space-x-4">
+                        <button
+                          type="submit"
+                          class="bg-gradient-to-tr from-[#3e2723] to-[#b5c99a] text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-[#5d4037] hover:to-[#b5c99a] transition-all duration-200"
+                        >
+                          Lưu
+                        </button>
+                        <a
+                          href="/sale"
+                          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                          >Hủy</a
+                        >
+                      </div>
+                    </form>
+                    <script>
+                      // Tự động enable/disable input số lượng khi check/uncheck món
+                      function toggleQuantityInput(checkbox) {
+                        const row = checkbox.closest('tr');
+                        const input = row.querySelector('input[type="number"]');
+                        if (checkbox.checked) {
+                          input.disabled = false;
+                          input.value = input.value === '0' ? '1' : input.value;
+                          row.classList.add('selected');
+                        } else {
+                          input.disabled = true;
+                          input.value = 0;
+                          row.classList.remove('selected');
+                        }
+                      }
+                      // Khởi tạo trạng thái ban đầu cho các dòng đã được chọn
+                      document
+                        .querySelectorAll('.menu-row input[type="checkbox"]')
+                        .forEach((cb) => {
+                          toggleQuantityInput(cb);
+                        });
+                    </script>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Khu vực hiển thị popup thông báo ngay sau các nút chức năng -->
+              <div
+                id="notification-area"
+                class="mt-6 flex justify-center"
+              ></div>
+              <!-- Hiển thị thông báo lỗi khi hủy bàn (chỉ lỗi, thành công sẽ dùng JS) -->
+              <div th:if="${errorMessage}" class="flex justify-center mt-4">
+                <div
+                  class="bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded shadow"
+                >
+                  <span th:text="${errorMessage}"></span>
+                </div>
+              </div>
+
+              <!-- Form xác nhận hủy bàn hiển thị khi showCancelReservationForm = true -->
+              <div
+                th:if="${showCancelReservationForm}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Xác nhận hủy bàn -
+                      <span
+                        th:text="${selectedTable?.tableName ?: 'Bàn ' + (selectedTable?.id ?: '')}"
+                      ></span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label
+                          class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >Khách hàng</label
+                        >
+                        <div
+                          class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                        >
+                          <span
+                            th:text="${reservation?.customerName ?: '---'}"
+                          ></span>
+                        </div>
+                      </div>
+                      <div>
+                        <label
+                          class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >Số điện thoại</label
+                        >
+                        <div
+                          class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                        >
+                          <span
+                            th:text="${reservation?.customerPhone ?: '---'}"
+                          ></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="border-t pt-4 mb-6">
+                      <label
+                        class="block text-base font-semibold text-[#3e2723] mb-1"
+                        >Thời gian đặt</label
+                      >
+                      <div
+                        class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                      >
+                        <span
+                          th:if="${reservation?.reservationDate != null}"
+                          th:text="${#temporals.format(reservation.reservationDate, 'HH:mm dd/MM/yyyy')}"
+                        ></span>
+                        <span th:if="${reservation?.reservationDate == null}"
+                          >---</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+                    >
+                      <p class="text-red-700 text-center font-medium">
+                        ⚠️ Bạn có chắc chắn muốn hủy bàn này?
+                      </p>
+                    </div>
+                    <form
+                      th:action="@{/sale/cancel-reservation}"
+                      method="post"
+                      class="space-y-6"
+                    >
+                      <input
+                        type="hidden"
+                        name="_csrf"
+                        th:value="${_csrf.token}"
+                      />
+                      <input
+                        type="hidden"
+                        name="tableId"
+                        th:value="${selectedTable?.id}"
+                      />
+                      <div class="flex justify-end space-x-4">
+                        <button
+                          type="submit"
+                          class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                        >
+                          Xác nhận hủy
+                        </button>
+                        <a
+                          href="/sale"
+                          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                          >Hủy</a
+                        >
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Script hiển thị thông báo thành công nếu có -->
+              <script th:if="${successMessage}">
+                document.addEventListener('DOMContentLoaded', function () {
+                  showSuccess('[[${successMessage}]]');
+                });
+              </script>
+
+              <!-- Script nằm trong content fragment để đảm bảo chạy sau khi DOM render xong -->
+              <script>
+                // XỬ LÝ UI BÀN VÀ NÚT CHỨC NĂNG
+                // ---
+                // 1. Chọn bàn: Click để chọn/bỏ chọn, chỉ cho phép chọn 1 bàn tại 1 thời điểm
+                function initTableSelection() {
+                  const tableElements =
+                    document.querySelectorAll('[data-table]');
+                  tableElements.forEach((table, index) => {
+                    table.addEventListener('click', function (event) {
+                      event.preventDefault();
+                      if (this.classList.contains('table-selected')) {
+                        this.classList.remove('table-selected');
+                      } else {
+                        tableElements.forEach((t) =>
+                          t.classList.remove('table-selected')
+                        );
+                        this.classList.add('table-selected');
+                      }
+                    });
+                  });
+                }
+
+                // 2. Đặt bàn: Kiểm tra đã chọn bàn, trạng thái bàn phải là AVAILABLE, nếu hợp lệ thì chuyển sang form đặt bàn
+                function initReservationButton() {
+                  const reservationButton =
+                    document.getElementById('reservation-button');
+                  if (!reservationButton) return;
+                  reservationButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const selectedTable =
+                      document.querySelector('.table-selected');
+                    if (!selectedTable) {
+                      showError('Vui lòng chọn một bàn trước khi đặt bàn');
+                      return;
+                    }
+                    const status = selectedTable.dataset.status;
+                    if (status !== 'AVAILABLE') {
+                      showError(
+                        'Chỉ có thể đặt bàn khi bàn đang trống. Vui lòng chọn bàn khác!'
+                      );
+                      return;
+                    }
+                    const tableId =
+                      selectedTable.dataset.tableId ||
+                      selectedTable.querySelector('[data-table-id]')?.dataset
+                        .tableId;
+                    window.location.href = `/sale/show-reservation-form?tableId=${tableId}`;
+                  });
+                }
+
+                // 3. Chọn thực đơn: Kiểm tra đã chọn bàn, trạng thái bàn phải là AVAILABLE hoặc RESERVED hoặc OCCUPIED
+                function initSelectMenuButton() {
+                  const selectMenuButton =
+                    document.getElementById('select-menu-button');
+                  const selectMenuForm =
+                    document.getElementById('select-menu-form');
+                  const tableIdInput = document.getElementById(
+                    'select-menu-table-id'
+                  );
+                  if (!selectMenuButton || !selectMenuForm || !tableIdInput)
+                    return;
+                  selectMenuButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const selectedTable =
+                      document.querySelector('.table-selected');
+                    if (!selectedTable) {
+                      showError(
+                        'Vui lòng chọn một bàn trước khi chọn thực đơn'
+                      );
+                      return;
+                    }
+                    const status = selectedTable.dataset.status;
+                    if (
+                      status !== 'AVAILABLE' &&
+                      status !== 'RESERVED' &&
+                      status !== 'OCCUPIED'
+                    ) {
+                      showError(
+                        'Chỉ có thể chọn thực đơn cho bàn trống, đã đặt hoặc đang sử dụng.'
+                      );
+                      return;
+                    }
+                    const tableId =
+                      selectedTable.dataset.tableId ||
+                      selectedTable.querySelector('[data-table-id]')?.dataset
+                        .tableId;
+                    tableIdInput.value = tableId;
+                    selectMenuForm.submit();
+                  });
+                }
+
+                // 4. Xem bàn: Kiểm tra đã chọn bàn, nếu chưa chọn thì showError, nếu bàn trống thì showError, nếu đã đặt/đang sử dụng thì submit form truyền thống
+                function initViewTableButton() {
+                  const viewTableButton =
+                    document.getElementById('view-table-button');
+                  if (!viewTableButton) return;
+                  viewTableButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const selectedTable =
+                      document.querySelector('.table-selected');
+                    if (!selectedTable) {
+                      showError('Hãy chọn một bàn để xem chi tiết');
+                      return;
+                    }
+                    const status = selectedTable.dataset.status;
+                    const tableId =
+                      selectedTable.dataset.tableId ||
+                      selectedTable.querySelector('[data-table-id]')?.dataset
+                        .tableId;
+                    if (status === 'AVAILABLE') {
+                      showError(
+                        'Bàn này hiện đang trống, chưa có thông tin order để hiển thị.'
+                      );
+                      return;
+                    }
+                    // Nếu là RESERVED hoặc OCCUPIED thì submit form truyền thống (GET)
+                    // Tạo form ẩn và submit
+                    const form = document.createElement('form');
+                    form.method = 'GET';
+                    form.action = '/sale/view-detail';
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'tableId';
+                    input.value = tableId;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                  });
+                }
+
+                // 5. Hủy bàn: Kiểm tra trạng thái, chuyển hướng đến form xác nhận
+                function initCancelTableButton() {
+                  const cancelTableButton = document.getElementById(
+                    'cancel-table-button'
+                  );
+                  if (!cancelTableButton) return;
+                  cancelTableButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const selectedTable =
+                      document.querySelector('.table-selected');
+                    if (!selectedTable) {
+                      showError('Hãy chọn một bàn để hủy');
+                      return;
+                    }
+                    const status = selectedTable.dataset.status;
+                    const tableId =
+                      selectedTable.dataset.tableId ||
+                      selectedTable.querySelector('[data-table-id]')?.dataset
+                        .tableId;
+                    if (status === 'AVAILABLE') {
+                      showError('Bàn này đang trống.');
+                      return;
+                    }
+                    if (status === 'OCCUPIED') {
+                      showError('Bạn cần thanh toán trước khi hủy bàn.');
+                      return;
+                    }
+                    // Nếu là RESERVED thì chuyển hướng đến form xác nhận hủy bàn
+                    window.location.href = `/sale/show-cancel-reservation-form?tableId=${tableId}`;
+                  });
+                }
+
+                // 6. Gộp bàn: Kiểm tra trạng thái, chuyển hướng đến form gộp bàn
+                function initMergeTableButton() {
+                  const mergeTableButton =
+                    document.getElementById('merge-table-button');
+                  if (!mergeTableButton) return;
+
+                  mergeTableButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const selectedTable =
+                      document.querySelector('.table-selected');
+                    if (!selectedTable) {
+                      if (typeof showError === 'function') {
+                        showError(
+                          'Vui lòng chọn một bàn đang sử dụng để bắt đầu gộp bàn!'
+                        );
+                      } else {
+                        alert(
+                          'Vui lòng chọn một bàn đang sử dụng để bắt đầu gộp bàn!'
+                        );
+                      }
+                      return;
+                    }
+                    const status = selectedTable.dataset.status;
+                    if (status !== 'OCCUPIED') {
+                      if (typeof showError === 'function') {
+                        showError('Chỉ có thể gộp các bàn đang sử dụng!');
+                      } else {
+                        alert('Chỉ có thể gộp các bàn đang sử dụng!');
+                      }
+                      return;
+                    }
+                    // Chuyển hướng đến form gộp bàn
+                    const tableId =
+                      selectedTable.dataset.tableId ||
+                      selectedTable.querySelector('[data-table-id]')?.dataset
+                        .tableId;
+                    window.location.href = `/sale?showMergeModal=true&selectedTableId=${tableId}`;
+                  });
+                }
+
+                // Khởi tạo các handler ngay khi DOM đã render xong
+                document.addEventListener('DOMContentLoaded', function () {
+                  initTableSelection();
+                  initReservationButton();
+                  initSelectMenuButton();
+                  initViewTableButton();
+                  initCancelTableButton();
+                  initMergeTableButton();
+                });
+
+                // Fallback nếu DOM đã sẵn sàng
+                if (document.readyState === 'loading') {
+                  // Do nothing, DOMContentLoaded will fire
+                } else {
+                  // DOM is already loaded
+                  initTableSelection();
+                  initReservationButton();
+                  initSelectMenuButton();
+                  initViewTableButton();
+                  initCancelTableButton();
+                  initMergeTableButton();
+                }
+              </script>
+
+              <!-- Form đặt bàn hiển thị khi showReservationForm = true -->
+              <div
+                th:if="${showReservationForm}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 17l4 4 4-4m0-5V3m-8 4v4a4 4 0 004 4h4"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Đặt bàn
+                    </h3>
+                    <form
+                      th:action="@{/sale/reservations}"
+                      th:object="${reservation}"
+                      method="post"
+                      class="space-y-6"
+                      id="reservation-form"
+                    >
+                      <!-- Hidden field để truyền tableId -->
+                      <input type="hidden" th:field="*{tableId}" />
+
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label
+                            for="customerName"
+                            class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >
+                            Khách hàng
+                          </label>
+                          <input
+                            type="text"
+                            th:field="*{customerName}"
+                            id="customerName"
+                            required
+                            class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
+                            placeholder="Nhập tên khách hàng"
+                          />
+                          <p
+                            class="text-red-500 text-sm mt-1 min-h-[20px]"
+                            th:if="${#fields.hasErrors('customerName')}"
+                            th:errors="*{customerName}"
+                          ></p>
+                        </div>
+                        <div>
+                          <label
+                            for="customerPhone"
+                            class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >
+                            Số điện thoại
+                          </label>
+                          <input
+                            type="text"
+                            th:field="*{customerPhone}"
+                            id="customerPhone"
+                            required
+                            class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
+                            placeholder="Nhập số điện thoại"
+                          />
+                          <p
+                            class="text-red-500 text-sm mt-1 min-h-[20px]"
+                            th:if="${#fields.hasErrors('customerPhone')}"
+                            th:errors="*{customerPhone}"
+                          ></p>
+                        </div>
+                        <div class="md:col-span-2">
+                          <label
+                            for="reservationDate"
+                            class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >
+                            Ngày
+                          </label>
+                          <input
+                            type="datetime-local"
+                            th:field="*{reservationDate}"
+                            id="reservationDate"
+                            required
+                            class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base px-3 py-2"
+                          />
+                          <p
+                            class="text-red-500 text-sm mt-1 min-h-[20px]"
+                            th:if="${#fields.hasErrors('reservationDate')}"
+                            th:errors="*{reservationDate}"
+                          ></p>
+                        </div>
+                      </div>
+
+                      <!-- Hiển thị lỗi global nếu có -->
+                      <div
+                        th:if="${#fields.hasGlobalErrors()}"
+                        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
+                      >
+                        <div
+                          th:each="error : ${#fields.globalErrors()}"
+                          th:text="${error}"
+                        ></div>
+                      </div>
+
+                      <div class="flex justify-end mt-8 space-x-4">
+                        <button
+                          type="submit"
+                          class="bg-gradient-to-tr from-[#3e2723] to-[#b5c99a] text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-[#5d4037] hover:to-[#b5c99a] transition-all duration-200"
+                        >
+                          Đặt bàn
+                        </button>
+                        <a
+                          href="/sale"
+                          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                          >Hủy</a
+                        >
+                      </div>
+                    </form>
+
+                    <!-- Script để set datetime default value -->
+                    <script>
+                      document.addEventListener(
+                        'DOMContentLoaded',
+                        function () {
+                          const reservationDateInput =
+                            document.getElementById('reservationDate');
+                          if (
+                            reservationDateInput &&
+                            !reservationDateInput.value
+                          ) {
+                            // Set default datetime to current time + 1 hour
+                            const now = new Date();
+                            now.setHours(now.getHours() + 1);
+                            const formattedDateTime = now
+                              .toISOString()
+                              .slice(0, 16);
+                            reservationDateInput.value = formattedDateTime;
+                          }
+                        }
+                      );
+                    </script>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Xem bàn hiển thị khi showOrderDetailModal = true -->
+              <div
+                th:if="${showOrderDetailModal}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 17l4 4 4-4m0-5V3m-8 4v4a4 4 0 004 4h4"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Thông tin bàn -
+                      <span th:text="${orderDetail.tableId}"></span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <label
+                          class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >Khách hàng</label
+                        >
+                        <div
+                          class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                        >
+                          <span
+                            th:text="${orderDetail.customerName ?: '---'}"
+                          ></span>
+                        </div>
+                      </div>
+                      <div>
+                        <label
+                          class="block text-base font-semibold text-[#3e2723] mb-1"
+                          >Số điện thoại</label
+                        >
+                        <div
+                          class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                        >
+                          <span
+                            th:text="${orderDetail.customerPhone ?: '---'}"
+                          ></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="overflow-x-auto mb-6">
+                      <table class="min-w-full border rounded-lg">
+                        <thead>
+                          <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left">Tên món</th>
+                            <th class="px-4 py-2 text-center">Số lượng</th>
+                            <th class="px-4 py-2 text-center">Đơn giá (VND)</th>
+                            <th class="px-4 py-2 text-center">Thành tiền</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            th:if="${orderDetail.items == null or #lists.isEmpty(orderDetail.items)}"
+                          >
+                            <td colspan="4" class="text-center text-gray-500">
+                              Chưa có thông tin chọn món
+                            </td>
+                          </tr>
+                          <tr th:each="item : ${orderDetail.items}">
+                            <td
+                              class="px-4 py-2"
+                              th:text="${item.menuItemName}"
+                            ></td>
+                            <td
+                              class="px-4 py-2 text-center"
+                              th:text="${item.quantity}"
+                            ></td>
+                            <td
+                              class="px-4 py-2 text-center"
+                              th:text="${#numbers.formatDecimal(item.price, 2, 'COMMA', 0, 'POINT').replaceAll('([.,]00)$','').replaceAll('([.,][1-9]0)$','$1'.replace('0',''))}"
+                            ></td>
+                            <td
+                              class="px-4 py-2 text-center"
+                              th:text="${#numbers.formatDecimal(item.amount, 2, 'COMMA', 0, 'POINT').replaceAll('([.,]00)$','').replaceAll('([.,][1-9]0)$','$1'.replace('0',''))}"
+                            ></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="flex justify-end mb-4">
+                      <span class="font-bold text-lg text-[#3e2723]"
+                        >Tổng tiền:
+                      </span>
+                      <span
+                        class="ml-2 font-bold text-lg text-[#3e2723]"
+                        th:text="${#numbers.formatDecimal(orderDetail.totalAmount ?: 0, 2, 'COMMA', 0, 'POINT').replaceAll('([.,]00)$','').replaceAll('([.,][1-9]0)$','$1'.replace('0',''))}"
+                      ></span>
+                    </div>
+                    <div class="border-t pt-4 mt-4">
+                      <label
+                        class="block text-base font-semibold text-[#3e2723] mb-1"
+                        >Đặt trước</label
+                      >
+                      <div
+                        class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] px-3 py-2"
+                      >
+                        <span
+                          th:if="${orderDetail.reservationDate != null}"
+                          th:text="${orderDetail.customerName + ', ' + #temporals.format(orderDetail.reservationDate, 'HH:mm dd/MM/yyyy')}"
+                        ></span>
+                        <span th:if="${orderDetail.reservationDate == null}"
+                          >Không có thông tin đặt trước</span
+                        >
+                      </div>
+                    </div>
+                    <div class="flex justify-end mt-8">
+                      <button
+                        type="button"
+                        onclick="closeOrderDetailModal()"
+                        class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                      >
+                        Đóng
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <script>
+                function closeOrderDetailModal() {
+                  // Ẩn modal bằng cách reload lại trang (hoặc có thể dùng JS để ẩn div)
+                  window.location.href = '/sale';
+                }
+              </script>
+
+              <!-- Form Hủy bàn hiển thị khi showCancelModal = true -->
+              <div
+                th:if="${showCancelModal}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Hủy bàn
+                    </h3>
+                    <form
+                      th:action="@{/sale/cancel-table}"
+                      method="post"
+                      autocomplete="off"
+                      class="space-y-6"
+                    >
+                      <input
+                        type="hidden"
+                        name="tableId"
+                        th:value="${selectedTableId}"
+                      />
+                      <div class="text-center space-y-4">
+                        <p class="text-lg text-[#3e2723] font-medium">
+                          Bạn có chắc chắn muốn hủy bàn
+                          <span
+                            class="font-bold text-xl text-red-600"
+                            th:text="${selectedTableName}"
+                          ></span>
+                          không?
+                        </p>
+                        <p class="text-sm text-gray-600">
+                          Thao tác này sẽ xóa toàn bộ thông tin đặt bàn và không
+                          thể hoàn tác.
+                        </p>
+                      </div>
+                      <div class="flex justify-end space-x-4 mt-8">
+                        <button
+                          type="submit"
+                          class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                        >
+                          Xác nhận hủy
+                        </button>
+                        <a
+                          href="/sale"
+                          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold shadow transition-all duration-200"
+                        >
+                          Hủy thao tác
+                        </a>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Gộp bàn hiển thị khi showMergeModal = true -->
+              <div
+                th:if="${showMergeModal}"
+                class="mt-8 border-t-2 border-[#b5c99a] pt-8"
+              >
+                <div class="max-w-4xl mx-auto">
+                  <div
+                    class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
+                  >
+                    <div
+                      class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-12 w-12 text-[#3e2723]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 17l4 4 4-4m0-5V3m-8 4v4a4 4 0 004 4h4"
+                        />
+                      </svg>
+                    </div>
+                    <h3
+                      class="text-3xl font-extrabold mb-6 text-center tracking-tight"
+                      style="color: #3e2723"
+                    >
+                      Gộp bàn
+                    </h3>
+
+                    <!-- Hiển thị lỗi từ controller nếu có -->
+                    <div
+                      th:if="${errorMessage}"
+                      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 text-center font-semibold"
+                    >
+                      <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form
+                      th:action="@{/sale/merge-tables}"
+                      method="post"
+                      id="merge-table-form"
+                      autocomplete="off"
+                      class="space-y-6"
+                    >
+                      <div
+                        class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center"
+                      >
+                        <!-- Chọn các bàn cần gộp -->
+                        <div>
+                          <fieldset
+                            class="border border-[#b5c99a] rounded-lg p-4"
+                          >
+                            <legend
+                              class="font-semibold text-[#3e2723] px-2 text-lg"
+                            >
+                              Chọn các bàn cần gộp
+                            </legend>
+                            <div
+                              class="max-h-60 overflow-y-auto space-y-3 mt-4"
+                            >
+                              <div th:each="table : ${occupiedTables}">
+                                <label
+                                  class="flex items-center gap-3 cursor-pointer p-2 hover:bg-[#f6e7cb] rounded"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    name="tableIds"
+                                    th:value="${table.id}"
+                                    class="merge-table-checkbox w-4 h-4"
+                                  />
+                                  <span
+                                    th:text="${table.tableName}"
+                                    class="font-medium"
+                                  ></span>
+                                </label>
+                              </div>
+                            </div>
+                          </fieldset>
+                        </div>
+
+                        <!-- Icon mũi tên cho mobile -->
+                        <div class="lg:hidden flex justify-center py-2">
+                          <div class="flex items-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-5 w-5 text-[#b5c99a] animate-bounce"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                              />
+                            </svg>
+                            <span
+                              class="text-xs text-[#3e2723] ml-2 font-medium"
+                              >Gộp vào</span
+                            >
+                          </div>
+                        </div>
+
+                        <!-- Icon mũi tên giữa hai cột (desktop) -->
+                        <div class="hidden lg:flex justify-center items-center">
+                          <div class="flex flex-col items-center">
+                            <div
+                              class="bg-gradient-to-r from-[#b5c99a] to-[#f6e7cb] rounded-full p-3 shadow-lg"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 text-[#3e2723] animate-pulse"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                                />
+                              </svg>
+                            </div>
+                            <span
+                              class="text-xs text-[#3e2723] mt-2 font-medium"
+                              >Gộp vào</span
+                            >
+                          </div>
+                        </div>
+
+                        <!-- Chọn bàn gộp đến -->
+                        <div>
+                          <fieldset
+                            class="border border-[#b5c99a] rounded-lg p-4"
+                          >
+                            <legend
+                              class="font-semibold text-[#3e2723] px-2 text-lg"
+                            >
+                              Chọn bàn gộp đến
+                            </legend>
+                            <div
+                              class="max-h-60 overflow-y-auto space-y-3 mt-4"
+                              id="merge-target-list"
+                            >
+                              <p class="text-gray-500 text-center py-4">
+                                Vui lòng chọn các bàn cần gộp bên trái trước
+                              </p>
+                            </div>
+                          </fieldset>
+                        </div>
+                      </div>
+
+                      <div
+                        id="merge-error-message"
+                        class="text-red-600 text-center font-semibold min-h-[24px]"
+                      ></div>
+
+                      <div class="flex justify-end space-x-4 mt-8">
+                        <button
+                          type="submit"
+                          class="bg-gradient-to-tr from-[#3e2723] to-[#b5c99a] text-white px-8 py-3 rounded-lg font-semibold shadow hover:scale-105 hover:from-[#5d4037] hover:to-[#b5c99a] transition-all duration-200"
+                        >
+                          Gộp bàn
+                        </button>
+                        <a
+                          href="/sale"
+                          class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold shadow transition-all duration-200"
+                        >
+                          Hủy
+                        </a>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <script>
+                // Xử lý dynamic radio bàn đích khi chọn checkbox bàn cần gộp
+                document.addEventListener('change', function (e) {
+                  if (
+                    e.target.classList &&
+                    e.target.classList.contains('merge-table-checkbox')
+                  ) {
+                    const checkedBoxes = Array.from(
+                      document.querySelectorAll('.merge-table-checkbox:checked')
+                    );
+                    const targetList =
+                      document.getElementById('merge-target-list');
+                    targetList.innerHTML = '';
+
+                    if (checkedBoxes.length === 0) {
+                      targetList.innerHTML =
+                        '<p class="text-gray-500 text-center py-4">Vui lòng chọn các bàn cần gộp bên trái trước</p>';
+                      return;
+                    }
+
+                    checkedBoxes.forEach((cb) => {
+                      const id = cb.value;
+                      const label =
+                        cb.parentElement.querySelector('span').textContent;
+                      const labelEl = document.createElement('label');
+                      labelEl.className =
+                        'flex items-center gap-3 cursor-pointer p-2 hover:bg-[#f6e7cb] rounded';
+
+                      const radio = document.createElement('input');
+                      radio.type = 'radio';
+                      radio.name = 'targetTableId';
+                      radio.value = id;
+                      radio.required = true;
+                      radio.className = 'w-4 h-4';
+
+                      const span = document.createElement('span');
+                      span.textContent = label;
+                      span.className = 'font-medium';
+
+                      labelEl.appendChild(radio);
+                      labelEl.appendChild(span);
+                      targetList.appendChild(labelEl);
+                    });
+                  }
+                });
+
+                // Validate form trước khi submit
+                document.addEventListener('submit', function (e) {
+                  if (e.target && e.target.id === 'merge-table-form') {
+                    const checked = document.querySelectorAll(
+                      '.merge-table-checkbox:checked'
+                    );
+                    const radio = document.querySelector(
+                      'input[name="targetTableId"]:checked'
+                    );
+
+                    if (checked.length < 2) {
+                      e.preventDefault();
+                      document.getElementById(
+                        'merge-error-message'
+                      ).textContent = 'Phải chọn ít nhất 2 bàn để gộp!';
+                      return;
+                    }
+                    if (!radio) {
+                      e.preventDefault();
+                      document.getElementById(
+                        'merge-error-message'
+                      ).textContent = 'Vui lòng chọn bàn gộp đến!';
+                      return;
+                    }
+
+                    // Clear error message if validation passes
+                    document.getElementById('merge-error-message').textContent =
+                      '';
+                  }
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- Modal Tách bàn -->
+      <div th:replace="sales/split :: splitModal"></div>
+    </div>
+  </body>
+</html>

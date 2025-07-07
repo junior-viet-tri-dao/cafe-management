@@ -1,0 +1,35 @@
+package com.viettridao.cafe.service;
+
+// Import các thư viện cần thiết
+import com.viettridao.cafe.dto.request.account.UpdateAccountRequest;
+import com.viettridao.cafe.model.AccountEntity;
+
+/**
+ * Service cho thực thể AccountEntity.
+ * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến tài khoản (Account).
+ */
+public interface AccountService {
+
+    /**
+     * Cập nhật thông tin tài khoản.
+     *
+     * @param request Đối tượng chứa thông tin cần cập nhật cho tài khoản.
+     */
+    void updateAccount(UpdateAccountRequest request);
+
+    /**
+     * Lấy thông tin tài khoản dựa trên ID.
+     *
+     * @param id ID của tài khoản cần lấy thông tin.
+     * @return Thực thể AccountEntity tương ứng với ID.
+     */
+    AccountEntity getAccountById(Integer id);
+
+    /**
+     * Lấy thông tin tài khoản dựa trên tên đăng nhập.
+     *
+     * @param username Tên đăng nhập của tài khoản cần lấy thông tin.
+     * @return Thực thể AccountEntity tương ứng với tên đăng nhập.
+     */
+    AccountEntity getAccountByUsername(String username);
+}

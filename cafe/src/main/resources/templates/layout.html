@@ -10,16 +10,19 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script th:src="@{/js/alert-utils.js}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link th:href="@{/css/main.css}" rel="stylesheet">
 </head>
-<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+<body style="background: var(--color-background-main); color: var(--color-text-main); font-family: var(--font-family-main);" class="layout-root">
 
-<header class="bg-gradient-to-r from-[#4e342e] to-[#3e2723] text-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <!-- Logo -->
-        <div class="flex items-center gap-2">
-            <span class="text-2xl font-bold">☕ Cafe Management</span>
+<header style="background: linear-gradient(to right, var(--color-primary), var(--color-text-main)); color: white;" class="shadow-lg">
+    <div style="display:flex;align-items:center;justify-content:space-between;height:100%;padding: 0 2rem 0 0;min-height:64px;">
+        <div class="header-logo" style="display:flex;align-items:center;gap:0.75rem;margin-left:0;padding-left:2rem;">
+            <i class="fas fa-mug-hot" style="font-size:2.5rem; color:var(--color-secondary);"></i>
+            <span style="font-size:2rem; font-weight:bold; letter-spacing:1px;">
+                <span style="color:var(--color-secondary);">Cafe</span> <span style="color:#fff;">Hub</span>
+            </span>
         </div>
-
         <div class="flex items-center gap-4">
             <div class="hidden sm:block text-sm text-right">
                 <div class="font-semibold" th:text="${user.username}">Tên đăng nhập</div>
@@ -36,111 +39,44 @@
     </div>
 </header>
 
-<div class="flex flex-1">
-    <aside class="w-64 bg-white border-r p-4">
-        <div class="flex flex-col space-y-2 h-full">
-            <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🏠 Trang chủ</a>
-            <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
-            <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
-            <div th:if="${user.permission == 'ADMIN'}">
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button @click="open = !open"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': open }">
-                        👥 Quản lý nhân viên
-                        <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/employee}" class="block py-1 hover:underline">Danh sách nhân viên</a>
-                        <a th:href="@{/employee/create}" class="block py-1 hover:underline">Thêm nhân viên</a>
-                    </div>
-                </div>
-                <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý thiết bị</a>
-                <div x-data="{ openCommodity: false }" class="space-y-1">
-                    <button @click="openCommodity = !openCommodity"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openCommodity }">
-                        📦 Quản lý kho hàng
-                        <span x-text="openCommodity ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/commodity}" th:classappend="${currentPath == '/commodity'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
-                        <a th:href="@{/commodity/create}" th:classappend="${currentPath == '/commodity/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Nhập hàng hóa</a>
-                        <a th:href="@{/commodity/create/export}" th:classappend="${currentPath == '/commodity/create/export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xuất hàng hóa</a>
-                    </div>
-                </div>
-                <div x-data="{ openMenu: false }" class="space-y-1">
-                    <button @click="openMenu = !openMenu"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openMenu }">
-                        🍽️ Quản lý thực đơn
-                        <span x-text="openMenu ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openMenu" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách món</a>
-                        <a th:href="@{/menu/create}" th:classappend="${currentPath == '/menu/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
-                    </div>
-                </div>
-                <div x-data="{ openMarketing: false }" class="space-y-1">
-                    <button @click="openMarketing = !openMarketing"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openMarketing }">
-                        📢 Quản lý Marketing
-                        <span x-text="openMarketing ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openMarketing" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/marketing}" th:classappend="${currentPath == '/marketing'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách khuyến mãi</a>
-                        <a th:href="@{/marketing/create}" th:classappend="${currentPath == '/marketing/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm khuyến mãi</a>
-                    </div>
-                </div>
-                <div x-data="{ openBudget: false }" class="space-y-1">
-                    <button @click="openBudget = !openBudget"
-                            class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': openBudget }">
-                        📊 Quản lý ngân sách
-                        <span x-text="openBudget ? '▲' : '▼'" class="text-sm"></span>
-                    </button>
-                    <div x-show="openBudget" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/budget}" th:classappend="${currentPath == '/budget'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem thu chi</a>
-                        <a th:href="@{/budget/create}" th:classappend="${currentPath == '/budget/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm chi tiêu</a>
-                    </div>
-
-
-                    <div x-data="{ openData: false }" class="space-y-1">
-                        <button @click="openData = !openData"
-                                class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                                :class="{ 'bg-gray-200 font-bold': openData }">
-                            💾 Quản lý dữ liệu
-                            <span x-text="openData ? '▲' : '▼'" class="text-sm"></span>
-                        </button>
-                        <div x-show="openData" x-transition class="pl-4 space-y-1">
-                            <a th:href="@{/data/backup}" th:classappend="${currentPath == '/data/backup'} ? 'font-semibold underline'" class="block py-1 hover:underline">Sao lưu dữ liệu</a>
-                            <a th:href="@{/data/restore}" th:classappend="${currentPath == '/data/restore'} ? 'font-semibold underline'" class="block py-1 hover:underline">Khôi phục dữ liệu</a>
-                        </div>
-                    </div>
-
-                    <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
-                    <hr class="my-3">
-                    <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">ℹ️ Giới thiệu</a>
+<div class="layout-page" style="display:flex;flex-direction:column;min-height:100vh;">
+    <div class="layout-main" style="flex:1;display:flex;">
+        <aside class="sidebar w-64 p-4">
+            <div class="flex flex-col space-y-2 h-full">
+                <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-home"></i> Trang chủ</a>
+                <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-user-circle"></i> Trang cá nhân</a>
+                <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-shopping-cart"></i> Quản lý bán hàng</a>
+                <div th:if="${user.permission == 'ADMIN'}">
+                    <a th:href="@{/employee}" th:classappend="${#strings.startsWith(currentPath, '/employee')} ? 'active' : ''" class="sidebar-link"><i class="fas fa-users"></i> Quản lý nhân viên</a>
+                    <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-desktop"></i> Quản lý trang thiết bị</a>
+                    <a th:href="@{/warehouse}" th:classappend="${currentPath == '/warehouse'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-warehouse"></i> Quản lý kho hàng</a>
+                    <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-book-open"></i> Quản lý thực đơn</a>
+                    <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-bullhorn"></i> Quản lý Marketing</a>
+                    <a th:href="@{/budget}" th:classappend="${currentPath == '/budget'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-money-bill-alt"></i> Quản lý ngân sách</a>
+                    <a th:href="@{/data}" th:classappend="${currentPath == '/data'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-database"></i> Quản lý Dữ liệu</a>
+                    <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-chart-pie"></i> Thống kê, báo cáo</a>
+                    <hr class="sidebar-divider">
+                    <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-info-circle"></i> Giới thiệu</a>
                 </div>
             </div>
-        </div>
-    </aside>
+        </aside>
 
-    <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
-        <div class="text-center mt-20">
-            <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.username}">
-            </h2>
-            <p class="mt-4 text-lg text-gray-600">
-                Chúc bạn một ngày quản lý hiệu quả và tràn đầy năng lượng ☕✨
-            </p>
-        </div>
-    </main>
+        <main class="main-content flex-1 p-10" style="background: var(--color-background-main);" layout:fragment="content">
+<!--            <div class="text-center mt-20">-->
+            <div class="max-w-5xl mx-auto w-full">
+                <h2 class="text-5xl font-bold" style="color: var(--color-primary); text-shadow: 1px 1px 2px rgba(var(--color-primary-rgb),0.15);" th:text="'Xin chào, ' + ${user.username}">
+                </h2>
+                <p class="mt-4 text-lg" style="color: var(--color-text-main);">
+                    Chúc bạn một ngày làm việc hiệu quả và tràn đầy năng lượng ☕✨
+                </p>
+            </div>
+        </main>
+    </div>
+    <div class="main-footer">
+        <a href="#" class="main-footer-link">© 2025 MirodoIT. All rights reserved.</a>
+    </div>
 </div>
 
-<footer class="bg-[#3e2723] text-white text-center py-4 shadow-inner">
-    <p>2025 Cafe Management | Junior Việt Trí Đạo</p>
-</footer>
 <div th:replace="~{/alert :: alerts}"></div>
 <script th:src="@{/js/global.js}"></script>
 </body>

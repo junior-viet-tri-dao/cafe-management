@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "invoices")//hoadon
+@Table(name = "invoices") // hoadon
 public class InvoiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,18 +26,18 @@ public class InvoiceEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private InvoiceStatus status;
+    private InvoiceStatus status; // Trạng thái của hóa đơn (ví dụ: đã thanh toán, hủy ...)
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean isDeleted; // Trạng thái xóa mềm (soft delete) của hóa đơn
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "promotion_id")
-    private PromotionEntity promotion;
+    private PromotionEntity promotion; // Khuyến mãi áp dụng cho hóa đơn
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceDetailEntity> invoiceDetails;
+    private List<InvoiceDetailEntity> invoiceDetails; // Danh sách chi tiết hóa đơn liên kết với hóa đơn
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<ReservationEntity> reservations;
+    private List<ReservationEntity> reservations; // Danh sách đặt chỗ liên kết với hóa đơn
 }
