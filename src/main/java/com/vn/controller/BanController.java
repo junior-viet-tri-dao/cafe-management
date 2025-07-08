@@ -292,45 +292,7 @@ public class BanController {
         
         
     else if (tinhTrang == TinhTrangBan.DaDat) {
-        // C1 : stream java 8
-        // List<Map<String, Object>> banRanh = banRepository.findAll().stream()
-        //         .filter(b -> b.getTinhTrang() == TinhTrangBan.Ranh)
-        //         .map(b -> Map.<String, Object>of("maBan", b.getMaBan(), "tenBan", b.getTenBan()))
-        //         .collect(Collectors.toList());
 
-        // C2 : code truyền thống
-        // List<Ban> allBan = banRepository.findAll();
-        // List<Map<String, Object>> banRanh = new ArrayList<>();
-        // for (Ban b : allBan) {
-        //     if(b.getTinhTrang() == TinhTrangBan.Ranh) {
-        //         Map<String, Object> map = new HashMap<>();
-        //         map.put("maBan", b.getMaBan());
-        //         map.put("tenBan", b.getTenBan());
-        //         banRanh.add(map);
-        //     }
-        // }
-
-        //C3 : dùng sql repo dùng object
-        // List<Object[]> rawBanRanh = banRepository.findMaBanAndTenBanByTinhTrang(TinhTrangBan.Ranh);
-        // List<Map<String, Object>> banRanh = new ArrayList<>();
-        // for(Object[] arr : rawBanRanh) {
-        //     Map<String, Object> map = new HashMap<>();
-        //     map.put("maBan", arr[0]);
-        //     map.put("tenBan", arr[1]);
-        //     banRanh.add(map);
-        // }
-
-        //C4 : sql repo lấy ra danh sach bàn rảnh query
-        // List<Ban> banRanh1 = banRepository.findBanByTinhTrang(TinhTrangBan.Ranh);
-        // List<Map<String,Object>> banRanh = new ArrayList<>();
-        // for (Ban b : banRanh1) {
-        //     Map<String, Object> map = new HashMap<>();
-        //     map.put("maBan", b.getMaBan());
-        //     map.put("tenBan", b.getTenBan());
-        //     banRanh.add(map);
-        // }
-
-        //c5 : sql repo lấy ra danh sách bàn rảnh tự sinh sql
         List<Ban> banRanh1 = banRepository.findByTinhTrang(TinhTrangBan.Ranh);
           List<Map<String,Object>> banRanh = new ArrayList<>();
         for (Ban b : banRanh1) {

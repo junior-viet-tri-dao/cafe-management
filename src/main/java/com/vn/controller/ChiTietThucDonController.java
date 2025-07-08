@@ -1,11 +1,11 @@
 package com.vn.controller;
-
 import com.vn.model.ChiTietThucDon;
 import com.vn.model.ThucDon;
 import com.vn.model.HangHoa;
 import com.vn.repository.ChiTietThucDonRepository;
 import com.vn.repository.ThucDonRepository;
 import com.vn.repository.HangHoaRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,11 +63,11 @@ public class ChiTietThucDonController {
     }
 
     // Form backing object
-    @lombok.Data
+    @Data
     public static class ChiTietThucDonForm {
         private Integer maThucDon;
         private List<ThanhPhan> thanhPhanList = new ArrayList<>();
-        @lombok.Data
+        @Data
         public static class ThanhPhan {
             private Integer maHangHoa;
             private Double khoiLuong;
