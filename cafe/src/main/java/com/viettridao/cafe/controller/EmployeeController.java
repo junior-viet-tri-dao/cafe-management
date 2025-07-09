@@ -1,5 +1,16 @@
 package com.viettridao.cafe.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
@@ -7,13 +18,9 @@ import com.viettridao.cafe.mapper.EmployeeMapper;
 import com.viettridao.cafe.mapper.PositionMapper;
 import com.viettridao.cafe.service.EmployeeService;
 import com.viettridao.cafe.service.PositionService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * Controller quản lý nhân viên - xử lý full CRUD operations.
@@ -75,64 +82,55 @@ public class EmployeeController {
         return "/employees/employee";
     }
 
-    /**
-     * Hiển thị form tạo nhân viên mới.
-     * 
-     * Prepopulate data:
-     * - Dropdown positions list để user select
-     * - Empty CreateEmployeeRequest object cho form binding
-     * 
-     * @param model Spring MVC model
-     * @return view template form tạo nhân viên
-     */
+    // Hiển thị form tạo nhân viên mới
+    // - Nạp danh sách chức vụ cho dropdown
+    // - Tạo mới đối tượng CreateEmployeeRequest để binding với form
     @GetMapping("/create")
     public String showFormCreate(Model model) {
-        // Load positions cho dropdown selection
+        // Nạp danh sách chức vụ cho dropdown
         model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
-        // Empty object cho form binding
+        // Tạo mới đối tượng cho binding form
         model.addAttribute("employee", new CreateEmployeeRequest());
         return "/employees/create_employee";
     }
 
-    /**
-     * Xử lý tạo nhân viên mới.
-     * 
-     * Validation flow:
-     * 1. Bean validation với @Valid annotation
-     * 2. BindingResult capture validation errors
-     * 3. Nếu có lỗi: reload form với error messages
-     * 4. Success: redirect với flash message
-     * 
-     * Error handling: Catch exceptions và hiển thị user-friendly messages.
-     * 
-     * @param employee           request DTO với thông tin nhân viên
-     * @param result             validation result
-     * @param redirectAttributes flash attributes cho redirect
-     * @param model              Spring MVC model
-     * @return redirect URL hoặc view name
-     */
+    // Xử lý submit form tạo nhân viên mới
+    // - Validate dữ liệu đầu vào bằng @Valid và BindingResult
+    // - Nếu có lỗi: nạp lại danh sách chức vụ, trả về form và hiển thị lỗi
+    // - Nếu hợp lệ: gọi service lưu nhân viên, thêm thông báo thành công, chuyển
+    // hướng về danh sách
+    // - Nếu có lỗi hệ thống: hiển thị thông báo lỗi, chuyển hướng về lại form tạo
     @PostMapping("/create")
     public String createEmployee(@Valid @ModelAttribute("employee") CreateEmployeeRequest employee,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            // Validation check - nếu có lỗi thì reload form với errors
+            // Nếu có lỗi validate, trả về lại form và hiển thị lỗi
             if (result.hasErrors()) {
-                // Reload positions cho dropdown khi có validation errors
+                // Nạp lại danh sách chức vụ cho dropdown
                 model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
                 return "/employees/create_employee";
             }
 
-            // Delegate business logic cho service layer
+            // Kiểm tra xem username đã tồn tại chưa
+            if (employeeService.existsByUsername(employee.getUsername())) {
+                // Nếu đã tồn tại, thêm lỗi vào BindingResult và trả về form
+                result.rejectValue("username", "error.username", "Tên đăng nhập đã tồn tại");
+                model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+                return "/employees/create_employee";
+            }
+
+            // Nếu hợp lệ, gọi service để lưu nhân viên
             employeeService.createEmployee(employee);
 
-            // Success message với flash attributes
+            // Thêm thông báo thành công, chuyển hướng về danh sách nhân viên
             redirectAttributes.addFlashAttribute("success", "Thêm nhân viên thành công");
             return "redirect:/employee";
 
         } catch (Exception e) {
-            // Error handling: catch mọi exceptions và hiển thị user-friendly message
+            // Nếu có lỗi hệ thống hoặc nghiệp vụ, hiển thị thông báo lỗi, chuyển hướng về
+            // lại form tạo
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee/create";
         }
@@ -209,9 +207,6 @@ public class EmployeeController {
 
     /**
      * Xử lý cập nhật thông tin nhân viên.
-     * 
-     * Note: Validation hiện tại được comment out - có thể enable lại nếu cần.
-     * 
      * Update flow:
      * 1. Receive update request DTO
      * 2. (Optional) Validation check
@@ -219,36 +214,34 @@ public class EmployeeController {
      * 4. Redirect với success/error message
      * 
      * @param request            update request DTO
-     * @param result             validation result (currently not used)
+     * @param result             validation result
      * @param redirectAttributes flash attributes
      * @param model              Spring MVC model
      * @return redirect URL
      */
     @PostMapping("/update")
-    public String updateEmployee(@Valid @ModelAttribute UpdateEmployeeRequest request,
+    public String updateEmployee(@Valid @ModelAttribute("employee") UpdateEmployeeRequest request,
             BindingResult result,
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            // TODO: Enable validation nếu cần thiết
-            // if (result.hasErrors()) {
-            // model.addAttribute("positions",
-            // positionMapper.toListPositionResponse(positionService.getPositions()));
-            // return "/employees/update_employee";
-            // }
+            // Nếu có lỗi validate, trả về lại form và hiển thị lỗi
+            if (result.hasErrors()) {
+                // Nạp lại danh sách chức vụ cho dropdown
+                model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
+                return "/employees/update_employee";
+            }
 
-            // Load positions cho error case fallback
-            model.addAttribute("positions", positionMapper.toListPositionResponse(positionService.getPositions()));
-
-            // Delegate business logic cho service layer
+            // Gọi service để cập nhật nhân viên
             employeeService.updateEmployee(request);
 
-            // Success feedback
+            // Thêm thông báo thành công, chuyển hướng về danh sách nhân viên
             redirectAttributes.addFlashAttribute("success", "Cập nhật nhân viên thành công");
             return "redirect:/employee";
 
         } catch (Exception e) {
-            // Error feedback
+            // Nếu có lỗi hệ thống hoặc nghiệp vụ, hiển thị thông báo lỗi, chuyển hướng về
+            // lại form cập nhật
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/employee";
         }

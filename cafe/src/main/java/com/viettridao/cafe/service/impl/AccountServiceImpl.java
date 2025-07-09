@@ -57,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
             employee.setAddress(request.getAddress());
             employee.setAccount(account);
             employeeRepository.save(employee);
-
+            account.setImageUrl(request.getImageUrl());
             account.setEmployee(employee);
         }
 

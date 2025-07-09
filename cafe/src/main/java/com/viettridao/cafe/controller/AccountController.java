@@ -4,19 +4,19 @@ import com.viettridao.cafe.dto.request.account.UpdateAccountRequest;
 import com.viettridao.cafe.dto.response.account.AccountResponse;
 import com.viettridao.cafe.mapper.AccountMapper;
 import com.viettridao.cafe.service.AccountService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.text.NumberFormat;
-import java.util.Locale;
 
 /**
  * Controller quản lý tài khoản nhân viên cho các thao tác tự phục vụ.
@@ -47,34 +47,25 @@ public class AccountController {
      * Render trang thông tin tài khoản cho user đã xác thực.
      * 
      * Bảo mật: Dựa vào authentication context của Spring Security - giả định user
-     * đã được
-     * xác thực tại thời điểm này (được enforce bởi cấu hình security).
+     * đã được xác thực tại thời điểm này (được enforce bởi cấu hình security).
      * 
      * Hiệu suất: Một lần hit database qua username lookup. Cân nhắc caching nếu đây
-     * trở thành
-     * endpoint có traffic cao.
+     * trở thành endpoint có traffic cao.
      * 
      * @param model Spring MVC model để binding với view
      * @return đường dẫn view cho template thông tin tài khoản
      */
     @GetMapping("")
     public String showAccountInfo(Model model) {
-        // Trích xuất username từ security context - đảm bảo non-null
-        // nếu cấu hình security của chúng ta đúng
+        // Lấy username hiện tại từ security context
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = auth.getName();
 
-        // TODO: Cân nhắc thêm error handling cho trường hợp user not found
-        // Hiện tại giả định AccountService sẽ xử lý điều này một cách graceful
+        // Lấy thông tin tài khoản từ service
         AccountResponse accountResponse = accountMapper.toAccountResponse(
                 accountService.getAccountByUsername(currentUsername));
 
-        // Format tiền tệ ở tầng presentation để duy trì separation of concerns
-        // Thay thế: Có thể làm trong mapper, nhưng cách này giữ business logic riêng
-        // biệt
-        formatSalaryToVND(accountResponse);
-
-        // Defensive programming: đảm bảo view luôn có object hợp lệ để làm việc
+        // Đưa dữ liệu tài khoản ra view
         model.addAttribute("account", accountResponse != null ? accountResponse : new AccountResponse());
 
         return "/accounts/account";
@@ -96,55 +87,30 @@ public class AccountController {
      * @return redirect URL để ngăn form resubmission
      */
     @PostMapping("/update")
-    public String updateAccountInfo(@ModelAttribute("account") UpdateAccountRequest request,
-            RedirectAttributes redirectAttributes) {
+    public String updateAccountInfo(@Valid @ModelAttribute("account") UpdateAccountRequest request,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+        // Nếu có lỗi validate, trả về lại view và truyền lỗi xuống frontend
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("account", request);
+            return "/accounts/account";
+        }
         try {
-            // Ủy thác business logic cho service layer - controller chỉ xử lý
-            // request/response
+            // Gọi service cập nhật tài khoản
             accountService.updateAccount(request);
 
-            // Flash attributes tồn tại qua redirect và được consume bởi request tiếp theo
+            // Thông báo thành công
             redirectAttributes.addFlashAttribute("success",
                     "Cập nhật thông tin cá nhân thành công!");
 
         } catch (Exception e) {
-            // TODO: Thêm proper logging ở đây trong production
-            // Cân nhắc tạo custom exceptions cho các failure scenarios khác nhau
+            // Thông báo lỗi
             redirectAttributes.addFlashAttribute("error",
                     "Cập nhật thất bại: " + e.getMessage());
         }
 
-        // Redirect ngăn form resubmission khi browser refresh
+        // Redirect về trang tài khoản
         return "redirect:/account";
-    }
-
-    /**
-     * Format lương sang định dạng hiển thị tiền tệ Việt Nam.
-     * 
-     * Ghi chú hiệu suất: NumberFormat.getCurrencyInstance() tương đối expensive.
-     * Cân nhắc extract thành static final field hoặc inject CurrencyFormatter
-     * service
-     * nếu method này được gọi thường xuyên.
-     * 
-     * Defensive programming: Xử lý null inputs một cách graceful để ngăn NPE.
-     * 
-     * @param accountResponse response object để modify in-place (mutation by
-     *                        design)
-     *                        Ví dụ: 15000000 -> "15,000,000 ₫"
-     */
-    private void formatSalaryToVND(AccountResponse accountResponse) {
-        // Early return pattern - giảm nesting và cải thiện readability
-        if (accountResponse == null || accountResponse.getSalary() == null) {
-            return; // No-op cho null inputs - ngăn unnecessary processing
-        }
-
-        // Tạo NumberFormat instance mỗi lần - acceptable cho low-frequency calls
-        // TODO: Cân nhắc cache formatter này như static final để cải thiện performance
-        NumberFormat vndFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-
-        // Mutate response object trực tiếp - acceptable pattern cho presentation layer
-        // formatting
-        // Thay thế: Return formatted string và để caller quyết định assignment
-        accountResponse.setFormattedSalary(vndFormat.format(accountResponse.getSalary()));
     }
 }

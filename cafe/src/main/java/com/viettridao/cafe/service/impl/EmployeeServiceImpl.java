@@ -76,6 +76,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
+     * Kiểm tra username đã tồn tại trong hệ thống (dùng cho validate tạo mới nhân viên).
+     * @param username tên đăng nhập cần kiểm tra
+     * @return true nếu đã tồn tại, false nếu chưa
+     */
+    @Override
+    public boolean existsByUsername(String username) {
+        if (username == null || username.trim().isEmpty())
+            return false;
+        return accountRepository.findByUsername(username.trim()).isPresent();
+    }
+
+    /**
      * Tạo mới một nhân viên.
      *
      * @param request Đối tượng chứa thông tin cần thiết để tạo nhân viên mới.
@@ -175,7 +187,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         employeeRepository.save(employee);
     }
-
 
     @Override
     public EmployeeEntity getEmployeeById(Integer id) {

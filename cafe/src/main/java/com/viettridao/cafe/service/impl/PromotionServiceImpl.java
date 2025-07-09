@@ -34,8 +34,7 @@ public class PromotionServiceImpl implements PromotionService {
      * Lấy danh sách khuyến mãi còn hiệu lực.
      *
      * @param pageable Đối tượng phân trang.
-     * @return Đối tượng PromotionPageResponse chứa thông tin khuyến mãi còn hiệu
-     *         lực.
+     * @return Đối tượng PromotionPageResponse chứa thông tin khuyến mãi còn hiệu lực.
      */
     @Override
     public PromotionPageResponse getValidPromotions(Pageable pageable) {

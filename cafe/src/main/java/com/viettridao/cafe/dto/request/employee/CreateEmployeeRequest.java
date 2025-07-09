@@ -1,7 +1,12 @@
 package com.viettridao.cafe.dto.request.employee;
 
 import com.viettridao.cafe.exception.OptionalSize;
-import jakarta.validation.constraints.*;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +23,7 @@ public class CreateEmployeeRequest {
     @Size(min = 5, message = "Tên nhân viên tối thiểu 5 ký tự")
     private String fullName;
 
+    @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(regexp = "^0[0-9]{9,10}$", message = "Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số")
     private String phoneNumber;
 

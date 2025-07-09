@@ -1,10 +1,15 @@
 package com.viettridao.cafe.dto.request.promotion;
 
-import jakarta.validation.constraints.*;
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 /**
  * DTO cho việc cập nhật thông tin khuyến mãi.
@@ -23,12 +28,17 @@ public class UpdatePromotionRequest {
     private String promotionName;
 
     @NotNull(message = "Ngày bắt đầu không được để trống")
-    @PastOrPresent(message = "Ngày bắt đầu không được lớn hơn ngày hiện tại")
     private LocalDate startDate;
 
     @NotNull(message = "Ngày kết thúc không được để trống")
-    @Future(message = "Ngày kết thúc phải lớn hơn ngày hiện tại")
     private LocalDate endDate;
+
+    @AssertTrue(message = "Ngày kết thúc phải lớn hơn ngày bắt đầu")
+    public boolean isValidDateRange() {
+        if (startDate == null || endDate == null)
+            return true;
+        return endDate.isAfter(startDate);
+    }
 
     @NotNull(message = "Phần trăm giảm không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Phần trăm giảm phải lớn hơn 0")

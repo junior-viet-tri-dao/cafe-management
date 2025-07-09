@@ -73,6 +73,4 @@ public class AccountResponse {
     /** Trạng thái xóa mềm - Soft delete flag cho audit trail */
     private Boolean isDeleted;
 
-    /** Lương đã format theo locale VND - Pre-calculated cho UI display */
-    private String formattedSalary;
 }

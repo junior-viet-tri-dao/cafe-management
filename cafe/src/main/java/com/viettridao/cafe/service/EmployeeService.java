@@ -23,6 +23,13 @@ public interface EmployeeService {
      */
     EmployeePageResponse getAllEmployees(String keyword, int page, int size);
 
+        /**
+     * Kiểm tra username đã tồn tại trong hệ thống chưa (dành cho tạo mới nhân viên).
+     * @param username tên đăng nhập
+     * @return true nếu đã tồn tại, false nếu chưa
+     */
+    boolean existsByUsername(String username);
+
     /**
      * Tạo mới một nhân viên.
      *
