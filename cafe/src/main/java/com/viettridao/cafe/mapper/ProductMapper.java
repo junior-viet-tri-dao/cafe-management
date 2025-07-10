@@ -39,7 +39,7 @@ public class ProductMapper {
      * @param products Danh sách thực thể ProductEntity cần chuyển đổi.
      * @return Danh sách đối tượng ProductResponse tương ứng.
      */
-    public List<ProductResponse> toProductResponse(List<ProductEntity> products) {
+    public List<ProductResponse> toListProductResponse(List<ProductEntity> products) {
         return products.stream().map(this::toProductResponse).toList();
     }
 }

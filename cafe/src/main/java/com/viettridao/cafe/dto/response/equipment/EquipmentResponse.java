@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * DTO cho việc biểu diễn dữ liệu liên quan đến thiết bị.

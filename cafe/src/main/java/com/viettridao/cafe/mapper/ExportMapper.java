@@ -5,35 +5,31 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
-import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
-import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
-import com.viettridao.cafe.dto.response.imports.ImportResponse;
+import com.viettridao.cafe.dto.request.export.CreateExportRequest;
+import com.viettridao.cafe.dto.request.export.UpdateExportRequest;
+import com.viettridao.cafe.dto.response.export.ExportResponse;
 import com.viettridao.cafe.model.EmployeeEntity;
-import com.viettridao.cafe.model.ImportEntity;
+import com.viettridao.cafe.model.ExportEntity;
 import com.viettridao.cafe.model.ProductEntity;
 
-/**
- * Mapper cho thực thể Import và DTO.
- * Chuyển đổi dữ liệu giữa ImportEntity và DTO.
- */
 @Mapper(componentModel = "spring")
-public interface ImportMapper {
+public interface ExportMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isDeleted", constant = "false")
     @Mapping(target = "employee", source = "employeeId", qualifiedByName = "mapEmployeeId")
     @Mapping(target = "product", source = "productId", qualifiedByName = "mapProductId")
-    ImportEntity toEntity(CreateImportRequest request);
+    ExportEntity toEntity(CreateExportRequest request);
 
-    ImportResponse toResponse(ImportEntity entity);
+    ExportResponse toResponse(ExportEntity entity);
 
 //    @Mapping(target = "employeeId", source = "employee.id")
 //    @Mapping(target = "productId", source = "product.id")
-    UpdateImportRequest toUpdateRequest(ImportEntity entity);
+    UpdateExportRequest toUpdateRequest(ExportEntity entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
-    void updateEntityFromRequest(UpdateImportRequest request, @MappingTarget ImportEntity entity);
+    void updateEntityFromRequest(UpdateExportRequest request, @MappingTarget ExportEntity entity);
 
     @Named("mapEmployeeId")
     default EmployeeEntity mapEmployeeId(Integer employeeId) {
@@ -52,5 +48,4 @@ public interface ImportMapper {
         product.setId(productId);
         return product;
     }
-
 }

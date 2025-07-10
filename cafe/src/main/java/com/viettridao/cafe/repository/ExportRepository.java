@@ -1,9 +1,17 @@
 package com.viettridao.cafe.repository;
 
-import com.viettridao.cafe.model.ExportEntity;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.viettridao.cafe.model.ExportEntity;
+
 @Repository
 public interface ExportRepository extends JpaRepository<ExportEntity, Integer> {
+
+    List<ExportEntity> findAllByIsDeletedFalse();
+
+    List<ExportEntity> findAllByIsDeletedFalseAndExportDateBetween(LocalDate startDate, LocalDate endDate);
 }

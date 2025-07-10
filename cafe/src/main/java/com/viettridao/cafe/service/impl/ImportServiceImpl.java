@@ -3,8 +3,11 @@ package com.viettridao.cafe.service.impl;
 // Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
 import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
+import com.viettridao.cafe.mapper.ImportMapper;
+import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.model.ImportEntity;
 import com.viettridao.cafe.model.ProductEntity;
+import com.viettridao.cafe.repository.EmployeeRepository;
 import com.viettridao.cafe.repository.ImportRepository;
 import com.viettridao.cafe.repository.ProductRepository;
 import com.viettridao.cafe.service.ImportService;
@@ -20,67 +23,69 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ImportServiceImpl implements ImportService {
 
-    // Repository quản lý dữ liệu đơn nhập hàng
     private final ImportRepository importRepository;
-
-    // Repository quản lý dữ liệu sản phẩm
+    private final ImportMapper importMapper;
+    private final EmployeeRepository employeeRepository;
     private final ProductRepository productRepository;
 
-    // Service xử lý logic liên quan đến sản phẩm
-    private final ProductService productService;
-
-    /**
-     * Tạo mới một đơn nhập hàng.
-     *
-     * @param request Đối tượng chứa thông tin đơn nhập cần tạo.
-     * @return Đối tượng ImportEntity đã được lưu vào cơ sở dữ liệu.
-     */
-    @Transactional
     @Override
-    public ImportEntity createImport(CreateImportRequest request) {
-        ImportEntity importEntity = new ImportEntity();
-        importEntity.setImportDate(request.getImportDate());
-        importEntity.setQuantity(request.getQuantity());
-
-        // Lấy thông tin sản phẩm dựa trên ID
-        ProductEntity product = productService.getProductById(request.getProductId());
-        product.setQuantity(product.getQuantity() + request.getQuantity());
-
-        productRepository.save(product);
-        importEntity.setProduct(product);
-
-        return importRepository.save(importEntity);
-    }
-
-    /**
-     * Cập nhật thông tin một đơn nhập hàng.
-     *
-     * @param request Đối tượng chứa thông tin cần cập nhật của đơn nhập.
-     */
     @Transactional
-    @Override
-    public void updateImport(UpdateImportRequest request) {
-        ImportEntity importEntity = getImportById(request.getId());
-        importEntity.setImportDate(request.getImportDate());
-        importEntity.setQuantity(request.getQuantity());
+    public void createImport(CreateImportRequest request) {
+        // Validate và lấy liên kết từ DB
+        EmployeeEntity employee = findEmployeeOrThrow(request.getEmployeeId());
+        ProductEntity product = findProductOrThrow(request.getProductId());
 
-        // Lấy thông tin sản phẩm dựa trên ID
-        ProductEntity product = productService.getProductById(request.getProductId());
+        // Mapping từ DTO → Entity và set các liên kết
+        ImportEntity importEntity = importMapper.toEntity(request);
+        importEntity.setEmployee(employee);
         importEntity.setProduct(product);
 
         importRepository.save(importEntity);
     }
 
-    /**
-     * Lấy thông tin đơn nhập hàng theo ID.
-     *
-     * @param id ID của đơn nhập cần tìm.
-     * @return Đối tượng ImportEntity tương ứng với ID.
-     * @throws RuntimeException nếu không tìm thấy đơn nhập với ID đã cho.
-     */
     @Override
-    public ImportEntity getImportById(Integer id) {
+    public UpdateImportRequest getUpdateForm(Integer id) {
+        ImportEntity importEntity = findImportOrThrow(id);
+        return importMapper.toUpdateRequest(importEntity);
+    }
+
+    @Override
+    @Transactional
+    public void updateImport(Integer id, UpdateImportRequest request) {
+        ImportEntity importEntity = findImportOrThrow(id);
+
+        // Cập nhật các trường bình thường từ DTO
+        importMapper.updateEntityFromRequest(request, importEntity);
+
+        // Validate và set lại liên kết
+        importEntity.setEmployee(findEmployeeOrThrow(request.getEmployeeId()));
+        importEntity.setProduct(findProductOrThrow(request.getProductId()));
+
+        importRepository.save(importEntity);
+    }
+
+    @Override
+    @Transactional
+    public void deleteImport(Integer id) {
+        ImportEntity importEntity = findImportOrThrow(id);
+        importEntity.setIsDeleted(true); // Soft delete
+        importRepository.save(importEntity);
+    }
+
+    // ===== PRIVATE METHODS =====
+
+    private ImportEntity findImportOrThrow(Integer id) {
         return importRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn nhập có id=" + id));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn nhập"));
+    }
+
+    private EmployeeEntity findEmployeeOrThrow(Integer id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại!"));
+    }
+
+    private ProductEntity findProductOrThrow(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại!"));
     }
 }

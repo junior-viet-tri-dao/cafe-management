@@ -2,6 +2,9 @@ package com.viettridao.cafe.service;
 
 // Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.product.CreateProductRequest;
+import com.viettridao.cafe.dto.request.product.UpdateProductRequest;
+import com.viettridao.cafe.dto.response.product.ProductPageResponse;
+import com.viettridao.cafe.dto.response.product.ProductResponse;
 import com.viettridao.cafe.model.ProductEntity;
 
 import java.util.List;
@@ -12,26 +15,27 @@ import java.util.List;
  */
 public interface ProductService {
 
+    List<ProductResponse> getAllProducts();
+
+    ProductPageResponse getAllProducts(String keyword, int page, int size);
+
+    boolean existsByProductNameAndIsDeletedFalse(String productName);
+
     /**
-     * Tạo mới một sản phẩm.
-     *
-     * @param request Đối tượng chứa thông tin cần thiết để tạo sản phẩm mới.
-     * @return Thực thể ProductEntity vừa được tạo.
+     * Kiểm tra trùng tên sản phẩm, loại trừ chính nó (không tính sản phẩm đang cập
+     * nhật)
+     * 
+     * @param productName tên sản phẩm
+     * @param productId   id sản phẩm cần loại trừ
+     * @return true nếu đã tồn tại tên sản phẩm khác với id này
      */
+    boolean existsByProductNameAndIsDeletedFalseExceptId(String productName, Integer productId);
+
     ProductEntity createProduct(CreateProductRequest request);
 
-    /**
-     * Lấy thông tin chi tiết của một sản phẩm dựa trên ID.
-     *
-     * @param id ID của sản phẩm cần lấy thông tin.
-     * @return Thực thể ProductEntity tương ứng với ID.
-     */
-    ProductEntity getProductById(Integer id);
+    void deleteProduct(Integer id);
 
-    /**
-     * Lấy danh sách tất cả các sản phẩm.
-     *
-     * @return Danh sách các thực thể ProductEntity.
-     */
-    List<ProductEntity> getAllProducts();
+    void updateProduct(UpdateProductRequest request);
+
+    ProductEntity getProductById(Integer id);
 }

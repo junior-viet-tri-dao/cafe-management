@@ -1,4 +1,4 @@
-package com.viettridao.cafe.dto.response.warehouse;
+package com.viettridao.cafe.dto.response.warehouse_transaction;
 
 import com.viettridao.cafe.dto.response.PageResponse;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Setter
 @Getter
-public class WarehousePageResponse extends PageResponse {
-    private List<WarehouseResponse> warehouses;
+public class WarehouseTransactionPageResponse extends PageResponse {
+    private List<WarehouseTransactionResponse> transactions;
 
 }

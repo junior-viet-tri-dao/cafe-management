@@ -18,6 +18,9 @@ public class ExportEntity {
     @Column(name = "exports_id") // Khóa chính của bảng
     private Integer id;
 
+    @Column(name = "unit_export_price")
+    private Double unitExportPrice; // Đơn giá sản phẩm khi xuất
+
     @Column(name = "total_export_amount") // Tổng số tiền xuất hàng
     private Double totalExportAmount;
 

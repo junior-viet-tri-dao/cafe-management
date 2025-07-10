@@ -49,7 +49,7 @@
                 <div th:if="${user.permission == 'ADMIN'}">
                     <a th:href="@{/employee}" th:classappend="${#strings.startsWith(currentPath, '/employee')} ? 'active' : ''" class="sidebar-link"><i class="fas fa-users"></i> Quản lý nhân viên</a>
                     <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-desktop"></i> Quản lý trang thiết bị</a>
-                    <a th:href="@{/warehouse}" th:classappend="${currentPath == '/warehouse'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-warehouse"></i> Quản lý kho hàng</a>
+                    <a th:href="@{/warehouse/product}" th:classappend="${currentPath == '/warehouse/product'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-warehouse"></i> Quản lý kho hàng</a>
                     <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-book-open"></i> Quản lý thực đơn</a>
                     <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-bullhorn"></i> Quản lý Marketing</a>
                     <a th:href="@{/budget}" th:classappend="${currentPath == '/budget'} ? 'active' : ''" class="sidebar-link"><i class="fas fa-money-bill-alt"></i> Quản lý ngân sách</a>

@@ -16,7 +16,7 @@ public class ProductResponse {
 
     private Integer quantity;
 
-    private Double productPrice;
-
     private String unitName;
+
+    private Boolean isDeleted;
 }

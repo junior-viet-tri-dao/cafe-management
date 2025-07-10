@@ -1,14 +1,22 @@
 package com.viettridao.cafe.service.impl;
 
+import com.viettridao.cafe.dto.response.product.ProductResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.viettridao.cafe.dto.request.product.CreateProductRequest;
+import com.viettridao.cafe.dto.request.product.UpdateProductRequest;
+import com.viettridao.cafe.dto.response.product.ProductPageResponse;
+import com.viettridao.cafe.mapper.ProductMapper;
 import com.viettridao.cafe.model.ProductEntity;
 import com.viettridao.cafe.model.UnitEntity;
 import com.viettridao.cafe.repository.ProductRepository;
+import com.viettridao.cafe.repository.UnitRepository;
 import com.viettridao.cafe.service.ProductService;
-import com.viettridao.cafe.service.UnitService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,52 +27,130 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    // Repository quản lý dữ liệu hàng hóa
     private final ProductRepository productRepository;
-
-    // Service xử lý logic liên quan đến đơn vị tính
-    private final UnitService unitService;
+    private final UnitRepository unitRepository;
+    private final ProductMapper productMapper;
 
     /**
-     * Tạo mới một hàng hóa.
+     * Lấy danh sách sản phẩm có tìm kiếm và phân trang.
      *
-     * @param request Đối tượng chứa thông tin hàng hóa cần tạo.
-     * @return Đối tượng ProductEntity đã được lưu vào cơ sở dữ liệu.
+     * @param keyword Từ khóa tìm kiếm theo tên sản phẩm (có thể null hoặc rỗng để
+     *                lấy tất cả)
+     * @param page    Số trang (bắt đầu từ 0)
+     * @param size    Số lượng phần tử mỗi trang
+     * @return ProductPageResponse chứa danh sách sản phẩm và thông tin phân trang
      */
-    @Transactional
     @Override
-    public ProductEntity createProduct(CreateProductRequest request) {
-        ProductEntity productEntity = new ProductEntity();
-        productEntity.setProductName(request.getProductName());
-        productEntity.setQuantity(0);
-        productEntity.setProductPrice(request.getProductPrice());
+    public ProductPageResponse getAllProducts(String keyword, int page, int size) {
+        Page<ProductEntity> productPage;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            productPage = productRepository.getAllProductBySearch(keyword, PageRequest.of(page, size));
+        } else {
+            productPage = productRepository.getAllProducts(PageRequest.of(page, size));
+        }
+        ProductPageResponse response = new ProductPageResponse();
+        response.setPageNumber(productPage.getNumber());
+        response.setPageSize(productPage.getSize());
+        response.setTotalElements(productPage.getTotalElements());
+        response.setTotalPages(productPage.getTotalPages());
+        response.setProducts(productMapper.toListProductResponse(productPage.getContent()));
+        return response;
+    }
 
-        UnitEntity unit = unitService.getUnitById(request.getUnitId());
-        productEntity.setUnit(unit);
+    @Override
+    public List<ProductResponse> getAllProducts() {
+        // Lấy danh sách sản phẩm chưa bị xóa mềm
+        List<ProductEntity> entities = productRepository.findAllByIsDeletedFalse();
 
-        return productRepository.save(productEntity);
+        // Chuyển đổi sang DTO để trả về cho frontend (dropdown...)
+        return productMapper.toListProductResponse(entities);
     }
 
     /**
-     * Lấy thông tin hàng hóa theo ID.
+     * Kiểm tra sự tồn tại của sản phẩm theo tên (chỉ kiểm tra sản phẩm chưa bị xóa
+     * mềm).
      *
-     * @param id ID của hàng hóa cần tìm.
-     * @return Đối tượng ProductEntity tương ứng với ID.
-     * @throws RuntimeException nếu không tìm thấy hàng hóa với ID đã cho.
+     * @param productName Tên sản phẩm cần kiểm tra
+     * @return true nếu tồn tại sản phẩm chưa bị xóa mềm, ngược lại false
+     */
+    @Override
+    public boolean existsByProductNameAndIsDeletedFalse(String productName) {
+        return productRepository.existsByProductNameAndIsDeletedFalse(productName);
+    }
+
+    /**
+     * Kiểm tra trùng tên sản phẩm, loại trừ chính nó (không tính sản phẩm đang cập
+     * nhật)
+     * 
+     * @param productName tên sản phẩm
+     * @param productId   id sản phẩm cần loại trừ
+     * @return true nếu đã tồn tại tên sản phẩm khác với id này
+     */
+    @Override
+    public boolean existsByProductNameAndIsDeletedFalseExceptId(String productName, Integer productId) {
+        return productRepository.existsByProductNameAndIsDeletedFalseAndIdNot(productName, productId);
+    }
+
+    /**
+     * Tạo mới một sản phẩm.
+     *
+     * @param request Thông tin sản phẩm cần tạo
+     * @return ProductEntity vừa được lưu vào database
+     * @throws IllegalArgumentException nếu đơn vị tính không tồn tại
+     */
+    @Override
+    @Transactional
+    public ProductEntity createProduct(CreateProductRequest request) {
+        ProductEntity product = new ProductEntity();
+        product.setProductName(request.getProductName());
+        product.setQuantity(0);
+        product.setIsDeleted(false);
+        UnitEntity unit = unitRepository.findById(request.getUnitId())
+                .orElseThrow(() -> new IllegalArgumentException("Đơn vị tính không tồn tại"));
+        product.setUnit(unit);
+        return productRepository.save(product);
+    }
+
+    /**
+     * Xóa mềm một sản phẩm (chỉ đánh dấu isDeleted=true).
+     *
+     * @param id Id sản phẩm cần xóa
+     * @throws IllegalArgumentException nếu không tìm thấy sản phẩm
+     */
+    @Override
+    @Transactional
+    public void deleteProduct(Integer id) {
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+        product.setIsDeleted(true);
+        productRepository.save(product);
+    }
+
+    /**
+     * Cập nhật tên sản phẩm.
+     *
+     * @param request Thông tin cập nhật (id và tên mới)
+     * @throws IllegalArgumentException nếu không tìm thấy sản phẩm
+     */
+    @Override
+    @Transactional
+    public void updateProduct(UpdateProductRequest request) {
+        ProductEntity product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+        product.setProductName(request.getProductName());
+        productRepository.save(product);
+    }
+
+    /**
+     * Lấy chi tiết một sản phẩm theo id.
+     *
+     * @param id Id sản phẩm
+     * @return ProductEntity nếu tìm thấy
+     * @throws IllegalArgumentException nếu không tìm thấy sản phẩm
      */
     @Override
     public ProductEntity getProductById(Integer id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa có id=" + id));
-    }
-
-    /**
-     * Lấy danh sách tất cả các hàng hóa chưa bị xóa.
-     *
-     * @return Danh sách các đối tượng ProductEntity.
-     */
-    @Override
-    public List<ProductEntity> getAllProducts() {
-        return productRepository.findAllByIsDeleted(false);
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
     }
 }
