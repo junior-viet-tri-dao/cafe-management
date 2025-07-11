@@ -33,10 +33,27 @@ public class ExportServiceImpl implements ExportService {
         EmployeeEntity employee = findEmployeeOrThrow(request.getEmployeeId());
         ProductEntity product = findProductOrThrow(request.getProductId());
 
+        // Kiểm tra số lượng trong kho trước khi xuất
+        Integer currentQuantity = product.getQuantity() != null ? product.getQuantity() : 0;
+        if (currentQuantity < request.getQuantity()) {
+            throw new IllegalArgumentException(
+                String.format("Không đủ hàng trong kho! Số lượng hiện có: %d, số lượng cần xuất: %d", 
+                    currentQuantity, request.getQuantity())
+            );
+        }
+
+        // Cập nhật số lượng sản phẩm trong kho (XUẤT = GIẢM số lượng)
+        product.setQuantity(currentQuantity - request.getQuantity());
+        productRepository.save(product);
+
         // Dùng mapper để tạo entity và gán liên kết đã kiểm tra
         ExportEntity exportEntity = exportMapper.toEntity(request);
         exportEntity.setEmployee(employee);
         exportEntity.setProduct(product);
+
+        // Tính toán tổng tiền tự động từ backend
+        Double calculatedTotal = request.getUnitExportPrice() * request.getQuantity();
+        exportEntity.setTotalAmount(calculatedTotal);
 
         exportRepository.save(exportEntity);
     }

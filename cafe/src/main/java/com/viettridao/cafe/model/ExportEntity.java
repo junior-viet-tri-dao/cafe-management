@@ -22,7 +22,7 @@ public class ExportEntity {
     private Double unitExportPrice; // Đơn giá sản phẩm khi xuất
 
     @Column(name = "total_export_amount") // Tổng số tiền xuất hàng
-    private Double totalExportAmount;
+    private Double totalAmount;
 
     @Column(name = "export_date") // Ngày xuất hàng
     private LocalDate exportDate;

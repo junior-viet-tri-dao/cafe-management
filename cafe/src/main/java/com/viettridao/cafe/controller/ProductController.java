@@ -42,7 +42,8 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
         model.addAttribute("products", productService.getAllProducts(keyword, page, size));
-        return "/warehouses/warehouse";
+        model.addAttribute("currentPath", "/warehouse/product");
+        return "/warehouses/products/product";
     }
 
     /**
@@ -52,7 +53,7 @@ public class ProductController {
     public String showFormCreate(Model model) {
         model.addAttribute("units", unitService.getAllUnits());
         model.addAttribute("product", new CreateProductRequest());
-        return "/warehouses/create_warehouse_product";
+        return "/warehouses/products/create_product";
     }
 
     /**
@@ -66,12 +67,12 @@ public class ProductController {
         try {
             if (result.hasErrors()) {
                 model.addAttribute("units", unitService.getAllUnits());
-                return "/warehouses/create_warehouse_product";
+                return "/warehouses/products/create_product";
             }
             if (productService.existsByProductNameAndIsDeletedFalse(product.getProductName())) {
                 result.rejectValue("productName", "error.productName", "Tên hàng hóa đã tồn tại");
                 model.addAttribute("units", unitService.getAllUnits());
-                return "/warehouses/create_warehouse_product";
+                return "/warehouses/products/create_product";
             }
             productService.createProduct(product);
             redirectAttributes.addFlashAttribute("success", "Thêm hàng hóa thành công");
@@ -117,7 +118,7 @@ public class ProductController {
             }
             model.addAttribute("units", unitService.getAllUnits());
             model.addAttribute("product", updateRequest);
-            return "/warehouses/update_warehouse_product";
+            return "/warehouses/products/update_product";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/warehouse/product";
@@ -135,14 +136,14 @@ public class ProductController {
         try {
             if (result.hasErrors()) {
                 model.addAttribute("units", unitService.getAllUnits());
-                return "/warehouses/update_warehouse_product";
+                return "/warehouses/products/update_product";
             }
             // Kiểm tra trùng tên sản phẩm (trừ chính nó)
             if (productService.existsByProductNameAndIsDeletedFalseExceptId(request.getProductName(),
                     request.getProductId())) {
                 result.rejectValue("productName", "error.productName", "Tên hàng hóa đã tồn tại");
                 model.addAttribute("units", unitService.getAllUnits());
-                return "/warehouses/update_warehouse_product";
+                return "/warehouses/products/update_product";
             }
             productService.updateProduct(request);
             redirectAttributes.addFlashAttribute("success", "Cập nhật hàng hóa thành công");

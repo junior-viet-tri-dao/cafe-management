@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Setter
 public class CreateImportRequest {
     @NotNull(message = "Ngày nhập không được để trống")
-    @PastOrPresent(message = "Ngày nhập không được lớn hơn ngày hiện tại")
+    @PastOrPresent(message = "Ngày nhập không được vượt quá ngày hôm nay")
     private LocalDate importDate;
 
     @NotNull(message = "Đơn giá nhập không được để trống")
@@ -31,7 +31,6 @@ public class CreateImportRequest {
     @Min(value = 1, message = "Id hàng hóa phải lớn hơn 0")
     private Integer productId;
 
-    @NotNull(message = "Id nhân viên không được để trống")
     @Min(value = 1, message = "Id nhân viên phải lớn hơn 0")
     private Integer employeeId;
 }

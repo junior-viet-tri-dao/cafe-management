@@ -24,7 +24,7 @@ public interface WarehouseTransactionMapper {
     @Mapping(source = "product.unit.unitName", target = "unitName")
     @Mapping(source = "quantity", target = "quantity")
     @Mapping(source = "unitExportPrice", target = "unitPrice")
-    @Mapping(source = "totalExportAmount", target = "totalAmount")
+    @Mapping(source = "totalAmount", target = "totalAmount")
     @Mapping(source = "exportDate", target = "exportDate")
     @Mapping(target = "importDate", ignore = true)
     @Mapping(target = "type", constant = "EXPORT")

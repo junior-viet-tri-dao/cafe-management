@@ -35,10 +35,19 @@ public class ImportServiceImpl implements ImportService {
         EmployeeEntity employee = findEmployeeOrThrow(request.getEmployeeId());
         ProductEntity product = findProductOrThrow(request.getProductId());
 
+        // Cập nhật số lượng sản phẩm trong kho (NHẬP = TĂNG số lượng)
+        Integer currentQuantity = product.getQuantity() != null ? product.getQuantity() : 0;
+        product.setQuantity(currentQuantity + request.getQuantity());
+        productRepository.save(product);
+
         // Mapping từ DTO → Entity và set các liên kết
         ImportEntity importEntity = importMapper.toEntity(request);
         importEntity.setEmployee(employee);
         importEntity.setProduct(product);
+
+        // Tính toán tổng tiền tự động từ backend
+        Double calculatedTotal = request.getUnitImportPrice() * request.getQuantity();
+        importEntity.setTotalAmount(calculatedTotal);
 
         importRepository.save(importEntity);
     }
