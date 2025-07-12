@@ -6,7 +6,16 @@ import java.util.stream.Collectors;
 import com.viettridao.cafe.dto.response.sales.MenuItemResponse;
 import com.viettridao.cafe.model.MenuItemEntity;
 
+/**
+ * Mapper cho Sales - chuyển đổi MenuItemEntity sang MenuItemResponse cho nghiệp
+ * vụ bán hàng/chọn món
+ * Chỉ mapping các trường cơ bản: id, itemName, price
+ */
 public class MenuItemMapper {
+    /**
+     * Chuyển đổi MenuItemEntity sang MenuItemResponse cho Sales (chỉ cần id, tên,
+     * giá)
+     */
     public static MenuItemResponse toMenuItemResponse(MenuItemEntity entity) {
         if (entity == null)
             return null;
@@ -17,6 +26,9 @@ public class MenuItemMapper {
         return dto;
     }
 
+    /**
+     * Chuyển đổi danh sách MenuItemEntity sang danh sách MenuItemResponse cho Sales
+     */
     public static List<MenuItemResponse> toMenuItemResponseList(List<MenuItemEntity> entities) {
         if (entities == null)
             return null;

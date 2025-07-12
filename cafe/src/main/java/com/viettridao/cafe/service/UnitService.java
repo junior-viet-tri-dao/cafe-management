@@ -2,6 +2,7 @@ package com.viettridao.cafe.service;
 
 // Import các thư viện cần thiết
 import com.viettridao.cafe.model.UnitEntity;
+import com.viettridao.cafe.dto.response.unit.UnitResponse;
 
 import java.util.List;
 
@@ -17,6 +18,13 @@ public interface UnitService {
      * @return Danh sách các thực thể UnitEntity.
      */
     List<UnitEntity> getAllUnits();
+
+    /**
+     * Lấy danh sách tất cả các đơn vị dưới dạng UnitResponse cho template.
+     *
+     * @return Danh sách các UnitResponse.
+     */
+    List<UnitResponse> getAllUnitResponses();
 
     /**
      * Lấy thông tin chi tiết của một đơn vị dựa trên ID.

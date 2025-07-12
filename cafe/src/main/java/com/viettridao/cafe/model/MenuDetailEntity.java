@@ -24,7 +24,7 @@ public class MenuDetailEntity {
     private MenuItemEntity menuItem; // Món ăn liên kết với chi tiết menu
 
     @Column(name = "quantity")
-    private Double quantity; // Số lượng sản phẩm trong món ăn
+    private Double quantity; // Trọng lượng sản phẩm trong món ăn
 
     @Column(name = "unit")
     private String unitName; // Đơn vị tính của sản phẩm (ví dụ: kg, lít)

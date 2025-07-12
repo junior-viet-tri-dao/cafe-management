@@ -1,0 +1,154 @@
+package com.viettridao.cafe.service.impl;
+
+import com.viettridao.cafe.dto.request.menu_item_detail.CreateMenuItemDetailRequest;
+import com.viettridao.cafe.model.MenuDetailEntity;
+import com.viettridao.cafe.model.MenuKey;
+import com.viettridao.cafe.model.ProductEntity;
+import com.viettridao.cafe.model.UnitEntity;
+import com.viettridao.cafe.service.MenuItemService;
+import com.viettridao.cafe.service.UnitService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import com.viettridao.cafe.dto.request.menu_item.CreateMenuItemRequest;
+import com.viettridao.cafe.dto.request.menu_item.UpdateMenuItemRequest;
+import com.viettridao.cafe.dto.response.menu_item.MenuItemPageResponse;
+import com.viettridao.cafe.mapper.MenuMapper;
+import com.viettridao.cafe.model.MenuItemEntity;
+import com.viettridao.cafe.repository.MenuItemDetailRepository;
+import com.viettridao.cafe.repository.MenuItemRepository;
+import com.viettridao.cafe.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class MenuItemServiceImpl implements MenuItemService {
+
+    private final MenuItemRepository menuItemRepository;
+    private final MenuItemDetailRepository menuItemDetailRepository;
+    private final MenuMapper menuMapper;
+    private final ProductRepository productRepository;
+    private final UnitService unitService;
+
+    @Override
+    public MenuItemPageResponse getAllMenuItems(String keyword, int page, int size) {
+        Page<MenuItemEntity> menuItemPage;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            menuItemPage = menuItemRepository.getAllByMenuItems(keyword, PageRequest.of(page, size));
+        } else {
+            menuItemPage = menuItemRepository.getAllByMenuItems(PageRequest.of(page, size));
+        }
+
+        MenuItemPageResponse response = new MenuItemPageResponse();
+        response.setPageNumber(menuItemPage.getNumber());
+        response.setPageSize(menuItemPage.getSize());
+        response.setTotalElements(menuItemPage.getTotalElements());
+        response.setTotalPages(menuItemPage.getTotalPages());
+        response.setMenuItems(menuMapper.toResponseList(menuItemPage.getContent()));
+
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public MenuItemEntity createMenuItem(CreateMenuItemRequest request) {
+        MenuItemEntity menuItem = menuMapper.toEntity(request);
+        menuItemRepository.save(menuItem);
+
+        if (request.getMenuDetails() != null && !request.getMenuDetails().isEmpty()) {
+            List<MenuDetailEntity> menuDetailEntityList = new ArrayList<>();
+            for (CreateMenuItemDetailRequest detailRequest : request.getMenuDetails()) {
+                // Lấy ProductEntity từ productId
+                ProductEntity product = productRepository.findById(detailRequest.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+
+                // Tạo Menukey
+                MenuKey menuKey = new MenuKey();
+                menuKey.setIdProduct(product.getId());
+                menuKey.setIdMenuItem(menuItem.getId());
+
+                MenuDetailEntity detail = menuMapper.toMenuDetailEntity(detailRequest);
+                detail.setProduct(product);
+                detail.setMenuItem(menuItem);
+                detail.setId(menuKey);
+
+                menuDetailEntityList.add(detail);
+            }
+            menuItemDetailRepository.saveAll(menuDetailEntityList);
+        }
+        return menuItem;
+    }
+
+    @Transactional
+    @Override
+    public void updateMenuItem(UpdateMenuItemRequest request) {
+        MenuItemEntity menuItem = menuItemRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy món thực đơn"));
+
+        // Cập nhật thông tin cơ bản
+        menuMapper.updateEntityFromRequest(request, menuItem);
+        menuItemRepository.save(menuItem);
+
+        // Xóa các MenuDetailEntity cũ
+        menuItemDetailRepository.deleteByMenuItem_Id(menuItem.getId());
+
+        // Thêm mới các MenuDetailEntity từ request
+        if (request.getMenuDetails() != null && !request.getMenuDetails().isEmpty()) {
+            List<MenuDetailEntity> menuDetailEntityList = new ArrayList<>();
+            for (CreateMenuItemDetailRequest detailRequest : request.getMenuDetails()) {
+                ProductEntity product = productRepository.findById(detailRequest.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy sản phẩm"));
+
+                // Lấy unit từ unitId
+                UnitEntity unit = unitService.getAllUnits().stream()
+                        .filter(u -> u.getId().equals(detailRequest.getUnitId()))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn vị tính"));
+
+                MenuKey menuKey = new MenuKey();
+                menuKey.setIdProduct(product.getId());
+                menuKey.setIdMenuItem(menuItem.getId());
+
+                MenuDetailEntity detail = menuMapper.toMenuDetailEntity(detailRequest);
+                detail.setProduct(product);
+                detail.setMenuItem(menuItem);
+                detail.setId(menuKey);
+                detail.setUnitName(unit.getUnitName()); // Set unitName từ Unit entity
+
+                menuDetailEntityList.add(detail);
+            }
+            menuItemDetailRepository.saveAll(menuDetailEntityList);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteMenuItem(Integer id) {
+        MenuItemEntity menuItem = menuItemRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy món thực đơn"));
+        menuItem.setIsDeleted(true);
+        menuItemRepository.save(menuItem);
+    }
+
+    @Override
+    public MenuItemEntity getMenuItemById(Integer id) {
+        return menuItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thực đơn có id=" + id));
+    }
+
+    @Override
+    public boolean existsByItemName(String itemName) {
+        return menuItemRepository.existsByItemNameAndIsDeletedFalse(itemName);
+    }
+
+    @Override
+    public boolean existsByItemNameAndIdNot(String itemName, Integer menuItemId) {
+        return menuItemRepository.existsByItemNameAndIsDeletedFalseAndIdNot(itemName, menuItemId);
+    }
+
+}

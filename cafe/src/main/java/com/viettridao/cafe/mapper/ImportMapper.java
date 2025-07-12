@@ -1,8 +1,5 @@
 package com.viettridao.cafe.mapper;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -55,6 +52,5 @@ public interface ImportMapper {
         product.setId(productId);
         return product;
     }
-
 
 }
