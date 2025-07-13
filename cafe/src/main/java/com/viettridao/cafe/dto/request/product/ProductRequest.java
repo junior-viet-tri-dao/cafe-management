@@ -23,14 +23,15 @@ public class ProductRequest {
 	@Min(value = 1, message = "Số lượng phải lớn hơn 0")
 	private Integer quantity;
 
-	@NotNull(message = "Giá sản phẩm không được để trống")
-	@Positive(message = "Giá sản phẩm phải lớn hơn 0")
-	private Double productPrice;
-
 	@NotNull(message = "Đơn vị tính không được để trống")
 	private Integer unitId;
 
 	@NotNull(message = "Ngày nhập không được để trống")
 	@PastOrPresent(message = "Ngày nhập không được là tương lai")
 	private LocalDate importDate;
+
+	@NotNull(message = "Giá sản phẩm không được để trống")
+	@Positive(message = "Giá sản phẩm phải lớn hơn 0")
+	private Double price;
+
 }

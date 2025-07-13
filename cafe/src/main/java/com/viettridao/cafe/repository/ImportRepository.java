@@ -2,6 +2,7 @@ package com.viettridao.cafe.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,11 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
 
 	Page<ImportEntity> findByProduct_ProductNameContainingIgnoreCaseAndIsDeletedFalse(String keyword,
 			Pageable pageable);
+
+	Optional<ImportEntity> findTopByProductIdOrderByImportDateDesc(Integer productId);
+
+	@Query("SELECT i FROM ImportEntity i JOIN FETCH i.product WHERE i.isDeleted = false")
+	List<ImportEntity> findAllWithProduct();
 
 	List<ImportEntity> findByImportDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
 

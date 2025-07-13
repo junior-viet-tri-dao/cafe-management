@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.viettridao.cafe.model.ReservationEntity;
 import com.viettridao.cafe.service.PaymentService;
 import com.viettridao.cafe.service.TableService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -30,7 +32,6 @@ public class PaymentController {
 	@GetMapping("/{tableId}")
 	public String showPaymentForm(@PathVariable Integer tableId, Model model) {
 		List<TableMenuItemResponse> items = tableService.getTableMenuItems(tableId);
-
 		double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
 
 		PaymentRequest request = new PaymentRequest();
@@ -53,10 +54,28 @@ public class PaymentController {
 	}
 
 	@PostMapping("/process")
-	public String processPayment(@ModelAttribute("paymentRequest") PaymentRequest request, Model model) {
+	public String processPayment(@Valid @ModelAttribute("paymentRequest") PaymentRequest request,
+			BindingResult bindingResult, Model model) {
+
+		if (bindingResult.hasErrors()) {
+			List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
+			double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
+
+			ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
+			String employeeName = (reservation != null && reservation.getEmployee() != null)
+					? reservation.getEmployee().getFullName()
+					: "Không xác định";
+
+			model.addAttribute("tableId", request.getTableId());
+			model.addAttribute("menuItems", items);
+			model.addAttribute("totalAmount", total);
+			model.addAttribute("employeeName", employeeName);
+
+			return "sale/form";
+		}
+
 		try {
 			PaymentResponse response = paymentService.processPayment(request);
-
 			if (!Boolean.TRUE.equals(response.isSuccess())) {
 				model.addAttribute("error", response.getMessage());
 

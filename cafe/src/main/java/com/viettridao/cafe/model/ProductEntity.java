@@ -31,8 +31,6 @@ public class ProductEntity {
 	@Column(name = "quantity")
 	private Integer quantity;
 
-	@Column(name = "product_price")
-	private Double productPrice;
 
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;

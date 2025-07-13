@@ -31,6 +31,13 @@ public class BudgetController {
 
 	private final BudgetService budgetService;
 
+	private String formatCurrency(Double value) {
+		if (value == null) return "0";
+		NumberFormat intFormatter = NumberFormat.getIntegerInstance(new Locale("vi", "VN"));
+		DecimalFormat decimalFormatter = new DecimalFormat("#,##0.##");
+		return (value % 1 == 0) ? intFormatter.format(value) : decimalFormatter.format(value);
+	}
+
 	@GetMapping("/list")
 	public String getBudgetList(@ModelAttribute BudgetFilterRequest filter, Model model,
 			@ModelAttribute("success") String success, @ModelAttribute("error") String error) {
@@ -38,6 +45,15 @@ public class BudgetController {
 			LocalDate today = LocalDate.now();
 			filter.setToDate(today);
 			filter.setFromDate(today.minusDays(7));
+		}
+
+		if (filter.getFromDate().isAfter(filter.getToDate())) {
+			model.addAttribute("error", "Từ ngày không được lớn hơn đến ngày.");
+			model.addAttribute("budgetPage", Page.empty());
+			model.addAttribute("filter", filter);
+			model.addAttribute("totalIncomeText", "0");
+			model.addAttribute("totalExpenseText", "0");
+			return "budget/list";
 		}
 
 		Page<BudgetViewResponse> budgetPage = budgetService.getBudgetView(filter);
@@ -49,17 +65,8 @@ public class BudgetController {
 		double totalExpense = budgetPage.getContent().stream()
 				.mapToDouble(item -> item.getExpense() != null ? item.getExpense() : 0.0).sum();
 
-		NumberFormat intFormatter = NumberFormat.getIntegerInstance(new Locale("vi", "VN"));
-		DecimalFormat decimalFormatter = new DecimalFormat("#,##0.##");
-
-		String totalIncomeText = (totalIncome % 1 == 0) ? intFormatter.format(totalIncome)
-				: decimalFormatter.format(totalIncome);
-
-		String totalExpenseText = (totalExpense % 1 == 0) ? intFormatter.format(totalExpense)
-				: decimalFormatter.format(totalExpense);
-
-		model.addAttribute("totalIncomeText", totalIncomeText);
-		model.addAttribute("totalExpenseText", totalExpenseText);
+		model.addAttribute("totalIncomeText", formatCurrency(totalIncome));
+		model.addAttribute("totalExpenseText", formatCurrency(totalExpense));
 
 		if (success != null && !success.isEmpty()) {
 			model.addAttribute("success", success);
@@ -82,10 +89,16 @@ public class BudgetController {
 	@PostMapping("/add")
 	public String handleAddExpense(@Valid @ModelAttribute("expenseRequest") ExpenseRequest request,
 			BindingResult result, RedirectAttributes redirect, Principal principal) {
+
 		if (result.hasErrors()) {
 			redirect.addFlashAttribute("org.springframework.validation.BindingResult.expenseRequest", result);
 			redirect.addFlashAttribute("expenseRequest", request);
 			redirect.addFlashAttribute("error", "Vui lòng kiểm tra lại thông tin chi tiêu.");
+			return "redirect:/budget/add";
+		}
+
+		if (principal == null) {
+			redirect.addFlashAttribute("error", "Người dùng chưa đăng nhập.");
 			return "redirect:/budget/add";
 		}
 

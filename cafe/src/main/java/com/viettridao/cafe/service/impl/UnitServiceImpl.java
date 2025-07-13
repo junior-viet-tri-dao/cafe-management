@@ -19,7 +19,7 @@ public class UnitServiceImpl implements UnitService {
 	private final UnitMapper unitMapper;
 
 	@Override
-	public List<UnitResponse> getAll() {
+	public List<UnitResponse> findAll() {
 		return unitMapper.toDtoList(unitRepository.findByIsDeletedFalse());
 	}
 }

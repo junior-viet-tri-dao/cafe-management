@@ -1,46 +1,43 @@
 package com.viettridao.cafe.mapper;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import java.util.List;
+
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 
 import com.viettridao.cafe.dto.request.invoices.InvoiceItemRequest;
 import com.viettridao.cafe.dto.response.invoices.InvoiceItemResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.InvoiceDetailEntity;
 import com.viettridao.cafe.model.InvoiceKey;
 
-@Component
-public class InvoiceDetailMapper extends BaseMapper<InvoiceDetailEntity, InvoiceItemRequest, InvoiceItemResponse> {
+@Mapper(componentModel = "spring")
+public interface InvoiceDetailMapper {
 
-	public InvoiceDetailMapper(ModelMapper modelMapper) {
-		super(modelMapper, InvoiceDetailEntity.class, InvoiceItemRequest.class, InvoiceItemResponse.class);
-	}
+	@Mappings({ @Mapping(source = "id.idInvoice", target = "id"),
+			@Mapping(source = "menuItem.itemName", target = "itemName"),
+			@Mapping(source = "quantity", target = "quantity"), @Mapping(source = "price", target = "unitPrice"),
+			@Mapping(target = "totalPrice", expression = "java(entity.getQuantity() * entity.getPrice())") })
+	InvoiceItemResponse toDto(InvoiceDetailEntity entity);
 
-	@Override
-	public InvoiceItemResponse toDto(InvoiceDetailEntity entity) {
-		InvoiceItemResponse response = new InvoiceItemResponse();
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "menuItem", ignore = true)
+	@Mapping(target = "price", ignore = true)
+	@Mapping(target = "isDeleted", ignore = true)
+	InvoiceDetailEntity fromRequest(InvoiceItemRequest request);
 
-		response.setId(entity.getId().getIdInvoice());
-		response.setItemName(entity.getMenuItem().getItemName());
-		response.setQuantity(entity.getQuantity());
-		response.setUnitPrice(entity.getPrice());
-		response.setTotalPrice(entity.getQuantity() * entity.getPrice());
-
-		return response;
-	}
-
-	@Override
-	public InvoiceDetailEntity fromRequest(InvoiceItemRequest request) {
-		InvoiceDetailEntity entity = new InvoiceDetailEntity();
-
+	@AfterMapping
+	default void afterMapping(InvoiceItemRequest request, @MappingTarget InvoiceDetailEntity entity) {
 		InvoiceKey key = new InvoiceKey();
 		key.setIdInvoice(request.getInvoiceId());
 		key.setIdMenuItem(request.getMenuItemId());
 		entity.setId(key);
-
 		entity.setQuantity(request.getQuantity());
 		entity.setIsDeleted(false);
-
-		return entity;
 	}
+
+	// ✅ THÊM PHƯƠNG THỨC NÀY:
+	List<InvoiceItemResponse> toDtoList(List<InvoiceDetailEntity> entities);
 }

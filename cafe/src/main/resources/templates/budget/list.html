@@ -11,7 +11,6 @@
 <div layout:fragment="content" class="max-w-4xl mx-auto mt-8 p-6 bg-white rounded shadow">
 
     <h2 class="text-2xl font-bold mb-6 text-blue-600">📊 Danh sách Thu Chi</h2>
-
     <!-- Form lọc ngày -->
     <form th:action="@{/budget/list}" method="get" class="flex flex-wrap gap-4 mb-6 items-end">
         <div>
@@ -46,8 +45,24 @@
                 </tr>
                 <tr th:each="item : ${budgetPage.content}" class="border-t hover:bg-gray-50">
                     <td class="py-2 px-4 border" th:text="${item.date}">2025-06-01</td>
-                    <td class="py-2 px-4 text-right border" th:text="${item.formattedIncome}">0</td>
-                    <td class="py-2 px-4 text-right border" th:text="${item.formattedExpense}">0</td>
+
+                    <!-- Thu -->
+                   <td class="py-2 px-4 text-right border"
+					    th:text="${item.income % 1 == 0} ?
+					             ${#numbers.formatDecimal(item.income, 0, 'COMMA', 0, 'POINT')} :
+					             ${#numbers.formatDecimal(item.income, 0, 'COMMA', 2, 'POINT')}">
+					    0
+					</td>
+
+
+                    <!-- Chi -->
+                   <td class="py-2 px-4 text-right border"
+					    th:text="${item.expense % 1 == 0} ?
+					             ${#numbers.formatDecimal(item.expense, 0, 'COMMA', 0, 'POINT')} :
+					             ${#numbers.formatDecimal(item.expense, 0, 'COMMA', 2, 'POINT')}">
+					    0
+					</td>
+
                 </tr>
             </tbody>
             <tfoot class="font-semibold bg-gray-100">

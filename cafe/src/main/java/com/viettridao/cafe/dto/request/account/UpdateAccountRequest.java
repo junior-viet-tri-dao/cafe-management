@@ -2,7 +2,6 @@ package com.viettridao.cafe.dto.request.account;
 
 import com.viettridao.cafe.exception.OptionalSize;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +20,6 @@ public class UpdateAccountRequest {
     @OptionalSize(min = 5, message = "Địa chỉ tối thiểu 5 ký tự nếu được nhập")
     private String address;
     
-    @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 
     private Integer positionId;

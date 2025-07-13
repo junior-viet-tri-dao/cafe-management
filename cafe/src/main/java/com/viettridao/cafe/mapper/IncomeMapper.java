@@ -1,18 +1,23 @@
 package com.viettridao.cafe.mapper;
 
-import org.springframework.stereotype.Component;
+import java.time.LocalDate;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
 import com.viettridao.cafe.model.InvoiceEntity;
 
-@Component
-public class IncomeMapper {
+@Mapper(componentModel = "spring")
+public interface IncomeMapper {
 
-	public BudgetViewResponse fromInvoice(InvoiceEntity entity) {
-		BudgetViewResponse dto = new BudgetViewResponse();
-		dto.setDate(entity.getCreatedAt().toLocalDate());
-		dto.setIncome(entity.getTotalAmount());
-		dto.setExpense(0.0);
-		return dto;
+	@Mapping(target = "date", expression = "java(toLocalDate(entity.getCreatedAt()))")
+	@Mapping(target = "income", source = "totalAmount")
+	@Mapping(target = "expense", constant = "0.0")
+	BudgetViewResponse fromInvoice(InvoiceEntity entity);
+
+	// Helper to convert Timestamp → LocalDate
+	default LocalDate toLocalDate(java.time.LocalDateTime datetime) {
+		return datetime != null ? datetime.toLocalDate() : null;
 	}
 }

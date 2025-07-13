@@ -3,19 +3,22 @@ package com.viettridao.cafe.service.impl;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.viettridao.cafe.dto.request.product.ProductRequest;
 import com.viettridao.cafe.dto.response.product.ProductResponse;
 import com.viettridao.cafe.mapper.ProductMapper;
+import com.viettridao.cafe.model.ImportEntity;
 import com.viettridao.cafe.model.ProductEntity;
-import com.viettridao.cafe.model.UnitEntity;
+import com.viettridao.cafe.repository.ExportRepository;
+import com.viettridao.cafe.repository.ImportRepository;
 import com.viettridao.cafe.repository.ProductRepository;
-import com.viettridao.cafe.repository.UnitRepository;
 import com.viettridao.cafe.service.ProductService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,54 +26,121 @@ import lombok.RequiredArgsConstructor;
 public class ProductServiceImpl implements ProductService {
 
 	private final ProductRepository productRepository;
-	private final UnitRepository unitRepository;
+	private final ImportRepository importRepository;
+	private final ExportRepository exportRepository;
 	private final ProductMapper productMapper;
 
 	@Override
-	public Page<ProductResponse> getAllPaged(int page, int size) {
-		return productRepository.findAllByIsDeletedFalse(PageRequest.of(page, size)).map(productMapper::toDto);
+	public List<ProductResponse> findAll() {
+		return productRepository.findAllByIsDeletedFalse().stream().map(this::mapProductWithExtras).toList();
 	}
 
 	@Override
-	public List<ProductResponse> getAll() {
-		List<ProductEntity> products = productRepository.findAllByIsDeletedFalse();
-		return productMapper.toDtoList(products);
+	public Page<ProductResponse> findAllPaged(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ProductEntity> entityPage = productRepository.findAllByIsDeletedFalse(pageable);
+		List<ProductResponse> dtoList = entityPage.getContent().stream().map(this::mapProductWithExtras).toList();
+		return new PageImpl<>(dtoList, pageable, entityPage.getTotalElements());
 	}
 
 	@Override
-	public ProductResponse getById(Integer id) {
-		ProductEntity product = productRepository.findByIdAndIsDeletedFalse(id)
+	public ProductResponse findById(Integer id) {
+		ProductEntity entity = productRepository.findByIdAndIsDeletedFalse(id)
 				.orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
-		return productMapper.toDto(product);
+		return mapProductWithExtras(entity);
+	}
+
+	@Override
+	@Transactional
+	public void save(ProductRequest request) {
+		ProductEntity entity = productMapper.fromRequest(request);
+		entity.setIsDeleted(false);
+		productRepository.save(entity);
+
+		ImportEntity importEntity = new ImportEntity();
+		importEntity.setProduct(entity);
+		importEntity.setImportDate(request.getImportDate());
+		importEntity.setPrice(request.getPrice());
+		importEntity.setQuantity(request.getQuantity());
+		importEntity.setTotalAmount(request.getPrice() * request.getQuantity());
+		importEntity.setIsDeleted(false);
+		importRepository.save(importEntity);
 	}
 
 	@Override
 	@Transactional
 	public void update(Integer id, ProductRequest request) {
-		ProductEntity product = productRepository.findByIdAndIsDeletedFalse(id)
+		ProductEntity entity = productRepository.findByIdAndIsDeletedFalse(id)
 				.orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
-		productMapper.updateEntityFromRequest(request, product);
+		productMapper.updateEntityFromRequest(request, entity);
+		productRepository.save(entity);
 
-		UnitEntity unit = unitRepository.findById(request.getUnitId())
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn vị tính"));
+		// Cập nhật hoặc tạo mới bản ghi Import gần nhất
+		importRepository.findTopByProductIdOrderByImportDateDesc(id).ifPresentOrElse(importEntity -> {
+			importEntity.setImportDate(request.getImportDate());
+			importEntity.setPrice(request.getPrice());
+			importEntity.setQuantity(request.getQuantity());
+			importEntity.setTotalAmount(request.getPrice() * request.getQuantity());
+			importRepository.save(importEntity);
+		}, () -> {
+			ImportEntity importEntity = new ImportEntity();
+			importEntity.setProduct(entity);
+			importEntity.setImportDate(request.getImportDate());
+			importEntity.setPrice(request.getPrice());
+			importEntity.setQuantity(request.getQuantity());
+			importEntity.setTotalAmount(request.getPrice() * request.getQuantity());
+			importEntity.setIsDeleted(false);
+			importRepository.save(importEntity);
+		});
+	}
 
-		product.setUnit(unit);
+	@Override
+	@Transactional
+	public void delete(Integer id) {
+		ProductEntity entity = productRepository.findByIdAndIsDeletedFalse(id)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+		entity.setIsDeleted(true);
+		productRepository.save(entity);
+	}
 
-		productRepository.save(product);
+	@Override
+	public int getCurrentStock(Integer productId) {
+		Integer imported = importRepository.getTotalImportedQuantity(productId);
+		Integer exported = exportRepository.getTotalExportedQuantity(productId);
+		return (imported != null ? imported : 0) - (exported != null ? exported : 0);
 	}
 
 	@Override
 	public List<ProductResponse> search(String keyword) {
-		List<ProductEntity> products = productRepository
-				.findByProductNameContainingIgnoreCaseAndIsDeletedFalse(keyword);
-		return productMapper.toDtoList(products);
+		return productRepository.findByProductNameContainingIgnoreCaseAndIsDeletedFalse(keyword).stream()
+				.map(this::mapProductWithExtras).toList();
 	}
 
 	@Override
 	public Page<ProductResponse> search(String keyword, int page, int size) {
-		return productRepository
-				.findByProductNameContainingIgnoreCaseAndIsDeletedFalse(keyword, PageRequest.of(page, size))
-				.map(productMapper::toDto);
+		Pageable pageable = PageRequest.of(page, size);
+		Page<ProductEntity> entityPage = productRepository
+				.findByProductNameContainingIgnoreCaseAndIsDeletedFalse(keyword, pageable);
+		List<ProductResponse> dtoList = entityPage.getContent().stream().map(this::mapProductWithExtras).toList();
+		return new PageImpl<>(dtoList, pageable, entityPage.getTotalElements());
+	}
+
+	private ProductResponse mapProductWithExtras(ProductEntity product) {
+		ProductResponse dto = productMapper.toDto(product);
+
+		importRepository.findLatestByProductId(product.getId()).stream().findFirst().ifPresent(importEntity -> {
+			double price = importEntity.getPrice() != null ? importEntity.getPrice() : 0.0;
+			dto.setLatestPrice(price);
+			dto.setLastImportDate(importEntity.getImportDate());
+			dto.setTotalAmount(product.getQuantity() * price);
+		});
+
+		exportRepository.findLatestByProductId(product.getId()).stream().findFirst().ifPresent(exportEntity -> {
+			dto.setLastExportDate(exportEntity.getExportDate());
+		});
+
+		dto.setCurrentQuantity(product.getQuantity());
+		return dto;
 	}
 }

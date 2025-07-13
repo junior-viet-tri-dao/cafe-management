@@ -22,5 +22,8 @@ public class ImportResponse {
 	private LocalDate importDate;
 
 	private String employeeName;
+	
+	private Double price;
+
 
 }

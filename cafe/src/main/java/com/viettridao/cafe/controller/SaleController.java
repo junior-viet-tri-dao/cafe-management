@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import com.viettridao.cafe.repository.TableRepository;
 import com.viettridao.cafe.service.TableService;
 import com.viettridao.cafe.service.TableSplitService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -72,7 +74,24 @@ public class SaleController {
 	public String splitTable(@RequestParam("fromTableId") Integer fromTableId,
 			@RequestParam("toTableId") Integer toTableId, @RequestParam("customerName") String customerName,
 			@RequestParam("customerPhone") String customerPhone,
-			@ModelAttribute("splitWrapper") MenuItemSplitWrapper wrapper, RedirectAttributes redirectAttributes) {
+			@Valid @ModelAttribute("splitWrapper") MenuItemSplitWrapper wrapper, BindingResult bindingResult,
+			RedirectAttributes redirectAttributes) {
+
+		if (bindingResult.hasErrors()) {
+			redirectAttributes.addFlashAttribute("error", "Danh sách món tách không hợp lệ. Vui lòng kiểm tra lại.");
+			return "redirect:/sale/split?fromTableId=" + fromTableId;
+		}
+
+		if (customerName == null || customerName.trim().isEmpty() || customerName.length() > 30) {
+			redirectAttributes.addFlashAttribute("error", "Tên khách hàng không hợp lệ.");
+			return "redirect:/sale/split?fromTableId=" + fromTableId;
+		}
+
+		if (!customerPhone.matches("\\d{10,11}")) {
+			redirectAttributes.addFlashAttribute("error", "Số điện thoại không hợp lệ. Chỉ gồm 10 hoặc 11 chữ số.");
+			return "redirect:/sale/split?fromTableId=" + fromTableId;
+		}
+
 		try {
 			TableEntity toTable = tableRepository.findById(toTableId)
 					.orElseThrow(() -> new RuntimeException("Không tìm thấy bàn đích"));
@@ -90,6 +109,19 @@ public class SaleController {
 			if (validItems.isEmpty()) {
 				redirectAttributes.addFlashAttribute("error", "Vui lòng chọn ít nhất 1 món hợp lệ để tách.");
 				return "redirect:/sale/split?fromTableId=" + fromTableId;
+			}
+
+			List<TableMenuItemResponse> currentItems = tableService.getTableMenuItems(fromTableId);
+			for (MenuItemSplitRequest item : validItems) {
+				int availableQty = currentItems.stream()
+						.filter(menuItem -> menuItem.getMenuItemId().equals(item.getMenuItemId())).findFirst()
+						.map(TableMenuItemResponse::getQuantity).orElse(0);
+
+				if (item.getQuantityToMove() > availableQty) {
+					redirectAttributes.addFlashAttribute("error",
+							"Số lượng muốn tách vượt quá số lượng hiện có cho món: " + item.getMenuItemId());
+					return "redirect:/sale/split?fromTableId=" + fromTableId;
+				}
 			}
 
 			tableSplitService.splitTable(fromTableId, toTableId, validItems, customerName, customerPhone);

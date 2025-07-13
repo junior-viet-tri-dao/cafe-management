@@ -24,4 +24,8 @@ public class ReportFilterRequest {
 	private LocalDate toDate;
 
 	private String category;
+
+	public boolean isValidDateRange() {
+		return fromDate != null && toDate != null && !fromDate.isAfter(toDate);
+	}
 }

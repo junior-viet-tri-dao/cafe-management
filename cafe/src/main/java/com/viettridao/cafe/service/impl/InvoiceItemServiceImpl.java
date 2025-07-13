@@ -111,5 +111,6 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
 		tableRepository.save(table);
 
 		return invoiceDetailMapper.toDtoList(allDetails);
+		
 	}
 }

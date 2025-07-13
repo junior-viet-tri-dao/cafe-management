@@ -35,6 +35,8 @@
                 <input type="text" name="customerName"
                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                        required />
+                <!-- Nếu bạn truyền lỗi từ controller về dưới tên 'customerNameError' -->
+                <p th:if="${customerNameError}" class="text-red-500 text-sm mt-1" th:text="${customerNameError}"></p>
             </div>
 
             <!-- Số điện thoại -->
@@ -43,6 +45,7 @@
                 <input type="text" name="customerPhone"
                        class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
                        required />
+                <p th:if="${customerPhoneError}" class="text-red-500 text-sm mt-1" th:text="${customerPhoneError}"></p>
             </div>
 
             <!-- Danh sách món -->
@@ -72,6 +75,10 @@
                                    th:name="|items[${iterStat.index}].quantityToMove|"
                                    min="0"
                                    th:attr="max=${item.quantity}" />
+                            <!-- Hiển thị lỗi cụ thể nếu có -->
+                            <p class="text-red-500 text-sm mt-1"
+                               th:if="${#fields.hasErrors('items[' + iterStat.index + '].quantityToMove')}"
+                               th:errors="*{items[__${iterStat.index}__].quantityToMove}"></p>
                         </td>
                     </tr>
                     </tbody>

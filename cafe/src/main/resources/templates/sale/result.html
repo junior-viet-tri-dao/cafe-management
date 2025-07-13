@@ -12,24 +12,24 @@
 
     <h2 class="text-2xl font-bold text-blue-700 mb-6">📄 Kết quả thanh toán</h2>
 
-    <!-- Thành công -->
+    <!-- ✅ Thành công -->
     <div th:if="${response.success}" class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded mb-6">
         <p class="font-semibold text-lg mb-2">✅ Thanh toán thành công!</p>
         <ul class="space-y-1 pl-4 list-disc">
             <li><b>Tổng tiền:</b>
-                <span th:text="${#numbers.formatDecimal(response.totalAmount, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span>
+                <span th:text="${#numbers.formatDecimal(response.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</span>
             </li>
             <li><b>Khách đưa:</b>
-                <span th:text="${#numbers.formatDecimal(response.customerCash, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span>
+                <span th:text="${#numbers.formatDecimal(response.customerCash, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</span>
             </li>
             <li><b>Tiền thối lại:</b>
-                <span th:text="${#numbers.formatDecimal(response.change, 0, 'COMMA', 0, 'POINT') + ' VND'}">0 VND</span>
+                <span th:text="${#numbers.formatDecimal(response.change, 0, 'COMMA', 0, 'POINT')} + ' VND'">0 VND</span>
             </li>
             <li><b>Hóa đơn ID:</b>
-                <span th:text="${response.invoiceId}">0</span>
+                <span th:text="${response.invoiceId}">---</span>
             </li>
             <li><b>Trạng thái hóa đơn:</b>
-                <span th:text="${response.invoiceStatus}">-</span>
+                <span th:text="${response.invoiceStatus}">---</span>
             </li>
             <li><b>Nhân viên thanh toán:</b>
                 <span th:text="${response.paidByName}">Không rõ</span>
@@ -38,12 +38,13 @@
         </ul>
     </div>
 
-    <!-- Thất bại -->
+    <!-- ❌ Thất bại -->
     <div th:if="${!response.success}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
         <p class="font-semibold text-lg mb-2">❌ Thanh toán thất bại</p>
         <p><b th:text="${response.message}">Lỗi không xác định</b></p>
     </div>
 
+    <!-- Quay lại -->
     <a href="/sale"
        class="inline-block mt-4 text-blue-600 hover:text-blue-800 hover:underline transition">
         ← Quay lại danh sách bàn

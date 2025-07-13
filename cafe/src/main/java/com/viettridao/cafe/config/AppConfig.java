@@ -2,7 +2,6 @@ package com.viettridao.cafe.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,8 +56,4 @@ public class AppConfig {
 		return new BCryptPasswordEncoder(6);
 	}
 
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
 }

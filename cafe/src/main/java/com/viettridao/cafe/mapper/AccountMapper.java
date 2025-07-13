@@ -2,43 +2,23 @@ package com.viettridao.cafe.mapper;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 import com.viettridao.cafe.dto.response.account.AccountResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.AccountEntity;
 
-@Component
-public class AccountMapper extends BaseMapper<AccountEntity, Void, AccountResponse> {
+@Mapper(componentModel = "spring")
+public interface AccountMapper {
 
-	public AccountMapper(ModelMapper modelMapper) {
-		super(modelMapper, AccountEntity.class, Void.class, AccountResponse.class);
-	}
+	@Mappings({ @Mapping(source = "employee.fullName", target = "fullName"),
+			@Mapping(source = "employee.address", target = "address"),
+			@Mapping(source = "employee.phoneNumber", target = "phoneNumber"),
+			@Mapping(source = "employee.position.id", target = "positionId"),
+			@Mapping(source = "employee.position.positionName", target = "positionName"),
+			@Mapping(source = "employee.position.salary", target = "salary") })
+	AccountResponse toDto(AccountEntity entity);
 
-	@Override
-	public AccountResponse toDto(AccountEntity entity) {
-		AccountResponse res = super.toDto(entity);
-
-		if (entity.getEmployee() != null) {
-			var employee = entity.getEmployee();
-			res.setFullName(employee.getFullName());
-			res.setAddress(employee.getAddress());
-			res.setPhoneNumber(employee.getPhoneNumber());
-
-			if (employee.getPosition() != null) {
-				var position = employee.getPosition();
-				res.setPositionId(position.getId());
-				res.setPositionName(position.getPositionName());
-				res.setSalary(position.getSalary());
-			}
-		}
-
-		return res;
-	}
-
-	@Override
-	public List<AccountResponse> toDtoList(List<AccountEntity> entities) {
-		return entities.stream().map(this::toDto).toList();
-	}
+	List<AccountResponse> toDtoList(List<AccountEntity> entityList);
 }

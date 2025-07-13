@@ -2,49 +2,30 @@ package com.viettridao.cafe.mapper;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeeResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.EmployeeEntity;
 
-@Component
-public class EmployeeMapper extends BaseMapper<EmployeeEntity, CreateEmployeeRequest, EmployeeResponse> {
+@Mapper(componentModel = "spring")
+public interface EmployeeMapper {
 
-	public EmployeeMapper(ModelMapper modelMapper) {
-		super(modelMapper, EmployeeEntity.class, CreateEmployeeRequest.class, EmployeeResponse.class);
-	}
+	@Mappings({ @Mapping(source = "position.id", target = "positionId"),
+			@Mapping(source = "position.positionName", target = "positionName"),
+			@Mapping(source = "position.salary", target = "salary"),
+			@Mapping(source = "account.username", target = "username"),
+			@Mapping(source = "account.password", target = "password"),
+			@Mapping(source = "account.imageUrl", target = "imageUrl") })
+	EmployeeResponse toDto(EmployeeEntity entity);
 
-	@Override
-	public EmployeeResponse toDto(EmployeeEntity entity) {
-		EmployeeResponse response = super.toDto(entity);
+	List<EmployeeResponse> toDtoList(List<EmployeeEntity> entities);
 
-		var position = entity.getPosition();
-		if (position != null) {
-			response.setPositionId(position.getId());
-			response.setPositionName(position.getPositionName());
-			response.setSalary(position.getSalary());
-		}
+	EmployeeEntity fromCreateRequest(CreateEmployeeRequest dto);
 
-		var account = entity.getAccount();
-		if (account != null) {
-			response.setUsername(account.getUsername());
-			response.setPassword(account.getPassword());
-			response.setImageUrl(account.getImageUrl());
-		}
-
-		return response;
-	}
-
-	@Override
-	public List<EmployeeResponse> toDtoList(List<EmployeeEntity> entities) {
-		return entities.stream().map(this::toDto).toList();
-	}
-
-	public void updateEntityFromUpdateRequest(UpdateEmployeeRequest dto, EmployeeEntity entity) {
-		modelMapper.map(dto, entity);
-	}
+	void updateEntityFromUpdateRequest(UpdateEmployeeRequest dto, @MappingTarget EmployeeEntity entity);
 }

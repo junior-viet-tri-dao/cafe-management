@@ -1,31 +1,20 @@
 package com.viettridao.cafe.mapper;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 import com.viettridao.cafe.dto.request.Pay.PaymentRequest;
 import com.viettridao.cafe.dto.response.Pay.PaymentResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.InvoiceEntity;
 
-@Component
-public class PaymentMapper extends BaseMapper<InvoiceEntity, PaymentRequest, PaymentResponse> {
+@Mapper(componentModel = "spring")
+public interface PaymentMapper {
 
-	public PaymentMapper(ModelMapper modelMapper) {
-		super(modelMapper, InvoiceEntity.class, PaymentRequest.class, PaymentResponse.class);
-	}
+	@Mapping(target = "id", ignore = true) 
+	InvoiceEntity fromRequest(PaymentRequest request);
 
-	@Override
-	public InvoiceEntity fromRequest(PaymentRequest request) {
-		InvoiceEntity invoice = super.fromRequest(request);
-		return invoice;
-	}
-
-	@Override
-	public PaymentResponse toDto(InvoiceEntity entity) {
-		PaymentResponse response = new PaymentResponse();
-		response.setInvoiceId(entity.getId());
-		response.setTotalAmount(entity.getTotalAmount());
-		return response;
-	}
+	@Mappings({ @Mapping(source = "id", target = "invoiceId"),
+			@Mapping(source = "totalAmount", target = "totalAmount") })
+	PaymentResponse toDto(InvoiceEntity entity);
 }

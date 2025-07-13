@@ -100,7 +100,7 @@ public class TableMergeController {
 			}
 
 			tableMergeService.mergeTables(targetId, sourceIds, customerName, customerPhone);
-			redirectAttributes.addFlashAttribute("success", "✅ Gộp bàn thành công.");
+			redirectAttributes.addFlashAttribute("success", " Gộp bàn thành công.");
 			return "redirect:/sale";
 
 		} catch (Exception e) {

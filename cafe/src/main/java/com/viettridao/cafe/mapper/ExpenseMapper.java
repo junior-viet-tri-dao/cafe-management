@@ -1,36 +1,23 @@
 package com.viettridao.cafe.mapper;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.viettridao.cafe.dto.request.expenses.ExpenseRequest;
 import com.viettridao.cafe.dto.response.expenses.BudgetViewResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.ExpenseEntity;
 
-@Component
-public class ExpenseMapper extends BaseMapper<ExpenseEntity, ExpenseRequest, BudgetViewResponse> {
+@Mapper(componentModel = "spring")
+public interface ExpenseMapper {
 
-	public ExpenseMapper(ModelMapper modelMapper) {
-		super(modelMapper, ExpenseEntity.class, ExpenseRequest.class, BudgetViewResponse.class);
-	}
+	@Mapping(target = "date", source = "expenseDate")
+	@Mapping(target = "expense", source = "amount")
+	@Mapping(target = "income", constant = "0.0")
+	BudgetViewResponse toDto(ExpenseEntity entity);
 
-	@Override
-	public BudgetViewResponse toDto(ExpenseEntity entity) {
-		BudgetViewResponse dto = new BudgetViewResponse();
-		dto.setDate(entity.getExpenseDate());
-		dto.setExpense(entity.getAmount());
-		dto.setIncome(0.0);
-		return dto;
-	}
-
-	@Override
-	public ExpenseEntity fromRequest(ExpenseRequest request) {
-		ExpenseEntity entity = new ExpenseEntity();
-		entity.setExpenseDate(request.getExpenseDate());
-		entity.setExpenseName(request.getExpenseName());
-		entity.setAmount(request.getAmount());
-		entity.setIsDeleted(false);
-		return entity;
-	}
+	@Mapping(target = "expenseDate", source = "expenseDate")
+	@Mapping(target = "expenseName", source = "expenseName")
+	@Mapping(target = "amount", source = "amount")
+	@Mapping(target = "isDeleted", constant = "false")
+	ExpenseEntity fromRequest(ExpenseRequest request);
 }

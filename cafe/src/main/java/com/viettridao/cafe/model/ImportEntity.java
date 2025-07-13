@@ -30,6 +30,9 @@ public class ImportEntity {
 	@Column(name = "total_amount")
 	private Double totalAmount;
 
+	@Column(name = "price")
+	private Double price;
+
 	@Column(name = "quantity")
 	private Integer quantity;
 
@@ -40,7 +43,8 @@ public class ImportEntity {
 	@JoinColumn(name = "employee_id")
 	private EmployeeEntity employee;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private ProductEntity product;
+
 }

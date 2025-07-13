@@ -14,5 +14,6 @@ public class InvoiceItemRequest {
 	@NotNull(message = "Mã món không được để trống")
 	private Integer menuItemId;
 
-	private Integer quantity;
+    @NotNull(message = "Số lượng không được để trống")
+    private Integer quantity;
 }

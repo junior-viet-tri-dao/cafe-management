@@ -15,15 +15,13 @@
         <input type="hidden" th:field="*{id}" />
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Cột trái: Avatar + Đăng xuất -->
+            <!-- Avatar + Logout -->
             <div class="flex flex-col items-center space-y-6">
                 <div class="w-40 h-40 relative">
-                    <!-- Nếu có ảnh -->
                     <img th:if="${account != null and account.imageUrl != null and !#strings.isEmpty(account.imageUrl)}"
                          th:src="@{${account.imageUrl}}"
                          alt="avatar"
                          class="w-40 h-40 rounded-full border-4 border-[#4e342e] shadow object-cover"/>
-                    <!-- Nếu không có ảnh -->
                     <img th:if="${account == null or account.imageUrl == null or #strings.isEmpty(account.imageUrl)}"
                          src="https://via.placeholder.com/160"
                          alt="avatar"
@@ -45,43 +43,41 @@
                 </button>
             </div>
 
-            <!-- Cột phải: Thông tin cá nhân -->
+            <!-- Thông tin cá nhân -->
             <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <!-- Họ và tên -->
                 <div class="flex flex-col">
                     <label class="font-semibold mb-1">Họ và tên</label>
-                    <input type="text" th:field="*{fullName}" required minlength="5" pattern="^(?!\s*$).{5,}$"
-                           title="Họ tên phải có ít nhất 5 ký tự và không được để trống hoặc toàn dấu cách"
-                           th:placeholder="${fullName} ?: 'Chưa có thông tin'"
+                    <input type="text" th:field="*{fullName}" required minlength="5"
+                           pattern="^(?!\\s*$).{5,}$"
                            class="w-full px-3 py-2 border rounded"/>
+                    <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-red-600 text-sm mt-1"></p>
                 </div>
 
                 <!-- Chức vụ -->
                 <div class="flex flex-col">
                     <label class="font-semibold mb-1">Chức vụ</label>
-                    <input type="text" th:field="*{positionName}"
-                           placeholder="Chưa có thông tin"
-                           readonly class="w-full px-3 py-2 border rounded bg-gray-100"/>
+                    <input type="text" th:field="*{positionName}" readonly
+                           class="w-full px-3 py-2 border rounded bg-gray-100"/>
                 </div>
 
                 <!-- Địa chỉ -->
                 <div class="flex flex-col md:col-span-2">
                     <label class="font-semibold mb-1">Địa chỉ</label>
                     <input type="text" th:field="*{address}"
-                           th:placeholder="${address} ?: 'Chưa có thông tin'"
                            class="w-full px-3 py-2 border rounded"/>
+                    <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-red-600 text-sm mt-1"></p>
                 </div>
 
                 <!-- Số điện thoại -->
                 <div class="flex flex-col">
                     <label class="font-semibold mb-1">Số điện thoại</label>
-                    <input type="text" th:field="*{phoneNumber}"
-                           required
-                           pattern="^0\d{9,10}$"
-                           title="Số điện thoại phải bắt đầu bằng 0 và có từ 10 đến 11 chữ số"
+                    <input type="text" th:field="*{phoneNumber}" required
+                           pattern="^0\\d{9,10}$"
                            maxlength="11"
-                           th:placeholder="${phoneNumber} ?: 'Chưa có thông tin'"
                            class="w-full px-3 py-2 border rounded"/>
+                    <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="text-red-600 text-sm mt-1"></p>
                 </div>
 
                 <!-- Lương -->
@@ -106,6 +102,7 @@
                     <input type="password" th:field="*{password}"
                            placeholder="Nhập mật khẩu mới (nếu muốn đổi)"
                            class="w-full px-3 py-2 border rounded"/>
+                    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-red-600 text-sm mt-1"></p>
                 </div>
             </div>
         </div>
@@ -118,6 +115,8 @@
             </button>
         </div>
     </form>
+
+    <!-- Preview Avatar Script -->
     <script>
         function previewAvatar(event) {
             const input = event.target;

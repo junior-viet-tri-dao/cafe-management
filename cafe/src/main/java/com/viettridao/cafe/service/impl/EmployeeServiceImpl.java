@@ -54,7 +54,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 		employeePageResponse.setPageSize(employeeEntities.getSize());
 		employeePageResponse.setTotalElements(employeeEntities.getTotalElements());
 		employeePageResponse.setTotalPages(employeeEntities.getTotalPages());
-		employeePageResponse.setEmployees(employeeResponses); // ✅ QUAN TRỌNG
+		employeePageResponse.setEmployees(employeeResponses); 
 
 		return employeePageResponse;
 	}

@@ -1,34 +1,43 @@
 package com.viettridao.cafe.mapper;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 
 import com.viettridao.cafe.dto.request.imports.ImportRequest;
 import com.viettridao.cafe.dto.response.imports.ImportResponse;
-import com.viettridao.cafe.mapper.base.BaseMapper;
 import com.viettridao.cafe.model.ImportEntity;
+import com.viettridao.cafe.model.ProductEntity;
 
-@Component
-public class ImportMapper extends BaseMapper<ImportEntity, ImportRequest, ImportResponse> {
+@Mapper(componentModel = "spring")
+public interface ImportMapper {
 
-	public ImportMapper(ModelMapper modelMapper) {
-		super(modelMapper, ImportEntity.class, ImportRequest.class, ImportResponse.class);
-	}
+	@Mappings({ @Mapping(source = "product.id", target = "productId"),
+			@Mapping(source = "product.productName", target = "productName", defaultValue = "Không xác định"),
+			@Mapping(source = "employee.fullName", target = "employeeName", defaultValue = "Không xác định"),
+			@Mapping(source = "price", target = "price") })
+	ImportResponse toDto(ImportEntity entity);
 
-	@Override
-	public ImportEntity fromRequest(ImportRequest dto) {
-		ImportEntity entity = new ImportEntity();
-		entity.setImportDate(dto.getImportDate());
-		entity.setQuantity(dto.getQuantity());
-		return entity;
-	}
+	@Mapping(target = "id", ignore = true) // nếu có id tự sinh
+	@Mapping(target = "employee", ignore = true)
+	@Mapping(target = "product", ignore = true)
+	@Mapping(target = "totalAmount", ignore = true) // sẽ set thủ công
+	ImportEntity fromRequest(ImportRequest request);
 
-	@Override
-	public ImportResponse toDto(ImportEntity entity) {
-		ImportResponse dto = super.toDto(entity);
-		dto.setProductId(entity.getProduct().getId());
-		dto.setProductName(entity.getProduct().getProductName());
-		dto.setEmployeeName(entity.getEmployee().getFullName());
-		return dto;
+	// MapStruct không tính toán logic phức tạp, nên cần post-processing:
+	@AfterMapping
+	default void afterFromRequest(ImportRequest request, @MappingTarget ImportEntity entity) {
+		if (request.getProductId() != null) {
+			ProductEntity product = new ProductEntity();
+			product.setId(request.getProductId());
+			entity.setProduct(product);
+		}
+
+		// Tính totalAmount = quantity * price
+		if (request.getQuantity() != null && request.getPrice() != null) {
+			entity.setTotalAmount(request.getQuantity() * request.getPrice());
+		}
 	}
 }

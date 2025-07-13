@@ -17,11 +17,12 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
 
 	Page<ProductEntity> findAllByIsDeletedFalse(Pageable pageable);
 
-	Optional<ProductEntity> findByIdAndIsDeletedFalse(Integer id);
-
 	Optional<ProductEntity> findByProductNameIgnoreCase(String productName);
 
 	List<ProductEntity> findByProductNameContainingIgnoreCaseAndIsDeletedFalse(String keyword);
 
 	Page<ProductEntity> findByProductNameContainingIgnoreCaseAndIsDeletedFalse(String keyword, Pageable pageable);
+
+	Optional<ProductEntity> findByIdAndIsDeletedFalse(Integer id);
+
 }

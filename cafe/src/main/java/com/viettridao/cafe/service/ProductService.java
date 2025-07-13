@@ -9,15 +9,21 @@ import com.viettridao.cafe.dto.response.product.ProductResponse;
 
 public interface ProductService {
 
-	Page<ProductResponse> getAllPaged(int page, int size);
+	List<ProductResponse> findAll();
 
-	List<ProductResponse> getAll();
+	Page<ProductResponse> findAllPaged(int page, int size);
 
-	ProductResponse getById(Integer id);
+	ProductResponse findById(Integer id);
+
+	void save(ProductRequest request);
 
 	void update(Integer id, ProductRequest request);
 
-	Page<ProductResponse> search(String keyword, int page, int size);
+	void delete(Integer id);
+
+	int getCurrentStock(Integer productId);
 
 	List<ProductResponse> search(String keyword);
+
+	Page<ProductResponse> search(String keyword, int page, int size);
 }

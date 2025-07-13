@@ -3,12 +3,8 @@ package com.viettridao.cafe.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.export.ExportRequest;
@@ -20,6 +16,7 @@ import com.viettridao.cafe.service.ImportService;
 import com.viettridao.cafe.service.ProductService;
 import com.viettridao.cafe.service.UnitService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -33,107 +30,154 @@ public class WarehouseController {
 	private final UnitService unitService;
 
 	@GetMapping
-	public String viewProducts(@RequestParam(required = false) String keyword,
-			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-		try {
-			Page<ProductResponse> productPage;
-
-			if (keyword != null && !keyword.trim().isEmpty()) {
-				productPage = productService.search(keyword, page, size);
-				model.addAttribute("keyword", keyword);
-			} else {
-				productPage = productService.getAllPaged(page, size);
-			}
-
-			model.addAttribute("productPage", productPage);
-		} catch (Exception e) {
-			model.addAttribute("error", "Lỗi khi tải danh sách hàng hóa: " + e.getMessage());
-		}
+	public String listProducts(@RequestParam(defaultValue = "0") int page,
+	                           @RequestParam(defaultValue = "10") int size,
+	                           Model model) {
+		Page<ProductResponse> productPage = productService.findAllPaged(page, size);
+		model.addAttribute("productPage", productPage);
 		return "warehouse/list";
 	}
 
 	@GetMapping("/import")
 	public String showImportForm(Model model) {
-		try {
-			model.addAttribute("importRequest", new ImportRequest());
-			model.addAttribute("products", productService.getAll());
-		} catch (Exception e) {
-			model.addAttribute("error", "Lỗi khi hiển thị form nhập hàng: " + e.getMessage());
-		}
-		return "warehouse/import";
+		model.addAttribute("importRequest", new ImportRequest());
+		model.addAttribute("units", unitService.findAll());
+		return "warehouse/import-form";
 	}
 
 	@PostMapping("/import")
-	public String importProduct(@ModelAttribute("importRequest") ImportRequest request, RedirectAttributes redirect) {
-		try {
-			if (request.getEmployeeId() == null) {
-				request.setEmployeeId(1);
-			}
-			importService.createImport(request);
-			redirect.addFlashAttribute("success", "Nhập hàng thành công!");
-		} catch (RuntimeException e) {
-			redirect.addFlashAttribute("error", e.getMessage());
-			return "redirect:/warehouse/import";
+	public String handleImport(@Valid @ModelAttribute("importRequest") ImportRequest request,
+	                           BindingResult result,
+	                           Model model,
+	                           RedirectAttributes redirectAttributes) {
+		if (result.hasErrors()) {
+			model.addAttribute("units", unitService.findAll());
+			return "warehouse/import-form";
 		}
-		return "redirect:/warehouse";
+
+		try {
+			importService.createImport(request);
+			redirectAttributes.addFlashAttribute("success", "Nhập hàng thành công!");
+			return "redirect:/warehouse";
+		} catch (RuntimeException e) {
+			model.addAttribute("units", unitService.findAll());
+			model.addAttribute("error", "Nhập hàng thất bại: " + e.getMessage());
+			return "warehouse/import-form";
+		}
 	}
 
 	@GetMapping("/export")
 	public String showExportForm(Model model) {
-		try {
-			model.addAttribute("exportRequest", new ExportRequest());
-			model.addAttribute("products", productService.getAll());
-		} catch (Exception e) {
-			model.addAttribute("error", "Lỗi khi hiển thị form xuất hàng: " + e.getMessage());
-		}
-		return "warehouse/export";
+		model.addAttribute("exportRequest", new ExportRequest());
+		model.addAttribute("products", productService.findAll());
+		return "warehouse/export-form";
 	}
 
 	@PostMapping("/export")
-	public String exportProduct(@ModelAttribute("exportRequest") ExportRequest request, RedirectAttributes redirect) {
-		try {
-			if (request.getEmployeeId() == null) {
-				request.setEmployeeId(1);
-			}
-			exportService.createExport(request);
-			redirect.addFlashAttribute("success", "Xuất hàng thành công!");
-		} catch (RuntimeException e) {
-			redirect.addFlashAttribute("error", e.getMessage());
-			return "redirect:/warehouse/export";
+	public String handleExport(@Valid @ModelAttribute("exportRequest") ExportRequest request,
+	                           BindingResult result,
+	                           Model model,
+	                           RedirectAttributes redirectAttributes) {
+		if (result.hasErrors()) {
+			model.addAttribute("products", productService.findAll());
+			return "warehouse/export-form";
 		}
-		return "redirect:/warehouse";
+
+		try {
+			exportService.createExport(request);
+			redirectAttributes.addFlashAttribute("success", "Xuất hàng thành công!");
+			return "redirect:/warehouse";
+		} catch (RuntimeException e) {
+			model.addAttribute("products", productService.findAll());
+			model.addAttribute("error", "Xuất hàng thất bại: " + e.getMessage());
+			return "warehouse/export-form";
+		}
 	}
 
 	@GetMapping("/edit/{id}")
-	public String showEditForm(@PathVariable Integer id, Model model, RedirectAttributes redirect) {
+	public String showEditForm(@PathVariable Integer id, Model model) {
 		try {
-			ProductResponse response = productService.getById(id);
+			ProductResponse product = productService.findById(id);
+			if (product == null) {
+				model.addAttribute("error", "Không tìm thấy sản phẩm.");
+				return "redirect:/warehouse";
+			}
 
 			ProductRequest request = new ProductRequest();
-			request.setId(response.getId());
-			request.setProductName(response.getProductName());
-			request.setQuantity(response.getQuantity());
-			request.setProductPrice(response.getProductPrice());
-			request.setUnitId(response.getUnitId());
-			request.setImportDate(response.getLatestImportDate());
+			request.setProductName(product.getProductName());
+			request.setUnitId(product.getUnitId());
+			request.setQuantity(product.getCurrentQuantity());
+			request.setPrice(product.getLatestPrice() != null ? product.getLatestPrice().doubleValue() : 0.0);
+			request.setImportDate(product.getLastImportDate());
 
-			model.addAttribute("product", request);
-			model.addAttribute("units", unitService.getAll());
+			model.addAttribute("productRequest", request);
+			model.addAttribute("productId", id);
+			model.addAttribute("units", unitService.findAll());
+			return "warehouse/edit-form";
 		} catch (Exception e) {
-			redirect.addFlashAttribute("error", "Không thể hiển thị thông tin chỉnh sửa: " + e.getMessage());
+			model.addAttribute("error", "Có lỗi xảy ra khi tải sản phẩm.");
 			return "redirect:/warehouse";
 		}
-		return "warehouse/edit";
 	}
 
-	@PostMapping("/edit")
-	public String updateProduct(@ModelAttribute("product") ProductRequest request, RedirectAttributes redirect) {
-		try {
-			productService.update(request.getId(), request);
-			redirect.addFlashAttribute("success", "Cập nhật thành công!");
-		} catch (RuntimeException e) {
-			redirect.addFlashAttribute("error", e.getMessage());
+	@PostMapping("/edit/{id}")
+	public String updateProduct(@PathVariable Integer id,
+	                            @Valid @ModelAttribute("productRequest") ProductRequest request,
+	                            BindingResult result,
+	                            Model model,
+	                            RedirectAttributes redirectAttributes) {
+		if (result.hasErrors()) {
+			model.addAttribute("productId", id);
+			model.addAttribute("units", unitService.findAll());
+			return "warehouse/edit-form";
 		}
+
+		try {
+			productService.update(id, request);
+			redirectAttributes.addFlashAttribute("success", "Cập nhật sản phẩm thành công!");
+			return "redirect:/warehouse";
+		} catch (RuntimeException e) {
+			model.addAttribute("productId", id);
+			model.addAttribute("units", unitService.findAll());
+			model.addAttribute("error", "Cập nhật thất bại: " + e.getMessage());
+			return "warehouse/edit-form";
+		}
+	}
+
+	@GetMapping("/search")
+	public String search(@RequestParam String keyword,
+	                     @RequestParam(defaultValue = "0") int page,
+	                     @RequestParam(defaultValue = "10") int size,
+	                     Model model) {
+		Page<ProductResponse> productPage = productService.search(keyword, page, size);
+		model.addAttribute("productPage", productPage);
+		model.addAttribute("keyword", keyword);
+		return "warehouse/list";
+	}
+
+	@GetMapping("/stock/{productId}")
+	@ResponseBody
+	public String getStock(@PathVariable Integer productId) {
+		int stock = productService.getCurrentStock(productId);
+		return "Tồn kho hiện tại: " + stock;
+	}
+
+	@GetMapping("/delete/{id}")
+	public String softDelete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+		productService.delete(id);
+		redirectAttributes.addFlashAttribute("success", "Xóa sản phẩm thành công!");
 		return "redirect:/warehouse";
+	}
+
+	@GetMapping("/history/import")
+	public String viewAllImportHistory(Model model) {
+		model.addAttribute("imports", importService.getAll());
+		return "warehouse/import-history";
+	}
+
+	@GetMapping("/history/export")
+	public String viewAllExportHistory(Model model) {
+		model.addAttribute("exports", exportService.getAll());
+		return "warehouse/export-history";
 	}
 }
