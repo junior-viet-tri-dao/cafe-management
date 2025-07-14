@@ -37,7 +37,8 @@ import lombok.RequiredArgsConstructor;
  * SALES CONTROLLER - QUẢN LÝ BÁN HÀNG VÀ CÁC CHỨC NĂNG BÀN
  * ================================================================================================
  * 
- * Controller này xử lý tất cả các chức năng liên quan đến quản lý bàn và bán hàng:
+ * Controller này xử lý tất cả các chức năng liên quan đến quản lý bàn và bán
+ * hàng:
  * 
  * 📋 DANH SÁCH CHỨC NĂNG CHÍNH:
  * ├── 1. Hiển thị danh sách bàn và trạng thái
@@ -72,29 +73,29 @@ public class SalesController {
     // ================================================================================================
     // DEPENDENCY INJECTION - CÁC SERVICE VÀ REPOSITORY CẦN THIẾT
     // ================================================================================================
-    
+
     /** Repository quản lý thông tin bàn và trạng thái */
     private final TableRepository tableRepository;
-    
+
     /** Service xử lý logic đặt bàn, gộp bàn, tách bàn */
     private final ReservationService reservationService;
-    
+
     /** Repository quản lý thông tin tài khoản và nhân viên */
     private final AccountRepository accountRepository;
-    
+
     /** Service xử lý logic chọn thực đơn và tạo order */
     private final SelectMenuService selectMenuService;
-    
+
     /** Repository quản lý chi tiết hóa đơn (invoice details) */
     private final InvoiceDetailRepository invoiceDetailRepository;
-    
+
     /** Mapper chuyển đổi entity sang DTO response */
     private final OrderDetailMapper orderDetailMapper;
 
     // ================================================================================================
     // CHỨC NĂNG 1: CHỌN THỰC ĐƠN (SELECT MENU)
     // ================================================================================================
-    
+
     /**
      * 📋 HIỂN THỊ TRANG CHỌN THỰC ĐƒN RIÊNG BIỆT (Không sử dụng trong flow chính)
      * 
@@ -114,15 +115,15 @@ public class SalesController {
         // BƯỚC 1: Validate và lấy thông tin bàn
         var table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
-        
+
         // BƯỚC 2: Tạo request object mặc định cho form binding
         CreateSelectMenuRequest selectMenuRequest = new CreateSelectMenuRequest();
         selectMenuRequest.setTableId(tableId);
-        
+
         // BƯỚC 3: Truyền data cho view template
         model.addAttribute("table", table);
         model.addAttribute("selectMenuRequest", selectMenuRequest);
-        
+
         // BƯỚC 4: Trả về trang chọn thực đơn riêng biệt
         return "sales/select_menu";
     }
@@ -144,7 +145,8 @@ public class SalesController {
      * 
      * 🔄 Trạng thái bàn hỗ trợ: AVAILABLE, RESERVED, OCCUPIED
      * 
-     * ⚡ Performance: Sử dụng try-catch để handle trường hợp không tìm thấy reservation
+     * ⚡ Performance: Sử dụng try-catch để handle trường hợp không tìm thấy
+     * reservation
      */
     @GetMapping("/show-select-menu-form")
     public String showSelectMenuForm(@RequestParam Integer tableId, Model model) {
@@ -176,12 +178,12 @@ public class SalesController {
         var menuItems = selectMenuService.getMenuItems();
 
         // BƯỚC 5: Chuẩn bị data cho view - hiển thị popup trong sales.html
-        model.addAttribute("tables", tableRepository.findAll());           // Danh sách tất cả bàn
-        model.addAttribute("selectMenuRequest", selectMenuRequest);        // Form request object
-        model.addAttribute("selectedTable", table);                        // Bàn đang được chọn
-        model.addAttribute("showSelectMenuForm", true);                    // Flag hiển thị popup
-        model.addAttribute("menuItems", menuItems);                        // Danh sách menu items
-        
+        model.addAttribute("tables", tableRepository.findAll()); // Danh sách tất cả bàn
+        model.addAttribute("selectMenuRequest", selectMenuRequest); // Form request object
+        model.addAttribute("selectedTable", table); // Bàn đang được chọn
+        model.addAttribute("showSelectMenuForm", true); // Flag hiển thị popup
+        model.addAttribute("menuItems", menuItems); // Danh sách menu items
+
         // BƯỚC 6: Trả về trang sales với popup chọn thực đơn
         return "sales/sales";
     }
@@ -196,8 +198,8 @@ public class SalesController {
      * 📋 Quy trình xử lý:
      * 1. VALIDATION LAYER 1: Spring Framework Validation (@Valid annotation)
      * 2. VALIDATION LAYER 2: Business Rules Validation
-     *    - Nếu bàn AVAILABLE → bắt buộc nhập thông tin khách hàng
-     *    - Bắt buộc chọn ít nhất 1 món có số lượng > 0
+     * - Nếu bàn AVAILABLE → bắt buộc nhập thông tin khách hàng
+     * - Bắt buộc chọn ít nhất 1 món có số lượng > 0
      * 3. SECURITY: Lấy thông tin nhân viên từ Security Context
      * 4. BUSINESS LOGIC: Gọi service tạo order
      * 5. SUCCESS: Hiển thị thông báo thành công + order details
@@ -205,7 +207,7 @@ public class SalesController {
      * 
      * 🔄 Trạng thái bàn xử lý:
      * - AVAILABLE → Tạo mới reservation + invoice + order
-     * - RESERVED → Cập nhật reservation thành OCCUPIED + tạo order  
+     * - RESERVED → Cập nhật reservation thành OCCUPIED + tạo order
      * - OCCUPIED → Thêm món vào order hiện tại
      * 
      * 🛡️ Error Handling:
@@ -228,14 +230,15 @@ public class SalesController {
             // ========================================
             // @Valid annotation đã validate các field theo annotation trong DTO
             // BindingResult chứa kết quả validation
-            
+
             // ========================================
             // BƯỚC 2: BUSINESS RULES VALIDATION
             // ========================================
-            
+
             // Sub-step 2.1: Lấy thông tin bàn để validate business rules
             var table = tableRepository.findById(request.getTableId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + request.getTableId()));
+                    .orElseThrow(
+                            () -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + request.getTableId()));
 
             // Sub-step 2.2: Validate thông tin khách hàng theo trạng thái bàn
             if (table.getStatus().name().equals("AVAILABLE")) {
@@ -259,7 +262,7 @@ public class SalesController {
                         .filter(item -> item.getMenuItemId() != null && item.getQuantity() != null
                                 && item.getQuantity() > 0)
                         .toList();
-                        
+
                 if (validItems.isEmpty()) {
                     bindingResult.reject("error.items", "Vui lòng chọn ít nhất một món và nhập số lượng");
                 } else {
@@ -274,14 +277,14 @@ public class SalesController {
             if (bindingResult.hasErrors()) {
                 // Chuẩn bị lại data cho view khi có lỗi validation
                 var tableForError = tableRepository.findById(request.getTableId()).orElse(null);
-                
+
                 model.addAttribute("tables", tableRepository.findAll());
                 model.addAttribute("selectMenuRequest", request);
                 model.addAttribute("selectedTable", tableForError);
                 model.addAttribute("showSelectMenuForm", true);
                 model.addAttribute("org.springframework.validation.BindingResult.selectMenuRequest", bindingResult);
                 model.addAttribute("menuItems", selectMenuService.getMenuItems());
-                
+
                 // Trả về trang sales với form hiển thị và errors
                 return "sales/sales";
             }
@@ -332,7 +335,7 @@ public class SalesController {
     // ================================================================================================
     // CHỨC NĂNG 2: XEM CHI TIẾT BÀN VÀ ORDER
     // ================================================================================================
-    
+
     /**
      * 📋 XEM CHI TIẾT ORDER CỦA BÀN (Order Details Modal)
      * 
@@ -392,24 +395,25 @@ public class SalesController {
     // ================================================================================================
     // CHỨC NĂNG 3: HIỂN THỊ TRANG CHÍNH SALES OVERVIEW
     // ================================================================================================
-    
+
     /**
      * 🏠 TRANG CHÍNH QUẢN LÝ BÁN HÀNG VÀ CÁC MODAL
      * 
      * Endpoint: GET /sale
      * 
-     * 🎯 Mục đích: 
+     * 🎯 Mục đích:
      * - Hiển thị danh sách tất cả bàn với trạng thái
      * - Xử lý hiển thị các modal (gộp bàn, tách bàn) dựa trên query parameters
      * 
      * 📋 Query Parameters:
      * - showMergeModal: Hiển thị modal gộp bàn
-     * - showSplitModal: Hiển thị modal tách bàn  
+     * - showSplitModal: Hiển thị modal tách bàn
      * - selectedTableId: ID bàn được chọn để thực hiện action
      * 
      * 🔄 Logic xử lý modal:
      * 1. MERGE MODAL: Lấy danh sách bàn OCCUPIED để gộp
-     * 2. SPLIT MODAL: Validate bàn nguồn OCCUPIED, chuẩn bị danh sách bàn đích và món
+     * 2. SPLIT MODAL: Validate bàn nguồn OCCUPIED, chuẩn bị danh sách bàn đích và
+     * món
      * 
      * 📊 Data truyền cho view:
      * - tables: Danh sách tất cả bàn
@@ -417,7 +421,7 @@ public class SalesController {
      * - showReservationForm: Flag hiển thị form đặt bàn
      * - Các data cho modal gộp/tách bàn nếu có
      * 
-     * ⚠️ Error Handling: 
+     * ⚠️ Error Handling:
      * - Validate trạng thái bàn nguồn cho tách bàn
      * - Kiểm tra tồn tại reservation và invoice
      * - Hiển thị thông báo lỗi chi tiết cho user
@@ -434,23 +438,23 @@ public class SalesController {
         // ======================================
         // BƯỚC 1: CHUẨN BỊ DATA CƠ BẢN CHO VIEW
         // ======================================
-        model.addAttribute("tables", tableRepository.findAll());           // Danh sách tất cả bàn
+        model.addAttribute("tables", tableRepository.findAll()); // Danh sách tất cả bàn
         model.addAttribute("reservation", new CreateReservationRequest()); // Object cho form đặt bàn
-        model.addAttribute("showReservationForm", false);                  // Mặc định không hiển thị form đặt bàn
+        model.addAttribute("showReservationForm", false); // Mặc định không hiển thị form đặt bàn
 
         // ==========================================
-        // BƯỚC 2: XỬ LÝ HIỂN THỊ MODAL GỘEP BÀN  
+        // BƯỚC 2: XỬ LÝ HIỂN THỊ MODAL GỘEP BÀN
         // ==========================================
         if (showMergeModal != null && showMergeModal) {
             System.out.println("Setting up merge modal..."); // Debug log
-            
+
             // Lấy danh sách các bàn OCCUPIED để hiển thị trong modal gộp bàn
             var occupiedTables = tableRepository.findAll().stream()
                     .filter(table -> table.getStatus() == TableStatus.OCCUPIED)
                     .toList();
-                    
+
             System.out.println("Found " + occupiedTables.size() + " occupied tables"); // Debug log
-            
+
             model.addAttribute("showMergeModal", true);
             model.addAttribute("occupiedTables", occupiedTables);
             model.addAttribute("selectedTableId", selectedTableId);
@@ -466,14 +470,18 @@ public class SalesController {
                 // Sub-step 3.1: VALIDATE THÔNG TIN BÀN NGUỒN
                 var sourceTableOpt = tableRepository.findById(selectedTableId);
                 if (sourceTableOpt.isEmpty()) {
+                    System.out.println("ERROR: Source table not found with ID: " + selectedTableId);
                     model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn với ID: " + selectedTableId);
                     return "sales/sales";
                 }
 
                 var sourceTable = sourceTableOpt.get();
+                System.out.println(
+                        "Source table found: " + sourceTable.getTableName() + ", Status: " + sourceTable.getStatus());
 
                 // Sub-step 3.2: KIỂM TRA TRẠNG THÁI BÀN NGUỒN - chỉ tách được từ bàn OCCUPIED
                 if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
+                    System.out.println("ERROR: Table status is not OCCUPIED: " + sourceTable.getStatus());
                     model.addAttribute("errorMessage",
                             "Chỉ có thể tách từ bàn đang sử dụng (OCCUPIED). Bàn hiện tại: " + sourceTable.getStatus());
                     return "sales/sales";
@@ -482,11 +490,13 @@ public class SalesController {
                 // Sub-step 3.3: KIỂM TRA RESERVATION VÀ INVOICE CỦA BÀN NGUỒN
                 var sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
                 if (sourceReservation == null) {
+                    System.out.println("ERROR: No reservation found for table ID: " + selectedTableId);
                     model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn cho bàn nguồn");
                     return "sales/sales";
                 }
 
                 if (sourceReservation.getInvoice() == null) {
+                    System.out.println("ERROR: No invoice found for reservation: " + sourceReservation.getId());
                     model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho bàn nguồn");
                     return "sales/sales";
                 }
@@ -496,9 +506,12 @@ public class SalesController {
                         .findAllByInvoice_IdAndIsDeletedFalse(sourceReservation.getInvoice().getId());
 
                 if (invoiceDetails.isEmpty()) {
+                    System.out.println("ERROR: No items found for invoice: " + sourceReservation.getInvoice().getId());
                     model.addAttribute("errorMessage", "Bàn nguồn không có món nào để tách");
                     return "sales/sales";
                 }
+
+                System.out.println("Found " + invoiceDetails.size() + " items for splitting");
 
                 // Sub-step 3.5: LẤY DANH SÁCH BÀN ĐÍCH KHẢ DỤNG
                 // Bàn trống (AVAILABLE) - sẽ tạo hóa đơn mới
@@ -512,8 +525,12 @@ public class SalesController {
                                 && !table.getId().equals(selectedTableId))
                         .toList();
 
+                System.out.println(
+                        "Available tables: " + availableTables.size() + ", Occupied tables: " + occupiedTables.size());
+
                 // Sub-step 3.6: KIỂM TRA CÓ BÀN ĐÍCH KHẢ DỤNG KHÔNG
                 if (availableTables.isEmpty() && occupiedTables.isEmpty()) {
+                    System.out.println("ERROR: No target tables available");
                     model.addAttribute("errorMessage", "Không có bàn nào khả dụng để tách đến");
                     return "sales/sales";
                 }
@@ -538,6 +555,7 @@ public class SalesController {
 
             } catch (Exception e) {
                 System.err.println("Error setting up split modal: " + e.getMessage());
+                e.printStackTrace(); // Print full stack trace for debugging
                 model.addAttribute("errorMessage", "Lỗi khi thiết lập form tách bàn: " + e.getMessage());
                 return "sales/sales";
             }
@@ -552,7 +570,7 @@ public class SalesController {
     // ================================================================================================
     // CHỨC NĂNG 4: ĐẶT BÀN (RESERVATION)
     // ================================================================================================
-    
+
     /**
      * 📋 HIỂN THỊ TRANG ĐẶT BÀN RIÊNG BIỆT (Ít sử dụng)
      * 
@@ -576,10 +594,10 @@ public class SalesController {
         if (tableId != null) {
             reservation.setTableId(tableId);
         }
-        
+
         // BƯỚC 2: Truyền object cho view binding
         model.addAttribute("reservation", reservation);
-        
+
         // BƯỚC 3: Trả về trang đặt bàn riêng biệt
         return "sales/reservation";
     }
@@ -606,10 +624,10 @@ public class SalesController {
         reservation.setTableId(tableId);
 
         // BƯỚC 2: Chuẩn bị data cho view - hiển thị popup trong sales.html
-        model.addAttribute("tables", tableRepository.findAll());    // Danh sách tất cả bàn
-        model.addAttribute("reservation", reservation);             // Form request object
-        model.addAttribute("showReservationForm", true);            // Flag hiển thị popup
-        
+        model.addAttribute("tables", tableRepository.findAll()); // Danh sách tất cả bàn
+        model.addAttribute("reservation", reservation); // Form request object
+        model.addAttribute("showReservationForm", true); // Flag hiển thị popup
+
         // BƯỚC 3: Trả về trang sales với popup đặt bàn
         return "sales/sales";
     }
@@ -632,7 +650,8 @@ public class SalesController {
      * - AVAILABLE → RESERVED (tạo reservation + invoice rỗng)
      * 
      * 🛡️ Error Handling:
-     * - IllegalArgumentException: Lỗi nghiệp vụ (bàn không khả dụng, thông tin không hợp lệ)
+     * - IllegalArgumentException: Lỗi nghiệp vụ (bàn không khả dụng, thông tin
+     * không hợp lệ)
      * - RuntimeException: Lỗi hệ thống (log + thông báo generic)
      * 
      * ⚡ Performance Notes:
@@ -671,7 +690,8 @@ public class SalesController {
             // ========================================
             // BƯỚC 3: GỌI SERVICE THỰC HIỆN BUSINESS LOGIC
             // ========================================
-            // Service sẽ xử lý: validate bàn AVAILABLE, tạo reservation, tạo invoice rỗng, cập nhật trạng thái bàn
+            // Service sẽ xử lý: validate bàn AVAILABLE, tạo reservation, tạo invoice rỗng,
+            // cập nhật trạng thái bàn
             reservationService.createReservation(request, employeeId);
 
             // ========================================
@@ -679,7 +699,7 @@ public class SalesController {
             // ========================================
             redirectAttributes.addFlashAttribute("success", "Đặt bàn thành công!");
             return "redirect:/sale";
-            
+
         } catch (IllegalArgumentException e) {
             // Lỗi nghiệp vụ từ service layer
             bindingResult.rejectValue("customerName", "error.customerName", e.getMessage());
@@ -701,7 +721,7 @@ public class SalesController {
     // ================================================================================================
     // CHỨC NĂNG 5: HỦY BÀN (CANCEL RESERVATION)
     // ================================================================================================
-    
+
     /**
      * 🎯 HIỂN THỊ FORM XÁC NHẬN HỦY BÀN
      * 
@@ -715,7 +735,8 @@ public class SalesController {
      * 3. Validate business rules: chỉ hủy được bàn RESERVED
      * 4. Hiển thị form xác nhận hủy bàn trong popup
      * 
-     * 🔄 Trạng thái bàn hỗ trợ: RESERVED (chỉ hủy được bàn đã đặt nhưng chưa chọn món)
+     * 🔄 Trạng thái bàn hỗ trợ: RESERVED (chỉ hủy được bàn đã đặt nhưng chưa chọn
+     * món)
      * 
      * 🛡️ Business Rules:
      * - Không thể hủy bàn AVAILABLE (chưa đặt)
