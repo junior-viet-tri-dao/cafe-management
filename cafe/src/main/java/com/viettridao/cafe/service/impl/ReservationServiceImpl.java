@@ -1,3 +1,4 @@
+
 package com.viettridao.cafe.service.impl;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import com.viettridao.cafe.common.TableStatus;
 import com.viettridao.cafe.dto.request.sales.CreateReservationRequest;
 import com.viettridao.cafe.dto.request.sales.MergeTableRequest;
 import com.viettridao.cafe.dto.request.sales.SplitTableRequest;
+import com.viettridao.cafe.dto.request.sales.MoveTableRequest;
 import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.model.InvoiceDetailEntity;
 import com.viettridao.cafe.model.InvoiceEntity;
@@ -422,5 +424,83 @@ public class ReservationServiceImpl implements ReservationService {
             sourceInvoice.setStatus(InvoiceStatus.PENDING_PAYMENT);
             invoiceRepository.save(sourceInvoice);
         }
+    }
+
+    /**
+     * Chuyển bàn: chuyển toàn bộ món từ bàn nguồn sang bàn đích
+     */
+
+    @Override
+    @Transactional
+    public void moveTable(MoveTableRequest request, Integer employeeId) {
+        Integer sourceTableId = request.getSourceTableId();
+        Integer targetTableId = request.getTargetTableId();
+
+        if (sourceTableId.equals(targetTableId)) {
+            throw new IllegalArgumentException("Bàn nguồn và bàn đích không được trùng nhau");
+        }
+
+        // Lấy thông tin bàn nguồn và bàn đích
+        TableEntity sourceTable = tableRepository.findById(sourceTableId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn nguồn"));
+        TableEntity targetTable = tableRepository.findById(targetTableId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn đích"));
+
+        // Chỉ cho phép chuyển từ OCCUPIED sang AVAILABLE
+        if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
+            throw new IllegalArgumentException("Chỉ có thể chuyển từ bàn đang sử dụng (OCCUPIED)");
+        }
+        if (targetTable.getStatus() != TableStatus.AVAILABLE) {
+            throw new IllegalArgumentException("Chỉ có thể chuyển sang bàn trống (AVAILABLE)");
+        }
+
+        // Lấy reservation và invoice của bàn nguồn
+        ReservationEntity sourceReservation = reservationRepository.findCurrentReservationByTableId(sourceTableId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy reservation của bàn nguồn"));
+        InvoiceEntity sourceInvoice = sourceReservation.getInvoice();
+        if (sourceInvoice == null) {
+            throw new IllegalArgumentException("Không tìm thấy hóa đơn của bàn nguồn");
+        }
+
+        // Lấy nhân viên thực hiện chuyển bàn
+        EmployeeEntity employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy nhân viên thực hiện chuyển bàn"));
+
+        // Tạo reservation mới cho bàn đích (copy thông tin khách, ngày giờ, hóa đơn)
+        ReservationKey newKey = new ReservationKey();
+        newKey.setIdTable(targetTable.getId());
+        newKey.setIdEmployee(employee.getId());
+        newKey.setIdInvoice(sourceInvoice.getId());
+
+        ReservationEntity targetReservation = new ReservationEntity();
+        targetReservation.setId(newKey);
+        targetReservation.setTable(targetTable);
+        targetReservation.setEmployee(employee);
+        targetReservation.setCustomerName(sourceReservation.getCustomerName());
+        targetReservation.setCustomerPhone(sourceReservation.getCustomerPhone());
+        targetReservation.setReservationDate(sourceReservation.getReservationDate());
+        targetReservation.setInvoice(sourceInvoice);
+        targetReservation.setIsDeleted(false);
+        reservationRepository.save(targetReservation);
+
+        // Cập nhật lại invoice nếu cần (có thể giữ nguyên, chỉ cập nhật trạng thái)
+        sourceInvoice.setIsDeleted(false); // Đảm bảo không bị xóa mềm
+        invoiceRepository.save(sourceInvoice);
+
+        // Cập nhật trạng thái bàn đích thành OCCUPIED
+        targetTable.setStatus(TableStatus.OCCUPIED);
+        tableRepository.save(targetTable);
+
+        // Cập nhật trạng thái bàn nguồn thành AVAILABLE
+        sourceTable.setStatus(TableStatus.AVAILABLE);
+        tableRepository.save(sourceTable);
+
+        // Xóa mềm reservation ở bàn nguồn
+        sourceReservation.setIsDeleted(true);
+        reservationRepository.save(sourceReservation);
+
+        // Không cần xóa mềm invoice hay invoice detail vì đã chuyển toàn bộ sang bàn
+        // mới
+        // (invoice detail chỉ liên kết với invoice, không cần thay đổi)
     }
 }

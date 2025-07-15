@@ -3,6 +3,7 @@ package com.viettridao.cafe.service;
 import com.viettridao.cafe.dto.request.sales.CreateReservationRequest;
 import com.viettridao.cafe.dto.request.sales.MergeTableRequest;
 import com.viettridao.cafe.dto.request.sales.SplitTableRequest;
+import com.viettridao.cafe.dto.request.sales.MoveTableRequest;
 import com.viettridao.cafe.model.InvoiceEntity;
 import com.viettridao.cafe.model.ReservationEntity;
 import com.viettridao.cafe.model.TableEntity;
@@ -60,4 +61,14 @@ public interface ReservationService {
      * @throws IllegalArgumentException nếu validate nghiệp vụ không hợp lệ
      */
     void splitTable(SplitTableRequest request, Integer employeeId);
+
+    /**
+     * Chuyển bàn: chuyển toàn bộ reservation, invoice, invoice detail từ bàn nguồn
+     * sang bàn đích
+     * 
+     * @param request    MoveTableRequest chứa id bàn nguồn và bàn đích
+     * @param employeeId ID nhân viên thực hiện thao tác
+     * @throws IllegalArgumentException nếu validate nghiệp vụ không hợp lệ
+     */
+    void moveTable(MoveTableRequest request, Integer employeeId);
 }

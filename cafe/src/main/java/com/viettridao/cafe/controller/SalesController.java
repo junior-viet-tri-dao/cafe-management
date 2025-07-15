@@ -430,10 +430,9 @@ public class SalesController {
     public String getSalesOverview(
             @RequestParam(required = false) Boolean showMergeModal,
             @RequestParam(required = false) Boolean showSplitModal,
+            @RequestParam(required = false) Boolean showMoveModal,
             @RequestParam(required = false) Integer selectedTableId,
             Model model) {
-        System.out.println("GET /sale - showMergeModal: " + showMergeModal + ", showSplitModal: " + showSplitModal
-                + ", selectedTableId: " + selectedTableId); // Debug log
 
         // ======================================
         // BƯỚC 1: CHUẨN BỊ DATA CƠ BẢN CHO VIEW
@@ -446,14 +445,10 @@ public class SalesController {
         // BƯỚC 2: XỬ LÝ HIỂN THỊ MODAL GỘEP BÀN
         // ==========================================
         if (showMergeModal != null && showMergeModal) {
-            System.out.println("Setting up merge modal..."); // Debug log
-
             // Lấy danh sách các bàn OCCUPIED để hiển thị trong modal gộp bàn
             var occupiedTables = tableRepository.findAll().stream()
                     .filter(table -> table.getStatus() == TableStatus.OCCUPIED)
                     .toList();
-
-            System.out.println("Found " + occupiedTables.size() + " occupied tables"); // Debug log
 
             model.addAttribute("showMergeModal", true);
             model.addAttribute("occupiedTables", occupiedTables);
@@ -464,24 +459,17 @@ public class SalesController {
         // BƯỚC 3: XỬ LÝ HIỂN THỊ MODAL TÁCH BÀN
         // ==========================================
         if (showSplitModal != null && showSplitModal && selectedTableId != null) {
-            System.out.println("Setting up split modal for table ID: " + selectedTableId); // Debug log
-
             try {
                 // Sub-step 3.1: VALIDATE THÔNG TIN BÀN NGUỒN
                 var sourceTableOpt = tableRepository.findById(selectedTableId);
                 if (sourceTableOpt.isEmpty()) {
-                    System.out.println("ERROR: Source table not found with ID: " + selectedTableId);
                     model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn với ID: " + selectedTableId);
                     return "sales/sales";
                 }
 
                 var sourceTable = sourceTableOpt.get();
-                System.out.println(
-                        "Source table found: " + sourceTable.getTableName() + ", Status: " + sourceTable.getStatus());
-
                 // Sub-step 3.2: KIỂM TRA TRẠNG THÁI BÀN NGUỒN - chỉ tách được từ bàn OCCUPIED
                 if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
-                    System.out.println("ERROR: Table status is not OCCUPIED: " + sourceTable.getStatus());
                     model.addAttribute("errorMessage",
                             "Chỉ có thể tách từ bàn đang sử dụng (OCCUPIED). Bàn hiện tại: " + sourceTable.getStatus());
                     return "sales/sales";
@@ -490,13 +478,11 @@ public class SalesController {
                 // Sub-step 3.3: KIỂM TRA RESERVATION VÀ INVOICE CỦA BÀN NGUỒN
                 var sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
                 if (sourceReservation == null) {
-                    System.out.println("ERROR: No reservation found for table ID: " + selectedTableId);
                     model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn cho bàn nguồn");
                     return "sales/sales";
                 }
 
                 if (sourceReservation.getInvoice() == null) {
-                    System.out.println("ERROR: No invoice found for reservation: " + sourceReservation.getId());
                     model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho bàn nguồn");
                     return "sales/sales";
                 }
@@ -506,12 +492,9 @@ public class SalesController {
                         .findAllByInvoice_IdAndIsDeletedFalse(sourceReservation.getInvoice().getId());
 
                 if (invoiceDetails.isEmpty()) {
-                    System.out.println("ERROR: No items found for invoice: " + sourceReservation.getInvoice().getId());
                     model.addAttribute("errorMessage", "Bàn nguồn không có món nào để tách");
                     return "sales/sales";
                 }
-
-                System.out.println("Found " + invoiceDetails.size() + " items for splitting");
 
                 // Sub-step 3.5: LẤY DANH SÁCH BÀN ĐÍCH KHẢ DỤNG
                 // Bàn trống (AVAILABLE) - sẽ tạo hóa đơn mới
@@ -524,9 +507,6 @@ public class SalesController {
                         .filter(table -> table.getStatus() == TableStatus.OCCUPIED
                                 && !table.getId().equals(selectedTableId))
                         .toList();
-
-                System.out.println(
-                        "Available tables: " + availableTables.size() + ", Occupied tables: " + occupiedTables.size());
 
                 // Sub-step 3.6: KIỂM TRA CÓ BÀN ĐÍCH KHẢ DỤNG KHÔNG
                 if (availableTables.isEmpty() && occupiedTables.isEmpty()) {
@@ -549,24 +529,134 @@ public class SalesController {
                 model.addAttribute("selectedTableId", selectedTableId);
                 model.addAttribute("splitTableRequest", splitRequest);
 
-                System.out.println("Split modal setup completed successfully - Available tables: " +
-                        availableTables.size() + ", Occupied tables: " + occupiedTables.size() +
-                        ", Invoice details: " + invoiceDetails.size());
+            } catch (Exception e) {
+                model.addAttribute("errorMessage", "Lỗi khi thiết lập form tách bàn: " + e.getMessage());
+                return "sales/sales";
+            }
+        } // ==========================================
+          // BƯỚC 4: XỬ LÝ HIỂN THỊ MODAL CHUYỂN BÀN
+          // ==========================================
+        if (showMoveModal != null && showMoveModal && selectedTableId != null) {
+            try {
+                // Sub-step 4.1: VALIDATE THÔNG TIN BÀN NGUỒN
+                var sourceTableOpt = tableRepository.findById(selectedTableId);
+                if (sourceTableOpt.isEmpty()) {
+                    model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn với ID: " + selectedTableId);
+                    return "sales/sales";
+                }
+
+                var sourceTable = sourceTableOpt.get();
+                // Sub-step 4.2: KIỂM TRA TRẠNG THÁI BÀN NGUỒN - chỉ chuyển được từ bàn OCCUPIED
+                if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
+                    model.addAttribute("errorMessage",
+                            "Chỉ có thể chuyển từ bàn đang sử dụng (OCCUPIED). Bàn hiện tại: "
+                                    + sourceTable.getStatus());
+                    return "sales/sales";
+                }
+
+                // Sub-step 4.3: KIỂM TRA RESERVATION CỦA BÀN NGUỒN
+                var sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
+                if (sourceReservation == null) {
+                    model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn cho bàn nguồn");
+                    return "sales/sales";
+                }
+
+                // Sub-step 4.4: LẤY DANH SÁCH BÀN ĐÍCH KHẢ DỤNG (chỉ bàn AVAILABLE)
+                var allTables = tableRepository.findAll();
+                var availableTables = allTables.stream()
+                        .filter(table -> table.getStatus() == TableStatus.AVAILABLE)
+                        .toList();
+
+                if (availableTables.isEmpty()) {
+                    model.addAttribute("errorMessage", "Không có bàn trống nào để chuyển đến");
+                    return "sales/sales";
+                }
+
+                // Sub-step 4.5: TRUYỀN DỮ LIỆU CHO VIEW
+                model.addAttribute("showMoveModal", true);
+                model.addAttribute("selectedTableId", selectedTableId);
+                model.addAttribute("tables", allTables);
+                model.addAttribute("sourceTable", sourceTable);
+                model.addAttribute("availableTables", availableTables);
+
+                // Thêm các object mặc định để tránh lỗi template
+                model.addAttribute("selectMenuRequest", new CreateSelectMenuRequest());
 
             } catch (Exception e) {
-                System.err.println("Error setting up split modal: " + e.getMessage());
-                e.printStackTrace(); // Print full stack trace for debugging
-                model.addAttribute("errorMessage", "Lỗi khi thiết lập form tách bàn: " + e.getMessage());
+                model.addAttribute("errorMessage", "Lỗi khi thiết lập form chuyển bàn: " + e.getMessage());
                 return "sales/sales";
             }
         }
 
         // ======================================
-        // BƯỚC 4: TRẢ VỀ VIEW SALES.HTML
+        // BƯỚC 5: THÊM CÁC OBJECT MẶC ĐỊNH CHO TEMPLATE
+        // ======================================
+        // Đảm bảo các object này luôn tồn tại để tránh lỗi template
+        if (!model.containsAttribute("selectMenuRequest")) {
+            model.addAttribute("selectMenuRequest", new CreateSelectMenuRequest());
+        }
+        if (!model.containsAttribute("reservation")) {
+            model.addAttribute("reservation", new CreateReservationRequest());
+        }
+
+        // ======================================
+        // BƯỚC 6: TRẢ VỀ VIEW SALES.HTML
         // ======================================
         return "sales/sales";
     }
 
+    /**
+     * ====== XÁC NHẬN THANH TOÁN (PAY INVOICE) ======
+     * Endpoint: POST /sale/pay-invoice
+     * Nhận vào tableId, cập nhật trạng thái hóa đơn, reservation, bàn khi thanh
+     * toán.
+     * Không lưu số tiền khách đưa/thối lại (xử lý ở frontend).
+     * Chỉ cập nhật trạng thái: Invoice -> PAID, Reservation -> COMPLETED, Table ->
+     * AVAILABLE.
+     */
+    @PostMapping("/pay-invoice")
+    public String payInvoice(@RequestParam Integer tableId, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            // 1. Validate và lấy thông tin bàn
+            var table = tableRepository.findById(tableId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
+
+            // 2. Tìm reservation hiện tại của bàn
+            var reservation = reservationService.findCurrentReservationByTableId(tableId);
+            if (reservation == null) {
+                model.addAttribute("tables", tableRepository.findAll());
+                model.addAttribute("errorMessage", "Không có thông tin đặt bàn để thanh toán!");
+                return "sales/sales";
+            }
+
+            // 3. Lấy invoice
+            var invoice = reservation.getInvoice();
+            if (invoice == null) {
+                model.addAttribute("tables", tableRepository.findAll());
+                model.addAttribute("errorMessage", "Không có hóa đơn để thanh toán!");
+                return "sales/sales";
+            }
+
+            // 4. Cập nhật trạng thái: Invoice -> PAID (enum), Table -> AVAILABLE,
+            // Reservation -> xóa mềm
+            invoice.setStatus(com.viettridao.cafe.common.InvoiceStatus.PAID); // dùng enum đúng
+            reservation.setIsDeleted(true); // xóa mềm reservation
+            table.setStatus(TableStatus.AVAILABLE);
+
+            // 5. Lưu lại các entity
+            reservationService.saveReservationAndRelated(reservation, invoice, table);
+
+            // 6. Thành công: redirect về trang chính với thông báo
+            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công!");
+            return "redirect:/sale";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        } catch (RuntimeException e) {
+            model.addAttribute("errorMessage", "Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        }
+        model.addAttribute("tables", tableRepository.findAll());
+        return "sales/sales";
+    }
     // ================================================================================================
     // CHỨC NĂNG 4: ĐẶT BÀN (RESERVATION)
     // ================================================================================================
@@ -889,16 +979,9 @@ public class SalesController {
             Model model,
             RedirectAttributes redirectAttributes) {
 
-        System.out.println("Processing split table request: Source=" + request.getSourceTableId() +
-                ", Target=" + request.getTargetTableId() + ", Items=" +
-                (request.getItems() != null ? request.getItems().size() : "null"));
-
         try {
             // ====== 1. VALIDATE CƠ BẢN VÀ SPRING VALIDATION ======
             if (bindingResult.hasErrors()) {
-                System.out.println("Validation errors found: " + bindingResult.getErrorCount());
-                bindingResult.getAllErrors()
-                        .forEach(error -> System.out.println("Validation error: " + error.getDefaultMessage()));
 
                 // Chuẩn bị lại dữ liệu cho view khi có lỗi validation
                 return setupSplitModalOnError(request, model, bindingResult, "Lỗi validation dữ liệu đầu vào");
@@ -907,7 +990,6 @@ public class SalesController {
             // ====== 2. VALIDATE NGHIỆP VỤ BỔ SUNG ======
             // Kiểm tra có chọn món nào không
             if (request.getItems() == null || request.getItems().isEmpty()) {
-                System.out.println("No items selected for split");
                 return setupSplitModalOnError(request, model, bindingResult, "Vui lòng chọn ít nhất một món để tách");
             }
 
@@ -918,7 +1000,6 @@ public class SalesController {
                     .toList();
 
             if (validItems.isEmpty()) {
-                System.out.println("No valid items with quantity > 0");
                 return setupSplitModalOnError(request, model, bindingResult,
                         "Vui lòng nhập số lượng hợp lệ cho các món được chọn");
             }
@@ -941,13 +1022,10 @@ public class SalesController {
 
         } catch (IllegalArgumentException e) {
             // Lỗi nghiệp vụ từ service layer
-            System.err.println("Business logic error: " + e.getMessage());
             return setupSplitModalOnError(request, model, bindingResult, e.getMessage());
 
         } catch (RuntimeException e) {
             // Lỗi hệ thống không mong muốn
-            System.err.println("System error during split table: " + e.getMessage());
-            e.printStackTrace();
             return setupSplitModalOnError(request, model, bindingResult,
                     "Đã xảy ra lỗi hệ thống: " + e.getMessage());
         }
@@ -963,8 +1041,6 @@ public class SalesController {
             BindingResult bindingResult, String errorMessage) {
 
         try {
-            System.out.println("Setting up split modal after error: " + errorMessage);
-
             // Lấy tất cả bàn
             var allTables = tableRepository.findAll();
 
@@ -1002,17 +1078,79 @@ public class SalesController {
             model.addAttribute("errorMessage", errorMessage);
             model.addAttribute("org.springframework.validation.BindingResult.splitTableRequest", bindingResult);
 
-            System.out.println("Split modal error setup completed - Available: " + availableTables.size() +
-                    ", Occupied: " + occupiedTables.size() + ", Invoice details: " + invoiceDetails.size());
-
             return "sales/sales";
 
         } catch (Exception e) {
-            System.err.println("Error setting up split modal after error: " + e.getMessage());
             model.addAttribute("tables", tableRepository.findAll());
             model.addAttribute("errorMessage", "Lỗi hệ thống khi hiển thị form: " + e.getMessage());
             return "sales/sales";
         }
+    }
+
+    /**
+     * ====== XỬ LÝ CHUYỂN BÀN (MOVE TABLE) ======
+     * Endpoint: POST /sale/move-table
+     * Chỉ cho phép chuyển từ bàn OCCUPIED sang bàn AVAILABLE.
+     * Copy toàn bộ reservation, invoice, invoice details từ bàn nguồn sang bàn
+     * đích.
+     * Đổi trạng thái bàn đích thành OCCUPIED, bàn nguồn thành AVAILABLE.
+     * Xóa mềm reservation ở bàn nguồn hoặc cập nhật lại cho đúng.
+     */
+    @PostMapping("/move-table")
+    public String moveTable(
+            @RequestParam(required = false) Integer sourceTableId,
+            @RequestParam(required = false) Integer targetTableId,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // Validate input cơ bản
+            if (sourceTableId == null) {
+                model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn");
+                model.addAttribute("tables", tableRepository.findAll());
+                model.addAttribute("showMoveModal", true);
+                model.addAttribute("selectedTableId", sourceTableId);
+                model.addAttribute("reservation", new CreateReservationRequest());
+                model.addAttribute("selectMenuRequest", new CreateSelectMenuRequest());
+                return "sales/sales";
+            }
+
+            if (targetTableId == null) {
+                model.addAttribute("errorMessage", "Vui lòng chọn bàn đích");
+                model.addAttribute("tables", tableRepository.findAll());
+                model.addAttribute("showMoveModal", true);
+                model.addAttribute("selectedTableId", sourceTableId);
+                model.addAttribute("reservation", new CreateReservationRequest());
+                model.addAttribute("selectMenuRequest", new CreateSelectMenuRequest());
+                return "sales/sales";
+            }
+
+            // Tạo request object từ parameters
+            com.viettridao.cafe.dto.request.sales.MoveTableRequest request = new com.viettridao.cafe.dto.request.sales.MoveTableRequest();
+            request.setSourceTableId(sourceTableId);
+            request.setTargetTableId(targetTableId);
+
+            // Lấy employeeId từ session
+            Integer employeeId = getCurrentEmployeeId();
+
+            // Gọi service chuyển bàn
+            reservationService.moveTable(request, employeeId);
+
+            // Thành công
+            redirectAttributes.addFlashAttribute("successMessage", "Chuyển bàn thành công!");
+            return "redirect:/sale";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        } catch (RuntimeException e) {
+            model.addAttribute("errorMessage", "Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        }
+        // Trả lại form nếu có lỗi
+        model.addAttribute("tables", tableRepository.findAll());
+        model.addAttribute("showMoveModal", true);
+        model.addAttribute("selectedTableId", sourceTableId);
+        // Thêm object mặc định để tránh lỗi template
+        model.addAttribute("reservation", new CreateReservationRequest());
+        model.addAttribute("selectMenuRequest", new CreateSelectMenuRequest());
+        return "sales/sales";
     }
 
     /**
@@ -1035,4 +1173,5 @@ public class SalesController {
 
         return account.getEmployee().getId();
     }
+
 }
