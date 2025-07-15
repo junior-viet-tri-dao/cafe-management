@@ -24,4 +24,8 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer>
     @Query("SELECT SUM(i.totalAmount) FROM InvoiceEntity i WHERE i.createdAt BETWEEN :from AND :to AND i.status = 'PAID' AND i.isDeleted = false")
     Double sumTotalAmountBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
+    List<InvoiceEntity> findByCreatedAtBetweenAndIsDeletedFalse(LocalDateTime start, LocalDateTime end);
+
+    List<InvoiceEntity> findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(LocalDateTime start, LocalDateTime end, InvoiceStatus status);
+
 }

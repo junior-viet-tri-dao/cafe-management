@@ -23,4 +23,6 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Inte
 
     @Query("SELECT e FROM EquipmentEntity e WHERE e.purchaseDate BETWEEN :from AND :to AND e.isDeleted = false")
     List<EquipmentEntity> findEquipmentsBetweenDates(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    List<EquipmentEntity> findByPurchaseDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
 }

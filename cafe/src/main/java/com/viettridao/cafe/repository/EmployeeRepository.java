@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +22,6 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
     Page<EmployeeEntity> getAllEmployees(Pageable pageable);
 
     Optional<EmployeeEntity> findByAccount_Username(String username);
+
+    List<EmployeeEntity> findEmployeeByIsDeletedFalse();
 }

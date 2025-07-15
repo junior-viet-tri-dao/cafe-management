@@ -18,4 +18,6 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Integer>
     @Query("SELECT SUM(e.amount) FROM ExpenseEntity e WHERE e.expenseDate BETWEEN :from AND :to AND e.isDeleted = false")
     Double sumAmountBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 
+    List<ExpenseEntity> findByExpenseDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
+
 }

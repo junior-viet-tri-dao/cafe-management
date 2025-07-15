@@ -14,4 +14,6 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
     List<ImportEntity> findAllByIsDeletedFalse();
 
     List<ImportEntity> findByImportDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
+
+
 }
