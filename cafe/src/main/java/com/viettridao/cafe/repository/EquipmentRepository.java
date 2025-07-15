@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -18,4 +20,7 @@ public interface EquipmentRepository extends JpaRepository<EquipmentEntity, Inte
     @Query("select e from EquipmentEntity e where e.isDeleted = false")
     // Lấy danh sách thiết bị không bị xóa mềm theo phân trang
     Page<EquipmentEntity> getAllEquipmentsByPage(Pageable pageable);
+
+    @Query("SELECT e FROM EquipmentEntity e WHERE e.purchaseDate BETWEEN :from AND :to AND e.isDeleted = false")
+    List<EquipmentEntity> findEquipmentsBetweenDates(@Param("from") LocalDate from, @Param("to") LocalDate to);
 }

@@ -11,4 +11,6 @@ import com.viettridao.cafe.model.TableEntity;
 @Repository
 public interface TableRepository extends JpaRepository<TableEntity, Integer> {
     List<TableEntity> findByStatus(TableStatus status);
+
+    TableEntity findByReservations_Invoice_Id(Integer invoiceId);
 }

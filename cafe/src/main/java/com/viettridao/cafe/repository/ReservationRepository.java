@@ -1,5 +1,8 @@
 package com.viettridao.cafe.repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +23,12 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
      */
     @Query("SELECT r FROM ReservationEntity r WHERE r.table.id = :tableId AND r.isDeleted = false ORDER BY r.reservationDate DESC")
     List<ReservationEntity> findCurrentReservationsByTableId(@Param("tableId") Integer tableId, Pageable pageable);
+
+    Optional<ReservationEntity> findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDesc(Integer tableId);
+
+    boolean existsByTableIdAndReservationDateAndIsDeletedFalse(Integer tableId, LocalDateTime reservationDate);
+
+    List<ReservationEntity> findByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
 
     /**
      * Helper method để lấy reservation mới nhất

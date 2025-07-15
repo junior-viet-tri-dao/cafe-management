@@ -14,12 +14,7 @@ import java.util.List;
  */
 @Repository
 public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetailEntity, InvoiceKey> {
-    /**
-     * Lấy danh sách chi tiết hóa đơn theo id hóa đơn (chỉ lấy các dòng chưa bị xóa
-     * mềm)
-     * 
-     * @param invoiceId id hóa đơn
-     * @return danh sách chi tiết hóa đơn
-     */
+
     List<InvoiceDetailEntity> findAllByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
+
 }
