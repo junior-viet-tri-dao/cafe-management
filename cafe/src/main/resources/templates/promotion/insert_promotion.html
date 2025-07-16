@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Thêm khuyến mãi</title>
+
+    <style>
+
+
+        .form-container {
+            background-color: #e6f0fa; /* Màu nền nhạt như hình */
+            border: 1px solid #c0d9ed;
+            border-radius: 5px;
+            padding: 25px 30px;
+            width: 100%;
+            max-width: 650px; /* Chiều rộng tối đa cho form */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative; /* Dùng cho title */
+        }
+
+        .form-title {
+            position: absolute;
+            top: -15px; /* Điều chỉnh vị trí của title */
+            left: 20px;
+            background-color: #e6f0fa; /* Giống màu nền form */
+            padding: 0 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 150px; /* Chia thành 2 cột chính: input và avatar */
+            gap: 20px; /* Khoảng cách giữa các phần tử grid */
+            align-items: start; /* Căn chỉnh các item theo chiều dọc */
+        }
+
+        .form-left {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Khoảng cách giữa các nhóm label/input */
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center; /* Căn chỉnh label và input theo chiều dọc */
+            gap: 10px; /* Khoảng cách giữa label và input */
+        }
+
+        .form-group label {
+            min-width: 90px; /* Đảm bảo label có chiều rộng cố định để căn chỉnh các input */
+            text-align: right;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group select {
+            flex: 1; /* Cho phép input/select mở rộng để lấp đầy không gian */
+            padding: 8px 10px;
+            border: 1px solid #a8c1da;
+            border-radius: 3px;
+            font-size: 0.95em;
+            box-sizing: border-box; /* Tính padding và border vào chiều rộng */
+        }
+
+        .form-group.chuc-vu-luong {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%; /* Đảm bảo nhóm này chiếm toàn bộ chiều rộng */
+        }
+
+        .form-group.chuc-vu-luong label {
+            min-width: unset; /* Bỏ min-width mặc định */
+            text-align: right;
+        }
+        .form-group.chuc-vu-luong select {
+            flex: 1;
+        }
+        .form-group.chuc-vu-luong input[type="text"] {
+            flex: 1.5; /* Lương có thể rộng hơn chức vụ */
+        }
+
+
+        .form-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-top: 10px; /* Dịch avatar xuống một chút */
+        }
+
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            background-color: #ccc;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Đảm bảo ảnh không tràn ra ngoài */
+        }
+
+        .avatar-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Đảm bảo ảnh vừa khung */
+            opacity: 0.7; /* Làm mờ ảnh placeholder */
+        }
+
+        .btn-upload {
+            padding: 8px 15px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #444;
+            transition: background-color 0.2s;
+        }
+        .btn-upload:hover {
+            background-color: #d0d0d0;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .form-buttons button {
+            padding: 10px 30px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1em;
+            background-color: #e0e0e0;
+            color: #333;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .form-buttons button:hover {
+            background-color: #d0d0d0;
+            border-color: #888;
+        }
+
+        .required-note {
+            margin-top: 25px;
+            color: red;
+            font-size: 0.9em;
+        }
+
+        .required-star {
+            color: red;
+            margin-right: 2px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div layout:fragment="content">
+
+
+    <form th:action="@{/promotion/insert}" th:object="${promotion}" method="POST">
+        <div class="form-grid">
+            <div class="form-left">
+                <div class="form-group">
+                    <label for="namepromotion">Tên Khuyến Mãi</label>
+                    <input type="text" id="namepromotion" th:field="*{promotionName}" >
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('promotionName')}" th:errors="*{promotionName}"></p>
+                </div>
+                <div class="form-group">
+                    <label for="startdate">Ngày bắt đầu</label>
+                    <input type="date" id="startdate" th:field="*{startDate}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></p>
+                </div>
+                <div class="form-group">
+                    <label for="enddate">Ngày kết thúc</label>
+                    <input type="date" id="enddate"  th:field="*{endDate}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></p>
+                </div>
+                <div class="form-group">
+                    <label for="percentdiscount">% giảm giá</label>
+                    <input type="text" id="percentdiscount" th:field="*{discountValue}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('discountValue')}" th:errors="*{discountValue}"></p>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit">Thêm</button>
+            <a th:href="@{/promotion}">Huỷ</a>
+        </div>
+
+        <p class="required-note"><span class="required-star">(*)</span> : Các trường bắt buộc nhập</p>
+    </form>
+
+
+
+</div>
+</body>
+</html>

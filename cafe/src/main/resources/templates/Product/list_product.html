@@ -93,156 +93,113 @@
 
 <div layout:fragment="content">
 
+    <form method="get" th:action="@{/product}" class="flex items-center gap-2 mb-4">
+        <input type="text" name="keyword" placeholder="Tìm theo tên hàng hoá"
+               th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-72">
+        <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow transition">
+            🔍 Tìm
+        </button>
+    </form>
+
+    <!-- Hiển thị thông báo tìm kiếm nếu có -->
+    <div class="mb-4 text-sm text-gray-600 italic" th:if="${param.keyword}">
+        Đang tìm với từ khóa: "<span th:text="${param.keyword}"></span>"
+    </div>
 
 
-
-
+    <a th:href="@{/product/insert}">Thêm Hàng Hoá</a>
     <div class="table-container" id="inventoryTable">
         <div class="table-header">
             <div class="table-header-cell name" data-sort-by="name">Tên <span class="sort-arrow"></span></div>
-            <div class="table-header-cell import-date" data-sort-by="import-date">Ngày nhập <span class="sort-arrow"></span></div>
-            <div class="table-header-cell export-date" data-sort-by="export-date">Ngày xuất <span class="sort-arrow"></span></div>
+<!--            <div class="table-header-cell import-date" data-sort-by="import-date">Ngày nhập <span class="sort-arrow"></span></div>-->
+<!--            <div class="table-header-cell export-date" data-sort-by="export-date">Ngày xuất <span class="sort-arrow"></span></div>-->
             <div class="table-header-cell quantity" data-sort-by="quantity">Số lượng <span class="sort-arrow"></span></div>
             <div class="table-header-cell unit" data-sort-by="unit">Đơn vị <span class="sort-arrow"></span></div>
             <div class="table-header-cell unit-price" data-sort-by="unit-price">Đơn giá <span class="sort-arrow"></span></div>
             <div class="table-header-cell total-amount" data-sort-by="total-amount">Tổng tiền <span class="sort-arrow"></span></div>
+            <div class="table-header-cell action">Action</div>
         </div>
+        <div th:each="product : ${products.productPage}" class="flex items-center border-t border-gray-200 hover:bg-gray-50">
+            <div class="flex-2 px-4 py-3" th:text="${product.productName}"></div>
 
-        <div class="table-row">
-            <div class="table-cell name">Laptop Dell</div>
-            <div class="table-cell import-date" data-value="2024-01-15">15/01/2024</div>
-            <div class="table-cell export-date" data-value="2024-01-20">20/01/2024</div>
-            <div class="table-cell quantity" data-value="10">10</div>
-            <div class="table-cell unit">Chiếc</div>
-            <div class="table-cell unit-price" data-value="25000000">25.000.000 VNĐ</div>
-            <div class="table-cell total-amount" data-value="250000000">250.000.000 VNĐ</div>
-        </div>
-        <div class="table-row">
-            <div class="table-cell name">Màn hình Samsung</div>
-            <div class="table-cell import-date" data-value="2024-02-01">01/02/2024</div>
-            <div class="table-cell export-date" data-value="2024-02-10">10/02/2024</div>
-            <div class="table-cell quantity" data-value="20">20</div>
-            <div class="table-cell unit">Chiếc</div>
-            <div class="table-cell unit-price" data-value="5000000">5.000.000 VNĐ</div>
-            <div class="table-cell total-amount" data-value="100000000">100.000.000 VNĐ</div>
-        </div>
-        <div class="table-row">
-            <div class="table-cell name">Bàn phím Logitech</div>
-            <div class="table-cell import-date" data-value="2024-01-20">20/01/2024</div>
-            <div class="table-cell export-date" data-value="2024-01-25">25/01/2024</div>
-            <div class="table-cell quantity" data-value="50">50</div>
-            <div class="table-cell unit">Cái</div>
-            <div class="table-cell unit-price" data-value="800000">800.000 VNĐ</div>
-            <div class="table-cell total-amount" data-value="40000000">40.000.000 VNĐ</div>
-        </div>
-        <div class="table-row">
-            <div class="table-cell name">Chuột Razer</div>
-            <div class="table-cell import-date" data-value="2024-03-05">05/03/2024</div>
-            <div class="table-cell export-date" data-value="2024-03-15">15/03/2024</div>
-            <div class="table-cell quantity" data-value="30">30</div>
-            <div class="table-cell unit">Cái</div>
-            <div class="table-cell unit-price" data-value="1200000">1.200.000 VNĐ</div>
-            <div class="table-cell total-amount" data-value="36000000">36.000.000 VNĐ</div>
-        </div>
-        <div class="table-row">
-            <div class="table-cell name">Tai nghe Sony</div>
-            <div class="table-cell import-date" data-value="2024-02-15">15/02/2024</div>
-            <div class="table-cell export-date" data-value="2024-02-28">28/02/2024</div>
-            <div class="table-cell quantity" data-value="15">15</div>
-            <div class="table-cell unit">Chiếc</div>
-            <div class="table-cell unit-price" data-value="3000000">3.000.000 VNĐ</div>
-            <div class="table-cell total-amount" data-value="45000000">45.000.000 VNĐ</div>
+<!--            <div class="flex-2 px-4 py-3" th:if="${product.imports != null and !product.imports.isEmpty()}" th:text="${#temporals.format(product.imports[0].importDate, 'dd/MM/yyyy')}"></div>-->
+<!--            <div class="flex-2 px-4 py-3" th:unless="${product.imports != null and !product.imports.isEmpty()}">-->
+<!--                N/A-->
+<!--            </div>-->
+
+<!--            <div class="flex-2 px-4 py-3" th:if="${product.exports != null and !product.exports.isEmpty()}" th:text="${#temporals.format(product.exports[0].exportDate, 'dd/MM/yyyy')}"></div>-->
+<!--            <div class="flex-2 px-4 py-3" th:unless="${product.exports != null and !product.exports.isEmpty()}">-->
+<!--                N/A-->
+<!--            </div>-->
+
+            <div class="flex-2 px-4 py-3" th:text="${product.quantity}"></div>
+            <div class="flex-2 px-4 py-3" th:text="${product.price}"></div>
+            <div class="flex-2 px-4 py-3" th:text="${product.price * product.quantity}"></div>
+
+            <div class="flex-1 px-4 py-3 space-x-2">
+                <a th:href="@{/product/edit/{id}(id=${product.id})}" class="text-blue-600 hover:underline">Edit</a>
+                <a th:href="@{/product/delete/{id}(id=${product.id})}" class="text-red-600 hover:underline">Delete</a>
+            </div>
         </div>
     </div>
 
-    <script>
-        const inventoryTable = document.getElementById('inventoryTable');
-        const headerCells = document.querySelectorAll('.table-header-cell');
-        let currentSortColumn = null;
-        let currentSortDirection = 'asc'; // 'asc' for ascending, 'desc' for descending
 
-        function getCellValue(row, columnIndex) {
-            const cells = Array.from(row.querySelectorAll('.table-cell'));
-            const cell = cells[columnIndex];
+    <!-- Phân trang -->
+    <div class="flex items-center justify-between mt-8">
+        <!-- Hiển thị số lượng -->
+        <div class="text-sm text-gray-600" th:if="${products.totalPages > 0}">
+            <span th:text="'Trang ' + (${products.pageNumber + 1}) + ' / ' + ${products.totalPages}">Trang 1 / 5</span> |
+            <span th:text="'Tổng: ' + ${products.totalElements} + ' hàng hoá'">Tổng: 25 nhân viên</span>
+        </div>
 
-            // Handle numeric values for quantity, unit price, and total amount
-            if (cell.classList.contains('quantity') ||
-                cell.classList.contains('unit-price') ||
-                cell.classList.contains('total-amount')) {
-                return parseFloat(cell.dataset.value);
-            }
-            // Handle date values for import-date and export-date
-            if (cell.classList.contains('import-date') ||
-                cell.classList.contains('export-date')) {
-                return new Date(cell.dataset.value); // Convert to Date object for proper sorting
-            }
-            // Default to text content for other columns (like name, unit)
-            return cell.textContent.trim();
-        }
+        <!-- Danh sách nút phân trang -->
+        <nav>
+            <ul class="inline-flex items-center space-x-1">
+                <!-- Nút Trước -->
+                <li>
+                    <a th:href="@{/product(page=${products.pageNumber - 1}, keyword=${param.keyword})}"
+                       th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${products.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                        ◀ Trước
+                    </a>
+                </li>
 
-        function sortDivTable(columnIndex, direction) {
-            const tableRows = Array.from(inventoryTable.querySelectorAll('.table-row'));
+                <!-- Các số trang -->
+                <li th:if="${products.totalPages > 0}"
+                    th:each="pageNum : ${#numbers.sequence(0, products.totalPages - 1)}">
+                    <a th:href="@{/product(page=${pageNum}, keyword=${param.keyword})}"
+                       th:text="${pageNum + 1}"
+                       th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +
+                             (${pageNum} == ${products.pageNumber}
+                             ? 'bg-blue-600 text-white border-blue-600'
+                             : 'border-gray-300 text-gray-700 hover:bg-blue-50')">
+                    </a>
+                </li>
 
-            tableRows.sort((rowA, rowB) => {
-                let valueA = getCellValue(rowA, columnIndex);
-                let valueB = getCellValue(rowB, columnIndex);
-
-                // Convert to lowercase if string for case-insensitive sorting
-                if (typeof valueA === 'string') {
-                    valueA = valueA.toLowerCase();
-                    valueB = valueB.toLowerCase();
-                }
-
-                if (valueA < valueB) {
-                    return direction === 'asc' ? -1 : 1;
-                }
-                if (valueA > valueB) {
-                    return direction === 'asc' ? 1 : -1;
-                }
-                return 0;
-            });
-
-            // Remove existing rows and append sorted rows
-            const fragment = document.createDocumentFragment();
-            tableRows.forEach(row => {
-                fragment.appendChild(row);
-            });
-            const header = inventoryTable.querySelector('.table-header');
-            inventoryTable.insertBefore(fragment, header.nextSibling);
-        }
-
-        headerCells.forEach((header, index) => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.sortBy;
-                let direction;
-
-                if (currentSortColumn === column) {
-                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSortColumn = column;
-                    currentSortDirection = 'asc';
-                }
-                direction = currentSortDirection;
-
-                document.querySelectorAll('.sort-arrow').forEach(arrow => arrow.textContent = '');
-
-                const sortArrow = header.querySelector('.sort-arrow');
-                if (direction === 'asc') {
-                    sortArrow.textContent = '▲';
-                } else {
-                    sortArrow.textContent = '▼';
-                }
-
-                const columnIndex = Array.from(headerCells).indexOf(header);
-                sortDivTable(columnIndex, direction);
-            });
-        });
-    </script>
-
-
+                <!-- Nút Tiếp -->
+                <li>
+                    <a th:href="@{/product(page=${products.pageNumber + 1}, keyword=${param.keyword})}"
+                       th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${products.pageNumber + 1 >= products.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                        Tiếp ▶
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 
 
 
 </div>
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>

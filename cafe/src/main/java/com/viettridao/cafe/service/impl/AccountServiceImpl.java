@@ -53,4 +53,9 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(accountEntity);
     }
 
+    @Override
+    public AccountEntity getAccountByUsername(String name) {
+        return accountRepository.findByUsername(name).orElseThrow(()-> new RuntimeException("Không tìm thấy account với username = " + name));
+    }
+
 }

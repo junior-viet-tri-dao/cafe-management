@@ -169,46 +169,53 @@
 <div layout:fragment="content">
 
 
-    <form action="#" method="POST">
+    <form th:action="@{/staff/insert}" th:object="${employee}" method="POST">
         <div class="form-grid">
             <div class="form-left">
                 <div class="form-group">
                     <label for="hoTen"><span class="required-star">*</span>Họ và tên:</label>
-                    <input type="text" id="hoTen" name="hoTen" required>
+                    <input type="text" id="hoTen" th:field="*{fullName}" required>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="diaChi">Địa chỉ:</label>
-                    <input type="text" id="diaChi" name="diaChi">
+                    <input type="text" id="diaChi" th:field="*{address}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
+
                 </div>
 
                 <div class="form-group chuc-vu-luong">
-                    <label for="chucVu"><span class="required-star">*</span>Chức vụ:</label>
-                    <select id="chucVu" name="chucVu" required>
-                        <option value="">Chọn chức vụ</option>
-                        <option value="truongphong">Trưởng phòng</option>
-                        <option value="nhanvien">Nhân viên</option>
-                        <option value="giamdoc">Giám đốc</option>
-                        <option value="ketoan">Kế toán</option>
-                        <option value="thuky">Thư ký</option>
+                    <label><span class="required-star">*</span>Chức vụ:</label>
+                    <select th:field="*{positionId}" id="selectOption" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">-- Chọn chức vụ --</option>
+                        <option th:each="p : ${positions}"
+                                th:value="${p.id}"
+                                th:text="${p.positionName}" th:data-luong="${p.salary}">
+                        </option>
                     </select>
-                    <label for="luong"><span class="required-star">*</span>Lương:</label>
-                    <input type="text" id="luong" name="luong" required placeholder="Nhập lương (số)">
+                    <label class="col-span-2 text-right font-medium text-gray-700">* Lương:</label>
+                    <input type="hidden" id="salaryInput" name="luong">
+                    <span id="salaryDisplay" class="col-span-3 text-green-600 font-semibold"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="soDienThoai"><span class="required-star">*</span>Số điện thoại:</label>
-                    <input type="text" id="soDienThoai" name="soDienThoai" required>
+                    <input type="text" id="soDienThoai" th:field="*{phoneNumber}" required>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="tenDangNhap">Tên đăng nhập:</label>
-                    <input type="text" id="tenDangNhap" name="tenDangNhap">
+                    <input type="text" id="tenDangNhap" th:field="*{username}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
                 </div>
 
                 <div class="form-group">
                     <label for="matKhau">Mật khẩu:</label>
-                    <input type="password" id="matKhau" name="matKhau">
+                    <input type="password" id="matKhau" th:field="*{password}">
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
                 </div>
             </div>
 
@@ -217,7 +224,7 @@
                     <img src="https://via.placeholder.com/120/cccccc/ffffff?text=Avatar" alt="Ảnh đại diện">
                 </div>
                 <button type="button" class="btn-upload">Thay đổi....</button>
-                <input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display: none;">
+                <input type="file" id="avatarUpload" th:field="*{imageUrl}" accept="image/*" style="display: none;">
             </div>
         </div>
 
@@ -229,22 +236,80 @@
         <p class="required-note"><span class="required-star">(*)</span> : Các trường bắt buộc nhập</p>
     </form>
     <script>
-        // JavaScript để kích hoạt input file khi click vào nút "Thay đổi...."
-        document.querySelector('.btn-upload').addEventListener('click', function() {
-            document.getElementById('avatarUpload').click();
-        });
+        document.addEventListener('DOMContentLoaded', function() {
 
-        // (Tùy chọn) Hiển thị ảnh đã chọn lên placeholder
-        document.getElementById('avatarUpload').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.querySelector('.avatar-placeholder img').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+            // JavaScript để kích hoạt input file khi click vào nút "Thay đổi...."
+            document.querySelector('.btn-upload').addEventListener('click', function() {
+                document.getElementById('avatarUpload').click();
+            });
+
+            // (Tùy chọn) Hiển thị ảnh đã chọn lên placeholder
+            document.getElementById('avatarUpload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.querySelector('.avatar-placeholder img').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+<!--            document.addEventListener('DOMContentLoaded', function() {-->
+<!--                const positionSelect = document.getElementById('chucVu'); // Đổi id của select thành chucVu như trong code bạn cung cấp-->
+<!--                const luongInput = document.getElementById('luong'); // Input lương-->
+
+<!--                positionSelect.addEventListener('change', function() {-->
+<!--                    const selectedOption = this.options[this.selectedIndex];-->
+<!--                    const luongValue = selectedOption.getAttribute('data-luong');-->
+
+<!--                    if (luongValue) {-->
+<!--                        // Chuyển đổi giá trị lương từ chuỗi sang số và định dạng lại nếu cần-->
+<!--                        // Ví dụ: 1.0E7 sẽ thành 10000000-->
+<!--                        const formattedLuong = parseFloat(luongValue).toLocaleString('vi-VN'); // Định dạng tiền tệ Việt Nam-->
+<!--                        luongInput.value = formattedLuong;-->
+<!--                    } else {-->
+<!--                        luongInput.value = ''; // Xóa giá trị nếu không có data-luong (ví dụ: chọn option "Chọn chức vụ")-->
+<!--                    }-->
+<!--                });-->
+
+<!--                // (Optional) JavaScript để kích hoạt input file khi click vào nút "Thay đổi...."-->
+<!--                document.querySelector('.btn-upload').addEventListener('click', function() {-->
+<!--                    document.getElementById('avatarUpload').click();-->
+<!--                });-->
+
+<!--                // (Optional) Hiển thị ảnh đã chọn lên placeholder-->
+<!--                document.getElementById('avatarUpload').addEventListener('change', function(event) {-->
+<!--                    const file = event.target.files[0];-->
+<!--                    if (file) {-->
+<!--                        const reader = new FileReader();-->
+<!--                        reader.onload = function(e) {-->
+<!--                            document.querySelector('.avatar-placeholder img').src = e.target.result;-->
+<!--                        };-->
+<!--                        reader.readAsDataURL(file);-->
+<!--                    }-->
+<!--                });-->
+<!--            });-->
+<!--        });-->
+
+
+    </script>
+    <script>
+        function formatVND(number) {
+            if (!number) return '';
+            return Number(number).toLocaleString('vi-VN') + ' VNĐ';
+        }
+
+        function updateSalaryDisplay() {
+            const select = document.getElementById('selectOption');
+            const salary = select.options[select.selectedIndex].getAttribute('data-luong');
+            document.getElementById('salaryInput').value = salary || '';
+            document.getElementById('salaryDisplay').textContent = formatVND(salary);
+        }
+
+        document.getElementById('selectOption').addEventListener('change', updateSalaryDisplay);
+
+        window.addEventListener('DOMContentLoaded', updateSalaryDisplay);
     </script>
 
 

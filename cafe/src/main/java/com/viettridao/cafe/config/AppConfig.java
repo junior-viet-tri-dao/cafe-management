@@ -32,8 +32,12 @@ public class AppConfig {
                 .csrf(Customizer.withDefaults())
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .anyRequest().permitAll())
-                .formLogin(AbstractHttpConfigurer::disable)
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .permitAll())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authenticationProvider(authenticationProvider())
                 .logout(logout -> logout
@@ -41,8 +45,7 @@ public class AppConfig {
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .permitAll()
-                );
+                        .permitAll());
 
         return http.build();
     }

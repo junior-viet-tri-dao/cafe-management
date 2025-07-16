@@ -9,4 +9,6 @@ public interface AccountService {
 
     AccountEntity getAccountById(Integer id);
     void updateAccount(UpdateAccountRequest request);
+
+    AccountEntity getAccountByUsername(String name);
 }

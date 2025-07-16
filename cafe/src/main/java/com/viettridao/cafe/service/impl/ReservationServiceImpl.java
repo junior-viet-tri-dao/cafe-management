@@ -1,0 +1,84 @@
+package com.viettridao.cafe.service.impl;
+
+import com.viettridao.cafe.common.InvoiceStatus;
+import com.viettridao.cafe.common.TableStatus;
+import com.viettridao.cafe.dto.request.reservation.CreateReservationRequest;
+import com.viettridao.cafe.dto.request.table.CreateTableRequest;
+import com.viettridao.cafe.model.*;
+import com.viettridao.cafe.repository.InvoiceRepository;
+import com.viettridao.cafe.repository.ReservationRepository;
+import com.viettridao.cafe.repository.TableRepository;
+import com.viettridao.cafe.service.AccountService;
+import com.viettridao.cafe.service.ReservationService;
+import com.viettridao.cafe.service.TableService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+
+@Service
+@RequiredArgsConstructor
+public class ReservationServiceImpl implements ReservationService {
+    private final ReservationRepository reservationRepository;
+    private final TableService tableService;
+    private final AccountService accountService;
+    private final InvoiceRepository invoiceRepository;
+    private final TableRepository tableRepository;
+
+    @Override
+    public ReservationEntity getReservationById(Integer id) {
+        //return null;
+        return reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(id, false).orElseThrow(
+                ()-> new RuntimeException("Không tìm thấy chi tiết đặt bàn mới nhất của bàn này" + id.toString()));
+    }
+
+    @Override
+    public ReservationEntity createReservation(CreateReservationRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Bạn cần đăng nhập để đặt bàn");
+        }
+
+        TableEntity table = tableService.getTableById(request.getTableId());
+        AccountEntity account = accountService.getAccountByUsername(auth.getName());
+
+        if(account.getEmployee() == null) {
+            throw new IllegalStateException("Bạn phải cập nhật đầy đủ thông tin cá nhân");
+        }
+
+        InvoiceEntity invoice = new InvoiceEntity();
+        invoice.setStatus(InvoiceStatus.UNPAID);
+        invoice.setIsDeleted(false);
+        invoice.setTotalAmount(0.0);
+        invoice.setCreatedAt(LocalDateTime.now());
+
+        InvoiceEntity savedInvoice = invoiceRepository.save(invoice);
+
+        ReservationEntity reservation = new ReservationEntity();
+        ReservationKey key = new ReservationKey();
+        key.setIdTable(table.getId());
+        key.setIdEmployee(account.getEmployee().getId());
+        key.setIdInvoice(savedInvoice.getId());
+        reservation.setId(key);
+
+        reservation.setCustomerName(request.getCustomerName());
+        reservation.setCustomerPhone(request.getCustomerPhone());
+        reservation.setIsDeleted(false);
+        reservation.setEmployee(account.getEmployee());
+        reservation.setInvoice(savedInvoice);
+        reservation.setTable(table);
+        reservation.setReservationDate(request.getReservationDate());
+
+        table.setStatus(TableStatus.RESERVED);
+        tableRepository.save(table);
+
+        return reservationRepository.save(reservation);
+    }
+}

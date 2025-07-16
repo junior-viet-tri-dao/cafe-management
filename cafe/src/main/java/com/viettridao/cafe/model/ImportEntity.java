@@ -3,6 +3,7 @@ package com.viettridao.cafe.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -17,6 +18,7 @@ public class ImportEntity {
     private Integer id;
 
     @Column(name = "import_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate importDate;
 
     @Column(name = "total_amount")
@@ -25,8 +27,12 @@ public class ImportEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
+
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @Column(name = "price")
+    private Double price;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")

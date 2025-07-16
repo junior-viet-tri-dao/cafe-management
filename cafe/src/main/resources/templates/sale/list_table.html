@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}"
+>
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_parameter" th:content="${_csrf.parameterName}" />
+    <meta charset="UTF-8" />
+    <title>Quản lý bán hàng</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="space-y-6">
+        <!-- Tiêu đề -->
+        <h2 class="text-2xl font-bold text-[#4e342e]">📋 Sơ đồ bàn</h2>
+
+        <!-- Grid bàn -->
+        <div class="grid grid-cols-5 gap-4 w-fit mx-auto">
+            <div
+                    th:each="table : ${tables}"
+                    class="flex flex-col items-center justify-center aspect-square rounded-xl font-semibold text-center shadow-md w-24 p-2 transition duration-200"
+                    th:classappend="${table.status.name() == 'AVAILABLE'}
+             ? 'bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer'
+             : (${table.status.name() == 'RESERVED'}
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-300 text-gray-700 hover:bg-gray-400')"
+            >
+                <!-- Checkbox luôn chọn được -->
+                <input
+                        type="checkbox"
+                        th:id="'table-' + ${table.id}"
+                        th:value="${table.id}"
+                        class="mb-1 table-checkbox"
+                        name="selectedTable"
+                />
+
+                <!-- Tên bàn -->
+                <label
+                        th:for="'table-' + ${table.id}"
+                        th:text="${table.tableName}"
+                ></label>
+
+                <!-- Trạng thái có icon -->
+                <span class="text-xs mt-1 flex items-center gap-1">
+              <span th:if="${table.status.name() == 'AVAILABLE'}">🟢 Trống</span>
+              <span th:if="${table.status.name() == 'OCCUPIED'}">🔴 Đang sử dụng</span>
+              <span th:if="${table.status.name() == 'RESERVED'}">🟡 Đặt trước</span>
+            </span>
+            </div>
+        </div>
+
+        <!-- Các nút thao tác -->
+        <div class="flex flex-wrap gap-3 justify-center mt-6">
+<!--            <a-->
+<!--                    th:href="@{/sale/insert}"-->
+<!--                    class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"-->
+<!--            >-->
+<!--                ➕ Thêm bàn-->
+<!--            </a>-->
+            <button
+                    type="button"
+                    onclick="showSelectedTables()"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+                👁️ Xem bàn
+            </button>
+            <button
+                    type="button"
+                    onclick="openTransferModalFromSelection()"
+                    class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+                Chuyển bàn
+            </button>
+            <button
+                    type="button"
+                    class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                    onclick="openSplitTableModalFromSelection()"
+            >
+                Tách bàn
+            </button>
+            <button onclick="openModalMergeTable()"
+                    class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+            >
+                Gộp bàn
+            </button>
+            <form id="cancelForm" th:action="@{/sale/cancel}" method="post" style="display:inline;">
+                <input type="hidden" name="tableId" id="cancelTableId" />
+                <button
+                        type="button"
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        onclick="cancelSelectedTable()"
+                >
+                    Hủy bàn
+                </button>
+            </form>
+            <button
+                    type="button"
+                    class="bg-blue-600 text-white px-4 py-2 rounded"
+                    onclick="redirectToReservationForm()"
+            >
+                Đặt bàn
+            </button>
+        </div>
+
+        <!-- Menu, Thanh toán, In -->
+        <div class="grid grid-cols-3 gap-4 max-w-4xl mx-auto mt-4">
+            <button
+                    type="button"
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    onclick="openMenuModal()"
+            >
+                Chọn thực đơn
+            </button>
+            <button
+                    type="button"
+                    class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"
+                    onclick="confirmPayment()"
+            >
+                💳 Thanh toán
+            </button>
+<!--            <button-->
+<!--                    class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"-->
+<!--            >-->
+<!--                🖨️ In hóa đơn-->
+<!--            </button>-->
+        </div>
+    </div>
+
+    <!-- Modal hiển thị chi tiết bàn -->
+    <div
+            id="detailModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+    >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <h2 class="text-xl font-bold mb-4">🪑 Chi tiết bàn</h2>
+            <div id="modalContent" class="space-y-2">
+                <p><strong>Tên bàn:</strong> <span id="tableName"></span></p>
+                <p><strong>Trạng thái:</strong> <span id="tableStatus"></span></p>
+            </div>
+            <button
+                    onclick="closeDetailModal()"
+                    class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+                ✖️
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal chọn thực đơn -->
+    <div id="menuModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <button onclick="closeMenuModal()" class="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl">&times;</button>
+            <h2 class="text-xl font-bold mb-4 text-green-700">Chọn thực đơn cho bàn</h2>
+            <form id="menuForm" th:action="@{/sale/select-menu}" method="post">
+                <input type="hidden" name="tableId" id="menuTableId" />
+                <div class="max-h-60 overflow-y-auto mb-4 space-y-2">
+                    <div th:each="menu : ${menus}" class="flex items-center gap-2">
+                        <input
+                                type="checkbox"
+                                class="menu-checkbox"
+                                name="menuIds"
+                                th:value="${menu.id}"
+                        />
+                        <span th:text="${menu.itemName}" class="flex-1"></span>
+                        <div class="flex items-center gap-1">
+                            <button type="button"
+                                    class="decrement bg-gray-200 px-2 rounded disabled:opacity-50"
+                                    disabled>-</button>
+                            <input type="number"
+                                   name="quantities"
+                                   min="1"
+                                   value="1"
+                                   class="menu-quantity w-12 text-center border rounded py-0.5"
+                                   disabled />
+                            <button type="button"
+                                    class="increment bg-gray-200 px-2 rounded disabled:opacity-50"
+                                    disabled>+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="menuModalMsg" class="text-red-500 text-sm mb-2"></div>
+                <button type="button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded" onclick="submitMenuForm()">Lưu thực đơn</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal thanh toán -->
+    <div
+            id="paymentModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+    >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <!-- Tiêu đề -->
+            <h2 class="text-xl font-bold mb-4 text-teal-700">
+                💳 Thanh toán <span id="paymentTableName"></span>
+            </h2>
+
+            <!-- Danh sách món ăn -->
+            <div class="border rounded mb-4 max-h-52 overflow-y-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-2 text-left">Tên món</th>
+                        <th class="p-2 text-center">SL</th>
+                        <th class="p-2 text-right">Thành tiền</th>
+                    </tr>
+                    </thead>
+                    <tbody id="paymentItems">
+                    <!-- JS sẽ render -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div class="flex justify-between mb-3">
+                <span class="font-semibold">Tổng:</span>
+                <span id="paymentTotal" class="font-bold text-teal-700">0 đ</span>
+            </div>
+
+            <!-- Khách đưa -->
+            <div class="flex items-center gap-2 mb-3">
+                <label class="whitespace-nowrap font-semibold">Khách đưa:</label>
+                <input
+                        type="number"
+                        id="customerPay"
+                        min="0"
+                        value="0"
+                        class="border rounded w-full px-2 py-1 text-right"
+                        oninput="calculateChange()"
+                />
+            </div>
+
+            <!-- Tiền thối -->
+            <div class="flex justify-between mb-3">
+                <span class="font-semibold">Thối lại:</span>
+                <span id="changeAmount" class="font-bold">0 đ</span>
+            </div>
+
+            <!-- Checkbox đổi trạng thái -->
+            <div class="mb-4 flex items-center gap-2">
+                <input type="checkbox" id="autoSetEmpty" checked />
+                <label for="autoSetEmpty" class="text-sm">Đổi trạng thái bàn sang trống sau khi thanh toán</label>
+            </div>
+
+<!--            &lt;!&ndash; Nút in phiếu &ndash;&gt;-->
+<!--            <button-->
+<!--                    onclick="printReceipt()"-->
+<!--                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded w-full mb-3"-->
+<!--            >-->
+<!--                🖨️ In phiếu thanh toán...-->
+<!--            </button>-->
+
+            <!-- Nút xác nhận + hủy -->
+            <div class="flex gap-3">
+                <button
+                        id="confirmPaymentBtn"
+                        class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded w-full"
+                >
+                    ✅ Thanh toán
+                </button>
+                <button
+                        onclick="closePaymentModal()"
+                        class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded w-full"
+                >
+                    ❌ Hủy
+                </button>
+            </div>
+
+            <!-- Nút đóng góc trên -->
+            <button
+                    onclick="closePaymentModal()"
+                    class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+                ✖️
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal chuyển bàn -->
+    <div id="transferModal"
+         class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+            <h2 class="text-lg font-bold mb-4">Chuyển bàn <span id="fromTableName"></span></h2>
+
+            <form id="transferForm" th:action="@{/sale/transfer}" method="post">
+                <input type="hidden" name="fromTableId" id="fromTableId"/>
+                <label class="block mb-2 font-semibold">Chọn bàn cần chuyển đến:</label>
+                <select name="toTableId" id="toTableSelect"
+                        class="border rounded w-full px-2 py-1 mb-4">
+                    <option value="">-- Chọn bàn --</option>
+                    <option th:each="table : ${tables}"
+                            th:if="${table.status.name() == 'AVAILABLE'}"
+                            th:value="${table.id}"
+                            th:text="${table.tableName}"></option>
+                </select>
+
+                <div id="transferError" class="text-red-500 text-sm mb-2"></div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button"
+                            onclick="closeTransferModal()"
+                            class="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded">Hủy</button>
+                    <button type="button"
+                            onclick="submitTransferForm()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Chuyển</button>
+                </div>
+            </form>
+
+            <button onclick="closeTransferModal()"
+                    class="absolute top-2 right-2 text-gray-400 hover:text-black text-3xl">&times;</button>
+        </div>
+    </div>
+
+    <!-- Modal gộp bàn -->
+    <div id="mergeTableModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-xl shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Gộp bàn</h2>
+
+            <form id="mergeTableForm" th:action="@{/sale/merge}" method="post">
+                <div class="flex justify-between gap-4">
+                    <!-- Danh sách bàn cần gộp (bàn đang sử dụng) -->
+                    <div class="w-1/2">
+                        <h3 class="font-medium mb-2">Chọn các bàn cần gộp</h3>
+                        <div class="max-h-40 overflow-y-auto border rounded p-2 space-y-2">
+                            <div th:each="table : ${tables}" th:if="${table.status.name() == 'OCCUPIED'}">
+                                <label>
+                                    <input type="checkbox" class="merge-source" name="sourceTableIds" th:value="${table.id}" />
+                                    <span th:text="${table.tableName}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chọn bàn gộp đến (trống hoặc đang sử dụng) -->
+                    <div class="w-1/2">
+                        <h3 class="font-medium mb-2">Chọn bàn gộp đến</h3>
+                        <div class="max-h-40 overflow-y-auto border rounded p-2 space-y-2">
+                            <div th:each="table : ${tables}" th:if="${table.status.name() == 'OCCUPIED' or table.status.name() == 'AVAILABLE'}">
+                                <label>
+                                    <input type="radio" name="targetTableId" class="merge-target" th:value="${table.id}" />
+                                    <span th:text="${table.tableName}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="mt-6 flex justify-end gap-4">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Gộp</button>
+                    <button type="button" onclick="closeModalMergeTable()" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal tách bàn -->
+    <div id="splitTableModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-2xl shadow-lg relative">
+            <h2 class="text-xl font-bold mb-4">Tách bàn <span id="splitFromTableName"></span></h2>
+
+            <form id="splitTableForm" th:action="@{/sale/split}" method="post">
+                <input type="hidden" name="fromTableId" id="splitFromTableId" />
+                <input type="hidden" name="splitItemsJson" id="splitItemsJson">
+                <div class="flex gap-6">
+                    <!-- Danh sách món từ bàn gốc -->
+                    <div class="w-1/2 border p-3 rounded">
+                        <h3 class="font-semibold mb-2">Bàn gốc (<span id="fromTableLabel">...</span>)</h3>
+                        <div class="space-y-2 max-h-56 overflow-y-auto" id="splitSourceItems">
+                            <!-- JS sẽ render món ăn -->
+                        </div>
+                    </div>
+
+                    <!-- Danh sách món sang bàn mới -->
+                    <div class="w-1/2 border p-3 rounded">
+                        <div class="mb-2">
+                            <label class="font-semibold">Chọn bàn cần tách đến:</label>
+                            <select name="toTableId" id="splitToTableId" class="border rounded w-full px-2 py-1 mt-1">
+                                <option value="">-- Chọn bàn --</option>
+                                <option th:each="table : ${tables}" th:if="${table.status.name() == 'AVAILABLE'}"
+                                        th:value="${table.id}" th:text="${table.tableName}"></option>
+                            </select>
+                        </div>
+
+                        <h3 class="font-semibold mt-4 mb-2">Bàn mới (<span id="toTableLabel">...</span>)</h3>
+                        <div class="space-y-2 max-h-56 overflow-y-auto border p-2 rounded" id="splitTargetItems">
+                            <!-- JS sẽ render -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút -->
+                <div class="flex justify-end gap-4 mt-6">
+                    <button type="button" onclick="submitSplitForm()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Tách</button>
+                    <button type="button" onclick="closeSplitTableModal()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Hủy</button>
+                </div>
+            </form>
+
+            <!-- Nút đóng -->
+            <button onclick="closeSplitTableModal()" class="absolute top-2 right-2 text-gray-400 hover:text-black text-2xl">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // xem thông tin bàn
+        // Chỉ cho phép chọn 1 checkbox bàn
+        document.querySelectorAll("input.table-checkbox").forEach((cb) => {
+          cb.addEventListener("change", function () {
+            if (this.checked) {
+              document
+                      .querySelectorAll("input.table-checkbox")
+                      .forEach((other) => {
+                        if (other !== this) other.checked = false;
+                      });
+            }
+          });
+        });
+
+
+        function showSelectedTables() {
+          const checkbox = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checkbox) {
+            showWarning("Vui lòng chọn một bàn để xem.");
+            return;
+          }
+
+          const tableDiv = checkbox.closest("div");
+          const statusSpan = tableDiv.querySelector(".text-xs span");
+          const statusText = statusSpan ? statusSpan.textContent.trim() : "";
+
+          if (statusText === "🟢 Trống") {
+            showWarning("Bàn đang trống, chưa có dữ liệu chi tiết để xem!");
+            return;
+          }
+          const id = checkbox.value;
+          fetch("/sale/view/" + id)
+                  .then((res) => {
+                    if (!res.ok) throw new Error("HTTP error " + res.status);
+                    return res.json();
+                  })
+                  .then((data) => {
+                    console.log("data", data);
+                    const modalContent = document.getElementById("modalContent");
+
+                    let statusText = "";
+                    if (data.status === "AVAILABLE") {
+                      statusText = "🟢 Trống";
+                    } else if (data.status === "RESERVED") {
+                      statusText = "🟡 Đặt trước";
+                    } else {
+                      statusText = "🔴 Đang sử dụng";
+                    }
+
+                    let menuHtml = "";
+                    if (data.menuItems && data.menuItems.length > 0) {
+                      menuHtml = "<ul class='list-disc ml-5'>";
+                      data.menuItems.forEach((item) => {
+                        menuHtml += `<li>${item.itemName} - SL: ${item.quantity} - Giá: ${
+                                item.price
+                                        ? item.price.toLocaleString()
+                                        : "0"
+                        }đ</li>`;
+                      });
+                      menuHtml += "</ul>";
+                      // Thêm tổng tiền
+                      menuHtml += `<p class="mt-2"><strong>Tổng tiền:</strong> ${
+                              data.totalPrice ? data.totalPrice.toLocaleString() : "0"
+                      } đ</p>`;
+                    } else {
+                      menuHtml = "<em>Chưa có thực đơn</em>";
+                    }
+
+                    const customerInfo = data.customerName
+                            ? `<p><strong>Khách hàng:</strong> ${data.customerName} (${
+                                    data.customerPhone || "N/A"
+                            })</p>`
+                            : "";
+
+                    const reservationDate = data.reservationDate
+                            ? `<p><strong>Ngày đặt:</strong> ${new Date(
+                                    data.reservationDate
+                            ).toLocaleString()}</p>`
+                            : "";
+
+                    modalContent.innerHTML = `
+                  <p><strong>Tên bàn:</strong> ${data.tableName}</p>
+                  <p><strong>Trạng thái:</strong> ${statusText}</p>
+                  ${customerInfo}
+                  ${reservationDate}
+                  <p><strong>Thực đơn đã chọn:</strong></p>
+                  ${menuHtml}
+                `;
+                    document.getElementById("detailModal").classList.remove("hidden");
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    showError("Không thể lấy dữ liệu bàn!");
+                  });
+        }
+
+
+        function closeDetailModal() {
+          document.getElementById("detailModal").classList.add("hidden");
+        }
+
+
+        // đặt bàn
+        function redirectToReservationForm() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn!');
+            return;
+          }
+          // Lấy trạng thái bàn từ DOM
+          const tableDiv = checked.closest('div');
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+          if (statusText !== "🟢 Trống") {
+            showWarning('Chỉ được đặt bàn khi bàn đang trống!');
+            return;
+          }
+          window.location.href = '/sale/reservation?tableId=' + checked.value;
+        }
+
+        // hủy bàn
+        function cancelSelectedTable() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn để hủy!');
+            return;
+          }
+          // Lấy trạng thái bàn từ DOM
+          const tableDiv = checked.closest('div');
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+          if (statusText === "🟢 Trống" || statusText === "🔴 Đang sử dụng") {
+            showWarning('Chỉ có bàn đặt trước mới được hủy!');
+            return;
+          }
+          showConfirm(
+                  'Xác nhận hủy bàn',
+                  'Bạn chắc chắn muốn hủy bàn này?',
+                  function() {
+                    document.getElementById('cancelTableId').value = checked.value;
+                    document.getElementById('cancelForm').submit();
+                  }
+          );
+        }
+
+        //chọn thực đơn
+        function openMenuModal() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn!');
+            return;
+          }
+
+          document.getElementById('menuTableId').value = checked.value;
+          document.querySelectorAll('#menuModal input[type=checkbox]').forEach(cb => cb.checked = false);
+          document.getElementById('menuModalMsg').innerText = '';
+          document.getElementById('menuModal').classList.remove('hidden');
+        }
+
+        function closeMenuModal() {
+          document.getElementById('menuModal').classList.add('hidden');
+        }
+
+        function submitMenuForm() {
+          const checkedMenus = document.querySelectorAll('#menuModal input[name="menuIds"]:checked');
+          if (checkedMenus.length === 0) {
+            document.getElementById('menuModalMsg').innerText = 'Vui lòng chọn ít nhất một thực đơn!';
+            return;
+          }
+          let isValid = true;
+          checkedMenus.forEach(cb => {
+            const qtyInput = cb.parentElement.querySelector('.menu-quantity');
+            const val = parseInt(qtyInput.value);
+            if (isNaN(val) || val < 1) {
+              isValid = false;
+            }
+          });
+          if (!isValid) {
+            document.getElementById('menuModalMsg').innerText = 'Số lượng phải từ 1 trở lên!';
+            return;
+          }
+          document.getElementById('menuForm').submit();
+        }
+
+        // Bật/tắt input và nút + -
+        document.querySelectorAll('#menuModal .menu-checkbox').forEach(cb => {
+          cb.addEventListener('change', function() {
+            const quantityInput = this.parentElement.querySelector('.menu-quantity');
+            const decrementBtn = this.parentElement.querySelector('.decrement');
+            const incrementBtn = this.parentElement.querySelector('.increment');
+            const enabled = this.checked;
+            quantityInput.disabled = !enabled;
+            decrementBtn.disabled = !enabled;
+            incrementBtn.disabled = !enabled;
+            if (enabled && quantityInput.value.trim() === '') {
+              quantityInput.value = '1';
+            }
+          });
+        });
+
+        // Nút tăng
+        document.querySelectorAll('#menuModal .increment').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.menu-quantity');
+            let val = parseInt(input.value) || 1;
+            input.value = val + 1;
+          });
+        });
+
+        // Nút giảm
+        document.querySelectorAll('#menuModal .decrement').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.menu-quantity');
+            let val = parseInt(input.value) || 1;
+            if (val > 1) input.value = val - 1;
+          });
+        });
+
+        //thanh toán
+        let currentPaymentData = null;
+
+        function confirmPayment() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn để thanh toán!');
+            return;
+          }
+
+          // Lấy trạng thái bàn từ DOM
+          const tableDiv = checked.closest('div');
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+
+          // Kiểm tra trạng thái
+          if (statusText !== "🔴 Đang sử dụng") {
+            showWarning('Chỉ bàn đang sử dụng mới được thanh toán!');
+            return;
+          }
+
+          fetch("/sale/view/" + checked.value)
+                  .then((res) => {
+                    if (!res.ok) throw new Error("HTTP error " + res.status);
+                    return res.json();
+                  })
+                  .then((data) => {
+                    if (!data.menuItems || data.menuItems.length === 0) {
+                      showWarning("Bàn chưa có thực đơn, không thể thanh toán!");
+                      return;
+                    }
+
+                    currentPaymentData = data;
+
+                    // Tên bàn
+                    document.getElementById("paymentTableName").innerText = data.tableName;
+
+                    // Danh sách món ăn
+                    let itemsHtml = "";
+                    data.menuItems.forEach((item) => {
+                      itemsHtml += `
+                      <tr>
+                        <td class="p-1">${item.itemName}</td>
+                        <td class="p-1 text-center">${item.quantity}</td>
+                        <td class="p-1 text-right">${(item.price * item.quantity || 0).toLocaleString()} đ</td>
+                      </tr>
+                    `;
+                    });
+                    document.getElementById("paymentItems").innerHTML = itemsHtml;
+
+                    // Tổng tiền
+                    document.getElementById("paymentTotal").innerText = `${(data.totalPrice || 0).toLocaleString()} đ`;
+
+                    // Reset input tiền khách đưa và tiền thối
+                    document.getElementById("customerPay").value = 0;
+                    document.getElementById("changeAmount").innerText = "0 đ";
+
+                    // Hiện modal
+                    document.getElementById("paymentModal").classList.remove("hidden");
+
+                    // Nút xác nhận thanh toán
+                    document.getElementById("confirmPaymentBtn").onclick = function () {
+                      submitPayment(data.tableId);
+                    };
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    showError("Không thể lấy dữ liệu bàn!");
+                  });
+        }
+
+        function calculateChange() {
+          const customerPay = parseInt(document.getElementById("customerPay").value) || 0;
+          const total = currentPaymentData?.totalPrice || 0;
+          const change = customerPay - total;
+          document.getElementById("changeAmount").innerText = `${change > 0 ? change.toLocaleString() : 0} đ`;
+        }
+
+        function submitPayment(tableId) {
+          const autoEmpty = document.getElementById("autoSetEmpty").checked ? "true" : "false";
+          const customerPay = parseInt(document.getElementById("customerPay").value) || 0;
+
+          const total = currentPaymentData?.totalPrice || 0;
+
+          if (customerPay < total) {
+            showWarning("Số tiền khách đưa không đủ để thanh toán!");
+            return;
+          }
+
+          // Lấy CSRF token (nếu dùng Thymeleaf + Spring Security)
+          const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+          const csrfParam = document.querySelector('meta[name="_csrf_parameter"]')?.getAttribute("content");
+
+          const form = document.createElement("form");
+          form.method = "post";
+          form.action = "/sale/payment";
+          form.style.display = "none";
+
+          form.innerHTML = `
+          <input name="tableId" value="${tableId}" />
+          ${csrfToken && csrfParam ? `<input name="${csrfParam}" value="${csrfToken}" />` : ''}
+        `;
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+
+
+        function closePaymentModal() {
+          document.getElementById("paymentModal").classList.add("hidden");
+        }
+
+        function printReceipt() {
+          if (!currentPaymentData) {
+            showWarning("Không có dữ liệu để in!");
+            return;
+          }
+          // Ví dụ: Mở cửa sổ in đơn giản
+          let content = `<h3>Hóa đơn - ${currentPaymentData.tableName}</h3><ul>`;
+          currentPaymentData.menuItems.forEach(item => {
+            content += `<li>${item.itemName} x${item.quantity} - ${(item.price || 0).toLocaleString()} đ</li>`;
+          });
+          content += `</ul><p><strong>Tổng tiền:</strong> ${(currentPaymentData.totalPrice || 0).toLocaleString()} đ</p>`;
+          const win = window.open('', '_blank');
+          win.document.write(content);
+          win.print();
+        }
+
+        // chuyển bàn
+        function openTransferModalFromSelection() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning('Vui lòng chọn một bàn để chuyển!');
+            return;
+          }
+          const tableId = checked.value;
+          const tableDiv = checked.closest('div');
+          const tableName = tableDiv.querySelector('label').innerText;
+
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+
+          // Kiểm tra trạng thái
+          if (statusText == "🟢 Trống") {
+            showWarning('Chỉ có bàn đã đặt trước hoặc bàn đang sử dụng mới được chuyển');
+            return;
+          }
+
+          openTransferModal(tableId, tableName);
+        }
+
+        function openTransferModal(fromTableId, fromTableName) {
+          document.getElementById('fromTableId').value = fromTableId;
+          document.getElementById('fromTableName').innerText = fromTableName;
+          document.getElementById('toTableSelect').value = '';
+          document.getElementById('transferError').innerText = '';
+          document.getElementById('transferModal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+          document.getElementById('transferModal').classList.add('hidden');
+        }
+
+        function submitTransferForm() {
+          const toTableId = document.getElementById('toTableSelect').value;
+          if (!toTableId) {
+            document.getElementById('transferError').innerText = 'Vui lòng chọn bàn đích!';
+            return;
+          }
+          document.getElementById('transferForm').submit();
+        }
+
+
+        // gộp bàn
+        function openModalMergeTable() {
+          document.getElementById("mergeTableModal").classList.remove("hidden");
+        }
+
+        function closeModalMergeTable() {
+          document.getElementById("mergeTableModal").classList.add("hidden");
+        }
+
+        document.getElementById("mergeTableForm")?.addEventListener("submit", function(event) {
+          const sources = Array.from(document.querySelectorAll('.merge-source:checked')).map(cb => cb.value);
+          const target = document.querySelector('.merge-target:checked')?.value;
+
+          if (sources.length === 0 || !target) {
+            event.preventDefault();
+            showWarning("Vui lòng chọn các bàn cần gộp và bàn gộp đến!");
+            return;
+          }
+
+          if (sources.length == 1) {
+            event.preventDefault();
+            showWarning("Nếu chọn một bàn gộp thì vui lòng thực hiện chức năng chuyển bàn");
+            return;
+          }
+        });
+
+        // tách bàn
+        function openSplitTableModalFromSelection() {
+          const checked = document.querySelector('input[name="selectedTable"]:checked');
+          if (!checked) {
+            showWarning("Vui lòng chọn một bàn để tách!");
+            return;
+          }
+
+          const tableId = checked.value;
+          const tableDiv = checked.closest('div');
+          const tableName = checked.nextElementSibling.innerText;
+
+          const statusSpan = tableDiv.querySelector('.text-xs span');
+          const statusText = statusSpan ? statusSpan.textContent.trim() : '';
+
+          // Kiểm tra trạng thái
+          if (statusText != "🔴 Đang sử dụng") {
+            showWarning('Chỉ có bàn đang sử dụng mới được tách');
+            return;
+          }
+
+
+          fetch("/sale/view/" + tableId)
+                  .then(res => res.json())
+                  .then(data => {
+                    if (!data.menuItems || data.menuItems.length === 0) {
+                      showWarning("Không có món để tách!");
+                      return;
+                    }
+
+                    openSplitTableModal(tableId, tableName, data.menuItems);
+                  })
+                  .catch(err => {
+                    console.error(err);
+                    showError("Không thể lấy dữ liệu bàn!");
+                  });
+        }
+
+        function openSplitTableModal(tableId, tableName, items) {
+          document.getElementById('splitFromTableId').value = tableId;
+          document.getElementById('splitFromTableName').innerText = tableName;
+          document.getElementById('fromTableLabel').innerText = tableName;
+          document.getElementById('splitToTableId').value = "";
+          document.getElementById('toTableLabel').innerText = "...";
+
+          const sourceContainer = document.getElementById("splitSourceItems");
+          sourceContainer.innerHTML = "";
+
+          items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "flex items-center gap-2";
+            div.innerHTML = `
+            <input type="checkbox" name="selectedItems" value="${item.id}" onchange="toggleQuantityInput(this)" />
+            <span class="flex-1">${item.itemName}</span>
+            <span class="text-sm text-gray-600">/ Tổng SL: ${item.quantity}</span>
+            <input type="number" name="quantities" min="1" max="${item.quantity}"
+                   class="border rounded w-16 px-1 py-0.5"
+                   disabled
+                   oninput="renderTargetItems()" />
+          `;
+            sourceContainer.appendChild(div);
+          });
+
+
+          document.getElementById("splitTargetItems").innerHTML = ""; // Để sau nếu cần render trước
+          document.getElementById("splitTableModal").classList.remove("hidden");
+        }
+
+        function toggleQuantityInput(checkbox) {
+          const input = checkbox.parentElement.querySelector('input[type="number"]');
+          if (checkbox.checked) {
+            input.disabled = false;
+            input.value = 1;
+          } else {
+            input.disabled = true;
+            input.value = "";
+          }
+          renderTargetItems();
+        }
+
+
+        function closeSplitTableModal() {
+          document.getElementById("splitTableModal").classList.add("hidden");
+        }
+
+        function submitSplitForm() {
+          const toTableId = document.getElementById("splitToTableId").value;
+          if (!toTableId) {
+            showWarning("Vui lòng chọn bàn cần tách đến!");
+            return;
+          }
+
+          const checkedItems = document.querySelectorAll('input[name="selectedItems"]:checked');
+          if (checkedItems.length === 0) {
+            showWarning("Vui lòng chọn ít nhất một món để tách!");
+            return;
+          }
+
+          let valid = true;
+          const itemsData = [];
+
+          checkedItems.forEach(chk => {
+            const qtyInput = chk.parentElement.querySelector('input[type="number"]');
+            const max = parseInt(qtyInput.max, 10);
+            const val = parseInt(qtyInput.value, 10);
+
+            if (isNaN(val) || val <= 0 || val > max) {
+              valid = false;
+            } else {
+              itemsData.push({
+                itemId: parseInt(chk.value, 10),
+                quantity: val
+              });
+            }
+          });
+
+          if (!valid) {
+            showWarning("Vui lòng nhập số lượng hợp lệ cho tất cả món đã chọn!");
+            return;
+          }
+
+          // Gán JSON vào hidden input
+          document.getElementById("splitItemsJson").value = JSON.stringify(itemsData);
+
+          // Submit form
+          document.getElementById("splitTableForm").submit();
+        }
+
+        function renderTargetItems() {
+          const container = document.getElementById("splitTargetItems");
+          container.innerHTML = "";
+
+          const checkedItems = document.querySelectorAll('input[name="selectedItems"]:checked');
+
+          if (checkedItems.length === 0) {
+            container.innerHTML = "<p class='text-gray-500'>Chưa chọn món.</p>";
+            return;
+          }
+
+          checkedItems.forEach(chk => {
+            const qtyInput = chk.parentElement.querySelector('input[type="number"]');
+            const val = qtyInput.value;
+            const name = chk.parentElement.querySelector('span.flex-1').innerText;
+
+            if (val && parseInt(val) > 0) {
+              const div = document.createElement("div");
+              div.className = "flex justify-between text-sm";
+              div.innerHTML = `
+              <span>${name}</span>
+              <span>x${val}</span>
+            `;
+              container.appendChild(div);
+            }
+          });
+
+          if (container.innerHTML.trim() === "") {
+            container.innerHTML = "<p class='text-gray-500'>Chưa chọn món.</p>";
+          }
+        }
+    </script>
+</div>
+</body>
+</html>

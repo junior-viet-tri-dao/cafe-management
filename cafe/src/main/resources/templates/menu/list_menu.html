@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang Danh Sách Menu </title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .table-container {
+            /* border: 1px solid #ddd; */ /* Bỏ border ngoài container vì các cell đã có border */
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            display: flex;
+            background-color: #f2f2f2;
+            font-weight: bold;
+            /* border-bottom: 1px solid #ddd; */ /* Bỏ border dưới header vì các cell đã có border */
+        }
+
+        .table-row {
+            display: flex !important;
+            /* border-bottom: 1px solid #eee; */ /* Bỏ border dưới hàng vì các cell đã có border */
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        /* THAY ĐỔI QUAN TRỌNG: THÊM BORDER CHO CÁC CELL */
+        .table-cell, .table-header-cell {
+            padding: 8px;
+            flex: 1;
+            box-sizing: border-box;
+            border: 1px solid #ddd; /* Thêm border cho tất cả các cạnh của cell */
+        }
+
+        /* Điều chỉnh border để chúng không bị trùng lặp không cần thiết */
+        .table-header-cell:not(:last-child) {
+            border-right: none; /* Bỏ viền phải để các cell header dính liền */
+        }
+        .table-cell:not(:last-child) {
+            border-right: none; /* Bỏ viền phải để các cell dữ liệu dính liền */
+        }
+
+        .table-header-cell {
+            border-bottom: none; /* Bỏ viền dưới cho header cell để nó dính với hàng đầu tiên */
+        }
+
+        /* Viền trên cùng cho hàng dữ liệu đầu tiên */
+        .table-row:first-of-type .table-cell {
+            border-top: 1px solid #ddd;
+        }
+
+
+        /* Tùy chỉnh chiều rộng cho từng cột */
+        .table-header-cell.name, .table-cell.name {
+            flex: 2;
+        }
+        .table-header-cell.position, .table-cell.position {
+            flex: 1.5;
+        }
+        .table-header-cell.salary, .table-cell.salary {
+            flex: 1;
+            text-align: right;
+        }
+
+        .table-header-cell {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .table-header-cell:hover {
+            background-color: #e0e0e0;
+        }
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 5px;
+            min-width: 10px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <form method="get" th:action="@{/menu}" class="flex items-center gap-2 mb-4">
+        <input type="text" name="keyword" placeholder="Tìm theo tên món ăn"
+               th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-72">
+        <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow transition">
+            🔍 Tìm
+        </button>
+    </form>
+
+    <!-- Hiển thị thông báo tìm kiếm nếu có -->
+    <div class="mb-4 text-sm text-gray-600 italic" th:if="${param.keyword}">
+        Đang tìm với từ khóa: "<span th:text="${param.keyword}"></span>"
+    </div>
+
+
+    <a th:href="@{/menu/insert}">Thêm món ăn</a>
+    <div class="table-container" id="inventoryTable">
+        <div class="table-header">
+            <div class="table-header-cell name" data-sort-by="name">Tên món ăn <span class="sort-arrow"></span></div>
+<!--            <div class="table-header-cell import-date" data-sort-by="import-date">Ngày nhập <span class="sort-arrow"></span></div>-->
+<!--            <div class="table-header-cell export-date" data-sort-by="export-date">Ngày xuất <span class="sort-arrow"></span></div>-->
+            <div class="table-header-cell quantity" data-sort-by="quantity">Giá tiền<span class="sort-arrow"></span></div>
+            <div class="table-header-cell action">Action</div>
+        </div>
+        <div th:each="MenuItem : ${MenuItems.menuPage}" class="flex items-center border-t border-gray-200 hover:bg-gray-50">
+            <div class="flex-2 px-4 py-3" th:text="${MenuItem.itemName}"></div>
+
+            <div class="flex-2 px-4 py-3" th:text="${MenuItem.currentPrice}"></div>
+
+            <div class="flex-1 px-4 py-3 space-x-2">
+<!--                <a th:href="@{/menu/edit/{id}(id=${MenuItem.id})}" class="text-blue-600 hover:underline">Edit</a>-->
+                <a th:href="@{/menu/delete/{id}(id=${MenuItem.id})}" class="text-red-600 hover:underline">Delete</a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Phân trang -->
+    <div class="flex items-center justify-between mt-8">
+        <!-- Hiển thị số lượng -->
+        <div class="text-sm text-gray-600" th:if="${MenuItems.totalPages > 0}">
+            <span th:text="'Trang ' + (${MenuItems.pageNumber + 1}) + ' / ' + ${MenuItems.totalPages}">Trang 1 / 5</span> |
+            <span th:text="'Tổng: ' + ${MenuItems.totalElements} + ' hàng hoá'">Tổng: 25 nhân viên</span>
+        </div>
+
+        <!-- Danh sách nút phân trang -->
+        <nav>
+            <ul class="inline-flex items-center space-x-1">
+                <!-- Nút Trước -->
+                <li>
+                    <a th:href="@{/menu(page=${MenuItems.pageNumber - 1}, keyword=${param.keyword})}"
+                       th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${MenuItems.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                        ◀ Trước
+                    </a>
+                </li>
+
+                <!-- Các số trang -->
+                <li th:if="${MenuItems.totalPages > 0}"
+                    th:each="pageNum : ${#numbers.sequence(0, MenuItems.totalPages - 1)}">
+                    <a th:href="@{/menu(page=${pageNum}, keyword=${param.keyword})}"
+                       th:text="${pageNum + 1}"
+                       th:class="'px-3 py-2 rounded-lg border text-sm font-medium transition ' +
+                             (${pageNum} == ${MenuItems.pageNumber}
+                             ? 'bg-blue-600 text-white border-blue-600'
+                             : 'border-gray-300 text-gray-700 hover:bg-blue-50')">
+                    </a>
+                </li>
+
+                <!-- Nút Tiếp -->
+                <li>
+                    <a th:href="@{/menu(page=${MenuItems.pageNumber + 1}, keyword=${param.keyword})}"
+                       th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${MenuItems.pageNumber + 1 >= MenuItems.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
+                        Tiếp ▶
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

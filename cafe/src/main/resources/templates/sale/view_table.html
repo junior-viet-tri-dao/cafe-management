@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết bàn</title>
+</head>
+<body>
+<div layout:fragment="content" class="bg-[#fefae0] min-h-screen flex justify-center items-start py-12 px-4">
+    <div class="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center gap-2 justify-center">
+            🪑 Chi tiết bàn
+        </h2>
+
+        <div class="space-y-4">
+            <div>
+                <span class="font-semibold text-gray-700">Tên bàn:</span>
+                <span th:text="${table.tableName}"></span>
+            </div>
+
+            <div>
+                <span class="font-semibold text-gray-700">Trạng thái:</span>
+                <span th:text="${table.status == 'AVAILABLE' ? 'Trống' : 'Đang sử dụng'}"></span>
+            </div>
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <a th:href="@{/sale}"
+               class="inline-block bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-md shadow">
+                ← Quay lại
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

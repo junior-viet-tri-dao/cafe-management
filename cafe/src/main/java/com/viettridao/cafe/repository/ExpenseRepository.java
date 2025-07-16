@@ -14,4 +14,5 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Integer>
     Double sumAmountByDate(@Param("date") LocalDate date);
 
 
+    Iterable<? extends ExpenseEntity> findByExpenseDateBetweenAndIsDeletedFalse(LocalDate start, LocalDate end);
 }

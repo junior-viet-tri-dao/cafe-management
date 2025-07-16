@@ -25,6 +25,9 @@ public class ProductEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @Column(name = "price")
+    private float price;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImportEntity> imports;
 
@@ -33,4 +36,8 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<MenuDetailEntity> menuDetails;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "unit_id")
+    private UnitEntity unit;
 }

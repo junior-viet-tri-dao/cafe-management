@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer> {
@@ -15,4 +16,5 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer>
     Double sumTotalAmountByDate(@Param("date") LocalDate date);
 
 
+    InvoiceEntity[] findByCreatedAtBetweenAndIsDeletedFalse(LocalDateTime localDateTime, LocalDateTime localDateTime1);
 }

@@ -3,6 +3,8 @@ package com.viettridao.cafe.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 
 @Getter
@@ -19,6 +21,7 @@ public class ExportEntity {
     private Double totalExportAmount;
 
     @Column(name = "export_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate exportDate;
 
     @Column(name = "quantity")
