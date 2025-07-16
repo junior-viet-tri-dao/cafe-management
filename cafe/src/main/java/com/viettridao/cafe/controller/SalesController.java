@@ -442,7 +442,7 @@ public class SalesController {
         model.addAttribute("showReservationForm", false); // Mặc định không hiển thị form đặt bàn
 
         // ==========================================
-        // BƯỚC 2: XỬ LÝ HIỂN THỊ MODAL GỘEP BÀN
+        // BƯỚC 2: XỬ LÝ HIỂN THỊ MODAL GỘP BÀN
         // ==========================================
         if (showMergeModal != null && showMergeModal) {
             // Lấy danh sách các bàn OCCUPIED để hiển thị trong modal gộp bàn
@@ -518,7 +518,16 @@ public class SalesController {
                 // Sub-step 3.7: TẠO OBJECT REQUEST CHO FORM BINDING
                 SplitTableRequest splitRequest = new SplitTableRequest();
                 splitRequest.setSourceTableId(selectedTableId);
-                splitRequest.setItems(new ArrayList<>()); // Khởi tạo danh sách items rỗng để tránh null pointer
+
+                // Khởi tạo items list với đúng số lượng để binding
+                List<SplitTableRequest.SplitItemRequest> items = new ArrayList<>();
+                for (var detail : invoiceDetails) {
+                    SplitTableRequest.SplitItemRequest item = new SplitTableRequest.SplitItemRequest();
+                    item.setMenuItemId(detail.getMenuItem().getId());
+                    item.setQuantity(0); // Mặc định số lượng = 0
+                    items.add(item);
+                }
+                splitRequest.setItems(items);
 
                 // Sub-step 3.8: TRUYỀN DỮ LIỆU CHO VIEW
                 model.addAttribute("showSplitModal", true);

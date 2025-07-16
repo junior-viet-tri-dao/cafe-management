@@ -196,7 +196,9 @@
                         }
                       });
                     });
-                  } // 2. Đặt bàn: Kiểm tra đã chọn bàn, trạng thái bàn phải là AVAILABLE, nếu hợp lệ thì chuyển sang form đặt bàn
+                  }
+
+                  // 2. Đặt bàn: Kiểm tra đã chọn bàn, trạng thái bàn phải là AVAILABLE, nếu hợp lệ thì chuyển sang form đặt bàn
                   function initReservationButton() {
                     const reservationButton =
                       document.getElementById('reservation-button');
@@ -219,7 +221,9 @@
                           return;
                         }
                         const tableId =
-                          selectedTable.getAttribute('data-table-id');
+                          selectedTable.dataset.tableId ||
+                          selectedTable.querySelector('[data-table-id]')
+                            ?.dataset.tableId;
                         window.location.href = `/sale/show-reservation-form?tableId=${tableId}`;
                       }
                     );
@@ -458,9 +462,9 @@
                   });
                 </script>
 
-                <!-- Form đặt bàn hiển thị khi showReservationForm = true -->
+                <!-- Form chọn thực đơn hiển thị khi showSelectMenuForm = true -->
                 <div
-                  th:if="${showReservationForm}"
+                  th:if="${showSelectMenuForm}"
                   class="mt-8 border-t-2 border-[#b5c99a] pt-8"
                 >
                   <div class="max-w-xl mx-auto">
@@ -585,16 +589,7 @@
                             </tbody>
                           </table>
                         </div>
-                        <!-- Hiển thị lỗi toàn cục nếu có -->
-                        <div
-                          th:if="${#fields.hasGlobalErrors()}"
-                          class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"
-                        >
-                          <div
-                            th:each="error : ${#fields.globalErrors()}"
-                            th:text="${error}"
-                          ></div>
-                        </div>
+
                         <!-- Hiển thị lỗi cho từng món nếu có -->
                         <div
                           th:if="${#fields.hasErrors('items')}"
@@ -640,196 +635,6 @@
                           .forEach((cb) => {
                             toggleQuantityInput(cb);
                           });
-                      </script>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Form chọn thực đơn hiển thị khi showSelectMenuForm = true -->
-                <div
-                  th:if="${showSelectMenuForm}"
-                  class="mt-8 border-t-2 border-[#b5c99a] pt-8"
-                >
-                  <div class="max-w-4xl mx-auto">
-                    <div
-                      class="form-container bg-white/90 p-8 rounded-2xl shadow-2xl border border-[#b5c99a] relative"
-                    >
-                      <div
-                        class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gradient-to-tr from-[#b5c99a] to-[#f6e7cb] rounded-full shadow-lg p-2"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-12 w-12 text-[#3e2723]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2m-4 0V3a2 2 0 00-2-2H9a2 2 0 00-2 2v2h4z"
-                          />
-                        </svg>
-                      </div>
-                      <h3
-                        class="text-3xl font-extrabold mb-6 text-center tracking-tight"
-                        style="color: #3e2723"
-                      >
-                        Chọn thực đơn -
-                        <span
-                          th:text="${selectedTableName ?: 'Bàn ' + selectedTableId}"
-                          >Bàn</span
-                        >
-                      </h3>
-
-                      <!-- Hiển thị lỗi từ controller nếu có -->
-                      <div
-                        th:if="${errorMessage}"
-                        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 text-center font-semibold"
-                      >
-                        <span th:text="${errorMessage}"></span>
-                      </div>
-
-                      <form
-                        th:action="@{/sale/save-order}"
-                        method="post"
-                        autocomplete="off"
-                        class="space-y-6"
-                      >
-                        <input
-                          type="hidden"
-                          name="tableId"
-                          th:value="${selectedTableId}"
-                        />
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                          <div>
-                            <label
-                              for="customerName"
-                              class="block text-base font-semibold text-[#3e2723] mb-1"
-                              >Tên khách hàng</label
-                            >
-                            <input
-                              type="text"
-                              name="customerName"
-                              id="customerName"
-                              class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
-                              placeholder="Nhập tên khách hàng"
-                            />
-                          </div>
-                          <div>
-                            <label
-                              for="customerPhone"
-                              class="block text-base font-semibold text-[#3e2723] mb-1"
-                              >Số điện thoại</label
-                            >
-                            <input
-                              type="text"
-                              name="customerPhone"
-                              id="customerPhone"
-                              class="mt-1 block w-full rounded-lg border border-[#b5c99a] bg-[#f6e7cb] shadow-sm focus:border-[#3e2723] focus:ring-[#b5c99a] text-base placeholder:text-gray-400 px-3 py-2"
-                              placeholder="Nhập số điện thoại"
-                            />
-                          </div>
-                        </div>
-
-                        <div class="overflow-x-auto mb-6">
-                          <table class="min-w-full border rounded-lg">
-                            <thead>
-                              <tr class="bg-gray-200">
-                                <th class="px-4 py-2 text-left">Chọn</th>
-                                <th class="px-4 py-2 text-left">Tên món</th>
-                                <th class="px-4 py-2 text-center">Giá</th>
-                                <th class="px-4 py-2 text-center">Số lượng</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr
-                                th:each="item,iter : ${menuItems}"
-                                class="menu-row hover:bg-blue-50 transition"
-                              >
-                                <td class="px-4 py-2 text-center">
-                                  <input
-                                    type="checkbox"
-                                    th:id="'menu-item-' + ${item.id}"
-                                    th:name="items[__${iter.index}__].menuItemId"
-                                    th:value="${item.id}"
-                                    onchange="toggleMenuQuantityInput(this)"
-                                  />
-                                </td>
-                                <td
-                                  class="px-4 py-2"
-                                  th:text="${item.itemName}"
-                                ></td>
-                                <td
-                                  class="px-4 py-2 text-center"
-                                  th:text="${#numbers.formatCurrency(item.price)}"
-                                ></td>
-                                <td class="px-4 py-2 text-center">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="99"
-                                    class="w-16 text-center rounded border-gray-300"
-                                    th:name="items[__${iter.index}__].quantity"
-                                    value="0"
-                                    disabled="disabled"
-                                    onfocus="this.select()"
-                                  />
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div class="flex justify-end mt-8 space-x-4">
-                          <button
-                            type="submit"
-                            class="bg-gradient-to-tr from-[#3e2723] to-[#b5c99a] text-white px-8 py-3 rounded-lg font-semibold shadow hover:scale-105 hover:from-[#5d4037] hover:to-[#b5c99a] transition-all duration-200"
-                          >
-                            Lưu đơn hàng
-                          </button>
-                          <a
-                            href="/sale"
-                            class="bg-gray-400 hover:bg-gray-500 text-white px-8 py-3 rounded-lg font-semibold shadow transition-all duration-200"
-                            >Hủy</a
-                          >
-                        </div>
-                      </form>
-
-                      <script>
-                        // Tự động enable/disable input số lượng khi check/uncheck món
-                        function toggleMenuQuantityInput(checkbox) {
-                          const row = checkbox.closest('tr');
-                          const input = row.querySelector(
-                            'input[type="number"]'
-                          );
-                          if (checkbox.checked) {
-                            input.disabled = false;
-                            input.value =
-                              input.value === '0' ? '1' : input.value;
-                            row.classList.add('selected');
-                          } else {
-                            input.disabled = true;
-                            input.value = 0;
-                            row.classList.remove('selected');
-                          }
-                        }
-
-                        // Khởi tạo trạng thái ban đầu cho các dòng đã được chọn
-                        document.addEventListener(
-                          'DOMContentLoaded',
-                          function () {
-                            document
-                              .querySelectorAll(
-                                '.menu-row input[type="checkbox"]'
-                              )
-                              .forEach((cb) => {
-                                toggleMenuQuantityInput(cb);
-                              });
-                          }
-                        );
                       </script>
                     </div>
                   </div>
@@ -1656,14 +1461,20 @@
 
                       <form
                         th:action="@{/sale/split-table}"
+                        th:object="${splitTableRequest}"
                         method="post"
                         id="split-table-form"
                         class="space-y-6"
                       >
                         <input
                           type="hidden"
-                          name="sourceTableId"
+                          th:field="*{sourceTableId}"
                           th:value="${selectedTableId}"
+                        />
+                        <input
+                          type="hidden"
+                          th:field="*{targetTableId}"
+                          id="hidden-target-table-id"
                         />
 
                         <!-- Container for dynamic form inputs -->
@@ -1704,12 +1515,12 @@
                                       <th
                                         class="w-20 p-3 text-center font-medium text-[#3e2723]"
                                       >
-                                        SL hiện tại
+                                        Hiện có
                                       </th>
                                       <th
                                         class="w-24 p-3 text-center font-medium text-[#3e2723]"
                                       >
-                                        SL tách
+                                        Tách
                                       </th>
                                     </tr>
                                   </thead>
@@ -1762,10 +1573,15 @@
                                           th:id="'split-input-' + ${detail.id}"
                                           min="0"
                                           th:max="${detail.quantity ?: 0}"
-                                          value="0"
-                                          disabled
+                                          th:field="*{items[__${detailStat.index}__].quantity}"
+                                          readonly
                                           class="w-16 px-2 py-1 border border-gray-300 rounded text-center split-quantity-input"
                                           th:data-menu-item-id="${detail.menuItem?.id}"
+                                        />
+                                        <input
+                                          type="hidden"
+                                          th:field="*{items[__${detailStat.index}__].menuItemId}"
+                                          th:value="${detail.menuItem?.id}"
                                         />
                                       </td>
                                     </tr>
@@ -1877,6 +1693,98 @@
                             Hủy
                           </a>
                         </div>
+
+                        <script>
+                          function toggleSplitInput(checkbox) {
+                            const detailId =
+                              checkbox.getAttribute('data-detail-id');
+                            const input = document.getElementById(
+                              'split-input-' + detailId
+                            );
+                            if (checkbox.checked) {
+                              input.readOnly = false;
+                              if (input.value === '0') input.value = '1';
+                              input.focus();
+                            } else {
+                              input.readOnly = true;
+                              input.value = '0';
+                            }
+                          }
+                          // Trước khi submit form, bỏ readonly cho tất cả input số lượng để đảm bảo giá trị được gửi lên backend
+                          document
+                            .getElementById('split-table-form')
+                            .addEventListener('submit', function (e) {
+                              // Kiểm tra có món nào được chọn không (quantity > 0)
+                              const hasSelectedItems = Array.from(
+                                document.querySelectorAll(
+                                  '.split-quantity-input'
+                                )
+                              ).some((input) => parseInt(input.value) > 0);
+
+                              if (!hasSelectedItems) {
+                                e.preventDefault();
+                                alert('Vui lòng chọn ít nhất một món để tách!');
+                                return;
+                              }
+
+                              // Kiểm tra có chọn bàn đích không
+                              const targetTableSelected =
+                                document.querySelector(
+                                  'input[name="targetTableId"]:checked'
+                                );
+                              if (!targetTableSelected) {
+                                e.preventDefault();
+                                alert('Vui lòng chọn bàn đích!');
+                                return;
+                              }
+
+                              // Sync giá trị targetTableId vào hidden input
+                              document.getElementById(
+                                'hidden-target-table-id'
+                              ).value = targetTableSelected.value;
+
+                              // Bỏ readonly cho tất cả input
+                              document
+                                .querySelectorAll('.split-quantity-input')
+                                .forEach(function (input) {
+                                  input.readOnly = false;
+                                });
+                            });
+
+                          // Khởi tạo trạng thái ban đầu cho các dòng đã được chọn
+                          document.addEventListener(
+                            'DOMContentLoaded',
+                            function () {
+                              document
+                                .querySelectorAll('.split-item-checkbox')
+                                .forEach(function (cb) {
+                                  toggleSplitInput(cb);
+                                });
+                            }
+                          );
+
+                          // Chọn tất cả checkbox
+                          document
+                            .getElementById('select-all')
+                            .addEventListener('change', function (e) {
+                              const checked = e.target.checked;
+                              document
+                                .querySelectorAll('.split-item-checkbox')
+                                .forEach(function (cb) {
+                                  cb.checked = checked;
+                                  toggleSplitInput(cb);
+                                });
+                            });
+
+                          // Sync targetTableId khi radio button thay đổi
+                          document.addEventListener('change', function (e) {
+                            if (e.target.name === 'targetTableId') {
+                              document.getElementById(
+                                'hidden-target-table-id'
+                              ).value = e.target.value;
+                            }
+                          });
+                        </script>
                       </form>
                     </div>
                   </div>

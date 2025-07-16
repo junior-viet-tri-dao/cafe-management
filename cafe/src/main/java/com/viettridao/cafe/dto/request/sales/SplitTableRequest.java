@@ -33,7 +33,7 @@ public class SplitTableRequest {
         private Integer menuItemId;
 
         @NotNull(message = "Số lượng tách không được để trống")
-        @Min(value = 1, message = "Số lượng tách phải lớn hơn 0")
+        @Min(value = 0, message = "Số lượng tách không được âm")
         private Integer quantity;
     }
 }
