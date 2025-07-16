@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 public class OrderDetailRessponse {
     private Integer tableId;
+    private String tableName; // Thêm tên bàn để hiển thị trong UI
     private String tableStatus;
     private Integer invoiceId;
     private String invoiceStatus;

@@ -27,8 +27,9 @@ public class OrderDetailMapper {
         // Khởi tạo response cho order/bàn
         OrderDetailRessponse orderResponse = new OrderDetailRessponse();
 
-        // Gán thông tin bàn (id, trạng thái)
+        // Gán thông tin bàn (id, tên, trạng thái)
         orderResponse.setTableId(table.getId());
+        orderResponse.setTableName(table.getTableName());
         orderResponse.setTableStatus(table.getStatus().name());
 
         // Nếu có hóa đơn thì gán thông tin hóa đơn (id, trạng thái)

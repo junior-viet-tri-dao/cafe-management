@@ -431,7 +431,9 @@ public class SalesController {
             @RequestParam(required = false) Boolean showMergeModal,
             @RequestParam(required = false) Boolean showSplitModal,
             @RequestParam(required = false) Boolean showMoveModal,
+            @RequestParam(required = false) Boolean showPaymentModal,
             @RequestParam(required = false) Integer selectedTableId,
+            @RequestParam(required = false) Integer tableId,
             Model model) {
 
         // ======================================
@@ -597,8 +599,53 @@ public class SalesController {
             }
         }
 
+        // ==========================================
+        // BƯỚC 5: XỬ LÝ HIỂN THỊ MODAL THANH TOÁN
+        // ==========================================
+        if (showPaymentModal != null && showPaymentModal && tableId != null) {
+            try {
+                // Sub-step 5.1: Validate và lấy thông tin bàn
+                var table = tableRepository.findById(tableId)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
+
+                // Sub-step 5.2: Kiểm tra trạng thái bàn - chỉ cho phép thanh toán bàn OCCUPIED
+                if (table.getStatus() != TableStatus.OCCUPIED) {
+                    model.addAttribute("errorMessage", "Chỉ có thể thanh toán bàn đang sử dụng (OCCUPIED)!");
+                    return "sales/sales";
+                }
+
+                // Sub-step 5.3: Tìm reservation hiện tại của bàn
+                var reservation = reservationService.findCurrentReservationByTableId(tableId);
+                if (reservation == null) {
+                    model.addAttribute("errorMessage", "Không có thông tin đặt bàn để thanh toán!");
+                    return "sales/sales";
+                }
+
+                // Sub-step 5.4: Lấy invoice và chi tiết hóa đơn
+                var invoice = reservation.getInvoice();
+                if (invoice == null) {
+                    model.addAttribute("errorMessage", "Không có hóa đơn để thanh toán!");
+                    return "sales/sales";
+                }
+
+                var invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
+
+                // Sub-step 5.5: Map entity sang response DTO để hiển thị
+                OrderDetailRessponse orderDetail = orderDetailMapper.toOrderDetailResponse(table, invoice, reservation,
+                        invoiceDetails);
+
+                // Sub-step 5.6: Truyền data cho view và hiển thị modal thanh toán
+                model.addAttribute("orderDetail", orderDetail);
+                model.addAttribute("showPaymentModal", true);
+
+            } catch (Exception e) {
+                model.addAttribute("errorMessage", "Lỗi khi hiển thị form thanh toán: " + e.getMessage());
+                return "sales/sales";
+            }
+        }
+
         // ======================================
-        // BƯỚC 5: THÊM CÁC OBJECT MẶC ĐỊNH CHO TEMPLATE
+        // BƯỚC 6: THÊM CÁC OBJECT MẶC ĐỊNH CHO TEMPLATE
         // ======================================
         // Đảm bảo các object này luôn tồn tại để tránh lỗi template
         if (!model.containsAttribute("selectMenuRequest")) {
@@ -609,7 +656,7 @@ public class SalesController {
         }
 
         // ======================================
-        // BƯỚC 6: TRẢ VỀ VIEW SALES.HTML
+        // BƯỚC 7: TRẢ VỀ VIEW SALES.HTML
         // ======================================
         return "sales/sales";
     }
@@ -1183,4 +1230,59 @@ public class SalesController {
         return account.getEmployee().getId();
     }
 
+    // ================================================================================================
+    // CHỨC NĂNG 3B: HIỂN THỊ FORM THANH TOÁN RIÊNG BIỆT (PAYMENT MODAL)
+    // ================================================================================================
+
+    /**
+     * 🎯 HIỂN THỊ FORM THANH TOÁN TRONG POPUP (Payment Modal)
+     * Endpoint: GET /sale/show-payment-modal?tableId={id}
+     * Mục đích: Hiển thị form thanh toán riêng biệt trong sales.html
+     * Quy trình:
+     * 1. Validate tableId và lấy thông tin bàn
+     * 2. Tìm reservation hiện tại của bàn
+     * 3. Lấy invoice và chi tiết hóa đơn
+     * 4. Truyền dữ liệu cho view, set flag showPaymentModal = true
+     * 5. Trả về sales.html với modal thanh toán hiển thị
+     */
+    @GetMapping("/show-payment-modal")
+    public String showPaymentModal(@RequestParam Integer tableId, Model model) {
+        // BƯỚC 1: Validate và lấy thông tin bàn
+        var table = tableRepository.findById(tableId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
+
+        // BƯỚC 2: Kiểm tra trạng thái bàn - chỉ cho phép thanh toán bàn OCCUPIED
+        if (table.getStatus() != TableStatus.OCCUPIED) {
+            model.addAttribute("tables", tableRepository.findAll());
+            model.addAttribute("errorMessage", "Chỉ có thể thanh toán bàn đang sử dụng (OCCUPIED)!");
+            return "sales/sales";
+        }
+
+        // BƯỚC 3: Tìm reservation hiện tại của bàn
+        var reservation = reservationService.findCurrentReservationByTableId(tableId);
+        if (reservation == null) {
+            model.addAttribute("tables", tableRepository.findAll());
+            model.addAttribute("errorMessage", "Không có thông tin đặt bàn để thanh toán!");
+            return "sales/sales";
+        }
+
+        // BƯỚC 4: Lấy invoice và chi tiết hóa đơn
+        var invoice = reservation.getInvoice();
+        if (invoice == null) {
+            model.addAttribute("tables", tableRepository.findAll());
+            model.addAttribute("errorMessage", "Không có hóa đơn để thanh toán!");
+            return "sales/sales";
+        }
+        var invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
+
+        // BƯỚC 5: Map entity sang response DTO để hiển thị
+        OrderDetailRessponse orderDetail = orderDetailMapper.toOrderDetailResponse(table, invoice, reservation,
+                invoiceDetails);
+
+        // BƯỚC 6: Truyền data cho view và hiển thị modal thanh toán
+        model.addAttribute("tables", tableRepository.findAll());
+        model.addAttribute("orderDetail", orderDetail);
+        model.addAttribute("showPaymentModal", true);
+        return "sales/sales";
+    }
 }
