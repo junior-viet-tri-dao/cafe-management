@@ -40,6 +40,7 @@ public class AccountController {
 	@PostMapping("/update")
 	public String updateAccount(@Valid @ModelAttribute("account") UpdateAccountRequest request,
 			BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+
 		if (bindingResult.hasErrors()) {
 			redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.account", bindingResult);
 			redirectAttributes.addFlashAttribute("account", request);

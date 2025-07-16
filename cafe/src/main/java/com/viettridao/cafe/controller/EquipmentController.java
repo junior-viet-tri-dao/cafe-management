@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/equipment")
 public class EquipmentController {
+
 	private final EquipmentService equipmentService;
 	private final EquipmentMapper equipmentMapper;
 
@@ -47,6 +48,7 @@ public class EquipmentController {
 			if (result.hasErrors()) {
 				return "/equipments/create_equipment";
 			}
+
 			equipmentService.createEquipment(equipment);
 			redirectAttributes.addFlashAttribute("success", "Thêm thiết bị thành công");
 			return "redirect:/equipment";
@@ -61,11 +63,10 @@ public class EquipmentController {
 		try {
 			equipmentService.deleteEquipment(id);
 			redirectAttributes.addFlashAttribute("success", "Xoá thiết bị thành công");
-			return "redirect:/equipment";
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", e.getMessage());
-			return "redirect:/equipment";
 		}
+		return "redirect:/equipment";
 	}
 
 	@GetMapping("/update/{id}")
@@ -87,6 +88,7 @@ public class EquipmentController {
 			if (result.hasErrors()) {
 				return "/equipments/update_equipment";
 			}
+
 			equipmentService.updateEquipment(request);
 			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa thiết bị thành công");
 			return "redirect:/equipment";
@@ -95,5 +97,4 @@ public class EquipmentController {
 			return "redirect:/equipment";
 		}
 	}
-
 }

@@ -3,6 +3,7 @@ package com.viettridao.cafe.repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +26,7 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer>
 
 	@Query("SELECT SUM(i.totalAmount) FROM InvoiceEntity i WHERE i.createdAt BETWEEN :from AND :to AND i.status = 'PAID' AND i.isDeleted = false")
 	Double sumTotalAmountBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+	Optional<InvoiceEntity> findTopByReservations_Table_IdAndIsDeletedFalseOrderByCreatedAtDesc(Integer tableId);
 
 }

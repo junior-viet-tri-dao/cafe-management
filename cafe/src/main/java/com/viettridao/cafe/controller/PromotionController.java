@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/promotion")
 public class PromotionController {
+
 	private final PromotionService promotionService;
 	private final PromotionMapper promotionMapper;
 
@@ -95,5 +96,4 @@ public class PromotionController {
 			return "redirect:/promotion";
 		}
 	}
-
 }

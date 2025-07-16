@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.viettridao.cafe.dto.request.Pay.PaymentItemRequest;
 import com.viettridao.cafe.dto.request.Pay.PaymentRequest;
 import com.viettridao.cafe.dto.response.Pay.PaymentResponse;
 import com.viettridao.cafe.dto.response.tables.TableMenuItemResponse;
@@ -39,6 +40,16 @@ public class PaymentController {
 		request.setCustomerCash(0.0);
 		request.setFreeTable(true);
 
+		List<PaymentItemRequest> itemRequests = items.stream().map(item -> {
+			PaymentItemRequest reqItem = new PaymentItemRequest();
+			reqItem.setMenuItemId(item.getMenuItemId());
+			reqItem.setQuantity(item.getQuantity());
+			reqItem.setPrice(item.getPrice());
+			reqItem.setAmount(item.getAmount());
+			return reqItem;
+		}).toList();
+		request.setItems(itemRequests);
+
 		ReservationEntity reservation = tableService.getLatestReservationByTableId(tableId);
 		String employeeName = (reservation != null && reservation.getEmployee() != null)
 				? reservation.getEmployee().getFullName()
@@ -61,6 +72,16 @@ public class PaymentController {
 			List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
 			double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
 
+			List<PaymentItemRequest> itemRequests = items.stream().map(item -> {
+				PaymentItemRequest reqItem = new PaymentItemRequest();
+				reqItem.setMenuItemId(item.getMenuItemId());
+				reqItem.setQuantity(item.getQuantity());
+				reqItem.setPrice(item.getPrice());
+				reqItem.setAmount(item.getAmount());
+				return reqItem;
+			}).toList();
+			request.setItems(itemRequests);
+
 			ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
 			String employeeName = (reservation != null && reservation.getEmployee() != null)
 					? reservation.getEmployee().getFullName()
@@ -70,18 +91,30 @@ public class PaymentController {
 			model.addAttribute("menuItems", items);
 			model.addAttribute("totalAmount", total);
 			model.addAttribute("employeeName", employeeName);
+			model.addAttribute("paymentRequest", request);
 
 			return "sale/form";
 		}
 
 		try {
 			PaymentResponse response = paymentService.processPayment(request);
+
 			if (!Boolean.TRUE.equals(response.isSuccess())) {
 				model.addAttribute("error", response.getMessage());
 
 				List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
 				double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0)
 						.sum();
+
+				List<PaymentItemRequest> itemRequests = items.stream().map(item -> {
+					PaymentItemRequest reqItem = new PaymentItemRequest();
+					reqItem.setMenuItemId(item.getMenuItemId());
+					reqItem.setQuantity(item.getQuantity());
+					reqItem.setPrice(item.getPrice());
+					reqItem.setAmount(item.getAmount());
+					return reqItem;
+				}).toList();
+				request.setItems(itemRequests);
 
 				ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
 				String employeeName = (reservation != null && reservation.getEmployee() != null)
@@ -99,6 +132,8 @@ public class PaymentController {
 
 			model.addAttribute("response", response);
 			model.addAttribute("success", response.getMessage());
+			model.addAttribute("tableId", request.getTableId()); 
+
 			return "sale/result";
 
 		} catch (Exception e) {
@@ -106,6 +141,16 @@ public class PaymentController {
 
 			List<TableMenuItemResponse> items = tableService.getTableMenuItems(request.getTableId());
 			double total = items.stream().mapToDouble(item -> item.getAmount() != null ? item.getAmount() : 0.0).sum();
+
+			List<PaymentItemRequest> itemRequests = items.stream().map(item -> {
+				PaymentItemRequest reqItem = new PaymentItemRequest();
+				reqItem.setMenuItemId(item.getMenuItemId());
+				reqItem.setQuantity(item.getQuantity());
+				reqItem.setPrice(item.getPrice());
+				reqItem.setAmount(item.getAmount());
+				return reqItem;
+			}).toList();
+			request.setItems(itemRequests);
 
 			ReservationEntity reservation = tableService.getLatestReservationByTableId(request.getTableId());
 			String employeeName = (reservation != null && reservation.getEmployee() != null)

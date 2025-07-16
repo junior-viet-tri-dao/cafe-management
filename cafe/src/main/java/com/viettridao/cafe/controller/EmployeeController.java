@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/employee")
 public class EmployeeController {
+
 	private final EmployeeService employeeService;
 	private final EmployeeMapper employeeMapper;
 	private final PositionService positionService;
@@ -68,11 +69,10 @@ public class EmployeeController {
 		try {
 			employeeService.deleteEmployee(id);
 			redirectAttributes.addFlashAttribute("success", "Xoá nhân viên thành công");
-			return "redirect:/employee";
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", e.getMessage());
-			return "redirect:/employee";
 		}
+		return "redirect:/employee";
 	}
 
 	@GetMapping("/update/{id}")
@@ -96,6 +96,7 @@ public class EmployeeController {
 				model.addAttribute("positions", positionMapper.toDtoList(positionService.getPositions()));
 				return "/employees/update_employee";
 			}
+
 			employeeService.updateEmployee(request);
 			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa nhân viên thành công");
 			return "redirect:/employee";

@@ -20,4 +20,6 @@ public interface TableService {
 
 	InvoiceEntity getLatestUnpaidInvoiceByTableId(Integer tableId);
 
+	InvoiceEntity getLatestInvoiceByTableId(Integer tableId);
+
 }

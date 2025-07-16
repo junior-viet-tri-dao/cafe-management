@@ -44,7 +44,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		if (invoice == null) {
 			return new PaymentResponse(false, "Không tìm thấy hóa đơn chưa thanh toán", null, null, null, null,
-					"NOT_FOUND", null, null);
+					"NOT_FOUND", null, null, tableId);
 		}
 
 		List<InvoiceDetailEntity> items = invoiceItemDetailRepository
@@ -52,14 +52,14 @@ public class PaymentServiceImpl implements PaymentService {
 
 		if (items == null || items.isEmpty()) {
 			return new PaymentResponse(false, "Hóa đơn không có món nào", 0.0, customerCash, customerCash,
-					invoice.getId(), invoice.getStatus().name(), null, null);
+					invoice.getId(), invoice.getStatus().name(), null, null, tableId);
 		}
 
 		double totalAmount = items.stream().mapToDouble(item -> item.getPrice() * item.getQuantity()).sum();
 
 		if (customerCash < totalAmount) {
 			return new PaymentResponse(false, "Số tiền khách đưa không đủ để thanh toán", totalAmount, customerCash,
-					null, invoice.getId(), invoice.getStatus().name(), null, null);
+					null, invoice.getId(), invoice.getStatus().name(), null, null, tableId);
 		}
 
 		EmployeeEntity employee = invoice.getReservations().stream()
@@ -91,6 +91,6 @@ public class PaymentServiceImpl implements PaymentService {
 		double change = customerCash - totalAmount;
 
 		return new PaymentResponse(true, "Thanh toán thành công", totalAmount, customerCash, change, invoice.getId(),
-				invoice.getStatus().name(), paidByName, paidById);
+				invoice.getStatus().name(), paidByName, paidById, tableId);
 	}
 }

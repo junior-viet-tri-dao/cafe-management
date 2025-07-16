@@ -49,6 +49,26 @@
        class="inline-block mt-4 text-blue-600 hover:text-blue-800 hover:underline transition">
         ← Quay lại danh sách bàn
     </a>
+
+    <!-- In hóa đơn -->
+    <a th:if="${response.success}"
+       th:href="@{'/sale/' + ${tableId} + '/print'}"
+       target="_blank"
+       id="print-button"
+       class="inline-block mt-4 ml-6 text-green-600 hover:text-green-800 hover:underline transition">
+        🖨 In hóa đơn
+    </a>
+
 </div>
+
+<!-- Script lắng nghe tín hiệu từ cửa sổ in -->
+<script>
+    window.addEventListener('message', function(event) {
+        if (event.data === 'printed') {
+            alert("🖨 Đã in hóa đơn thành công!");
+        }
+    });
+</script>
+
 </body>
 </html>

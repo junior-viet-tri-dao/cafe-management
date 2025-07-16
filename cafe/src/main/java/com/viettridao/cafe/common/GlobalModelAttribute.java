@@ -21,9 +21,11 @@ public class GlobalModelAttribute {
 	@ModelAttribute("user")
 	public AccountEntity addUser() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
 		if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
 			return (AccountEntity) auth.getPrincipal();
 		}
+
 		return null;
 	}
 }

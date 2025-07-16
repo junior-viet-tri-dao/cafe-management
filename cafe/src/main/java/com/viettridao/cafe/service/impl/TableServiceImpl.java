@@ -93,6 +93,12 @@ public class TableServiceImpl implements TableService {
 				.findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDescReservationTimeDesc(tableId).orElse(null);
 	}
 
+	@Override
+	public InvoiceEntity getLatestInvoiceByTableId(Integer tableId) {
+		return invoiceRepository.findTopByReservations_Table_IdAndIsDeletedFalseOrderByCreatedAtDesc(tableId)
+				.orElse(null);
+	}
+
 	@Transactional
 	@Override
 	public Integer getOrCreateInvoiceIdByTableId(Integer tableId) {
@@ -112,7 +118,6 @@ public class TableServiceImpl implements TableService {
 		return invoice.getId();
 	}
 
-	// 👉 Tách riêng tạo hóa đơn + đặt bàn mặc định
 	private InvoiceEntity createNewInvoiceAndReservation(TableEntity table) {
 		InvoiceEntity invoice = new InvoiceEntity();
 		invoice.setTotalAmount(0.0);

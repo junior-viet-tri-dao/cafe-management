@@ -7,7 +7,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.common.ReportType;
+import com.viettridao.cafe.dto.response.employee.EmployeeDailySalaryResponse;
 import com.viettridao.cafe.dto.response.reportstatistics.ReportItemResponse;
+import com.viettridao.cafe.model.EmployeeEntity;
+import com.viettridao.cafe.model.PositionEntity;
 import com.viettridao.cafe.repository.EmployeeRepository;
 import com.viettridao.cafe.repository.ExpenseRepository;
 import com.viettridao.cafe.repository.ExportRepository;
@@ -31,12 +34,14 @@ public class ReportServiceImpl implements ReportService {
 	public List<ReportItemResponse> getReport(LocalDate fromDate, LocalDate toDate) {
 		List<ReportItemResponse> reports = new ArrayList<>();
 
+		double totalMonthlySalary = employeeRepository.sumAllSalaries() != null ? employeeRepository.sumAllSalaries()
+				: 0.0;
+
 		for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
 			Double revenue = invoiceRepository.sumTotalAmountByDate(date);
 			Double importCost = importRepository.sumTotalAmountByDate(date);
 			Double exportCost = exportRepository.sumTotalExportAmountByDate(date);
 			Double otherExpenses = expenseRepository.sumAmountByDate(date);
-			Double salary = employeeRepository.sumAllSalaries();
 
 			double totalRevenue = revenue != null ? revenue : 0.0;
 			double totalExpense = 0.0;
@@ -44,7 +49,11 @@ public class ReportServiceImpl implements ReportService {
 			totalExpense += importCost != null ? importCost : 0.0;
 			totalExpense += exportCost != null ? exportCost : 0.0;
 			totalExpense += otherExpenses != null ? otherExpenses : 0.0;
-			totalExpense += salary != null ? salary : 0.0;
+
+			int daysInMonth = date.lengthOfMonth();
+			double dailySalary = totalMonthlySalary / daysInMonth;
+
+			totalExpense += dailySalary;
 
 			reports.add(new ReportItemResponse(date, totalRevenue, totalExpense));
 		}
@@ -53,8 +62,30 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 	@Override
+	public List<EmployeeDailySalaryResponse> getEmployeeDailySalaries(LocalDate from, LocalDate to) {
+		List<EmployeeDailySalaryResponse> result = new ArrayList<>();
+		List<EmployeeEntity> employees = employeeRepository.findAll();
+
+		for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+			int daysInMonth = date.lengthOfMonth();
+			for (EmployeeEntity e : employees) {
+				PositionEntity position = e.getPosition();
+				double monthlySalary = (position != null && position.getSalary() != null) ? position.getSalary() : 0.0;
+				double dailySalary = monthlySalary / daysInMonth;
+
+				result.add(new EmployeeDailySalaryResponse(e.getFullName(), date, dailySalary));
+			}
+		}
+
+		return result;
+	}
+
+	@Override
 	public List<ReportItemResponse> getReport(LocalDate fromDate, LocalDate toDate, ReportType type) {
 		List<ReportItemResponse> result = new ArrayList<>();
+
+		double totalMonthlySalary = employeeRepository.sumAllSalaries() != null ? employeeRepository.sumAllSalaries()
+				: 0.0;
 
 		for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
 			double revenue = 0.0;
@@ -70,12 +101,13 @@ public class ReportServiceImpl implements ReportService {
 				Double i = importRepository.sumTotalAmountByDate(date);
 				Double e = exportRepository.sumTotalExportAmountByDate(date);
 				Double o = expenseRepository.sumAmountByDate(date);
-				Double s = employeeRepository.sumAllSalaries();
 
 				expense += i != null ? i : 0.0;
 				expense += e != null ? e : 0.0;
 				expense += o != null ? o : 0.0;
-				expense += s != null ? s : 0.0;
+
+				int daysInMonth = date.lengthOfMonth();
+				expense += totalMonthlySalary / daysInMonth;
 			}
 			case IMPORT -> {
 				Double i = importRepository.sumTotalAmountByDate(date);
@@ -94,9 +126,12 @@ public class ReportServiceImpl implements ReportService {
 				Double o = expenseRepository.sumAmountByDate(date);
 				expense += o != null ? o : 0.0;
 			}
-			case SALARY, EMPLOYEE_INFO -> {
-				Double s = employeeRepository.sumAllSalaries();
-				expense += s != null ? s : 0.0;
+			case SALARY -> {
+				int daysInMonth = date.lengthOfMonth();
+				expense += totalMonthlySalary / daysInMonth;
+			}
+			case EMPLOYEE_INFO -> {
+				expense += 0.0;
 			}
 			}
 

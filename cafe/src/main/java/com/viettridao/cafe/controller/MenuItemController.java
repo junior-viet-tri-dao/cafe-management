@@ -4,7 +4,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.menu.MenuItemRequest;
@@ -23,9 +28,7 @@ public class MenuItemController {
 
 	@GetMapping
 	public String listMenuItems(@RequestParam(defaultValue = "") String keyword,
-	                            @RequestParam(defaultValue = "0") int page,
-	                            @RequestParam(defaultValue = "10") int size,
-	                            Model model) {
+			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
 		Page<MenuItemResponse> items = menuItemService.getAll(keyword, page, size);
 		model.addAttribute("items", items);
 		model.addAttribute("keyword", keyword);
@@ -39,10 +42,8 @@ public class MenuItemController {
 	}
 
 	@PostMapping("/add")
-	public String addMenuItem(@ModelAttribute @Valid MenuItemRequest menuItem,
-	                          BindingResult result,
-	                          Model model,
-	                          RedirectAttributes redirectAttributes) {
+	public String addMenuItem(@ModelAttribute @Valid MenuItemRequest menuItem, BindingResult result, Model model,
+			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
 			return "menu/add";
 		}
@@ -65,11 +66,8 @@ public class MenuItemController {
 	}
 
 	@PostMapping("/edit/{id}")
-	public String updateMenuItem(@PathVariable Integer id,
-	                             @ModelAttribute @Valid MenuItemRequest menuItem,
-	                             BindingResult result,
-	                             Model model,
-	                             RedirectAttributes redirectAttributes) {
+	public String updateMenuItem(@PathVariable Integer id, @ModelAttribute @Valid MenuItemRequest menuItem,
+			BindingResult result, Model model, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
 			return "menu/edit";
 		}

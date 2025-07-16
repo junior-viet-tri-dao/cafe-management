@@ -32,7 +32,8 @@ public class BudgetController {
 	private final BudgetService budgetService;
 
 	private String formatCurrency(Double value) {
-		if (value == null) return "0";
+		if (value == null)
+			return "0";
 		NumberFormat intFormatter = NumberFormat.getIntegerInstance(new Locale("vi", "VN"));
 		DecimalFormat decimalFormatter = new DecimalFormat("#,##0.##");
 		return (value % 1 == 0) ? intFormatter.format(value) : decimalFormatter.format(value);
@@ -41,6 +42,7 @@ public class BudgetController {
 	@GetMapping("/list")
 	public String getBudgetList(@ModelAttribute BudgetFilterRequest filter, Model model,
 			@ModelAttribute("success") String success, @ModelAttribute("error") String error) {
+
 		if (filter.getFromDate() == null || filter.getToDate() == null) {
 			LocalDate today = LocalDate.now();
 			filter.setToDate(today);

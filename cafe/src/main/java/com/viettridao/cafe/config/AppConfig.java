@@ -22,7 +22,9 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
 	private static final String[] AUTH_WHITELIST = { "/login", "/js/**", "/css/**" };
+
 	private final UserServiceDetail userServiceDetail;
 
 	@Bean
@@ -55,5 +57,4 @@ public class AppConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder(6);
 	}
-
 }

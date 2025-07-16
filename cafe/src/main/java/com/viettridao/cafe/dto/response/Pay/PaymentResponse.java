@@ -29,4 +29,6 @@ public class PaymentResponse {
 
 	private Integer paidById;
 
+	private Integer tableId;
+
 }
