@@ -4,11 +4,13 @@ import com.viettridao.cafe.dto.request.account.UpdateAccountRequest;
 import com.viettridao.cafe.dto.response.account.AccountResponse;
 import com.viettridao.cafe.mapper.AccountMapper;
 import com.viettridao.cafe.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +33,12 @@ public class AccountController {
     }
 
     @PostMapping("/update")
-    public String updateAccount(@ModelAttribute("account") UpdateAccountRequest request,
+    public String updateAccount(@Valid @ModelAttribute("account") UpdateAccountRequest request, BindingResult result,
                                 RedirectAttributes redirectAttributes) {
         try {
+            if(result.hasErrors()){
+                return "/accounts/account";
+            }
             accountService.updateAccount(request);
             redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin cá nhân thành công!");
         } catch (Exception e) {

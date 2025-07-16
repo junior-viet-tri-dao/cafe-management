@@ -25,6 +25,9 @@ public class ImportEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Column(name = "price")
+    private Double price;
+
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 

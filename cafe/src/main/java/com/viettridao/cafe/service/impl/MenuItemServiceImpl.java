@@ -73,7 +73,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
                 MenuDetailEntity menuDetailEntity = new MenuDetailEntity();
                 menuDetailEntity.setId(id);
-                menuDetailEntity.setProduct(productService.getProductById(e.getProductId()));
+                menuDetailEntity.setProduct(product);
                 menuDetailEntity.setMenuItem(menuItemEntity);
                 menuDetailEntity.setUnitName(e.getUnitName());
                 menuDetailEntity.setQuantity(e.getQuantity());

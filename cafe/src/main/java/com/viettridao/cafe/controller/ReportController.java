@@ -7,12 +7,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,8 +24,35 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping
-    public String showReportForm() {
-        return "/reports/report";
+    public String showReportForm(
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+
+            @RequestParam(value = "type", required = false) String type,
+            Model model
+    ) {
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("type", type);
+
+        if (startDate != null && endDate != null && type != null) {
+            try {
+                ReportFilterRequest request = new ReportFilterRequest();
+                request.setStartDate(startDate);
+                request.setEndDate(endDate);
+                request.setType(ReportType.valueOf(type));
+
+                List<?> reportData = reportService.getReportData(request);
+                model.addAttribute("reportData", reportData);
+            } catch (IllegalArgumentException e) {
+                model.addAttribute("error", "Loại báo cáo không hợp lệ");
+            }
+        }
+
+        return "reports/report";
     }
 
     @GetMapping("/download")

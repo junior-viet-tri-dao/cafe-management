@@ -28,7 +28,7 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
             from imports i
             join products p on i.product_id = p.product_id
             join units u on p.unit_id = u.unit_id
-            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and i.is_deleted = false
             
         UNION ALL
 
@@ -45,7 +45,7 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
             from exports e
             join products p on e.product_id = p.product_id
             join units u on p.unit_id = u.unit_id
-           WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%')))                                  
+           WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and e.is_deleted = false                             
         """,
             countQuery = """
         SELECT COUNT(*)
@@ -53,14 +53,14 @@ public interface ImportRepository extends JpaRepository<ImportEntity, Integer> {
             SELECT p.product_id
             FROM imports i
             JOIN products p ON i.product_id = p.product_id
-            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and  i.is_deleted = false
             
             UNION ALL
             
             SELECT p.product_id
             FROM exports e
             JOIN products p ON e.product_id = p.product_id
-            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            WHERE (:keyword IS NULL OR LOWER(p.product_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and p.is_deleted = false
         ) AS temp
     """,
             nativeQuery = true

@@ -1,6 +1,7 @@
 package com.viettridao.cafe.dto.request.account;
 
 import com.viettridao.cafe.exception.OptionalSize;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;

@@ -4,41 +4,206 @@
       layout:decorate="~{/layout}">
 <head>
   <title>Báo cáo thống kê</title>
+  <script>
+    function validateForm() {
+      const start = document.getElementById("start").value;
+      const end = document.getElementById("end").value;
+      const now = new Date().toISOString().split("T")[0];
+
+      if (start > end) {
+        alert("⚠️ Từ ngày phải nhỏ hơn hoặc bằng đến ngày.");
+        return false;
+      }
+
+      if (start > now || end > now) {
+        alert("⚠️ Ngày không được vượt quá ngày hiện tại.");
+        return false;
+      }
+
+      return true;
+    }
+  </script>
 </head>
 
 <body>
 <main layout:fragment="content">
-  <div class="container mt-5">
-    <h2 class="mb-4 text-primary fw-bold">📈 Báo cáo thống kê</h2>
-    <form method="get" action="/report/download" target="_blank" class="border rounded-3 p-4 bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h2 class="text-2xl font-bold text-blue-600 mb-6">📈 Báo cáo thống kê</h2>
 
-      <div class="mb-3">
-        <label for="start" class="form-label">Từ ngày:</label>
-        <input type="date" name="startDate" id="start" class="form-control" required>
+    <!-- Form lọc -->
+    <div class="bg-white shadow-md rounded-md p-6 mb-6">
+      <form method="get" action="/report" onsubmit="return validateForm()" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="start" class="block text-sm font-medium text-gray-700">Từ ngày:</label>
+            <input type="date" name="startDate" id="start" required th:value="${startDate}"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="end" class="block text-sm font-medium text-gray-700">Đến ngày:</label>
+            <input type="date" name="endDate" id="end" required th:value="${endDate}"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+
+          <div>
+            <label for="type" class="block text-sm font-medium text-gray-700">Loại báo cáo:</label>
+            <select name="type" id="type" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <option th:value="EMPLOYEE_SALARY" th:selected="${type == 'EMPLOYEE_SALARY'}">👥 Nhân viên & Lương</option>
+              <option th:value="INVOICE_MONTHLY" th:selected="${type == 'INVOICE_MONTHLY'}">🧾 Hóa đơn theo tháng</option>
+              <option th:value="REVENUE_SUMMARY" th:selected="${type == 'REVENUE_SUMMARY'}">📊 Doanh thu</option>
+              <option th:value="EXPENSE_ONLY" th:selected="${type == 'EXPENSE_ONLY'}">💸 Chi tiêu</option>
+              <option th:value="IMPORT_ONLY" th:selected="${type == 'IMPORT_ONLY'}">📅 Nhập hàng</option>
+              <option th:value="EXPORT_ONLY" th:selected="${type == 'EXPORT_ONLY'}">📄 Xuất hàng</option>
+              <option th:value="IMPORT_EXPORT" th:selected="${type == 'IMPORT_EXPORT'}">🔄 Nhập - Xuất</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <button type="submit"
+                  class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">🔍 Xem báo cáo</button>
+          <a class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+             th:href="@{/report/download(startDate=${startDate}, endDate=${endDate}, type=${type})}" target="_blank">
+            📅 Tải PDF
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Thông báo lỗi -->
+    <div th:if="${error}"
+         class="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
+      <span th:text="${error}">Lỗi hệ thống</span>
+    </div>
+
+    <!-- Không có dữ liệu -->
+    <div th:if="${reportData != null and #lists.isEmpty(reportData)}"
+         class="bg-yellow-100 text-yellow-800 px-4 py-3 rounded mb-4">
+      ⚠️ Không có dữ liệu trong khoảng thời gian đã chọn.
+    </div>
+
+    <!-- Kết quả -->
+    <div th:if="${reportData != null and !#lists.isEmpty(reportData)}" class="bg-white shadow rounded-md p-6">
+      <h3 class="text-lg font-bold mb-4">📌 Kết quả báo cáo</h3>
+
+      <div th:switch="${type}">
+        <!-- EMPLOYEE_SALARY -->
+        <div th:case="'EMPLOYEE_SALARY'" class="overflow-x-auto">
+          <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 border">Họ tên</th>
+              <th class="px-4 py-2 border">SĐT</th>
+              <th class="px-4 py-2 border">Địa chỉ</th>
+              <th class="px-4 py-2 border">Chức vụ</th>
+              <th class="px-4 py-2 border">Lương</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${reportData}" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border" th:text="${e.fullName}">Tên</td>
+              <td class="px-4 py-2 border" th:text="${e.phoneNumber}">SĐT</td>
+              <td class="px-4 py-2 border" th:text="${e.address}">Địa chỉ</td>
+              <td class="px-4 py-2 border" th:text="${e.position.positionName}">Chức vụ</td>
+              <td class="px-4 py-2 border" th:text="${e.position.salary}">Lương</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- INVOICE_MONTHLY -->
+        <div th:case="'INVOICE_MONTHLY'" class="overflow-x-auto">
+          <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 border">Mã hóa đơn</th>
+              <th class="px-4 py-2 border">Ngày tạo</th>
+              <th class="px-4 py-2 border">Trạng thái</th>
+              <th class="px-4 py-2 border">Tổng tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="inv : ${reportData}" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border" th:text="${inv.id}">#</td>
+              <td class="px-4 py-2 border" th:text="${#temporals.format(inv.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày</td>
+              <td class="px-4 py-2 border" th:text="${inv.status}">Trạng thái</td>
+              <td class="px-4 py-2 border" th:text="${inv.totalAmount}">Tổng</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- REVENUE_SUMMARY -->
+        <div th:case="'REVENUE_SUMMARY'" class="overflow-x-auto">
+          <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-gray-100">
+            <tr><th class="px-4 py-2 border">Ngày</th><th class="px-4 py-2 border">Doanh thu</th><th class="px-4 py-2 border">Chi phí</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${reportData[0].summaries}" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border" th:text="${r.date}">Ngày</td>
+              <td class="px-4 py-2 border" th:text="${r.income}">Doanh thu</td>
+              <td class="px-4 py-2 border" th:text="${r.expense}">Chi phí</td>
+            </tr>
+            </tbody>
+            <tfoot class="bg-gray-100 font-semibold">
+            <tr>
+              <td class="px-4 py-2 border">Tổng</td>
+              <td class="px-4 py-2 border" th:text="${reportData[0].totalIncome}">0</td>
+              <td class="px-4 py-2 border" th:text="${reportData[0].totalExpense}">0</td>
+            </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- EXPENSE_ONLY -->
+        <div th:case="'EXPENSE_ONLY'" class="overflow-x-auto">
+          <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-gray-100">
+            <tr><th class="px-4 py-2 border">Tên chi tiêu</th><th class="px-4 py-2 border">Ngày</th><th class="px-4 py-2 border">Số tiền</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="ex : ${reportData}" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border" th:text="${ex.expenseName}">Tên</td>
+              <td class="px-4 py-2 border" th:text="${ex.expenseDate}">Ngày</td>
+              <td class="px-4 py-2 border" th:text="${ex.amount}">Số tiền</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- IMPORT_ONLY và EXPORT_ONLY -->
+        <div th:case="'IMPORT_ONLY'" th:fragment="import_export_table(reportData, 'import')" class="overflow-x-auto">
+          <table class="min-w-full text-sm border border-gray-300">
+            <thead class="bg-gray-100">
+            <tr><th class="px-4 py-2 border">Sản phẩm</th><th class="px-4 py-2 border">Ngày nhập</th><th class="px-4 py-2 border">Số lượng</th><th class="px-4 py-2 border">Tổng tiền</th><th class="px-4 py-2 border">Nhân viên</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="imp : ${reportData}" class="odd:bg-white even:bg-gray-50">
+              <td class="px-4 py-2 border" th:text="${imp.product.productName}">SP</td>
+              <td class="px-4 py-2 border" th:text="${imp.importDate}">Ngày</td>
+              <td class="px-4 py-2 border" th:text="${imp.quantity}">SL</td>
+              <td class="px-4 py-2 border" th:text="${imp.totalAmount}">Tổng</td>
+              <td class="px-4 py-2 border" th:text="${imp.employee.fullName}">NV</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div th:case="'EXPORT_ONLY'" th:replace="~{this :: import_export_table(reportData, 'export')}"></div>
+
+        <!-- IMPORT_EXPORT -->
+        <div th:case="'IMPORT_EXPORT'">
+          <h4 class="font-semibold text-gray-700 mt-4 mb-2">📅 Nhập hàng</h4>
+          <div th:replace="~{this :: import_export_table(reportData[0].imports, 'import')}"></div>
+
+          <h4 class="font-semibold text-gray-700 mt-6 mb-2">📄 Xuất hàng</h4>
+          <div th:replace="~{this :: import_export_table(reportData[0].exports, 'export')}"></div>
+        </div>
       </div>
-
-      <div class="mb-3">
-        <label for="end" class="form-label">Đến ngày:</label>
-        <input type="date" name="endDate" id="end" class="form-control" required>
-      </div>
-
-      <div class="mb-4">
-        <label for="type" class="form-label">Loại báo cáo:</label>
-        <select name="type" id="type" class="form-select" required>
-          <option value="EMPLOYEE_SALARY">👥 Nhân viên & Lương</option>
-          <option value="INVOICE_MONTHLY">🧾 Hóa đơn theo tháng</option>
-          <option value="REVENUE_SUMMARY">📊 Doanh thu</option>
-          <option value="EXPENSE_ONLY">💸 Chi tiêu</option>
-          <option value="IMPORT_ONLY">📥 Nhập hàng</option>
-          <option value="EXPORT_ONLY">📤 Xuất hàng</option>
-          <option value="IMPORT_EXPORT">🔄 Nhập - Xuất</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary">
-        📥 Tải PDF
-      </button>
-    </form>
+    </div>
   </div>
 </main>
 </body>

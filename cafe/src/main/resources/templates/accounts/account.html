@@ -70,6 +70,7 @@
                     <input type="text" th:field="*{address}"
                            th:placeholder="${address} ?: 'Chưa có thông tin'"
                            class="w-full px-3 py-2 border rounded"/>
+                    <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
                 </div>
 
                 <!-- Số điện thoại -->
