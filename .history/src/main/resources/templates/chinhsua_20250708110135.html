@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chỉnh sửa thông tin cá nhân</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <div style="font-weight: 700; padding: 4px">
+                Chỉnh sửa thông tin cá nhân
+            </div>
+
+            <form
+                th:action="@{/chinhsua}"
+                method="post"
+                th:object="${user}"
+                enctype="multipart/form-data"
+                style="
+                    display: flex;
+                    justify-content: space-evenly;
+                    padding: 35px;
+                    border: 1px solid grey;
+                    background-color: #fff;
+                    border-radius: 10px;
+                "
+            >
+                <input type="hidden" th:field="*{maNhanVien}" />
+                <div style="display: flex; justify-content: space-evenly">
+                    <div style="width: 50%">
+                        <div>
+                            <dl>
+                                <dt>Họ và tên:</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{hoTen}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{hoTen}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Địa chỉ:</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{diaChi}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{diaChi}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Số điện thoại:</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{soDienThoai}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{soDienThoai}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Email:</dt>
+                                <dd>
+                                    <input
+                                        type="email"
+                                        th:field="*{email}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{email}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Tên đăng nhập:</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{username}"
+                                        class="form-control"
+                                        readonly
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{username}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Mật khẩu:</dt>
+                                <dd>
+                                    <input
+                                        type="password"
+                                        th:field="*{password}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{password}"
+                                    class="ml-5 text-danger"
+                                ></div>
+                                <dt>Chứng Minh Nhân Dân:</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{CMND}"
+                                        class="form-control"
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{CMND}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Chức Vụ :</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{chucVu.tenChucVu}"
+                                        class="form-control"
+                                        readonly
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{chucVu.tenChucVu}"
+                                    class="ml-5 text-danger"
+                                ></div>
+
+                                <dt>Lương :</dt>
+                                <dd>
+                                    <input
+                                        type="text"
+                                        th:field="*{chucVu.luong}"
+                                        class="form-control"
+                                        readonly
+                                    />
+                                </dd>
+                                <div
+                                    th:errors="*{chucVu.luong}"
+                                    class="ml-5 text-danger"
+                                ></div>
+                            </dl>
+                        </div>
+                        <div style="margin-top: 20px">
+                            <button type="submit" class="btn btn-success">
+                                Lưu thay đổi
+                            </button>
+                            <a
+                                th:href="@{/trangcanhan}"
+                                class="btn btn-warning text-decoration-none"
+                                >Hủy</a
+                            >
+                        </div>
+                    </div>
+                    <div
+                        style="
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            padding: 68px;
+                        "
+                    >
+                        <label class="font-weight-bold">Ảnh đại diện:</label>
+                        <input
+                            type="file"
+                            name="imageFile"
+                            accept="image/*"
+                            class="form-control"
+                            style="margin-bottom: 10px"
+                            onchange="previewImage(event)"
+                        />
+
+                        <img
+                            style="
+                                min-width: 100px !important;
+                                max-width: 150px;
+                                margin-top: 10px;
+                                display: block;
+                                margin-left: 10px;
+                                border-radius: 10px;
+                            "
+                            th:if="${user.image}"
+                            th:src="${imagePath}"
+                            alt="Uploaded Image"
+                        />
+                    </div>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

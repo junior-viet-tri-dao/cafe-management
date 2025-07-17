@@ -30,6 +30,7 @@ public class HangHoa {
 
     @ManyToOne
     @JoinColumn(name = "MaDonViTinh", referencedColumnName = "MaDonViTinh", nullable = false)
+    @ToString.Exclude
     private DonViTinh donViTinh;
 
     @Column(name = "DonGia", nullable = false)
@@ -37,6 +38,7 @@ public class HangHoa {
     private Double donGia;
 
     @OneToMany(mappedBy = "hangHoa", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<DonNhap> donNhaps;
 
     @Column(name = "IsDeleted", nullable = false)

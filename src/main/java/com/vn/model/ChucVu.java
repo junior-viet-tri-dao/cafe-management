@@ -3,6 +3,9 @@ package com.vn.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -18,4 +21,8 @@ public class ChucVu {
 
     @Column(name = "TenChucVu", nullable = false, length = 100,columnDefinition = "nvarchar(50)")
     private String tenChucVu;
+
+    @OneToMany(mappedBy = "chucVu")
+    @ToString.Exclude
+    private List<Users> users = new ArrayList<>();
 } 

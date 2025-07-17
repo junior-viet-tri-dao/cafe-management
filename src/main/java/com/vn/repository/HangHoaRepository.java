@@ -16,6 +16,8 @@ public interface HangHoaRepository extends JpaRepository<HangHoa, Integer> {
     boolean existsByMaHangHoa(Integer maHangHoa);
 
     boolean existsByTenHangHoa(String tenHangHoa);
+    
+    HangHoa findByMaHangHoa(Integer maHangHoa);
 
     @Query("SELECT u FROM HangHoa u WHERE u.isDeleted = false AND (:keyword IS NULL OR u.tenHangHoa LIKE %:keyword%)")
     Page<HangHoa> searchHangHoa(@Param("keyword") String keyword, Pageable pageable);

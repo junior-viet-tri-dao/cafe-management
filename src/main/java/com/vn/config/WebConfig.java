@@ -13,10 +13,10 @@ import java.util.Date;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addFormatterForFieldType(Date.class, new DateFormatter("yyyy-MM-dddd"));
-    }
+//     @Override
+//     public void addFormatters(FormatterRegistry registry) {
+//         registry.addFormatterForFieldType(Date.class, new DateFormatter("dd-MM-yyyy"));
+//     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

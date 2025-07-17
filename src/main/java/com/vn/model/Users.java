@@ -22,6 +22,7 @@ public class Users {
 
     @ManyToOne
     @JoinColumn(name = "MaChucVu", referencedColumnName = "MaChucVu", nullable = true)
+    @ToString.Exclude
     private ChucVu chucVu;
 
     @Column(name = "DiaChi",columnDefinition = "nvarchar(50)")
@@ -56,8 +57,10 @@ public class Users {
     private String password;
 
     @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "\\d+", message = "Số điện thoại phải là số")
     @Column(name = "SoDienThoai", unique = true)
     private String soDienThoai;
+
 
 
     @Column(name = "UserName", unique = true, nullable = false )

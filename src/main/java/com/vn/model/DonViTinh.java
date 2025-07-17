@@ -19,5 +19,6 @@ public class DonViTinh {
     private String tenDonVi;
 
     @OneToMany(mappedBy = "donViTinh", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<HangHoa> hanghoas;
 } 

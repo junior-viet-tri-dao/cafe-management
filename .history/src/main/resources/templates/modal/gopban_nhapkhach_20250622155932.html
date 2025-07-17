@@ -1,0 +1,71 @@
+<div
+    class="modal fade"
+    id="gopBanNhapKhachModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="gopBanNhapKhachLabel"
+    aria-hidden="true"
+    th:fragment="gopbannhapkhachModal"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form onsubmit="submitNhapKhach(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gopBanNhapKhachLabel">
+                        Nhập Thông Tin Khách Hàng
+                    </h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="gopBan_banNguonInput2" />
+                    <input type="hidden" id="gopBan_banDichInput2" />
+                    <div class="form-group">
+                        <label for="gopBan_tenKhach">Tên Khách Hàng</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="gopBan_tenKhach"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="gopBan_sdtKhach">Số Điện Thoại</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="gopBan_sdtKhach"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="gopBan_ngayGioDat">Thời Gian Đặt</label>
+                        <input
+                            type="datetime-local"
+                            class="form-control"
+                            id="gopBan_ngayGioDat"
+                            required
+                        />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Đóng
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        Tiếp tục
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

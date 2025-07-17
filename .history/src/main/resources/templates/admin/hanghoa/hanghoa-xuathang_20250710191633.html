@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Xuất Hàng Hóa</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Xuất Hàng Hóa</h1>
+            <form
+                th:action="@{/admin/hanghoa/hanghoa-xuathang}"
+                method="post"
+                th:object="${xuatHang}"
+            >
+                <div class="form-group-fields">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Mã Đơn Xuất Hàng Hóa<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{soLuong}"
+                                    min="1"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:errors="*{maDonXuat}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Tên Hàng Hóa
+                                <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-custom-group">
+                                <i class="fa-solid fa-balance-scale"></i>
+                                <select
+                                    class="form-control"
+                                    th:field="*{hangHoa}"
+                                    id="hangHoaSelect"
+                                    required
+                                >
+                                    <option value="" disabled selected>
+                                        -- Chọn hàng hóa --
+                                    </option>
+                                    <option
+                                        th:each="dvt : ${hangHoaList}"
+                                        th:value="${dvt.maHangHoa}"
+                                        th:data-donvitinh="${dvt.donViTinh.tenDonVi}"
+                                        th:text="${dvt.tenHangHoa}"
+                                    ></option>
+                                </select>
+                            </div>
+                            <div
+                                th:errors="*{hangHoa}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                        <!-- <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Ngày Xuất
+                                <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    style="margin-left: 10px"
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{ngayXuat}"
+                                    placeholder="dd/MM/yyyy"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:if="${#fields.hasErrors('ngayXuat')}"
+                                th:errors="*{ngayXuat}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div> -->
+
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold">
+                                Ngày Xuất
+                                <span class="text-danger">(*)</span>
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input
+                                    style="margin-left: 10px"
+                                    type="text"
+                                    class="form-control"
+                                    th:field="*{ngayXuat}"
+                                    placeholder="dd/MM/yyyy"
+                                    name="ngayXuat"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:if="${#fields.hasErrors('ngayXuat')}"
+                                th:errors="*{ngayXuat}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="font-weight-bold"
+                                >Số Lượng<span class="text-danger"
+                                    >(*):</span
+                                ></label
+                            >
+                            <div class="input-custom-group">
+                                <i class="fas fa-id-card-alt"></i>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    th:field="*{soLuong}"
+                                    min="1"
+                                    required
+                                />
+                            </div>
+                            <div
+                                th:errors="*{soLuong}"
+                                class="ml-5 text-danger"
+                            ></div>
+                        </div>
+                    </div>
+                    <div
+                        style="
+                            margin-top: 20px;
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: center;
+                            gap: 5px;
+                        "
+                    >
+                        <button type="submit" class="btn btn-success">
+                            Save
+                        </button>
+                        <button type="reset" class="btn btn-info">Reset</button>
+                        <a
+                            th:href="@{/admin/sales/table-list}"
+                            class="btn btn-warning text-decoration-none"
+                            >Cancel</a
+                        >
+                    </div>
+                </div>
+            </form>
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+            />
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="/js/xuathang.js"></script>
+        </main>
+    </body>
+</html>

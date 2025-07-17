@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main::areas(~{::title},~{::main})}"
+>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Danh Sách Bàn</title>
+    </head>
+    <body>
+        <main class="main-content">
+            <h1>Danh Sách Bàn</h1>
+            <div
+                th:if="${successMessage}"
+                class="alert alert-success"
+                th:text="${successMessage}"
+                id="successMessageAlert"
+            ></div>
+            <div
+                id="dynamicAlert"
+                style="display: none"
+                class="alert"
+                role="alert"
+            ></div>
+            <div
+                class="col-lg-12 border rounded-top-2 border border-secondary-subtle rounded-bottom-2 bg-light shadow"
+            >
+                <div class="px-4 mt-4 mb-1">
+                    <div
+                        th:replace="fragments/filter-content :: filter-content(
+                            posts=${posts},
+                            keyword=${keyword},
+                            url='/admin/sales/table-list',
+                            size=${size})"
+                    ></div>
+                    <table
+                        id="tableCustomer"
+                        class="display mb-5 table table-bordered"
+                        style="width: 100%"
+                    >
+                        <thead class="bg-success text-light">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectTable" />
+                                </th>
+                                <th>Mã Bàn</th>
+                                <th>Tên Bàn</th>
+                                <th>Tình Trạng</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-dark">
+                            <tr
+                                th:each="u : ${posts}"
+                                th:classappend="${u.tinhTrang != null ? (u.tinhTrang.name == 'Ranh' ? 'table-ranh' : (u.tinhTrang.name == 'DaDat' ? 'table-dadat' : (u.tinhTrang.name == 'DangDung' ? 'table-dangdung' : ''))) : ''}"
+                            >
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        name="selectTable"
+                                        th:value="${u.maBan}"
+                                    />
+                                </td>
+                                <td th:text="${u.maBan}"></td>
+                                <td
+                                    th:text="${u.tenBan != null ? u.tenBan : 'Chưa cập nhật'}"
+                                ></td>
+                                <td
+                                    th:text="${u.tinhTrang != null ? (u.tinhTrang.name == 'Ranh' ? 'Rảnh' : (u.tinhTrang.name == 'DaDat' ? 'Đã Đặt' : (u.tinhTrang.name == 'DangDung' ? 'Đang Dùng' : u.tinhTrang.name))) : 'Chưa cập nhật'}"
+                                ></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        th:replace="fragments/pagination :: pagination(
+                            posts=${posts},
+                            pageNumbers=${pageNumbers},
+                            keyword=${keyword},
+                            url='/admin/sales/table-list',
+                            size=${size})"
+                    ></div>
+
+                    <div
+                        class="pl-4 mb-5"
+                        style="display: flex; flex-direction: column; gap: 16px"
+                    >
+                        <div
+                            style="
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 10px;
+                                align-items: center;
+                            "
+                        >
+                            <button
+                                id="btnGopBan"
+                                class="btn btn-info text-light"
+                                onclick="gopBan()"
+                            >
+                                Gộp Bàn
+                            </button>
+
+                            <button
+                                id="btnDatBan"
+                                class="btn btn-info text-light"
+                                onclick="datBan()"
+                            >
+                                Đặt Bàn
+                            </button>
+
+                            <button
+                                id="btnTachBan"
+                                class="btn btn-warning text-light"
+                                onclick="tachBan()"
+                            >
+                                Tách Bàn
+                            </button>
+
+                            <button
+                                id="btnChuyenBan"
+                                class="btn btn-warning text-light"
+                                onclick="chuyenBan()"
+                            >
+                                Chuyển Bàn
+                            </button>
+
+                            <button
+                                id="btnXemBan"
+                                class="btn btn-warning text-light"
+                                onclick="xemBan()"
+                            >
+                                Xem Bàn
+                            </button>
+
+                            <button
+                                id="btnHuyBan"
+                                class="btn btn-danger text-light"
+                                onclick="huyBan()"
+                            >
+                                Hủy Bàn
+                            </button>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px">
+                            <a
+                                th:href="@{/admin/sales/table-create}"
+                                class="btn btn-success text-decoration-none"
+                                >Đăng Ký</a
+                            >
+
+                            <button
+                                id="btnChonThucDon"
+                                class="btn btn-danger text-light"
+                                onclick="chonThucDon()"
+                            >
+                                Chọn Thực Đơn
+                            </button>
+
+                            <button
+                                id="btnThanhToan"
+                                class="btn btn-danger text-light"
+                                onclick="thanhToan()"
+                            >
+                                Thanh Toán
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/js/table.js"></script>
+
+            <th:block th:replace="~{modal/datban :: datbanModal}"></th:block>
+            <th:block th:replace="~{modal/xemban :: xemBanModal}"></th:block>
+            <th:block
+                th:replace="~{modal/chuyenban :: chuyenbanModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/chonthucdon :: chonthucdonModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/thanhtoan :: thanhtoanModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/gopban_chonbandich :: gopbanchonbandichModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/gopban_ketqua :: gopbanketquaModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/gopban_nhapkhach :: gopbannhapkhachModal}"
+            ></th:block>
+            <th:block
+                th:replace="~{modal/gopban_xacnhanmon :: gopbanxacnhanmonModal}"
+            ></th:block>
+            <th:block th:replace="~{modal/tachban :: tachbanModal}"></th:block>
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+                        $("#successMessageAlert").fadeOut("slow");
+                    }, 2000);
+                });
+            </script>
+        </main>
+    </body>
+</html>

@@ -60,7 +60,7 @@ public class KhuyenMaiController {
     }
 
     @PostMapping("/admin/khuyenmai/khuyenmai-create")
-    public String createTable(@Valid @ModelAttribute("khuyenMai") KhuyenMai khuyenMai, BindingResult result, Model model) {
+    public String createTable(@Valid @ModelAttribute("khuyenMai") KhuyenMai khuyenMai, BindingResult result, Model model,RedirectAttributes redirectAttributes) {
 
         if (khuyenMaiRepository.existsByTenKhuyenMai(khuyenMai.getTenKhuyenMai())) {
                 result.rejectValue("tenKhuyenMai", null, "Tên khuyến mãi đã tồn tại");
@@ -71,6 +71,7 @@ public class KhuyenMaiController {
             return "admin/khuyenmai/khuyenmai-create";
         }
         khuyenMaiRepository.save(khuyenMai);
+        redirectAttributes.addFlashAttribute("successMessage", "Tạo mới khuyến mãi thành công!");
         return "redirect:/admin/khuyenmai/khuyenmai-list";
     }
 
@@ -88,15 +89,19 @@ public class KhuyenMaiController {
     @PostMapping("/admin/khuyenmai/khuyenmai-update")
     public String updateKhuyenMai(@Valid @ModelAttribute("khuyenMai") KhuyenMai khuyenMai, BindingResult result,
                                 Model model, RedirectAttributes redirectAttributes) {
+
         KhuyenMai oldKhuyenMai = khuyenMaiRepository.findById(khuyenMai.getMaKhuyenMai()).orElse(null);
+
         if (oldKhuyenMai == null) {
             result.rejectValue("maKhuyenMai", null, "Khuyến mãi không tồn tại");
         }
+
         if (!khuyenMai.getTenKhuyenMai().equals(oldKhuyenMai.getTenKhuyenMai())) {
             if (khuyenMaiRepository.existsByTenKhuyenMai(khuyenMai.getTenKhuyenMai())) {
                 result.rejectValue("tenKhuyenMai", null, "Tên khuyến mãi đã tồn tại");
             }
         }
+
         if (result.hasErrors()) {
             result.getAllErrors().forEach(error -> System.out.println(error.getDefaultMessage()));
             model.addAttribute("khuyenMai", khuyenMai);

@@ -12,26 +12,33 @@
     <body>
         <main class="main-content">
             <h1>Xuất Hàng Hóa</h1>
+            <div
+                th:if="${error}"
+                class="alert alert-danger"
+                th:text="${error}"
+                id="errorMessageAlert"
+            ></div>
             <form
                 th:action="@{/admin/hanghoa/hanghoa-xuathang}"
                 method="post"
                 th:object="${xuatHang}"
             >
-                <!-- <input hidden="hidden" value="Employee" name="role" /> -->
                 <div class="form-group-fields">
                     <div class="row g-3">
                         <div class="col-lg-6">
                             <label class="font-weight-bold"
-                                >Mã Hàng Hóa<span class="text-danger"
+                                >Mã Đơn Xuất Hàng Hóa<span class="text-danger"
                                     >(*):</span
                                 ></label
                             >
                             <div class="input-custom-group">
                                 <i class="fas fa-id-card-alt"></i>
                                 <input
-                                    type="text"
+                                    type="number"
                                     class="form-control"
                                     th:field="*{maDonXuat}"
+                                    min="1"
+                                    required
                                 />
                             </div>
                             <div
@@ -68,6 +75,7 @@
                                 class="ml-5 text-danger"
                             ></div>
                         </div>
+
                         <div class="col-lg-6">
                             <label class="font-weight-bold">
                                 Ngày Xuất
@@ -81,13 +89,16 @@
                                 </div>
                                 <input
                                     style="margin-left: 10px"
-                                    type="date"
+                                    type="text"
                                     class="form-control"
                                     th:field="*{ngayXuat}"
+                                    placeholder="dd/MM/yyyy"
+                                    name="ngayXuat"
                                     required
                                 />
                             </div>
                             <div
+                                th:if="${#fields.hasErrors('ngayXuat')}"
                                 th:errors="*{ngayXuat}"
                                 class="ml-5 text-danger"
                             ></div>
@@ -102,9 +113,12 @@
                             <div class="input-custom-group">
                                 <i class="fas fa-id-card-alt"></i>
                                 <input
-                                    type="text"
+                                    type="number"
                                     class="form-control"
                                     th:field="*{soLuong}"
+                                    name="soLuong"
+                                    min="1"
+                                    required
                                 />
                             </div>
                             <div
@@ -134,6 +148,19 @@
                     </div>
                 </div>
             </form>
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+            />
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="/js/xuathang.js"></script>
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+                        $("#errorMessageAlert").fadeOut("slow");
+                    }, 1500);
+                });
+            </script>
         </main>
     </body>
 </html>
