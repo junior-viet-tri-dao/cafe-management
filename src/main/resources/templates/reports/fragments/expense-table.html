@@ -1,0 +1,36 @@
+<div th:fragment="expense-table">
+  <div class="border border-gray-400 rounded overflow-hidden mb-6">
+    <div class="grid grid-cols-4 bg-gray-200 border-b border-gray-400">
+      <div class="px-4 py-3 border-r border-gray-400">Ngày</div>
+      <div class="px-4 py-3 border-r border-gray-400">Nội dung</div>
+      <div class="px-4 py-3 border-r border-gray-400">Số tiền</div>
+      <div class="px-4 py-3">Người chi</div>
+    </div>
+    <th:block th:each="item : ${expenseList}">
+      <div class="grid grid-cols-4 border-b border-gray-300 hover:bg-gray-50">
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.expenseDate}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.expenseName}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300 text-red-600 font-medium"
+          th:text="${#numbers.formatDecimal(item.amount, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+        ></div>
+        <div
+          class="px-4 py-3"
+          th:text="${item.account.employee.fullName}"
+        ></div>
+      </div>
+    </th:block>
+    <div
+      th:if="${#lists.isEmpty(expenseList)}"
+      class="text-center py-4 text-gray-500"
+    >
+      Không có dữ liệu chi phí.
+    </div>
+  </div>
+</div>

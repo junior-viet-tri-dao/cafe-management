@@ -1,4 +1,4 @@
-<div th:fragment="alerts">
+<div th:fragment="alerts" th:if="${success != null or error != null}">
   <script th:if="${success != null}" th:inline="javascript">
     showSuccess([[${success}]]);
   </script>

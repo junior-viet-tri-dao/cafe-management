@@ -1,0 +1,79 @@
+<div th:fragment="menu-modal">
+  <div
+    id="menuModal"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden"
+  >
+    <div class="bg-white rounded shadow-lg p-6 min-w-[400px]">
+      <div class="mb-4 font-semibold text-base" id="menuModalTableName">
+        Chọn món cho bàn
+      </div>
+      <form id="menuForm" method="post" th:action="@{/sale/create-menu}">
+        <input type="hidden" id="menuTableIdInput" name="tableId" />
+        <table class="w-full border mb-4">
+          <thead>
+            <tr>
+              <th class="border px-2 py-1">Chọn</th>
+              <th class="border px-2 py-1">Tên món</th>
+              <th class="border px-2 py-1">Số lượng</th>
+              <th class="border px-2 py-1">Giá</th>
+            </tr>
+          </thead>
+          <tbody id="menuList">
+            <tr th:each="item,iter : ${listMenuItems}">
+              <td class="border px-2 py-1 text-center">
+                <input
+                  type="checkbox"
+                  class="menu-checkbox"
+                  th:data-index="${iter.index}"
+                />
+              </td>
+              <td class="border px-2 py-1" th:text="${item.itemName}">
+                Tên món
+              </td>
+              <td class="border px-2 py-1 text-center">
+                <input
+                  type="number"
+                  min="0"
+                  value="0"
+                  class="menu-quantity w-16 border rounded px-1 py-0.5"
+                  th:data-index="${iter.index}"
+                />
+              </td>
+              <td class="border px-2 py-1 text-center">
+                <input
+                  type="number"
+                  disabled
+                  th:value="${item.currentPrice}"
+                  class="menu-price price-input w-20 border rounded px-1 py-0.5"
+                  th:data-index="${iter.index}"
+                />
+              </td>
+              <!-- Hidden fields để lấy id món -->
+              <input
+                type="hidden"
+                class="menu-id"
+                th:value="${item.id}"
+                th:data-index="${iter.index}"
+              />
+            </tr>
+          </tbody>
+        </table>
+        <div class="flex gap-2 justify-center">
+          <button
+            type="submit"
+            class="bg-blue-500 text-white px-4 py-1 rounded font-semibold border border-blue-600 hover:bg-blue-600 hover:shadow"
+          >
+            Lưu
+          </button>
+          <button
+            type="button"
+            id="closeMenuModal"
+            class="bg-gray-300 px-4 py-1 rounded font-semibold border border-gray-400 hover:bg-gray-400 hover:shadow"
+          >
+            Hủy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -7,7 +7,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Thống kê, báo cáo</title>
-    <script th:src="@{/js/reports/report.js}"></script>
+    <!-- <script th:src="@{/js/report/report.js}"></script> -->
   </head>
   <body>
     <div
@@ -21,10 +21,13 @@
             — Thống kê, báo cáo —
           </h2>
 
-          <!-- Report Options -->
-          <div class="mb-6">
-            <div class="flex items-center gap-6 mb-4">
-              <span class="font-medium">Chọn mục:</span>
+          <!-- Date Range & Report Options Form -->
+          <form method="get" th:action="@{/report}" class="mb-6 space-y-4">
+            <!-- Report Options -->
+            <div
+              class="flex flex-col md:justify-center md:flex-row md:items-center gap-6"
+            >
+              <span class="font-medium min-w-max">Chọn mục:</span>
               <div class="flex flex-wrap gap-4">
                 <label class="flex items-center gap-2">
                   <input
@@ -58,33 +61,19 @@
                   <input
                     type="radio"
                     name="reportType"
-                    value="sales"
+                    value="sale"
                     class="w-4 h-4"
                   />
                   <span class="text-sm">Bán hàng</span>
                 </label>
-              </div>
-            </div>
-            <div class="flex items-center gap-6">
-              <span class="font-medium invisible">Chọn mục:</span>
-              <div class="flex flex-wrap gap-4">
                 <label class="flex items-center gap-2">
                   <input
                     type="radio"
                     name="reportType"
-                    value="revenue"
+                    value="employee"
                     class="w-4 h-4"
                   />
-                  <span class="text-sm">Lương</span>
-                </label>
-                <label class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="reportType"
-                    value="staff"
-                    class="w-4 h-4"
-                  />
-                  <span class="text-sm">TT nhân viên</span>
+                  <span class="text-sm">TT nhân viên và lương</span>
                 </label>
                 <label class="flex items-center gap-2">
                   <input
@@ -99,280 +88,117 @@
                   <input
                     type="radio"
                     name="reportType"
-                    value="customer"
+                    value="expense"
                     class="w-4 h-4"
                   />
-                  <span class="text-sm">Phi khác</span>
+                  <span class="text-sm">Phí khác</span>
                 </label>
               </div>
             </div>
-          </div>
 
-          <!-- Date Range -->
-          <div class="flex items-center gap-4 mb-6">
-            <span class="text-sm font-medium">Từ ngày</span>
-            <div class="flex items-center gap-2">
+            <!-- Date Range -->
+            <div class="flex flex-wrap items-center justify-center gap-4">
+              <span class="text-sm font-medium">Từ ngày</span>
               <input
                 type="date"
+                name="startDate"
                 id="fromDate"
                 class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                value="2014-12-23"
               />
-              <button
-                type="button"
-                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
-              >
-                <svg
-                  class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-
-            <span class="text-sm font-medium">đến ngày</span>
-            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">đến ngày</span>
               <input
                 type="date"
+                name="endDate"
                 id="toDate"
                 class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                value="2014-12-25"
               />
               <button
-                type="button"
-                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
+                type="submit"
+                id="viewReportBtn"
+                class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
               >
-                <svg
-                  class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
+                Xem
               </button>
             </div>
+          </form>
 
-            <button
-              id="viewReportBtn"
-              class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
-            >
-              Xem
-            </button>
-          </div>
+          <th:block
+            th:if="${selectedType == 'inventory' and importList != null}"
+          >
+            <div
+              th:replace="~{reports/fragments/inventory-table :: inventory-table}"
+            ></div>
+          </th:block>
 
-          <!-- Report Table -->
-          <div class="border border-gray-400 rounded overflow-hidden mb-6">
-            <!-- Header của bảng -->
-            <div class="grid grid-cols-3 bg-gray-200 border-b border-gray-400">
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                Ngày
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
+          <th:block th:if="${selectedType == 'export' and exportList != null}">
+            <div
+              th:replace="~{reports/fragments/export-table :: export-table}"
+            ></div>
+          </th:block>
+
+          <th:block
+            th:if="${selectedType == 'import' and importList != null and exportList != null}"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="font-semibold mb-2 text-center text-blue-700">
+                  Bảng nhập
+                </h3>
+                <div
+                  th:replace="~{reports/fragments/inventory-table :: inventory-table}"
+                ></div>
               </div>
-              <div
-                class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
-              >
-                Thu
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
-              <div class="px-4 py-3 font-medium flex items-center">
-                Chi
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
+              <div>
+                <h3 class="font-semibold mb-2 text-center text-green-700">
+                  Bảng xuất
+                </h3>
+                <div
+                  th:replace="~{reports/fragments/export-table :: export-table}"
+                ></div>
               </div>
             </div>
+          </th:block>
 
-            <!-- Dữ liệu bảng -->
-            <div id="reportTable">
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">23/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  500.000
-                </div>
-                <div class="px-4 py-3 text-red-600 font-medium">1.000.000</div>
-              </div>
+          <th:block
+            th:if="${selectedType == 'employee' and employeeList != null}"
+          >
+            <div
+              th:replace="~{reports/fragments/employee-table :: employee-table}"
+            ></div>
+          </th:block>
 
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">24/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  1.000.000
-                </div>
-                <div class="px-4 py-3 text-red-600 font-medium">200.000</div>
-              </div>
+          <th:block
+            th:if="${selectedType == 'expense' and expenseList != null}"
+          >
+            <div
+              th:replace="~{reports/fragments/expense-table :: expense-table}"
+            ></div>
+          </th:block>
 
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">25/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  1.500.000
-                </div>
-                <div class="px-4 py-3 text-red-600 font-medium">400.000</div>
-              </div>
+          <th:block th:if="${selectedType == 'sale' and saleList != null}">
+            <div
+              th:replace="~{reports/fragments/sale-table :: sale-table}"
+            ></div>
+          </th:block>
 
-              <!-- Tổng -->
-              <div
-                class="grid grid-cols-3 bg-gray-100 border-t-2 border-gray-400 font-bold"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">Tổng</div>
-                <div class="px-4 py-3 border-r border-gray-300 text-green-600">
-                  3.000.000
-                </div>
-                <div class="px-4 py-3 text-red-600">1.600.000</div>
-              </div>
+          <th:block th:if="${selectedType == null}">
+            <div class="text-center py-8 text-gray-500 text-lg font-semibold">
+              Chưa có dữ liệu
             </div>
-          </div>
+          </th:block>
 
           <!-- Export Options -->
-          <div class="grid grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 gap-6">
             <!-- Xuất file -->
             <div class="border-2 border-gray-400 rounded-lg p-4">
               <h3 class="font-semibold mb-4 text-center">— Xuất file —</h3>
               <div class="space-y-3">
-                <div class="text-sm font-medium mb-2">Chọn định dạng:</div>
-                <label class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="exportType"
-                    value="txt"
-                    class="w-4 h-4"
-                  />
-                  <span class="text-sm">.txt - Text File</span>
-                </label>
-                <label class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="exportType"
-                    value="xls"
-                    class="w-4 h-4"
-                    checked
-                  />
-                  <span class="text-sm">.xls - Excel File</span>
-                </label>
-                <label class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="exportType"
-                    value="sql"
-                    class="w-4 h-4"
-                  />
-                  <span class="text-sm">.sql - SQL File</span>
-                </label>
                 <div class="pt-2">
                   <button
                     id="exportBtn"
                     class="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium"
                   >
                     Xuất file
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- In file -->
-            <div class="border-2 border-gray-400 rounded-lg p-4">
-              <h3 class="font-semibold mb-4 text-center">— In file —</h3>
-              <div class="space-y-3">
-                <div class="flex items-center gap-4">
-                  <span class="text-sm font-medium min-w-[80px]"
-                    >Khổ giấy:</span
-                  >
-                  <select
-                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="A4" selected>A4</option>
-                    <option value="A3">A3</option>
-                    <option value="Letter">Letter</option>
-                  </select>
-                </div>
-                <div class="flex items-center gap-4">
-                  <span class="text-sm font-medium min-w-[80px]">Máy in:</span>
-                  <select
-                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="hp-laser" selected>Hp Laser</option>
-                    <option value="canon">Canon</option>
-                    <option value="epson">Epson</option>
-                  </select>
-                </div>
-                <div class="flex items-center gap-4">
-                  <span class="text-sm font-medium min-w-[80px]"
-                    >Số lượng:</span
-                  >
-                  <input
-                    type="number"
-                    value="3"
-                    min="1"
-                    max="100"
-                    class="flex-1 px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div class="pt-2">
-                  <button
-                    id="printBtn"
-                    class="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
-                  >
-                    In
                   </button>
                 </div>
               </div>

@@ -1,7 +1,9 @@
 package com.viettridao.cafe.service.impl;
 
-import java.util.List;
+import java.math.BigDecimal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
@@ -22,16 +24,30 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentMapper equipmentMapper;
 
     @Override
-    public List<EquipmentResponse> getAllEquipments() {
-        return equipmentRepository.findAll().stream()
-                .map(equipmentMapper::convertToDto)
-                .toList();
+    public Page<EquipmentResponse> searchByName(Pageable pageable, String keyword) {
+        return getEquipments(pageable, keyword);
+    }
+
+    @Override
+    public Page<EquipmentResponse> getAllEquipments(Pageable pageable) {
+        return getEquipments(pageable, null);
+    }
+
+    private Page<EquipmentResponse> getEquipments(Pageable pageable, String keyword) {
+        Page<EquipmentEntity> entities;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            entities = equipmentRepository.searchByName(pageable, keyword);
+        } else {
+            entities = equipmentRepository.findAllByIsDeletedFalse(pageable);
+        }
+        return entities.map(equipmentMapper::convertToDto);
     }
 
     @Override
     public EquipmentEntity createEquipment(CreateEquipmentRequest request) {
         // Tạo entity mới từ request
         EquipmentEntity equipment = equipmentMapper.convertToEntity(request);
+        equipment.setTotalAmount(request.getPurchasePrice().multiply(BigDecimal.valueOf(request.getQuantity())));
         return equipmentRepository.save(equipment);
 
     }
@@ -59,7 +75,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipment.setEquipmentName(editEquipmentRequest.getEquipmentName());
         equipment.setPurchasePrice(editEquipmentRequest.getPurchasePrice());
         equipment.setQuantity(editEquipmentRequest.getQuantity());
-        equipment.setNotes(editEquipmentRequest.getNotes());
         // equipment.setPurchaseDate(editEquipmentRequest.getPurchaseDate());
 
         // Lưu lại vào DB

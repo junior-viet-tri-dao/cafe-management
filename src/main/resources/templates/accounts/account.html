@@ -7,6 +7,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Trang cá nhân</title>
+    <script th:src="@{/js/account/account.js}" defer></script>
   </head>
   <body>
     <div
@@ -51,54 +52,33 @@
                 <div class="relative group">
                   <img
                     id="avatarPreview"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+                    th:src="${session.user.imageUrl}"
                     alt="Avatar"
                     class="w-28 h-28 rounded-full border-3 border-white shadow-lg object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div
-                    class="absolute inset-0 bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                  >
-                    <svg
-                      class="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                      ></path>
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                      ></path>
-                    </svg>
-                  </div>
                 </div>
-
-                <div class="w-full">
-                  <input
-                    type="file"
-                    name="avatar"
-                    accept="image/*"
-                    onchange="previewAvatar(event)"
-                    class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer cursor-pointer transition-all"
-                  />
-                </div>
-
-                <!-- <div
+                <div
                   class="bg-blue-100 border border-blue-200 rounded-lg p-3 text-center w-full"
                 >
-                  <div class="text-lg font-bold text-blue-800">
+                  <div
+                    class="text-lg font-bold text-blue-800"
+                    th:text="${session.user.employee.fullName}"
+                  >
                     Nguyễn Văn An
                   </div>
-                  <div class="text-blue-600 text-sm font-medium">Quản lý</div>
-                  <div class="text-xs text-blue-500">ID: EMP001</div>
-                </div> -->
+                  <div
+                    class="text-blue-600 text-sm font-medium"
+                    th:text="${session.user.employee.position.positionName}"
+                  >
+                    Quản lý
+                  </div>
+                  <div
+                    class="text-xs text-blue-500"
+                    th:text="${session.user.employee.id}"
+                  >
+                    ID: EMP001
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -231,6 +211,7 @@
                         >Lương cơ bản</label
                       >
                       <input
+                        id="salaryDisplay"
                         type="text"
                         th:value="${session.user.employee.position.salary}"
                         class="w-full px-3 py-2 text-sm border border-cyan-200 rounded-md bg-cyan-50 text-cyan-800 font-medium"
@@ -294,7 +275,7 @@
                         <input
                           id="passwordField"
                           type="password"
-                          placeholder="••••••••"
+                          value="••••••••"
                           class="w-full px-3 py-2 text-sm border border-slate-200 rounded-md bg-slate-50 text-slate-800 font-medium pr-8"
                           readonly
                         />
@@ -302,8 +283,10 @@
                           type="button"
                           onclick="togglePassword()"
                           class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                          title="Ẩn/hiện mật khẩu"
                         >
                           <svg
+                            id="eyeIcon"
                             class="w-4 h-4"
                             fill="none"
                             stroke="currentColor"

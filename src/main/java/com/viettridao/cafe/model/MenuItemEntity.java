@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "menu_items")//thucdon
+@Table(name = "menu_items") // thucdon
 public class MenuItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +20,8 @@ public class MenuItemEntity {
     @Column(name = "item_name")
     private String itemName;
 
-    @Column(name = "current_price")
-    private Double currentPrice;
+    @Column(name = "current_price", precision = 15)
+    private BigDecimal currentPrice;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;

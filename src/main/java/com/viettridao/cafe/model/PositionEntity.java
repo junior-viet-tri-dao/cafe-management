@@ -17,7 +17,7 @@ public class PositionEntity {
     private Integer id;
 
     @Column(name = "salary")
-    private Double salary;
+    private Integer salary;
 
     @Column(name = "position_name")
     private String positionName;

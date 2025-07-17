@@ -18,9 +18,23 @@
         <!-- Header -->
         <div class="mb-6">
           <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            Danh sách thiết bị
+            <span th:if="${isSearchResult}">Kết quả tìm kiếm</span>
+            <span th:unless="${isSearchResult}">Danh sách thiết bị</span>
           </h1>
-          <p class="text-gray-600">Quản lý thiết bị và tài sản của quán cafe</p>
+          <p class="text-gray-600" th:if="${isSearchResult}">
+            Tìm thấy
+            <span class="font-semibold" th:text="${equipmentPage.totalElements}"
+              >0</span
+            >
+            thiết bị cho từ khóa "<span
+              class="font-semibold"
+              th:text="${searchKeyword}"
+            ></span
+            >"
+          </p>
+          <p class="text-gray-600" th:unless="${isSearchResult}">
+            Quản lý thiết bị và tài sản của quán cafe
+          </p>
         </div>
 
         <!-- Success Message -->
@@ -69,33 +83,75 @@
           </div>
         </div>
 
-        <!-- Actions Bar -->
-        <div class="mb-6 flex justify-end gap-3">
-          <!-- Import Device Button -->
-          <!-- <a
-            href="/device/import"
-            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center gap-2"
-          >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-              ></path>
-            </svg>
-            Nhập thiết bị
-          </a> -->
+        <!-- Search and Actions Bar -->
+        <div
+          class="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center"
+        >
+          <!-- Search Box -->
+          <div class="relative flex-1 max-w-md">
+            <form method="GET" action="/device" class="relative">
+              <input
+                type="text"
+                name="search"
+                th:value="${searchKeyword}"
+                placeholder="Tìm kiếm thiết bị..."
+                class="w-full pl-4 pr-16 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                autocomplete="off"
+              />
+
+              <!-- Right side buttons container -->
+              <div class="absolute inset-y-0 right-0 flex items-center">
+                <!-- Clear Search Button (show only when searching) -->
+                <a
+                  th:if="${isSearchResult}"
+                  href="/device"
+                  class="p-2 hover:text-red-600 transition-colors duration-200"
+                  title="Xóa bộ lọc"
+                >
+                  <svg
+                    class="h-4 w-4 text-gray-400 hover:text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </a>
+
+                <!-- Search Submit Button -->
+                <button
+                  type="submit"
+                  class="p-2 hover:text-blue-600 transition-colors duration-200"
+                  title="Tìm kiếm"
+                >
+                  <span class="sr-only">Tìm kiếm</span>
+                  <svg
+                    class="h-5 w-5 text-gray-400 hover:text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
 
           <!-- Add Device Button -->
           <a
             href="/device/create"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center gap-2"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center gap-2 whitespace-nowrap"
           >
             <svg
               class="h-5 w-5"
@@ -179,26 +235,26 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div
-                      class="text-sm text-gray-900"
-                      th:text="${#numbers.formatDecimal(equipment.purchasePrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                      class="text-sm text-gray-900 purchase-price"
+                      th:text="${equipment.purchasePrice}"
                     >
-                      0 VNĐ
+                      0
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div
-                      class="text-sm font-medium text-gray-900"
-                      th:text="${#numbers.formatDecimal(equipment.purchasePrice * equipment.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                      class="text-sm font-medium text-gray-900 total-value"
+                      th:text="${equipment.totalAmount}"
                     >
-                      0 VNĐ
+                      0
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div
                       class="text-sm text-gray-900"
-                      th:text="${equipment.purchaseDate}"
+                      th:text="${#temporals.format(equipment.purchaseDate, 'dd/MM/yyyy')}"
                     >
-                      2024-01-01
+                      01/01/2024
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -270,10 +326,20 @@
                         ></path>
                       </svg>
                       <h3 class="mt-2 text-sm font-medium text-gray-900">
-                        Chưa có thiết bị nào
+                        <span th:if="${isSearchResult}"
+                          >Không tìm thấy thiết bị nào</span
+                        >
+                        <span th:unless="${isSearchResult}"
+                          >Chưa có thiết bị nào</span
+                        >
                       </h3>
                       <p class="mt-1 text-sm text-gray-500">
-                        Bắt đầu bằng cách thêm thiết bị mới.
+                        <span th:if="${isSearchResult}"
+                          >Thử tìm kiếm với từ khóa khác</span
+                        >
+                        <span th:unless="${isSearchResult}"
+                          >Bắt đầu bằng cách thêm thiết bị mới.</span
+                        >
                       </p>
                     </div>
                   </td>
@@ -281,24 +347,196 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination - Show for both normal list and search results -->
+          <div
+            th:if="${equipmentPage.totalPages > 1}"
+            class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+          >
+            <div class="flex-1 flex justify-between sm:hidden">
+              <!-- Mobile pagination -->
+              <a
+                th:if="${equipmentPage.hasPrevious()}"
+                th:href="${isSearchResult} ? @{/device(search=${searchKeyword}, page=${equipmentPage.number - 1}, size=${equipmentPage.size})} : @{/device(page=${equipmentPage.number - 1}, size=${equipmentPage.size})}"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Trước
+              </a>
+              <a
+                th:if="${equipmentPage.hasNext()}"
+                th:href="${isSearchResult} ? @{/device(search=${searchKeyword}, page=${equipmentPage.number + 1}, size=${equipmentPage.size})} : @{/device(page=${equipmentPage.number + 1}, size=${equipmentPage.size})}"
+                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Sau
+              </a>
+            </div>
+
+            <div
+              class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+            >
+              <div>
+                <p class="text-sm text-gray-700">
+                  Hiển thị
+                  <span
+                    class="font-medium"
+                    th:text="${equipmentPage.number * equipmentPage.size + 1}"
+                    >1</span
+                  >
+                  đến
+                  <span
+                    class="font-medium"
+                    th:text="${(equipmentPage.number + 1) * equipmentPage.size > equipmentPage.totalElements ? equipmentPage.totalElements : (equipmentPage.number + 1) * equipmentPage.size}"
+                    >10</span
+                  >
+                  trong tổng số
+                  <span
+                    class="font-medium"
+                    th:text="${equipmentPage.totalElements}"
+                    >0</span
+                  >
+                  thiết bị
+                  <span
+                    th:if="${isSearchResult}"
+                    th:text="'cho từ khóa &quot;' + ${searchKeyword} + '&quot;'"
+                  ></span>
+                </p>
+              </div>
+              <div>
+                <nav
+                  class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
+                >
+                  <!-- Previous Button -->
+                  <a
+                    th:if="${equipmentPage.hasPrevious()}"
+                    th:href="${isSearchResult} ? @{/device(search=${searchKeyword}, page=${equipmentPage.number - 1}, size=${equipmentPage.size})} : @{/device(page=${equipmentPage.number - 1}, size=${equipmentPage.size})}"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    <span class="sr-only">Trước</span>
+                    <svg
+                      class="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </a>
+                  <span
+                    th:unless="${equipmentPage.hasPrevious()}"
+                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed"
+                  >
+                    <span class="sr-only">Trước</span>
+                    <svg
+                      class="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </span>
+
+                  <!-- Page Numbers -->
+                  <th:block
+                    th:each="page : ${#numbers.sequence(0, equipmentPage.totalPages - 1)}"
+                  >
+                    <a
+                      th:if="${page != currentPage}"
+                      th:href="${isSearchResult} ? @{/device(search=${searchKeyword}, page=${page}, size=${equipmentPage.size})} : @{/device(page=${page}, size=${equipmentPage.size})}"
+                      th:text="${page + 1}"
+                      class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      1
+                    </a>
+                    <span
+                      th:if="${page == currentPage}"
+                      th:text="${page + 1}"
+                      aria-current="page"
+                      class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                    >
+                      1
+                    </span>
+                  </th:block>
+
+                  <!-- Next Button -->
+                  <a
+                    th:if="${equipmentPage.hasNext()}"
+                    th:href="${isSearchResult} ? @{/device(search=${searchKeyword}, page=${equipmentPage.number + 1}, size=${equipmentPage.size})} : @{/device(page=${equipmentPage.number + 1}, size=${equipmentPage.size})}"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    <span class="sr-only">Sau</span>
+                    <svg
+                      class="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </a>
+                  <span
+                    th:unless="${equipmentPage.hasNext()}"
+                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400 cursor-not-allowed"
+                  >
+                    <span class="sr-only">Sau</span>
+                    <svg
+                      class="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </span>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Information -->
+        <div class="mt-4 text-sm text-gray-600 text-center">
+          <span th:if="${isSearchResult}">
+            Tìm thấy
+            <span class="font-medium" th:text="${equipmentPage.totalElements}"
+              >0</span
+            >
+            thiết bị cho từ khóa "<span
+              class="font-medium"
+              th:text="${searchKeyword}"
+            ></span
+            >"
+          </span>
+          <span th:unless="${isSearchResult}">
+            Tổng cộng
+            <span class="font-medium" th:text="${equipmentPage.totalElements}"
+              >0</span
+            >
+            thiết bị
+          </span>
         </div>
       </div>
     </div>
-
-    <!-- Auto hide success message after 5 seconds -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const successMessage = document.querySelector(".bg-green-50");
-        if (successMessage) {
-          setTimeout(function () {
-            successMessage.style.transition = "opacity 0.5s ease-out";
-            successMessage.style.opacity = "0";
-            setTimeout(function () {
-              successMessage.remove();
-            }, 500);
-          }, 5000);
-        }
-      });
-    </script>
   </body>
 </html>

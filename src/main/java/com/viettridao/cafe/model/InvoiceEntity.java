@@ -5,21 +5,23 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "invoices")//hoadon
+@Table(name = "invoices") // hoadon
 public class InvoiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "invoice_id")
     private Integer id;
 
-    @Column(name = "total_amount")
-    private Double totalAmount;
+    @Column(name = "total_amount", precision = 15)
+    private BigDecimal totalAmount;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -31,13 +33,13 @@ public class InvoiceEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "promotion_id")
     private PromotionEntity promotion;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceDetailEntity> invoiceDetails;
+    @OneToMany(mappedBy = "invoice")
+    private List<InvoiceDetailEntity> invoiceDetails = new ArrayList<>();
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "invoice")
     private List<ReservationEntity> reservations;
 }

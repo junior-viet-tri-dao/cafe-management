@@ -32,10 +32,6 @@ public class AuthController extends BaseController {
 
             if (result) {
                 AccountEntity userInfo = accountService.findByUsername(username);
-                // Lưu thông tin user vào session
-
-                System.out.println("User info:------------------------------------ "
-                        + userInfo.getEmployee().getPosition().getPositionName());
                 session.setAttribute("user", userInfo);
                 session.setAttribute("isAuthenticated", true);
 

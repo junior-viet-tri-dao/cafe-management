@@ -9,4 +9,6 @@ import com.viettridao.cafe.model.MenuKey;
 @Repository
 public interface MenuDetailRepository extends JpaRepository<MenuDetailEntity, MenuKey> {
 
+    void deleteAllByMenuItemId(Integer id);
+
 }

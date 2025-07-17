@@ -15,5 +15,5 @@ public class SearchEmployeeResponse {
     private Integer employeeId;
     private String fullName;
     private String positionName;
-    private double salary;
+    private Integer salary;
 }

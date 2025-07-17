@@ -13,7 +13,7 @@ public class MenuDetailEntity {
     private MenuKey id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("menuId") // phần này yêu cầu bạn gán MenuItem trước
+    @MapsId("menuId")
     @JoinColumn(name = "menu_item_id")
     private MenuItemEntity menuItem;
 

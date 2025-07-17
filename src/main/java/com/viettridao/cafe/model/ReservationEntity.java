@@ -3,12 +3,12 @@ package com.viettridao.cafe.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "table_reservations_detail")//chitietdatban
+@Table(name = "table_reservations_detail") // chitietdatban
 public class ReservationEntity {
     @EmbeddedId
     private ReservationKey id;
@@ -35,7 +35,7 @@ public class ReservationEntity {
     private String customerPhone;
 
     @Column(name = "reservation_datetime")
-    private LocalDate reservationDate;
+    private LocalDateTime reservationDate;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;

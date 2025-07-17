@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "accounts") // taikhoan
-public class AccountEntity implements Serializable, UserDetails {
+public class AccountEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")

@@ -2,6 +2,9 @@ package com.viettridao.cafe.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.employee.AddEmployeeRequest;
+import com.viettridao.cafe.dto.response.employee.SearchEmployeeResponse;
 import com.viettridao.cafe.model.EmployeeEntity;
 import com.viettridao.cafe.model.PositionEntity;
 import com.viettridao.cafe.service.EmployeeService;
@@ -27,22 +31,31 @@ public class EmployeeController extends BaseController {
     private final PositionService positionService;
 
     @GetMapping("/employee")
-    public String getEmployeePage(@RequestParam(value = "search", required = false) String searchKeyword,
+    public String getEmployeePage(
+            @RequestParam(value = "search", required = false) String searchKeyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
             Model model) {
-        List<?> employees;
 
         if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-            // Tìm kiếm nhân viên theo từ khóa
-            employees = employeeService.searchByName(searchKeyword.trim());
+            // Tìm kiếm nhân viên theo từ khóa (không phân trang)
+            List<?> employees = employeeService.searchByName(searchKeyword.trim());
             model.addAttribute("searchKeyword", searchKeyword);
             model.addAttribute("isSearchResult", true);
+            model.addAttribute("listEmployee", employees);
         } else {
-            // Lấy tất cả nhân viên
-            employees = employeeService.getAllEmployees();
+            // Lấy tất cả nhân viên với phân trang
+            Pageable pageable = PageRequest.of(page, size);
+            Page<SearchEmployeeResponse> employeePage = employeeService.getAllEmployees(pageable);
+
             model.addAttribute("isSearchResult", false);
+            model.addAttribute("listEmployee", employeePage.getContent());
+            model.addAttribute("employeePage", employeePage);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", employeePage.getTotalPages());
+            model.addAttribute("totalElements", employeePage.getTotalElements());
         }
 
-        model.addAttribute("listEmployee", employees);
         return "employees/employee";
     }
 

@@ -1,5 +1,7 @@
 package com.viettridao.cafe.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,8 +27,8 @@ public class InvoiceDetailEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "price_at_sale_time")
-    private Double price;
+    @Column(name = "price_at_sale_time", precision = 15)
+    private BigDecimal price;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;

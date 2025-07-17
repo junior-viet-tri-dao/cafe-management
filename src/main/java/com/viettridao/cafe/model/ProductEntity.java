@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -25,8 +26,8 @@ public class ProductEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "price")
-    private Double price;
+    @Column(name = "price", precision = 15)
+    private BigDecimal price;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImportEntity> imports;

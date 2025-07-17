@@ -1,0 +1,33 @@
+<div th:fragment="export-table">
+  <div class="border border-gray-400 rounded overflow-hidden mb-6">
+    <div class="grid grid-cols-5 bg-gray-200 border-b border-gray-400">
+      <div class="px-4 py-3 border-r border-gray-400">Ngày xuất</div>
+      <div class="px-4 py-3 border-r border-gray-400">Sản phẩm</div>
+      <div class="px-4 py-3 border-r border-gray-400">Số lượng</div>
+      <div class="px-4 py-3">Nhân viên</div>
+    </div>
+    <th:block th:each="item : ${exportList}">
+      <div class="grid grid-cols-5 border-b border-gray-300 hover:bg-gray-50">
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.exportDate}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.product.productName}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.quantity}"
+        ></div>
+        <div class="px-4 py-3" th:text="${item.employee.fullName}"></div>
+      </div>
+    </th:block>
+    <div
+      th:if="${#lists.isEmpty(exportList)}"
+      class="text-center py-4 text-gray-500"
+    >
+      Không có dữ liệu xuất trong khoảng thời gian này.
+    </div>
+  </div>
+</div>

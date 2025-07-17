@@ -12,4 +12,6 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Intege
 
     List<MenuItemEntity> findAllByIsDeletedFalse();
 
+    List<MenuItemEntity> findByItemNameContainingIgnoreCase(String keyword);
+
 }

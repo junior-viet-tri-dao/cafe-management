@@ -32,70 +32,41 @@
           </div>
 
           <!-- Date filter -->
-          <div class="flex items-center gap-4 mb-6">
+          <form
+            method="get"
+            th:action="@{/expense/by-date-range}"
+            class="flex items-center gap-4 mb-6"
+          >
             <span class="text-sm font-medium">Từ ngày</span>
             <div class="flex items-center gap-2">
               <input
                 type="date"
                 id="fromDate"
+                name="startDate"
                 class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                value="2014-12-23"
+                th:value="${param.startDate}"
+                required
               />
-              <button
-                type="button"
-                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
-              >
-                <svg
-                  class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-              </button>
             </div>
-
             <span class="text-sm font-medium">đến ngày</span>
             <div class="flex items-center gap-2">
               <input
                 type="date"
                 id="toDate"
+                name="endDate"
                 class="px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
-                value="2014-12-25"
+                th:value="${param.endDate}"
+                required
               />
-              <button
-                type="button"
-                class="px-3 py-2 border border-gray-400 rounded hover:bg-gray-50"
-              >
-                <svg
-                  class="w-5 h-5 text-gray-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-              </button>
             </div>
-
             <button
+              type="submit"
               id="viewBtn"
               class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium"
             >
               Xem
             </button>
-          </div>
+          </form>
 
           <!-- Table -->
           <div class="border border-gray-400 rounded overflow-hidden">
@@ -105,150 +76,45 @@
                 class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
               >
                 Ngày
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
               </div>
               <div
                 class="px-4 py-3 font-medium border-r border-gray-400 flex items-center"
               >
                 Thu
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
               </div>
-              <div class="px-4 py-3 font-medium flex items-center">
-                Chi
-                <svg
-                  class="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  ></path>
-                </svg>
-              </div>
+              <div class="px-4 py-3 font-medium flex items-center">Chi</div>
             </div>
 
             <!-- Dữ liệu bảng -->
             <div id="expenseList">
-              <!-- Dữ liệu mẫu -->
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
+              <th:block th:if="${reportList != null}">
+                <th:block th:each="item : ${reportList}">
+                  <div
+                    class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
+                  >
+                    <div
+                      class="px-4 py-3 border-r border-gray-300 date-value"
+                      th:text="${item.dateReport}"
+                    ></div>
+                    <div
+                      class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium money-value"
+                      th:text="${item.revenue}"
+                    ></div>
+                    <div
+                      class="px-4 py-3 text-red-600 font-medium money-value"
+                      th:text="${item.expense}"
+                    ></div>
+                  </div>
+                </th:block>
+              </th:block>
+
+              <th:block
+                th:if="${reportList == null or #lists.isEmpty(reportList)}"
               >
-                <div class="px-4 py-3 border-r border-gray-300">23/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  500.000
+                <div class="py-8 text-center text-gray-500">
+                  <p>Không có dữ liệu thu chi trong khoảng thời gian này</p>
                 </div>
-                <div class="px-4 py-3 text-red-600 font-medium">1.000.000</div>
-              </div>
-
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">24/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  1.000.000
-                </div>
-                <div class="px-4 py-3 text-red-600 font-medium">200.000</div>
-              </div>
-
-              <div
-                class="grid grid-cols-3 border-b border-gray-300 hover:bg-gray-50"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">25/12/2014</div>
-                <div
-                  class="px-4 py-3 border-r border-gray-300 text-green-600 font-medium"
-                >
-                  1.500.000
-                </div>
-                <div class="px-4 py-3 text-red-600 font-medium">400.000</div>
-              </div>
-
-              <!-- Tổng -->
-              <div
-                class="grid grid-cols-3 bg-gray-100 border-t-2 border-gray-400 font-bold"
-              >
-                <div class="px-4 py-3 border-r border-gray-300">Tổng</div>
-                <div class="px-4 py-3 border-r border-gray-300 text-green-600">
-                  3.000.000
-                </div>
-                <div class="px-4 py-3 text-red-600">1.600.000</div>
-              </div>
-            </div>
-
-            <!-- Empty state -->
-            <div
-              id="emptyState"
-              class="py-8 text-center text-gray-500"
-              style="display: none"
-            >
-              <p>Không có dữ liệu thu chi trong khoảng thời gian này</p>
-            </div>
-
-            <!-- Loading state -->
-            <div
-              id="loadingState"
-              class="py-8 text-center"
-              style="display: none"
-            >
-              <div
-                class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"
-              ></div>
-              <p class="mt-2 text-sm text-gray-600">Đang tải dữ liệu...</p>
-            </div>
-          </div>
-
-          <!-- Summary -->
-          <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded">
-            <div class="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p class="text-sm text-gray-600">Tổng thu</p>
-                <p id="totalRevenue" class="text-lg font-bold text-green-600">
-                  3.000.000
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-600">Tổng chi</p>
-                <p id="totalExpense" class="text-lg font-bold text-red-600">
-                  1.600.000
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-600">Lãi/lỗ</p>
-                <p id="profit" class="text-lg font-bold text-blue-600">
-                  +1.400.000
-                </p>
-              </div>
+              </th:block>
             </div>
           </div>
         </div>

@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "employees")//nhanvien
+@Table(name = "employees") // nhanvien
 public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,6 @@ public class EmployeeEntity {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<ExportEntity> exports;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "employee")
     private List<ReservationEntity> reservations;
 }

@@ -1,0 +1,47 @@
+<div th:fragment="sale-table">
+  <div
+    class="border border-gray-400 rounded overflow-hidden mb-6 overflow-x-auto"
+  >
+    <div
+      class="grid grid-cols-5 bg-gray-200 border-b border-gray-400 min-w-[900px]"
+    >
+      <div class="px-4 py-3 border-r border-gray-400">Mã hóa đơn</div>
+      <div class="px-4 py-3 border-r border-gray-400">Ngày tạo</div>
+      <div class="px-4 py-3 border-r border-gray-400">Tổng tiền</div>
+      <div class="px-4 py-3 border-r border-gray-400">Trạng thái</div>
+      <div class="px-4 py-3 border-r border-gray-400">Khuyến mãi</div>
+    </div>
+    <th:block th:each="item : ${saleList}">
+      <div
+        class="grid grid-cols-6 border-b border-gray-300 hover:bg-gray-50 min-w-[900px]"
+      >
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.id}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm')}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300 text-green-700 font-medium"
+          th:text="${#numbers.formatDecimal(item.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.status}"
+        ></div>
+        <div
+          class="px-4 py-3 border-r border-gray-300"
+          th:text="${item.promotion != null ? item.promotion.promotionName : '-'}"
+        ></div>
+      </div>
+    </th:block>
+    <div
+      th:if="${#lists.isEmpty(saleList)}"
+      class="text-center py-4 text-gray-500"
+    >
+      Không có dữ liệu hóa đơn bán hàng trong khoảng thời gian này.
+    </div>
+  </div>
+</div>

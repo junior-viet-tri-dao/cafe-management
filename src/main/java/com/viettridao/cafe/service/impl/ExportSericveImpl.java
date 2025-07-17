@@ -1,5 +1,8 @@
 package com.viettridao.cafe.service.impl;
 
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.viettridao.cafe.dto.request.export_request.ExportRequest;
@@ -44,4 +47,8 @@ public class ExportSericveImpl implements ExportService {
         return exportRepository.save(exportEntity);
     }
 
+    @Override
+    public List<ExportEntity> getAllByExportDateRange(LocalDate start, LocalDate end) {
+        return exportRepository.findAllByExportDateBetween(start, end);
+    }
 }

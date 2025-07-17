@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -19,8 +20,8 @@ public class ImportEntity {
     @Column(name = "import_date")
     private LocalDate importDate;
 
-    @Column(name = "total_amount")
-    private Double totalAmount;
+    @Column(name = "total_amount", precision = 15)
+    private BigDecimal totalAmount;
 
     @Column(name = "quantity")
     private Integer quantity;

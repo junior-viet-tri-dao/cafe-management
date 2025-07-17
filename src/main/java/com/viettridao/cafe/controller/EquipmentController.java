@@ -1,10 +1,10 @@
 package com.viettridao.cafe.controller;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
@@ -31,9 +32,27 @@ public class EquipmentController extends BaseController {
     private final EquipmentService equipmentService;
 
     @GetMapping("/device")
-    public String showDevice(Model model) {
-        List<EquipmentResponse> listEquipment = equipmentService.getAllEquipments();
-        model.addAttribute("listEquipment", listEquipment);
+    public String showDevice(
+            @RequestParam(value = "search", required = false) String searchKeyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EquipmentResponse> equipmentPage;
+        boolean isSearchResult = searchKeyword != null && !searchKeyword.trim().isEmpty();
+
+        if (isSearchResult) {
+            equipmentPage = equipmentService.searchByName(Pageable.unpaged(), searchKeyword.trim());
+            model.addAttribute("searchKeyword", searchKeyword.trim());
+        } else {
+            equipmentPage = equipmentService.getAllEquipments(pageable);
+        }
+        model.addAttribute("isSearchResult", isSearchResult);
+        model.addAttribute("listEquipment", equipmentPage.getContent());
+        model.addAttribute("equipmentPage", equipmentPage);
+        model.addAttribute("currentPage", page);
+
         return "devices/device";
     }
 
@@ -84,18 +103,6 @@ public class EquipmentController extends BaseController {
             log.error("Invalid argument when creating equipment: {}", e.getMessage());
             model.addAttribute("createEquipmentRequest", createEquipmentRequest);
             model.addAttribute("errorMessage", "Dữ liệu không hợp lệ: " + e.getMessage());
-            return "devices/device-create";
-
-        } catch (DataIntegrityViolationException e) {
-            log.error("Data integrity violation when creating equipment: {}", e.getMessage());
-            model.addAttribute("createEquipmentRequest", createEquipmentRequest);
-            model.addAttribute("errorMessage", "Thiết bị đã tồn tại hoặc vi phạm ràng buộc dữ liệu!");
-            return "devices/device-create";
-
-        } catch (DataAccessException e) {
-            log.error("Database access error when creating equipment: {}", e.getMessage());
-            model.addAttribute("createEquipmentRequest", createEquipmentRequest);
-            model.addAttribute("errorMessage", "Lỗi kết nối cơ sở dữ liệu. Vui lòng thử lại!");
             return "devices/device-create";
 
         } catch (Exception e) {

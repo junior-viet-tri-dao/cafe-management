@@ -1,0 +1,111 @@
+  <div
+    th:fragment="main"
+    class="w-full h-full max-w-7xl bg-gray-100 rounded-lg shadow p-6"
+  >
+    <h2 class="text-lg font-semibold mb-4">Quản lý bán hàng</h2>
+
+    <!-- Thông báo -->
+    <div
+      th:if="${successMessage}"
+      class="mb-4 p-3 rounded bg-green-100 text-green-800 border border-green-300"
+    >
+      <span th:text="${successMessage}"></span>
+    </div>
+    <div
+      th:if="${errorMessage}"
+      class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-300"
+    >
+      <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Grid bàn -->
+    <div class="grid grid-cols-4 gap-2 mb-4">
+      <div
+        th:each="table : ${listTables}"
+        th:classappend="${table.status.name() == 'AVAILABLE'} ? 'bg-white' : (${table.status.name() == 'OCCUPIED'} ? 'bg-gray-200' : 'bg-yellow-100')"
+        class="table-item border border-gray-300 rounded-xl shadow-md flex items-center justify-center h-24 font-semibold text-center flex-col cursor-pointer relative transition duration-200 hover:shadow-xl hover:border-blue-400 hover:scale-105"
+        th:attr="data-id=${table.id},data-status=${table.status.name()}"
+      >
+        <span th:text="${table.tableName}">Bàn</span>
+        <span
+          class="text-xs font-normal"
+          th:if="${table.status.name() == 'AVAILABLE'}"
+          >&lt;trống&gt;</span
+        >
+        <span
+          class="text-xs font-normal text-red-600"
+          th:if="${table.status.name() == 'OCCUPIED'}"
+          >Đang sử dụng</span
+        >
+        <span
+          class="text-xs font-normal text-yellow-600"
+          th:if="${table.status.name() == 'RESERVED'}"
+          >Đã đặt trước</span
+        >
+        <!-- Dấu tích -->
+        <span class="check-icon hidden absolute top-1 right-1 text-green-600">
+          &#10003;
+        </span>
+      </div>
+    </div>
+    <!-- Các nút chức năng -->
+    <div class="flex flex-wrap gap-2 mb-2 items-center justify-center">
+      <button
+        id="viewTableBtn"
+        class="px-4 py-1 rounded border font-semibold transition bg-blue-500 text-white border-blue-600 hover:bg-blue-600 hover:shadow disabled:bg-blue-200 disabled:text-blue-400 disabled:border-blue-200 disabled:cursor-not-allowed"
+      >
+        Xem bàn
+      </button>
+      <button
+        id="openSwitchTableModal"
+        class="px-4 py-1 rounded border font-semibold transition bg-yellow-500 text-white border-yellow-600 hover:bg-yellow-600 hover:shadow disabled:bg-yellow-200 disabled:text-yellow-400 disabled:border-yellow-200 disabled:cursor-not-allowed"
+        disabled
+      >
+        Chuyển bàn
+      </button>
+      <button
+        id="openSplitTableModal"
+        class="px-4 py-1 rounded border font-semibold transition bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300 hover:shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
+      >
+        Tách bàn
+      </button>
+
+      <button
+        id="openMergeTableModal"
+        class="px-4 py-1 rounded border font-semibold transition bg-gray-200 text-gray-700 border-gray-400 hover:bg-gray-300 hover:shadow disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
+      >
+        Gộp bàn
+      </button>
+      <button
+        id="cancelTableBtn"
+        class="px-4 py-1 rounded border font-semibold transition bg-red-500 text-white border-red-600 hover:bg-red-600 hover:shadow disabled:bg-red-200 disabled:text-red-400 disabled:border-red-200 disabled:cursor-not-allowed"
+        disabled
+      >
+        Hủy bàn
+      </button>
+      <button
+        id="openBookingModal"
+        class="px-4 py-1 rounded border font-semibold transition bg-green-500 text-white border-green-600 hover:bg-green-600 hover:shadow disabled:bg-green-200 disabled:text-green-400 disabled:border-green-200 disabled:cursor-not-allowed"
+        disabled
+      >
+        Đặt bàn
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-2 justify-center items-center">
+      <button
+        type="button"
+        id="openMenuModal"
+        class="px-4 py-1 rounded border font-semibold transition bg-green-500 text-white border-green-600 hover:bg-green-600 hover:shadow disabled:bg-green-200 disabled:text-green-400 disabled:border-green-200 disabled:cursor-not-allowed"
+      >
+        Chọn thực đơn
+      </button>
+      <button
+        id="openPaymentModal"
+        type="button"
+        class="px-4 py-1 rounded border font-semibold transition bg-blue-500 text-white border-blue-600 hover:bg-blue-600 hover:shadow disabled:bg-blue-200 disabled:text-blue-400 disabled:border-blue-200 disabled:cursor-not-allowed"
+      >
+        Thanh toán
+      </button>
+    </div>
+  </div>
+</div>

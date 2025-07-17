@@ -18,10 +18,10 @@
         <div class="bg-gray-100 border-2 border-gray-400 rounded-lg p-6">
           <!-- Header -->
           <h2 class="text-lg font-semibold mb-4 text-center">
-            — Chỉnh sửa món ăn —
+            — Chỉnh sửa danh mục món —
           </h2>
 
-          <!-- Loading indicator -->
+          <!-- Loading indicator (ẩn để test) -->
           <div
             id="loadingIndicator"
             class="text-center py-8"
@@ -33,16 +33,20 @@
             <p class="mt-2 text-gray-600">Đang tải dữ liệu...</p>
           </div>
 
-          <!-- Form chỉnh sửa món -->
+          <!-- Form (hiện để test với dữ liệu mẫu) -->
           <form
             id="menuForm"
-            th:action="@{/menu/edit}"
-            th:object="${menuItem}"
-            method="post"
             class="space-y-4"
+            method="post"
+            th:action="@{/menu/edit/{id}(id=${menuItem.id})}"
           >
             <!-- Hidden ID field -->
-            <input type="hidden" th:field="*{id}" />
+            <input
+              type="hidden"
+              id="menuId"
+              name="menuId"
+              th:value="${menuItem.id}"
+            />
 
             <!-- Tên món và Giá tiền -->
             <div class="grid grid-cols-2 gap-4">
@@ -50,9 +54,11 @@
                 <label class="block text-sm font-medium mb-1">Tên món:</label>
                 <input
                   type="text"
-                  th:field="*{itemName}"
+                  id="itemName"
+                  name="itemName"
                   class="w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                   placeholder="Nhập tên món"
+                  th:value="${menuItem.itemName}"
                   required
                 />
               </div>
@@ -60,9 +66,11 @@
                 <label class="block text-sm font-medium mb-1">Giá tiền:</label>
                 <input
                   type="number"
-                  th:field="*{currentPrice}"
+                  id="currentPrice"
+                  name="currentPrice"
                   class="w-full px-3 py-2 border border-gray-400 rounded focus:outline-none focus:border-blue-500"
                   placeholder="0"
+                  th:value="${menuItem.currentPrice}"
                   min="0"
                   required
                 />
@@ -75,7 +83,7 @@
               <div class="border border-gray-400 rounded">
                 <!-- Header của bảng -->
                 <div
-                  class="grid grid-cols-3 bg-gray-200 border-b border-gray-400"
+                  class="grid grid-cols-4 bg-gray-200 border-b border-gray-400"
                 >
                   <div class="px-3 py-2 font-medium border-r border-gray-400">
                     Tên thành phần ▲
@@ -83,55 +91,66 @@
                   <div class="px-3 py-2 font-medium border-r border-gray-400">
                     Khối lượng ⚬
                   </div>
-                  <div class="px-3 py-2 font-medium">Đơn vị tính ⚬</div>
+                  <div class="px-3 py-2 font-medium border-r border-gray-400">
+                    Đơn vị tính ⚬
+                  </div>
+                  <div class="px-3 py-2 font-medium text-center">Xóa</div>
                 </div>
 
-                <!-- Nội dung bảng (dữ liệu động) -->
-                <div id="ingredientsList" class="min-h-[80px]">
+                <!-- Nội dung bảng với dữ liệu mẫu -->
+                <div id="menuDetails" class="min-h-[120px]">
                   <div
-                    th:each="detail, iterStat : *{menuDetails}"
-                    class="grid grid-cols-3 border-b border-gray-300 ingredient-row"
+                    th:if="${#lists.isEmpty(menuItem.menuDetails)}"
+                    class="grid grid-cols-3 py-8 text-center text-gray-500"
                   >
-                    <!-- Dropdown chọn sản phẩm -->
+                    <div class="col-span-3">Chưa có thành phần nào</div>
+                  </div>
+                  <div
+                    th:each="detail, iStat : ${menuItem.menuDetails}"
+                    class="grid grid-cols-4 border-b border-gray-300"
+                  >
                     <div class="px-3 py-2 border-r border-gray-300">
-                      <select
-                        th:field="*{menuDetails[__${iterStat.index}__].productId}"
-                        class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                        required
-                      >
-                        <option value="">Chọn thành phần</option>
-                        <option
-                          th:each="product : ${listProducts}"
-                          th:value="${product.id}"
-                          th:text="${product.productName}"
-                        ></option>
-                      </select>
+                      <input
+                        type="hidden"
+                        th:name="'menuDetails[' + ${iStat.index} + '].productId'"
+                        th:value="${detail.productId}"
+                      />
+                      <input
+                        type="text"
+                        th:name="'menuDetails[' + ${iStat.index} + '].productName'"
+                        th:value="${detail.productName}"
+                        class="w-full bg-gray-100"
+                        readonly
+                      />
                     </div>
-                    <!-- Số lượng -->
                     <div class="px-3 py-2 border-r border-gray-300">
                       <input
                         type="number"
-                        th:field="*{menuDetails[__${iterStat.index}__].quantity}"
-                        class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        th:name="'menuDetails[' + ${iStat.index} + '].quantity'"
+                        th:value="${detail.quantity}"
+                        class="w-full"
                         min="0"
                         step="0.1"
                         required
                       />
                     </div>
-                    <!-- Đơn vị tính (input text) -->
-                    <div class="px-3 py-2 flex justify-between items-center">
+                    <div class="px-3 py-2 border-r border-gray-300">
                       <input
                         type="text"
-                        th:field="*{menuDetails[__${iterStat.index}__].unitName}"
-                        class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        th:name="'menuDetails[' + ${iStat.index} + '].unitName'"
+                        th:value="${detail.unitName}"
+                        class="w-full"
                         required
                       />
+                    </div>
+                    <div class="px-3 py-2 flex items-center justify-center">
                       <button
                         type="button"
-                        class="btn-remove-ingredient text-red-500 hover:text-red-700 ml-2"
+                        class="delete-ingredient-btn text-red-500 text-lg font-bold"
                         title="Xóa thành phần"
+                        onclick="this.closest('.grid').remove()"
                       >
-                        ✕
+                        ×
                       </button>
                     </div>
                   </div>
@@ -142,12 +161,17 @@
                   class="grid grid-cols-3 border-t border-gray-400 bg-gray-50"
                 >
                   <div class="px-3 py-2 border-r border-gray-400">
-                    <input
-                      type="text"
+                    <select
                       id="newIngredientName"
-                      placeholder="Nhập tên thành phần"
                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                    />
+                    >
+                      <option value="">Chọn thành phần</option>
+                      <option
+                        th:each="product : ${listProducts}"
+                        th:value="${product.id}"
+                        th:text="${product.productName}"
+                      ></option>
+                    </select>
                   </div>
                   <div class="px-3 py-2 border-r border-gray-400">
                     <input
@@ -165,7 +189,16 @@
                       id="newIngredientUnit"
                       placeholder="Đơn vị tính"
                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                      list="unitSuggestions"
                     />
+                    <datalist id="unitSuggestions">
+                      <option value="gam"></option>
+                      <option value="ml"></option>
+                      <option value="kg"></option>
+                      <option value="lít"></option>
+                      <option value="muỗng"></option>
+                      <option value="cái"></option>
+                    </datalist>
                   </div>
                 </div>
 
@@ -190,14 +223,32 @@
               >
                 Cập nhật món
               </button>
-              <a
-                href="/menu"
+              <button
+                type="button"
+                id="cancelBtn"
                 class="px-8 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 font-medium"
               >
                 Hủy
-              </a>
+              </button>
             </div>
           </form>
+
+          <!-- Thông báo thành công -->
+          <div
+            th:if="${successMessage}"
+            class="mb-4 px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-green-800 shadow flex items-center gap-2"
+            role="alert"
+          >
+            <span th:text="${successMessage}"></span>
+          </div>
+          <!-- Thông báo lỗi -->
+          <div
+            th:if="${errorMessage}"
+            class="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800 shadow flex items-center gap-2"
+            role="alert"
+          >
+            <span th:text="${errorMessage}"></span>
+          </div>
 
           <!-- Error message -->
           <div
@@ -205,7 +256,13 @@
             class="text-center py-8 text-red-600"
             style="display: none"
           >
-            <p>Không thể cập nhật món ăn. Vui lòng thử lại.</p>
+            <p>Không thể tải thông tin món ăn. Vui lòng thử lại.</p>
+            <button
+              id="retryBtn"
+              class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Thử lại
+            </button>
           </div>
         </div>
       </div>

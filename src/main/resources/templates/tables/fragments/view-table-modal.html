@@ -1,0 +1,120 @@
+<div th:fragment="view-table-modal">
+  <div
+    id="viewTableModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+  >
+    <div class="bg-white rounded-xl shadow-2xl p-8 min-w-[380px] max-w-[95vw]">
+      <div class="flex items-center justify-between mb-6">
+        <div class="text-lg font-bold text-blue-700 flex items-center gap-2">
+          <svg
+            class="w-6 h-6 text-blue-500"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8 17l4 4 4-4m0-5V3m-8 9v6a2 2 0 002 2h4a2 2 0 002-2v-6"
+            ></path>
+          </svg>
+          <span
+            id="viewTableModalTitle"
+            th:text="'Xem thông tin bàn ' + ${selectedTableId}"
+            >Xem thông tin bàn</span
+          >
+        </div>
+        <button
+          id="closeViewTableModal"
+          class="text-gray-400 hover:text-red-500 transition"
+          title="Đóng"
+          type="button"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="mb-6">
+        <div class="font-semibold mb-2 text-gray-700">Các món đã gọi</div>
+        <div
+          class="max-h-40 overflow-y-auto rounded border border-gray-200 bg-gray-50"
+        >
+          <table class="w-full text-sm">
+            <thead class="bg-gray-100 sticky top-0">
+              <tr>
+                <th
+                  class="border-b px-3 py-2 text-left font-medium text-gray-600"
+                >
+                  Tên món
+                </th>
+                <th
+                  class="border-b px-3 py-2 text-center font-medium text-gray-600 w-16"
+                >
+                  SL
+                </th>
+              </tr>
+            </thead>
+            <tbody id="viewTableMenuList">
+              <tr
+                th:each="detail : ${listMenuDetails}"
+                th:attr="data-menu-item-id=${detail.menuItem.id}"
+              >
+                <td
+                  class="border px-2 py-1"
+                  th:text="${detail.menuItem.itemName}"
+                >
+                  Tên món
+                </td>
+                <td
+                  class="border px-2 py-1 text-center"
+                  th:text="${detail.quantity}"
+                >
+                  SL
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(listMenuDetails)}">
+                <td colspan="2" class="text-center text-gray-400 py-2">
+                  Chưa có món nào
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div
+        class="mb-6"
+        th:if="${reservation != null and reservation.customerName != null and reservation.customerPhone != null}"
+      >
+        <div class="font-semibold mb-1 text-gray-700">Đặt trước</div>
+        <div
+          id="viewTableReservationInfo"
+          class="border border-dashed border-blue-300 rounded px-3 py-2 bg-blue-50 text-sm text-blue-800 min-h-[32px]"
+          th:text="${reservation.customerName + ', ' + #temporals.format(reservation.reservationDate, 'HH:mm dd/MM/yyyy') + ' - ' + reservation.customerPhone}"
+        >
+          <!-- Render bằng Thymeleaf -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Form ẩn để xem thông tin bàn -->
+  <form
+    id="viewTableForm"
+    method="get"
+    th:action="@{/sale/view-table}"
+    style="display: none"
+  >
+    <input type="hidden" name="tableId" id="viewTableIdInput" />
+  </form>
+</div>

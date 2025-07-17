@@ -1,5 +1,7 @@
 package com.viettridao.cafe.dto.response.product;
 
+import java.math.BigDecimal;
+
 import com.viettridao.cafe.model.UnitEntity;
 
 import lombok.Data;
@@ -14,7 +16,6 @@ public class ProductResponse {
     private String productName;
     private Integer quantity;
     private Boolean isDeleted;
-    private Double price;
+    private BigDecimal price;
     private UnitEntity unit;
-
 }

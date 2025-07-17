@@ -1,0 +1,89 @@
+<div th:fragment="booking-modal">
+  <div
+    id="bookingModal"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden"
+  >
+    <div class="bg-white rounded shadow-lg p-6 min-w-[400px]">
+      <div class="mb-4 font-semibold text-base" id="modalTableName">
+        Đặt bàn
+      </div>
+      <form
+        id="bookingForm"
+        class="space-y-3"
+        method="post"
+        th:action="@{/sale/create-table}"
+        novalidate
+      >
+        <input type="hidden" name="tableId" id="tableIdInput" />
+        <input type="hidden" name="reservationDate" id="reservationDateInput" />
+        <div class="flex gap-2">
+          <label class="flex-1">
+            Khách hàng:
+            <input
+              type="text"
+              class="border rounded px-2 py-1 w-full"
+              name="customerName"
+              id="customerNameInput"
+              required
+            />
+            <div id="customerNameError" class="text-red-600 text-sm mt-1"></div>
+          </label>
+          <label class="flex-1">
+            SĐT:
+            <input
+              type="text"
+              class="border rounded px-2 py-1 w-full"
+              name="customerPhone"
+              id="customerPhoneInput"
+              required
+            />
+            <div
+              id="customerPhoneError"
+              class="text-red-600 text-sm mt-1"
+            ></div>
+          </label>
+        </div>
+        <div class="flex gap-2">
+          <label class="flex-1">
+            Ngày:
+            <input
+              type="date"
+              class="border rounded px-2 py-1 w-full"
+              name="date"
+              id="dateInput"
+              required
+            />
+            <div id="dateError" class="text-red-600 text-sm mt-1"></div>
+          </label>
+          <label class="flex-1">
+            Giờ:
+            <input
+              type="time"
+              class="border rounded px-2 py-1 w-full"
+              name="time"
+              id="timeInput"
+              required
+            />
+            <div id="timeError" class="text-red-600 text-sm mt-1"></div>
+          </label>
+        </div>
+        <!-- Nút trong modal -->
+        <div class="flex gap-2 justify-center mt-4">
+          <button
+            type="submit"
+            class="bg-blue-500 text-white px-4 py-1 rounded font-semibold border border-blue-600 transition hover:bg-blue-600 hover:shadow disabled:bg-blue-200 disabled:text-blue-400 disabled:border-blue-200 disabled:cursor-not-allowed"
+          >
+            Đặt bàn
+          </button>
+          <button
+            type="button"
+            id="closeBookingModal"
+            class="bg-gray-300 px-4 py-1 rounded font-semibold border border-gray-400 transition hover:bg-gray-400 hover:shadow"
+          >
+            Hủy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

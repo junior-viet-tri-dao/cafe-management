@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 @Service
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
-    private final HttpServletRequest request;
+    private final HttpServletRequest request;              
 
     @Override
     public boolean login(String username, String password) {

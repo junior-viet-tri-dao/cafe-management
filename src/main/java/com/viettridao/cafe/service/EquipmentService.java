@@ -1,6 +1,7 @@
 package com.viettridao.cafe.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
 import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
@@ -8,7 +9,9 @@ import com.viettridao.cafe.dto.response.equipment.EquipmentResponse;
 import com.viettridao.cafe.model.EquipmentEntity;
 
 public interface EquipmentService {
-    List<EquipmentResponse> getAllEquipments();
+    Page<EquipmentResponse> getAllEquipments(Pageable pageable);
+
+    Page<EquipmentResponse> searchByName(Pageable pageable, String keyword);
 
     EquipmentEntity createEquipment(CreateEquipmentRequest request);
 

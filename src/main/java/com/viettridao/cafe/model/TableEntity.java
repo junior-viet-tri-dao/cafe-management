@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "tables")//ban
+@Table(name = "tables") // ban
 public class TableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,6 @@ public class TableEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "table")
     private List<ReservationEntity> reservations;
 }

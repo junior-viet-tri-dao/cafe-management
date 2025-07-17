@@ -1,6 +1,5 @@
 package com.viettridao.cafe.mapper;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ImportMapper {
-    private final ModelMapper modelMapper;
 
     // public ImportEntity converToEntity(ImportRequest request, EmployeeEntity
     // employee,

@@ -1,0 +1,21 @@
+<div th:fragment="employee-table">
+  <div class="border border-gray-400 rounded overflow-hidden mb-6">
+    <div class="grid grid-cols-4 bg-gray-200 border-b border-gray-400">
+      <div class="px-4 py-3 border-r border-gray-400">Họ tên</div>
+      <div class="px-4 py-3 border-r border-gray-400">Chức vụ</div>
+      <div class="px-4 py-3 border-r border-gray-400">Số điện thoại</div>
+      <div class="px-4 py-3">Lương</div>
+    </div>
+    <th:block th:each="item : ${employeeList}">
+      <div class="grid grid-cols-4 border-b border-gray-300 hover:bg-gray-50">
+        <div class="px-4 py-3 border-r border-gray-300" th:text="${item.fullName}"></div>
+        <div class="px-4 py-3 border-r border-gray-300" th:text="${item.position.positionName}"></div>
+        <div class="px-4 py-3 border-r border-gray-300" th:text="${item.phoneNumber}"></div>
+        <div class="px-4 py-3 text-blue-700 font-medium" th:text="${#numbers.formatDecimal(item.position.salary, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+      </div>
+    </th:block>
+    <div th:if="${#lists.isEmpty(employeeList)}" class="text-center py-4 text-gray-500">
+      Không có dữ liệu nhân viên.
+    </div>
+  </div>
+</div>

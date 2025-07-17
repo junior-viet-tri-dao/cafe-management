@@ -96,21 +96,22 @@ document.addEventListener("DOMContentLoaded", function () {
     alert(`Xuất file định dạng ${selectedType.toUpperCase()} (Demo)`);
   });
 
-  printBtn.addEventListener("click", function () {
-    const paperSize = document.querySelector("select").value;
-    const printerType = document.querySelectorAll("select")[1].value;
-    const copies = document.querySelector('input[type="number"]').value;
+  // Format lại số tiền cho các phần tử trong bảng báo cáo (nếu cần)
+  document
+    .querySelectorAll(".text-green-600.font-medium, .text-red-600.font-medium")
+    .forEach(function (el) {
+      let value = el.textContent.replace(/\D/g, "");
+      if (value) {
+        el.textContent = Number(value).toLocaleString("vi-VN") + " đ";
+      }
+    });
 
-    console.log("Printing:", { paperSize, printerType, copies });
-    alert(
-      `In ${copies} bản trên giấy ${paperSize} với máy ${printerType} (Demo)`
-    );
-  });
-
-  // Date validation
-  fromDateInput.addEventListener("change", function () {
-    toDateInput.min = this.value;
-  });
+  // Đảm bảo ngày bắt đầu không lớn hơn ngày kết thúc
+  if (fromDateInput && toDateInput) {
+    fromDateInput.addEventListener("change", function () {
+      toDateInput.min = this.value;
+    });
+  }
 
   // Initialize with default data
   renderReportTable(reportData["all"]);

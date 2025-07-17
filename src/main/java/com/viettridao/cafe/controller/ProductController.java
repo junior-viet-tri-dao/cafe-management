@@ -2,12 +2,17 @@ package com.viettridao.cafe.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.viettridao.cafe.dto.request.export_request.ExportRequest;
 import com.viettridao.cafe.dto.request.import_request.ImportRequest;
@@ -25,15 +30,32 @@ import lombok.RequiredArgsConstructor;
 public class ProductController extends BaseController {
 
     private final ProductService productService;
-    private final ImportService importService; // Assuming you have an ImportService to handle import logic
-    private final ExportService exportService; // Assuming you have an ExportService to handle export logic
+    private final ImportService importService;
+    private final ExportService exportService;
 
     @GetMapping("/product")
-    public String showProduct(Model model) {
+    public String showProduct(
+            @RequestParam(value = "search", required = false) String searchKeyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            Model model) {
 
-        List<ProductResponse> products = productService.getAllProducts();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductResponse> productPage;
+        boolean isSearchResult = searchKeyword != null && !searchKeyword.trim().isEmpty();
 
-        model.addAttribute("listProduct", products);
+        if (isSearchResult) {
+            productPage = productService.searchByName(Pageable.unpaged(), searchKeyword.trim());
+            model.addAttribute("searchKeyword", searchKeyword.trim());
+        } else {
+            productPage = productService.getAllProducts(pageable);
+        }
+
+        model.addAttribute("isSearchResult", isSearchResult);
+        model.addAttribute("listProduct", productPage.getContent());
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("currentPage", page);
+
         return "products/product";
     }
 

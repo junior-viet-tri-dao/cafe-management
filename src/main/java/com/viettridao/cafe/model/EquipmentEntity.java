@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import groovy.transform.builder.Builder;
@@ -31,14 +32,14 @@ public class EquipmentEntity {
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "notes")
-    private String notes;
-
     @Column(name = "purchase_date")
     private LocalDate purchaseDate;
 
-    @Column(name = "purchase_price")
-    private Double purchasePrice;
+    @Column(name = "purchase_price", precision = 15)
+    private BigDecimal purchasePrice;
+
+    @Column(name = "total_amount", precision = 15)
+    private BigDecimal totalAmount;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;

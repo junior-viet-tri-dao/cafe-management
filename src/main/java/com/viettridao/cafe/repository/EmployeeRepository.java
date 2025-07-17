@@ -13,6 +13,7 @@ import com.viettridao.cafe.model.EmployeeEntity;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Integer> {
+
     boolean existsByPhoneNumber(String phoneNumber);
 
     Optional<EmployeeEntity> findByPhoneNumber(String phoneNumber);
@@ -27,5 +28,8 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Intege
             WHERE LOWER(e.full_name) LIKE CONCAT('%', LOWER(:keyword), '%')
             """, nativeQuery = true)
     List<SearchEmployeeResponse> searchByName(@Param("keyword") String keyword);
+
+    @Query("SELECT e FROM EmployeeEntity e WHERE e.isDeleted = false ORDER BY e.position.salary DESC")
+    List<EmployeeEntity> findAllEmployeeDescSalary();
 
 }

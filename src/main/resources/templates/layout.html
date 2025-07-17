@@ -21,7 +21,7 @@
     />
     <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
     <script th:src="@{/js/alert-utils.js}"></script>
-
+    <script type="module" th:src="@{/js/utils.js}"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -681,7 +681,7 @@
               </div>
 
               <!-- Quản lý dữ liệu -->
-              <div x-data="{ openData: false }" class="space-y-1">
+              <!-- <div x-data="{ openData: false }" class="space-y-1">
                 <button
                   @click="openData = !openData"
                   class="w-full flex items-center justify-between gap-3 py-3 px-4 rounded-xl hover:bg-blue-50 transition-all duration-200 group"
@@ -758,7 +758,7 @@
                     </svg>
                   </a>
                 </div>
-              </div>
+              </div> -->
 
               <div
                 class="h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent my-4"
@@ -885,7 +885,5 @@
         </div>
       </div>
     </footer>
-
-    <div th:replace="~{/alert :: alerts}"></div>
   </body>
 </html>
