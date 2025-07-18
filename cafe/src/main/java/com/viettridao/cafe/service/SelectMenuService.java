@@ -3,19 +3,27 @@ package com.viettridao.cafe.service;
 import com.viettridao.cafe.dto.request.sales.CreateSelectMenuRequest;
 import com.viettridao.cafe.dto.response.sales.OrderDetailRessponse;
 import com.viettridao.cafe.dto.response.sales.MenuItemResponse;
-
 import java.util.List;
 
 /**
- * Service xử lý logic chọn món và tạo order cho bàn trống.
- * Chịu trách nhiệm tạo reservation, hóa đơn, chi tiết hóa đơn khi khách chọn
- * món cho bàn AVAILABLE.
+ * SelectMenuService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface SelectMenuService {
     /**
      * Tạo mới order (reservation, invoice, invoice detail) cho bàn đang trống.
      * Trả về thông tin chi tiết order sau khi tạo thành công.
-     * 
+     *
      * @param request    Thông tin chọn món từ frontend
      * @param employeeId ID nhân viên thao tác (lấy từ session)
      * @return OrderDetailRessponse chứa thông tin order vừa tạo
@@ -25,7 +33,7 @@ public interface SelectMenuService {
 
     /**
      * Lấy danh sách món ăn/thức uống để hiển thị cho form chọn thực đơn.
-     * 
+     *
      * @return Danh sách menu item response
      */
     List<MenuItemResponse> getMenuItems();

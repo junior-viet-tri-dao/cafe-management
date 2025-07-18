@@ -1,6 +1,5 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.promotion.CreatePromotionRequest;
 import com.viettridao.cafe.dto.request.promotion.UpdatePromotionRequest;
 import com.viettridao.cafe.dto.response.promotion.PromotionPageResponse;
@@ -8,8 +7,18 @@ import com.viettridao.cafe.model.PromotionEntity;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Service cho thực thể PromotionEntity.
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến khuyến mãi (Promotion).
+ * PromotionService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface PromotionService {
 
@@ -17,8 +26,7 @@ public interface PromotionService {
      * Lấy danh sách các khuyến mãi còn hiệu lực.
      *
      * @param pageable Đối tượng phân trang.
-     * @return Đối tượng PromotionPageResponse chứa danh sách khuyến mãi còn hiệu
-     *         lực và thông tin phân trang.
+     * @return Đối tượng PromotionPageResponse chứa danh sách khuyến mãi còn hiệu lực và thông tin phân trang.
      */
     PromotionPageResponse getValidPromotions(Pageable pageable);
 
@@ -26,8 +34,7 @@ public interface PromotionService {
      * Lấy danh sách tất cả các khuyến mãi.
      *
      * @param pageable Đối tượng phân trang.
-     * @return Đối tượng PromotionPageResponse chứa danh sách tất cả khuyến mãi và
-     *         thông tin phân trang.
+     * @return Đối tượng PromotionPageResponse chứa danh sách tất cả khuyến mãi và thông tin phân trang.
      */
     PromotionPageResponse getAllPromotions(Pageable pageable);
 

@@ -17,6 +17,23 @@ import com.viettridao.cafe.repository.EmployeeRepository;
 import com.viettridao.cafe.repository.ExportRepository;
 import com.viettridao.cafe.repository.ProductRepository;
 
+/**
+ * ExportServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai Service cho thực thể ExportEntity (Đơn xuất kho).
+ * Xử lý nghiệp vụ liên quan tới xuất kho, cập nhật số lượng sản phẩm, kiểm tra tồn kho, và tính tổng tiền xuất.
+ */
 @Service
 @RequiredArgsConstructor
 public class ExportServiceImpl implements ExportService {
@@ -26,6 +43,11 @@ public class ExportServiceImpl implements ExportService {
     private final EmployeeRepository employeeRepository;
     private final ProductRepository productRepository;
 
+    /**
+     * Tạo mới một đơn xuất kho, cập nhật số lượng kho, kiểm tra tồn kho và lưu thông tin xuất.
+     *
+     * @param request thông tin xuất kho cần tạo.
+     */
     @Override
     @Transactional
     public void createExport(CreateExportRequest request) {
@@ -37,8 +59,8 @@ public class ExportServiceImpl implements ExportService {
         Integer currentQuantity = product.getQuantity() != null ? product.getQuantity() : 0;
         if (currentQuantity < request.getQuantity()) {
             throw new IllegalArgumentException(
-                String.format("Không đủ hàng trong kho! Số lượng hiện có: %d, số lượng cần xuất: %d", 
-                    currentQuantity, request.getQuantity())
+                    String.format("Không đủ hàng trong kho! Số lượng hiện có: %d, số lượng cần xuất: %d",
+                            currentQuantity, request.getQuantity())
             );
         }
 
@@ -58,12 +80,24 @@ public class ExportServiceImpl implements ExportService {
         exportRepository.save(exportEntity);
     }
 
+    /**
+     * Lấy thông tin đơn xuất kho để cập nhật theo id.
+     *
+     * @param id id đơn xuất kho cần lấy.
+     * @return UpdateExportRequest thông tin cập nhật đơn xuất kho.
+     */
     @Override
     public UpdateExportRequest getUpdateForm(Integer id) {
         ExportEntity exportEntity = findExportOrThrow(id);
         return exportMapper.toUpdateRequest(exportEntity);
     }
 
+    /**
+     * Cập nhật thông tin đơn xuất kho.
+     *
+     * @param id id đơn xuất kho cần cập nhật.
+     * @param request thông tin cập nhật đơn xuất kho.
+     */
     @Override
     @Transactional
     public void updateExport(Integer id, UpdateExportRequest request) {
@@ -79,6 +113,11 @@ public class ExportServiceImpl implements ExportService {
         exportRepository.save(exportEntity);
     }
 
+    /**
+     * Xóa mềm đơn xuất kho (đặt isDeleted = true).
+     *
+     * @param id id đơn xuất kho cần xóa.
+     */
     @Override
     @Transactional
     public void deleteExport(Integer id) {
@@ -89,16 +128,25 @@ public class ExportServiceImpl implements ExportService {
 
     // ======= PRIVATE SUPPORT METHODS =======
 
+    /**
+     * Tìm đơn xuất kho theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private ExportEntity findExportOrThrow(Integer id) {
         return exportRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn xuất"));
     }
 
+    /**
+     * Tìm nhân viên theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private EmployeeEntity findEmployeeOrThrow(Integer id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại!"));
     }
 
+    /**
+     * Tìm sản phẩm theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private ProductEntity findProductOrThrow(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại!"));

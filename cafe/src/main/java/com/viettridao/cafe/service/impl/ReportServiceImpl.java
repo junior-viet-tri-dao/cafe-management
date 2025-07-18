@@ -16,6 +16,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ReportServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
@@ -28,6 +42,12 @@ public class ReportServiceImpl implements ReportService {
     private final RevenueService revenueService;
     private final PdfExportService pdfExportService;
 
+    /**
+     * Sinh báo cáo PDF từ bộ lọc yêu cầu.
+     *
+     * @param request bộ lọc báo cáo.
+     * @return mảng byte PDF báo cáo.
+     */
     @Override
     public byte[] generateReport(ReportFilterRequest request) {
         LocalDate start = request.getStartDate();
@@ -39,26 +59,36 @@ public class ReportServiceImpl implements ReportService {
 
         List<?> reportData = switch (request.getType()) {
             case IMPORT_ONLY -> importRepository.findByImportDateBetweenAndIsDeletedFalse(start, end);
-            case EXPORT_ONLY -> exportRepository.findAllByIsDeletedFalseAndExportDateBetween(start,end);
+            case EXPORT_ONLY -> exportRepository.findAllByIsDeletedFalseAndExportDateBetween(start, end);
             case IMPORT_EXPORT -> {
                 Map<String, Object> map = new HashMap<>();
                 map.put("imports", importRepository.findByImportDateBetweenAndIsDeletedFalse(start, end));
-                map.put("exports", exportRepository.findAllByIsDeletedFalseAndExportDateBetween(start,end));
+                map.put("exports", exportRepository.findAllByIsDeletedFalseAndExportDateBetween(start, end));
                 yield List.of(map);
             }
             case REVENUE_SUMMARY -> {
-                RevenueFilterRequest revenueRequest = new RevenueFilterRequest(start,end);
+                RevenueFilterRequest revenueRequest = new RevenueFilterRequest(start, end);
                 RevenueResponse revenue = revenueService.getRevenueSummary(revenueRequest);
                 yield List.of(revenue);
             }
             case EMPLOYEE_SALARY -> employeeRepository.findEmployeeByIsDeletedFalse();
             case EXPENSE_ONLY -> expenseRepository.findByExpenseDateBetweenAndIsDeletedFalse(start, end);
-            case INVOICE_MONTHLY -> invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(start.atStartOfDay(), end.plusDays(1).atStartOfDay(), InvoiceStatus.PAID);
+            case INVOICE_MONTHLY -> invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(
+                    start.atStartOfDay(),
+                    end.plusDays(1).atStartOfDay(),
+                    InvoiceStatus.PAID
+            );
         };
 
         return PdfExportServiceImpl.generatePdf(reportData, request.getType());
     }
 
+    /**
+     * Trả về dữ liệu báo cáo dạng List<?> dùng cho frontend.
+     *
+     * @param request bộ lọc báo cáo.
+     * @return dữ liệu báo cáo.
+     */
     public List<?> getReportData(ReportFilterRequest request) {
         LocalDate start = request.getStartDate();
         LocalDate end = request.getEndDate();
@@ -83,8 +113,11 @@ public class ReportServiceImpl implements ReportService {
             }
             case EMPLOYEE_SALARY -> employeeRepository.findEmployeeByIsDeletedFalse();
             case EXPENSE_ONLY -> expenseRepository.findByExpenseDateBetweenAndIsDeletedFalse(start, end);
-            case INVOICE_MONTHLY -> invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(start.atStartOfDay(), end.plusDays(1).atStartOfDay(), InvoiceStatus.PAID);
+            case INVOICE_MONTHLY -> invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(
+                    start.atStartOfDay(),
+                    end.plusDays(1).atStartOfDay(),
+                    InvoiceStatus.PAID
+            );
         };
     }
-
 }

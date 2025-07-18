@@ -19,20 +19,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * Controller quản lý tài khoản nhân viên cho các thao tác tự phục vụ.
- * 
- * Quyết định thiết kế:
- * - Sử dụng Spring Security context cho xác thực (quản lý session stateless)
- * - Format tiền tệ được thực hiện ở tầng presentation để tránh phức tạp lưu trữ
- * DB
- * - Tuân thủ pattern redirect-after-POST để ngăn submit form trùng lặp
- * 
- * Cân nhắc về hiệu suất:
- * - Một query DB duy nhất mỗi request thông qua username lookup
- * - Lazy evaluation cho format lương chỉ khi cần thiết
- * 
- * @author Cafe Management Team
- * @since 1.0
+ * AccountController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 @Controller
 @RequiredArgsConstructor
@@ -45,13 +43,7 @@ public class AccountController {
 
     /**
      * Render trang thông tin tài khoản cho user đã xác thực.
-     * 
-     * Bảo mật: Dựa vào authentication context của Spring Security - giả định user
-     * đã được xác thực tại thời điểm này (được enforce bởi cấu hình security).
-     * 
-     * Hiệu suất: Một lần hit database qua username lookup. Cân nhắc caching nếu đây
-     * trở thành endpoint có traffic cao.
-     * 
+     *
      * @param model Spring MVC model để binding với view
      * @return đường dẫn view cho template thông tin tài khoản
      */
@@ -73,24 +65,16 @@ public class AccountController {
 
     /**
      * Xử lý cập nhật thông tin tài khoản qua POST request.
-     * 
-     * Design pattern: POST-redirect-GET để ngăn duplicate form submissions
-     * khi browser refresh. Flash attributes đảm bảo messages tồn tại qua redirect.
-     * 
-     * Error handling: Catch tất cả exceptions để cung cấp error messages thân thiện
-     * với user.
-     * Trong production, cân nhắc log actual exceptions để debug trong khi hiển thị
-     * sanitized messages cho users.
-     * 
+     *
      * @param request            DTO chứa thông tin tài khoản cập nhật từ form
      * @param redirectAttributes lưu trữ tạm thời cho success/error messages
      * @return redirect URL để ngăn form resubmission
      */
     @PostMapping("/update")
     public String updateAccountInfo(@Valid @ModelAttribute("account") UpdateAccountRequest request,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                                    BindingResult bindingResult,
+                                    RedirectAttributes redirectAttributes,
+                                    Model model) {
         // Nếu có lỗi validate, trả về lại view và truyền lỗi xuống frontend
         if (bindingResult.hasErrors()) {
             model.addAttribute("account", request);

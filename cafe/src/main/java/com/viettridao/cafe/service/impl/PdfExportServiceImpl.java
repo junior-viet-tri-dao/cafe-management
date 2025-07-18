@@ -20,11 +20,32 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
-
+/**
+ * PdfExportServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai Service xuất PDF cho các loại báo cáo/quản lý hóa đơn, chi tiêu, nhân viên, nhập/xuất kho, doanh thu.
+ */
 @Service
 @RequiredArgsConstructor
 public class PdfExportServiceImpl implements PdfExportService {
 
+    /**
+     * Xuất hóa đơn sang PDF.
+     *
+     * @param invoice hóa đơn cần xuất PDF.
+     * @return mảng byte PDF.
+     */
     @Override
     public byte[] exportInvoiceToPdf(InvoiceEntity invoice) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -69,6 +90,13 @@ public class PdfExportServiceImpl implements PdfExportService {
         return out.toByteArray();
     }
 
+    /**
+     * Hàm tổng hợp xuất các loại báo cáo PDF.
+     *
+     * @param data dữ liệu báo cáo.
+     * @param type kiểu báo cáo.
+     * @return mảng byte PDF.
+     */
     public static byte[] generatePdf(List<?> data, ReportType type) {
         return switch (type) {
             case EMPLOYEE_SALARY -> generateEmployeeSalaryReport((List<EmployeeEntity>) data);
@@ -226,6 +254,9 @@ public class PdfExportServiceImpl implements PdfExportService {
         return out.toByteArray();
     }
 
+    /**
+     * Khởi tạo Document cơ bản cho PDF xuất báo cáo.
+     */
     private static Document createDoc(ByteArrayOutputStream out, String title) {
         PdfWriter writer = new PdfWriter(out);
         PdfDocument pdf = new PdfDocument(writer);

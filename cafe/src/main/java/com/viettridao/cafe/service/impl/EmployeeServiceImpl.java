@@ -1,6 +1,5 @@
 package com.viettridao.cafe.service.impl;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeePageResponse;
@@ -24,6 +23,19 @@ import org.springframework.util.StringUtils;
 import java.util.Optional;
 
 /**
+ * EmployeeServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
  * Triển khai Service cho thực thể EmployeeEntity.
  * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến nhân viên (Employee).
  */
@@ -52,8 +64,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param keyword Từ khóa tìm kiếm theo tên nhân viên.
      * @param page    Số trang cần lấy.
      * @param size    Số lượng bản ghi trên mỗi trang.
-     * @return Đối tượng EmployeePageResponse chứa danh sách nhân viên và thông tin
-     *         phân trang.
+     * @return Đối tượng EmployeePageResponse chứa danh sách nhân viên và thông tin phân trang.
      */
     @Override
     public EmployeePageResponse getAllEmployees(String keyword, int page, int size) {
@@ -188,6 +199,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
     }
 
+    /**
+     * Lấy thông tin nhân viên dựa trên id.
+     *
+     * @param id ID của nhân viên cần lấy thông tin.
+     * @return Thực thể EmployeeEntity tương ứng với ID.
+     */
     @Override
     public EmployeeEntity getEmployeeById(Integer id) {
         return employeeRepository.findById(id)

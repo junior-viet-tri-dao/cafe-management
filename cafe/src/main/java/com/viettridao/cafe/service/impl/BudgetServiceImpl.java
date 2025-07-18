@@ -30,6 +30,23 @@ import com.viettridao.cafe.model.EquipmentEntity;
 import com.viettridao.cafe.model.ExpenseEntity;
 import com.viettridao.cafe.model.InvoiceEntity;
 
+/**
+ * BudgetServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai Service cho thực thể Budget (Ngân sách).
+ * Xử lý nghiệp vụ liên quan đến tổng hợp doanh thu, chi phí, thiết bị.
+ */
 @Service
 @RequiredArgsConstructor
 public class BudgetServiceImpl implements BudgetService {
@@ -43,12 +60,19 @@ public class BudgetServiceImpl implements BudgetService {
     private final IncomeMapper incomeMapper;
     private final EquipmentMapper equipmentMapper;
 
+    /**
+     * Lấy tổng hợp ngân sách gồm doanh thu, chi phí, thiết bị theo bộ lọc thời gian và phân trang.
+     *
+     * @param request Bộ lọc thời gian và phân trang.
+     * @return Page<BudgetResponse> danh sách ngân sách tổng hợp.
+     */
     @Override
     public Page<BudgetResponse> getBudgetView(BudgetFilterRequest request) {
         LocalDate from = request.getFromDate();
         LocalDate to = request.getToDate();
 
-        List<InvoiceEntity> invoices = invoiceRepository.findByStatusAndCreatedAtBetween(InvoiceStatus.PAID,
+        List<InvoiceEntity> invoices = invoiceRepository.findByStatusAndCreatedAtBetween(
+                InvoiceStatus.PAID,
                 from.atStartOfDay(), to.plusDays(1).atStartOfDay());
 
         List<ExpenseEntity> expenses = expenseRepository.findExpensesBetweenDates(from, to);
@@ -69,7 +93,6 @@ public class BudgetServiceImpl implements BudgetService {
         }
 
         expenseDtos.forEach(dto -> mergeExpense(merged, dto));
-
         equipmentDtos.forEach(dto -> mergeExpense(merged, dto));
 
         List<BudgetResponse> result = new ArrayList<>(merged.values());
@@ -85,6 +108,9 @@ public class BudgetServiceImpl implements BudgetService {
         return new PageImpl<>(pageContent, PageRequest.of(request.getPage(), request.getSize()), result.size());
     }
 
+    /**
+     * Gộp chi phí vào bản ghi ngân sách theo ngày.
+     */
     private void mergeExpense(Map<LocalDate, BudgetResponse> map, BudgetResponse dto) {
         map.merge(dto.getDate(), dto, (oldVal, newVal) -> {
             oldVal.setExpense(oldVal.getExpense() + newVal.getExpense());
@@ -92,6 +118,12 @@ public class BudgetServiceImpl implements BudgetService {
         });
     }
 
+    /**
+     * Thêm mới chi phí (Expense) cho tài khoản.
+     *
+     * @param request  thông tin chi phí cần thêm.
+     * @param username tên đăng nhập tài khoản.
+     */
     @Override
     public void addExpense(ExpenseRequest request, String username) {
         AccountEntity account = accountRepository.findByUsername(username)

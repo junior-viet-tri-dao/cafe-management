@@ -17,22 +17,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Controller xử lý authentication và authorization cho ứng dụng.
- * 
- * Quyết định thiết kế:
- * - Sử dụng Spring Security cho core authentication
- * - Controller chỉ handle UI presentation layer
- * - AuthService xử lý business logic liên quan đến auth
- * 
- * Security considerations:
- * - Login form được bảo vệ CSRF token
- * - Redirect safety để tránh open redirect attacks
- * - Session management được Spring Security handle
- * 
- * Flow: Login form → Spring Security filter → Success redirect → /home
- * 
- * @author Cafe Management Team
- * @since 1.0
+ * AuthController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 @Controller
 @RequiredArgsConstructor
@@ -44,15 +40,7 @@ public class AuthController {
 
     /**
      * Hiển thị form đăng nhập cho user.
-     * 
-     * Endpoint này chỉ render login form, việc xử lý authentication
-     * thực tế được Spring Security handle thông qua security config.
-     * 
-     * Design pattern: Separation of concerns
-     * - Controller: UI presentation
-     * - Spring Security: Authentication logic
-     * - AuthService: Custom business rules nếu cần
-     * 
+     *
      * @return đường dẫn tới login template
      */
     @GetMapping("")
@@ -64,13 +52,7 @@ public class AuthController {
 
     /**
      * Xử lý đăng nhập cho user.
-     * 
-     * Phương thức này sẽ được gọi khi form đăng nhập được submit.
-     * Nó sẽ thực hiện việc xác thực thông tin đăng nhập của user
-     * thông qua AuthService. Nếu thành công, user sẽ được chuyển
-     * hướng tới trang chủ. Nếu thất bại, thông báo lỗi sẽ được hiển thị
-     * trên trang đăng nhập.
-     * 
+     *
      * @param request            chứa thông tin đăng nhập của user
      * @param bindingResult      để kiểm tra lỗi validation
      * @param redirectAttributes để truyền thông báo giữa các request
@@ -78,8 +60,8 @@ public class AuthController {
      */
     @PostMapping("")
     public String login(@Valid @ModelAttribute("login") LoginRequest request,
-            BindingResult bindingResult,
-            RedirectAttributes redirectAttributes) {
+                        BindingResult bindingResult,
+                        RedirectAttributes redirectAttributes) {
         try {
             if (bindingResult.hasErrors()) {
                 // Trả về lại trang login với lỗi validation

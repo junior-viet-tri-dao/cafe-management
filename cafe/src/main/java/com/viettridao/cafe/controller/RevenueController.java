@@ -13,12 +13,29 @@ import com.viettridao.cafe.dto.response.revenue.RevenueResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * RevenueController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/revenue")
 public class RevenueController {
     private final RevenueService revenueService;
 
+    /**
+     * Hiển thị báo cáo doanh thu theo khoảng thời gian.
+     */
     @GetMapping
     public String viewRevenue(
             @RequestParam(value = "startDate", required = false)
@@ -41,6 +58,7 @@ public class RevenueController {
         filter.setStartDate(startDate);
         filter.setEndDate(endDate);
 
+        // Khởi tạo dữ liệu mặc định nếu không có kết quả
         RevenueResponse revenue = new RevenueResponse();
         revenue.setSummaries(new ArrayList<>());
         revenue.setTotalIncome(0.0);

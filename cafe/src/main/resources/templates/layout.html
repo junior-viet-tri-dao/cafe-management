@@ -191,11 +191,12 @@
                 ><i class="fas fa-bullhorn"></i> Quản lý Marketing</a
               >
               <a
-                th:href="@{/budget}"
-                th:classappend="${currentPath == '/budget'} ? 'active' : ''"
-                class="sidebar-link"
-                ><i class="fas fa-money-bill-alt"></i> Quản lý ngân sách</a
+                      th:href="@{/budget}"
+                      th:classappend="${#strings.startsWith(currentPath, '/budget')} ? 'active' : ''"
+                      class="sidebar-link"
               >
+                <i class="fas fa-money-bill-alt"></i> Quản lý ngân sách
+              </a>
               <!-- <a
                 th:href="@{/data}"
                 th:classappend="${currentPath == '/data'} ? 'active' : ''"

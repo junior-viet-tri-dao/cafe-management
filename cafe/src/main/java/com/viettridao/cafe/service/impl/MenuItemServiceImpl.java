@@ -25,6 +25,23 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MenuItemServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai Service cho thực đơn (MenuItem).
+ * Xử lý lấy danh sách, tạo mới, cập nhật, xóa mềm, kiểm tra tên món, thêm chi tiết món.
+ */
 @Service
 @RequiredArgsConstructor
 public class MenuItemServiceImpl implements MenuItemService {
@@ -35,6 +52,14 @@ public class MenuItemServiceImpl implements MenuItemService {
     private final ProductRepository productRepository;
     private final UnitService unitService;
 
+    /**
+     * Lấy danh sách thực đơn (MenuItem) theo keyword và phân trang.
+     *
+     * @param keyword từ khóa tìm kiếm theo tên món.
+     * @param page    số trang.
+     * @param size    kích thước trang.
+     * @return MenuItemPageResponse danh sách thực đơn.
+     */
     @Override
     public MenuItemPageResponse getAllMenuItems(String keyword, int page, int size) {
         Page<MenuItemEntity> menuItemPage;
@@ -54,6 +79,12 @@ public class MenuItemServiceImpl implements MenuItemService {
         return response;
     }
 
+    /**
+     * Tạo mới một thực đơn và các chi tiết món liên kết.
+     *
+     * @param request thông tin tạo thực đơn mới.
+     * @return MenuItemEntity vừa được tạo.
+     */
     @Transactional
     @Override
     public MenuItemEntity createMenuItem(CreateMenuItemRequest request) {
@@ -84,6 +115,11 @@ public class MenuItemServiceImpl implements MenuItemService {
         return menuItem;
     }
 
+    /**
+     * Cập nhật thông tin thực đơn và các chi tiết món liên kết.
+     *
+     * @param request thông tin cập nhật thực đơn.
+     */
     @Transactional
     @Override
     public void updateMenuItem(UpdateMenuItemRequest request) {
@@ -126,6 +162,11 @@ public class MenuItemServiceImpl implements MenuItemService {
         }
     }
 
+    /**
+     * Xóa mềm một thực đơn (isDeleted = true).
+     *
+     * @param id id thực đơn cần xóa.
+     */
     @Override
     @Transactional
     public void deleteMenuItem(Integer id) {
@@ -135,20 +176,38 @@ public class MenuItemServiceImpl implements MenuItemService {
         menuItemRepository.save(menuItem);
     }
 
+    /**
+     * Lấy thông tin thực đơn theo id.
+     *
+     * @param id id thực đơn cần lấy thông tin.
+     * @return MenuItemEntity theo id.
+     */
     @Override
     public MenuItemEntity getMenuItemById(Integer id) {
         return menuItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thực đơn có id=" + id));
     }
 
+    /**
+     * Kiểm tra tên món đã tồn tại chưa (chưa bị xóa).
+     *
+     * @param itemName tên món cần kiểm tra.
+     * @return true nếu tồn tại, false nếu không tồn tại.
+     */
     @Override
     public boolean existsByItemName(String itemName) {
         return menuItemRepository.existsByItemNameAndIsDeletedFalse(itemName);
     }
 
+    /**
+     * Kiểm tra tên món đã tồn tại chưa (không tính id hiện tại, chưa bị xóa).
+     *
+     * @param itemName tên món cần kiểm tra.
+     * @param menuItemId id thực đơn cần loại trừ.
+     * @return true nếu tồn tại, false nếu không tồn tại.
+     */
     @Override
     public boolean existsByItemNameAndIdNot(String itemName, Integer menuItemId) {
         return menuItemRepository.existsByItemNameAndIsDeletedFalseAndIdNot(itemName, menuItemId);
     }
-
 }

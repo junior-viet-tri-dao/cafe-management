@@ -1,12 +1,21 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.account.UpdateAccountRequest;
 import com.viettridao.cafe.model.AccountEntity;
 
 /**
- * Service cho thực thể AccountEntity.
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến tài khoản (Account).
+ * AccountService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface AccountService {
 

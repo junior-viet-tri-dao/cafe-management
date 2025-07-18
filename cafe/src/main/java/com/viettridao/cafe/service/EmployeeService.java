@@ -1,14 +1,23 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.employee.CreateEmployeeRequest;
 import com.viettridao.cafe.dto.request.employee.UpdateEmployeeRequest;
 import com.viettridao.cafe.dto.response.employee.EmployeePageResponse;
 import com.viettridao.cafe.model.EmployeeEntity;
 
 /**
- * Service cho thực thể EmployeeEntity.
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến nhân viên (Employee).
+ * EmployeeService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface EmployeeService {
 
@@ -18,12 +27,11 @@ public interface EmployeeService {
      * @param keyword Từ khóa tìm kiếm theo tên nhân viên.
      * @param page    Số trang cần lấy.
      * @param size    Số lượng bản ghi trên mỗi trang.
-     * @return Đối tượng EmployeePageResponse chứa danh sách nhân viên và thông tin
-     *         phân trang.
+     * @return Đối tượng EmployeePageResponse chứa danh sách nhân viên và thông tin phân trang.
      */
     EmployeePageResponse getAllEmployees(String keyword, int page, int size);
 
-        /**
+    /**
      * Kiểm tra username đã tồn tại trong hệ thống chưa (dành cho tạo mới nhân viên).
      * @param username tên đăng nhập
      * @return true nếu đã tồn tại, false nếu chưa

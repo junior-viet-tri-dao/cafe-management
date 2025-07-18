@@ -21,7 +21,18 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 /**
- * Lớp triển khai các phương thức xử lý logic liên quan đến hàng hóa.
+ * ProductServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 @Service
 @RequiredArgsConstructor
@@ -34,8 +45,7 @@ public class ProductServiceImpl implements ProductService {
     /**
      * Lấy danh sách sản phẩm có tìm kiếm và phân trang.
      *
-     * @param keyword Từ khóa tìm kiếm theo tên sản phẩm (có thể null hoặc rỗng để
-     *                lấy tất cả)
+     * @param keyword Từ khóa tìm kiếm theo tên sản phẩm (có thể null hoặc rỗng để lấy tất cả)
      * @param page    Số trang (bắt đầu từ 0)
      * @param size    Số lượng phần tử mỗi trang
      * @return ProductPageResponse chứa danh sách sản phẩm và thông tin phân trang
@@ -57,21 +67,22 @@ public class ProductServiceImpl implements ProductService {
         return response;
     }
 
+    /**
+     * Lấy danh sách sản phẩm chưa bị xóa mềm.
+     *
+     * @return danh sách sản phẩm cho frontend (dropdown...)
+     */
     @Override
     public List<ProductResponse> getAllProducts() {
-        // Lấy danh sách sản phẩm chưa bị xóa mềm
         List<ProductEntity> entities = productRepository.findAllByIsDeletedFalse();
-
-        // Chuyển đổi sang DTO để trả về cho frontend (dropdown...)
         return productMapper.toListProductResponse(entities);
     }
 
     /**
-     * Kiểm tra sự tồn tại của sản phẩm theo tên (chỉ kiểm tra sản phẩm chưa bị xóa
-     * mềm).
+     * Kiểm tra sự tồn tại của sản phẩm theo tên (chỉ kiểm tra sản phẩm chưa bị xóa mềm).
      *
      * @param productName Tên sản phẩm cần kiểm tra
-     * @return true nếu tồn tại sản phẩm chưa bị xóa mềm, ngược lại false
+     * @return true nếu tồn tại, false nếu không
      */
     @Override
     public boolean existsByProductNameAndIsDeletedFalse(String productName) {
@@ -79,9 +90,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * Kiểm tra trùng tên sản phẩm, loại trừ chính nó (không tính sản phẩm đang cập
-     * nhật)
-     * 
+     * Kiểm tra trùng tên sản phẩm, loại trừ chính nó (không tính sản phẩm đang cập nhật).
+     *
      * @param productName tên sản phẩm
      * @param productId   id sản phẩm cần loại trừ
      * @return true nếu đã tồn tại tên sản phẩm khác với id này

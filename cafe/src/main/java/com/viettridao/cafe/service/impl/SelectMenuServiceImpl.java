@@ -32,7 +32,21 @@ import com.viettridao.cafe.service.SelectMenuService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Triển khai logic chọn món và tạo order cho bàn.
+ * SelectMenuServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai logic chọn món và tạo order cho bàn (SelectMenu).
+ * Xử lý nghiệp vụ đặt món, tạo hóa đơn, reservation, cập nhật chi tiết hóa đơn.
  */
 @Service
 @RequiredArgsConstructor
@@ -45,6 +59,13 @@ public class SelectMenuServiceImpl implements SelectMenuService {
     private final EmployeeRepository employeeRepository;
     private final OrderDetailMapper orderDetailMapper;
 
+    /**
+     * Tạo order mới cho bàn: kiểm tra trạng thái bàn, tạo hóa đơn/reservation/chi tiết hóa đơn, cập nhật trạng thái bàn.
+     *
+     * @param request thông tin chọn món.
+     * @param employeeId id nhân viên thực hiện.
+     * @return OrderDetailRessponse kết quả order.
+     */
     @Override
     @Transactional
     public OrderDetailRessponse createOrderForAvailableTable(
@@ -53,7 +74,7 @@ public class SelectMenuServiceImpl implements SelectMenuService {
         TableEntity table = tableRepository.findById(request.getTableId())
                 .orElseThrow(() -> new IllegalArgumentException("Bàn không tồn tại!"));
 
-        // 2. Lấy thông tin nhân viên từ DB (theo employeeId lấy từ session)
+        // 2. Lấy thông tin nhân viên từ DB
         EmployeeEntity employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại!"));
 
@@ -61,7 +82,6 @@ public class SelectMenuServiceImpl implements SelectMenuService {
         ReservationEntity reservation = null;
 
         if (table.getStatus() == TableStatus.AVAILABLE) {
-            // Bàn trống: tạo mới hóa đơn, reservation, chi tiết hóa đơn
             invoice = new InvoiceEntity();
             invoice.setStatus(InvoiceStatus.PENDING_PAYMENT);
             invoice.setCreatedAt(LocalDateTime.now());
@@ -83,7 +103,6 @@ public class SelectMenuServiceImpl implements SelectMenuService {
             reservation.setIsDeleted(false);
             reservationRepository.save(reservation);
 
-            // Lưu chi tiết hóa đơn
             for (CreateSelectMenuRequest.MenuOrderItem item : request.getItems()) {
                 MenuItemEntity menuItem = menuItemRepository.findById(item.getMenuItemId())
                         .orElseThrow(() -> new IllegalArgumentException("Món ăn không tồn tại!"));
@@ -101,12 +120,9 @@ public class SelectMenuServiceImpl implements SelectMenuService {
                 invoiceDetailRepository.save(detail);
             }
 
-            // Cập nhật trạng thái bàn
             table.setStatus(TableStatus.OCCUPIED);
             tableRepository.save(table);
         } else if (table.getStatus() == TableStatus.RESERVED) {
-            // Bàn đã đặt: lấy reservation, hóa đơn hiện tại, chuyển trạng thái hóa đơn,
-            // bàn, thêm/cập nhật món
             reservation = reservationRepository.findAll().stream()
                     .filter(r -> r.getTable().getId().equals(table.getId()) && !Boolean.TRUE.equals(r.getIsDeleted()))
                     .findFirst()
@@ -116,28 +132,22 @@ public class SelectMenuServiceImpl implements SelectMenuService {
             invoiceRepository.save(invoice);
             table.setStatus(TableStatus.OCCUPIED);
             tableRepository.save(table);
-            // Thêm/cập nhật món
             updateOrAddInvoiceDetails(invoice, request);
         } else if (table.getStatus() == TableStatus.OCCUPIED) {
-            // Bàn đang sử dụng: lấy reservation, hóa đơn hiện tại, thêm/cập nhật món
             reservation = reservationRepository.findAll().stream()
                     .filter(r -> r.getTable().getId().equals(table.getId()) && !Boolean.TRUE.equals(r.getIsDeleted()))
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Không tìm thấy reservation cho bàn đang sử dụng!"));
             invoice = reservation.getInvoice();
-            // Thêm/cập nhật món
             updateOrAddInvoiceDetails(invoice, request);
         } else {
             throw new IllegalStateException("Trạng thái bàn không hợp lệ!");
         }
 
-        // Tính lại total amount cho invoice
         updateInvoiceTotalAmount(invoice);
 
-        // Lấy lại danh sách chi tiết hóa đơn
         List<InvoiceDetailEntity> invoiceDetails = invoiceDetailRepository
                 .findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
-        // Trả về response
         return orderDetailMapper.toOrderDetailResponse(table, invoice, reservation, invoiceDetails);
     }
 
@@ -154,11 +164,9 @@ public class SelectMenuServiceImpl implements SelectMenuService {
 
             InvoiceDetailEntity detail = invoiceDetailRepository.findById(invoiceKey).orElse(null);
             if (detail != null && !Boolean.TRUE.equals(detail.getIsDeleted())) {
-                // Nếu đã có thì cộng dồn số lượng
                 detail.setQuantity(detail.getQuantity() + item.getQuantity());
                 invoiceDetailRepository.save(detail);
             } else {
-                // Nếu chưa có thì thêm mới
                 InvoiceDetailEntity newDetail = new InvoiceDetailEntity();
                 newDetail.setId(invoiceKey);
                 newDetail.setInvoice(invoice);
@@ -186,6 +194,11 @@ public class SelectMenuServiceImpl implements SelectMenuService {
         invoiceRepository.save(invoice);
     }
 
+    /**
+     * Lấy danh sách món thực đơn chưa bị xóa.
+     *
+     * @return danh sách menu item response
+     */
     @Override
     public List<MenuItemResponse> getMenuItems() {
         List<MenuItemEntity> menuEntities = menuItemRepository.findByIsDeletedFalseOrIsDeletedIsNull();

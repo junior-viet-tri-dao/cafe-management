@@ -1,6 +1,5 @@
 package com.viettridao.cafe.service.impl;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.imports.CreateImportRequest;
 import com.viettridao.cafe.dto.request.imports.UpdateImportRequest;
 import com.viettridao.cafe.mapper.ImportMapper;
@@ -11,13 +10,26 @@ import com.viettridao.cafe.repository.EmployeeRepository;
 import com.viettridao.cafe.repository.ImportRepository;
 import com.viettridao.cafe.repository.ProductRepository;
 import com.viettridao.cafe.service.ImportService;
-import com.viettridao.cafe.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Lớp triển khai các phương thức xử lý logic liên quan đến đơn nhập hàng.
+ * ImportServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai các phương thức xử lý logic liên quan đến đơn nhập hàng (Import).
+ * Xử lý nhập kho, cập nhật số lượng sản phẩm, tính tổng tiền nhập, và soft delete.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,6 +40,11 @@ public class ImportServiceImpl implements ImportService {
     private final EmployeeRepository employeeRepository;
     private final ProductRepository productRepository;
 
+    /**
+     * Tạo mới một đơn nhập hàng, cập nhật số lượng kho và lưu thông tin nhập.
+     *
+     * @param request thông tin nhập kho cần tạo.
+     */
     @Override
     @Transactional
     public void createImport(CreateImportRequest request) {
@@ -52,12 +69,24 @@ public class ImportServiceImpl implements ImportService {
         importRepository.save(importEntity);
     }
 
+    /**
+     * Lấy thông tin đơn nhập hàng để cập nhật theo id.
+     *
+     * @param id id đơn nhập cần lấy.
+     * @return UpdateImportRequest thông tin cập nhật đơn nhập hàng.
+     */
     @Override
     public UpdateImportRequest getUpdateForm(Integer id) {
         ImportEntity importEntity = findImportOrThrow(id);
         return importMapper.toUpdateRequest(importEntity);
     }
 
+    /**
+     * Cập nhật thông tin đơn nhập hàng.
+     *
+     * @param id id đơn nhập cần cập nhật.
+     * @param request thông tin cập nhật đơn nhập hàng.
+     */
     @Override
     @Transactional
     public void updateImport(Integer id, UpdateImportRequest request) {
@@ -73,6 +102,11 @@ public class ImportServiceImpl implements ImportService {
         importRepository.save(importEntity);
     }
 
+    /**
+     * Xóa mềm đơn nhập hàng (đặt isDeleted = true).
+     *
+     * @param id id đơn nhập cần xóa.
+     */
     @Override
     @Transactional
     public void deleteImport(Integer id) {
@@ -83,16 +117,25 @@ public class ImportServiceImpl implements ImportService {
 
     // ===== PRIVATE METHODS =====
 
+    /**
+     * Tìm đơn nhập hàng theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private ImportEntity findImportOrThrow(Integer id) {
         return importRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn nhập"));
     }
 
+    /**
+     * Tìm nhân viên theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private EmployeeEntity findEmployeeOrThrow(Integer id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Nhân viên không tồn tại!"));
     }
 
+    /**
+     * Tìm sản phẩm theo id hoặc ném lỗi nếu không tồn tại.
+     */
     private ProductEntity findProductOrThrow(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại!"));

@@ -22,8 +22,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Controller để xử lý các yêu cầu liên quan đến sản phẩm trong kho.
- * Bao gồm hiển thị danh sách sản phẩm, tạo mới, cập nhật và xóa sản phẩm.
+ * ProductController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 @Controller
 @RequiredArgsConstructor
@@ -38,9 +48,9 @@ public class ProductController {
      */
     @GetMapping("")
     public String home(@RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Model model) {
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "10") int size,
+                       Model model) {
         model.addAttribute("products", productService.getAllProducts(keyword, page, size));
         model.addAttribute("currentPath", "/warehouse/product");
         return "/warehouses/products/product";
@@ -61,14 +71,15 @@ public class ProductController {
      */
     @PostMapping("/create")
     public String createProduct(@Valid @ModelAttribute("product") CreateProductRequest product,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
         try {
             if (result.hasErrors()) {
                 model.addAttribute("units", unitService.getAllUnits());
                 return "/warehouses/products/create_product";
             }
+            // Kiểm tra trùng tên sản phẩm chưa bị xóa
             if (productService.existsByProductNameAndIsDeletedFalse(product.getProductName())) {
                 result.rejectValue("productName", "error.productName", "Tên hàng hóa đã tồn tại");
                 model.addAttribute("units", unitService.getAllUnits());
@@ -88,7 +99,7 @@ public class ProductController {
      */
     @PostMapping("/delete/{id}")
     public String deleteProduct(@PathVariable("id") Integer id,
-            RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes) {
         try {
             productService.deleteProduct(id);
             redirectAttributes.addFlashAttribute("success", "Xóa hàng hóa thành công");
@@ -103,14 +114,14 @@ public class ProductController {
      */
     @GetMapping("/update/{id}")
     public String showFormUpdate(@PathVariable("id") Integer id,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
         try {
             ProductEntity entity = productService.getProductById(id);
             UpdateProductRequest updateRequest = new UpdateProductRequest();
             updateRequest.setProductId(entity.getId());
             updateRequest.setProductName(entity.getProductName());
-            // Lấy tên đơn vị tính từ entity (giả sử entity.getUnit().getUnitName())
+            // Lấy tên đơn vị tính từ entity nếu có, nếu không để rỗng
             if (entity.getUnit() != null) {
                 updateRequest.setUnitName(entity.getUnit().getUnitName());
             } else {
@@ -130,9 +141,9 @@ public class ProductController {
      */
     @PostMapping("/update")
     public String updateProduct(@Valid @ModelAttribute("product") UpdateProductRequest request,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
         try {
             if (result.hasErrors()) {
                 model.addAttribute("units", unitService.getAllUnits());

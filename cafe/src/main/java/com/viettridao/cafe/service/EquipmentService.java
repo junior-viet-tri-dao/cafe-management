@@ -1,16 +1,24 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.dto.request.equipment.CreateEquipmentRequest;
 import com.viettridao.cafe.dto.request.equipment.UpdateEquipmentRequest;
 import com.viettridao.cafe.dto.response.equipment.EquipmentPageResponse;
 import com.viettridao.cafe.model.EquipmentEntity;
-
 import java.util.List;
 
 /**
- * Service cho thực thể EquipmentEntity.
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến thiết bị (Equipment).
+ * EquipmentService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface EquipmentService {
 
@@ -26,8 +34,7 @@ public interface EquipmentService {
      *
      * @param page Số trang cần lấy.
      * @param size Số lượng bản ghi trên mỗi trang.
-     * @return Đối tượng EquipmentPageResponse chứa danh sách thiết bị và thông tin
-     *         phân trang.
+     * @return Đối tượng EquipmentPageResponse chứa danh sách thiết bị và thông tin phân trang.
      */
     EquipmentPageResponse getAllEquipmentsPage(int page, int size);
 

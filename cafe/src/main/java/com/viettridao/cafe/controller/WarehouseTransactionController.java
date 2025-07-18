@@ -26,6 +26,20 @@ import com.viettridao.cafe.service.WarehouseTransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * WarehouseTransactionController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/warehouse/transaction")
@@ -37,22 +51,19 @@ public class WarehouseTransactionController {
     private final ProductService productService;
     private final EmployeeRepository employeeRepository;
 
-    // ---------- 1. Hiển thị toàn bộ danh sách giao dịch nhập xuất ----------
     @GetMapping("")
     public String getAllTransactions(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Model model) {
-        WarehouseTransactionPageResponse transactions = warehouseTransactionService.getTransactions(keyword, page,
-                size);
+        WarehouseTransactionPageResponse transactions = warehouseTransactionService.getTransactions(keyword, page, size);
         model.addAttribute("transactions", transactions);
         model.addAttribute("keyword", keyword);
         model.addAttribute("currentPath", "/warehouse/transaction");
         return "/warehouses/transactions/transaction";
     }
 
-    // ---------- 2. Đơn nhập ----------
     @GetMapping("/import/create")
     public String showFormCreateImport(Model model) {
         model.addAttribute("products", productService.getAllProducts());
@@ -62,10 +73,11 @@ public class WarehouseTransactionController {
 
     @PostMapping("/import/create")
     public String createImport(@Valid @ModelAttribute("import") CreateImportRequest request,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                               BindingResult result,
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
 
+        // Lấy employeeId của nhân viên hiện tại từ SecurityContext
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Integer employeeId = employeeRepository.findByAccount_Username(username)
                 .map(EmployeeEntity::getId)
@@ -86,8 +98,6 @@ public class WarehouseTransactionController {
         }
     }
 
-    // ---------- 3. Đơn xuất ----------
-
     @GetMapping("/export/create")
     public String showFormCreateExport(Model model) {
         model.addAttribute("products", productService.getAllProducts());
@@ -97,10 +107,11 @@ public class WarehouseTransactionController {
 
     @PostMapping("/export/create")
     public String createExport(@Valid @ModelAttribute("export") CreateExportRequest request,
-            BindingResult result,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                               BindingResult result,
+                               RedirectAttributes redirectAttributes,
+                               Model model) {
 
+        // Lấy employeeId của nhân viên hiện tại từ SecurityContext
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Integer employeeId = employeeRepository.findByAccount_Username(username)
                 .map(EmployeeEntity::getId)
@@ -122,15 +133,14 @@ public class WarehouseTransactionController {
         }
     }
 
-    // ---------- API endpoint để lấy dữ liệu transactions cho AJAX ----------
+    // API endpoint để lấy dữ liệu transactions cho AJAX
     @GetMapping("/api")
     @ResponseBody
     public ResponseEntity<WarehouseTransactionPageResponse> getTransactionsApi(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        WarehouseTransactionPageResponse transactions = warehouseTransactionService.getTransactions(keyword, page,
-                size);
+        WarehouseTransactionPageResponse transactions = warehouseTransactionService.getTransactions(keyword, page, size);
         return ResponseEntity.ok(transactions);
     }
 

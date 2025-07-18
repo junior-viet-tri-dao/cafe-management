@@ -20,6 +20,23 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * InvoiceItemServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
+ * Triển khai Service cho nghiệp vụ thêm món vào hóa đơn.
+ * Xử lý kiểm tra trạng thái bàn, hóa đơn, thêm món, cập nhật tổng tiền và trạng thái bàn.
+ */
 @Service
 @RequiredArgsConstructor
 public class InvoiceItemServiceImpl implements InvoiceItemService {
@@ -30,6 +47,12 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
     private final ReservationRepository reservationRepository;
     private final InvoiceDetailMapper invoiceDetailMapper;
 
+    /**
+     * Thêm các món vào hóa đơn chỉ định, kiểm tra trạng thái, tạo mới hóa đơn nếu cần, cập nhật tổng tiền.
+     *
+     * @param request danh sách món ăn cần thêm vào hóa đơn.
+     * @return danh sách món đã thêm vào hóa đơn (InvoiceItemResponse).
+     */
     @Override
     @Transactional
     public List<InvoiceItemResponse> addItemsToInvoice(InvoiceItemListRequest request) {

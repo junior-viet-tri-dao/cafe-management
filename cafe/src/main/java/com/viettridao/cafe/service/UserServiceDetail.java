@@ -1,6 +1,5 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.repository.AccountRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +9,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
+ * UserServiceDetail
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ *
  * Service chi tiết người dùng (UserServiceDetail).
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến xác thực và tải thông
- * tin người dùng.
+ * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến xác thực và tải thông tin người dùng.
  */
 @Service
 @RequiredArgsConstructor
@@ -27,8 +38,7 @@ public class UserServiceDetail implements UserDetailsService {
      *
      * @param username Tên đăng nhập của người dùng.
      * @return Đối tượng UserDetails chứa thông tin người dùng.
-     * @throws UsernameNotFoundException Nếu không tìm thấy người dùng với tên đăng
-     *                                   nhập đã cung cấp.
+     * @throws UsernameNotFoundException Nếu không tìm thấy người dùng với tên đăng nhập đã cung cấp.
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -22,6 +22,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+/**
+ * RevenueServiceImpl
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ */
 @Service
 @RequiredArgsConstructor
 public class RevenueServiceImpl implements RevenueService {
@@ -30,6 +44,12 @@ public class RevenueServiceImpl implements RevenueService {
     private final EquipmentRepository equipmentRepository;
     private final ExpenseRepository expenseRepository;
 
+    /**
+     * Lấy tổng hợp doanh thu - chi tiêu theo ngày.
+     *
+     * @param request RevenueFilterRequest bộ lọc ngày.
+     * @return RevenueResponse tổng hợp doanh thu/chi theo từng ngày.
+     */
     @Override
     public RevenueResponse getRevenueSummary(RevenueFilterRequest request) {
         LocalDate start = request.getStartDate();
@@ -41,6 +61,7 @@ public class RevenueServiceImpl implements RevenueService {
 
         Map<LocalDate, RevenueItemResponse> dailyMap = new TreeMap<>();
 
+        // Thu nhập từ hóa đơn đã thanh toán
         for (InvoiceEntity invoice : invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalseAndStatusEquals(start.atStartOfDay(), end.plusDays(1).atStartOfDay(), InvoiceStatus.PAID)) {
             if (invoice.getStatus() != InvoiceStatus.PAID) continue;
             LocalDate date = invoice.getCreatedAt().toLocalDate();
@@ -50,6 +71,7 @@ public class RevenueServiceImpl implements RevenueService {
             item.setIncome(Optional.ofNullable(item.getIncome()).orElse(0.0) + invoice.getTotalAmount());
         }
 
+        // Chi tiêu từ nhập hàng
         for (ImportEntity imp : importRepository.findByImportDateBetweenAndIsDeletedFalse(start, end)) {
             LocalDate date = imp.getImportDate();
             dailyMap.putIfAbsent(date, new RevenueItemResponse());
@@ -58,6 +80,7 @@ public class RevenueServiceImpl implements RevenueService {
             item.setExpense(Optional.ofNullable(item.getExpense()).orElse(0.0) + imp.getTotalAmount());
         }
 
+        // Chi tiêu từ mua thiết bị
         for (EquipmentEntity equip : equipmentRepository.findByPurchaseDateBetweenAndIsDeletedFalse(start, end)) {
             LocalDate date = equip.getPurchaseDate();
             dailyMap.putIfAbsent(date, new RevenueItemResponse());
@@ -66,6 +89,7 @@ public class RevenueServiceImpl implements RevenueService {
             item.setExpense(Optional.ofNullable(item.getExpense()).orElse(0.0) + equip.getPurchasePrice());
         }
 
+        // Chi tiêu từ các khoản chi phí khác
         for (ExpenseEntity expense : expenseRepository.findByExpenseDateBetweenAndIsDeletedFalse(start, end)) {
             LocalDate date = expense.getExpenseDate();
             dailyMap.putIfAbsent(date, new RevenueItemResponse());

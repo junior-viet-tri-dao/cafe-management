@@ -1,13 +1,21 @@
 package com.viettridao.cafe.service;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.model.PositionEntity;
-
 import java.util.List;
 
 /**
- * Service cho thực thể PositionEntity.
- * Chịu trách nhiệm xử lý logic nghiệp vụ liên quan đến vị trí (Position).
+ * PositionService
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
  */
 public interface PositionService {
 

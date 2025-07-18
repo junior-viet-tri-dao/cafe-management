@@ -16,6 +16,20 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * ReportController
+ *
+ * Version 1.0
+ *
+ * Date: 18-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 18-07-2025   mirodoan    Create
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/report")
@@ -23,6 +37,9 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    /**
+     * Hiển thị form báo cáo và kết quả báo cáo nếu đã filter.
+     */
     @GetMapping
     public String showReportForm(
             @RequestParam(value = "startDate", required = false)
@@ -38,6 +55,7 @@ public class ReportController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("type", type);
 
+        // Nếu đã nhập đủ điều kiện lọc, thực hiện truy vấn báo cáo
         if (startDate != null && endDate != null && type != null) {
             try {
                 ReportFilterRequest request = new ReportFilterRequest();
@@ -55,7 +73,9 @@ public class ReportController {
         return "report/report-management";
     }
 
-
+    /**
+     * Export báo cáo ra PDF để download.
+     */
     @GetMapping("/download")
     public void downloadPdf(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -72,7 +92,6 @@ public class ReportController {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Loại báo cáo không hợp lệ");
             return;
         }
-
 
         byte[] pdfData = reportService.generateReport(request);
 
