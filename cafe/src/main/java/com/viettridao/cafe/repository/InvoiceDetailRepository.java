@@ -7,6 +7,7 @@ import com.viettridao.cafe.model.InvoiceDetailEntity;
 import com.viettridao.cafe.model.InvoiceKey;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * InvoiceDetailRepository
@@ -34,5 +35,14 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetailEnti
      * @return List<InvoiceDetailEntity>
      */
     List<InvoiceDetailEntity> findAllByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
+
+
+    /**
+     * Tìm chi tiết hóa đơn theo id và chưa bị xóa mềm.
+     *
+     * @param id InvoiceKey của chi tiết hóa đơn
+     * @return Optional<InvoiceDetailEntity>
+     */
+    Optional<InvoiceDetailEntity> findByIdAndIsDeletedFalse(InvoiceKey id);
 
 }

@@ -66,12 +66,7 @@ public class SalesController {
     private final OrderDetailMapper orderDetailMapper;
 
     @GetMapping("")
-    public String getSalesOverview(
-            @RequestParam(required = false) Boolean showMergeModal,
-            @RequestParam(required = false) Boolean showSplitModal,
-            @RequestParam(required = false) Boolean showMoveModal,
-            @RequestParam(required = false) Integer selectedTableId,
-            Model model) {
+    public String getSalesOverview(Model model) {
         // Chuẩn bị dữ liệu cơ bản cho view
         model.addAttribute("tables", tableRepository.findAll());
         model.addAttribute("reservation", new CreateReservationRequest());

@@ -7,11 +7,7 @@ import com.viettridao.cafe.dto.request.invoice.InvoiceItemRequest;
 import com.viettridao.cafe.dto.response.invoice.InvoiceItemResponse;
 import com.viettridao.cafe.mapper.InvoiceDetailMapper;
 import com.viettridao.cafe.model.*;
-import com.viettridao.cafe.repository.InvoiceRepository;
-import com.viettridao.cafe.repository.MenuItemRepository;
-import com.viettridao.cafe.repository.ReservationRepository;
-import com.viettridao.cafe.repository.InvoiceItemDetailRepository;
-import com.viettridao.cafe.repository.TableRepository;
+import com.viettridao.cafe.repository.*;
 import com.viettridao.cafe.service.InvoiceItemService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +36,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class InvoiceItemServiceImpl implements InvoiceItemService {
-    private final InvoiceItemDetailRepository invoiceDetailRepository;
+    private final InvoiceDetailRepository invoiceDetailRepository;
     private final InvoiceRepository invoiceRepository;
     private final MenuItemRepository menuItemRepository;
     private final TableRepository tableRepository;
@@ -115,7 +111,7 @@ public class InvoiceItemServiceImpl implements InvoiceItemService {
         }
 
         List<InvoiceDetailEntity> allDetails = invoiceDetailRepository
-                .findByInvoice_IdAndIsDeletedFalse(invoice.getId());
+                .findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
         for (InvoiceDetailEntity detail : allDetails) {
             total += detail.getQuantity() * detail.getPrice();
         }
