@@ -1,6 +1,5 @@
 package com.viettridao.cafe.repository;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.model.UnitEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,8 +7,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
+ * UnitRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Repository cho thực thể UnitEntity.
- * Chịu trách nhiệm truy vấn dữ liệu liên quan đến đơn vị (Unit) từ cơ sở dữ liệu
+ * Chịu trách nhiệm truy vấn dữ liệu liên quan đến đơn vị (Unit) từ cơ sở dữ liệu.
  */
 @Repository
 public interface UnitRepository extends JpaRepository<UnitEntity, Integer> {

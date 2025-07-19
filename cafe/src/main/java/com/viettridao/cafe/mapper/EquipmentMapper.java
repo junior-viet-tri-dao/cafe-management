@@ -9,12 +9,34 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * EquipmentMapper
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
+ * Mapper chuyển đổi giữa EquipmentEntity và các DTO (EquipmentResponse, BudgetResponse).
+ * Hỗ trợ chuyển đổi bằng tay và qua thư viện ModelMapper.
+ */
 @Component
 @RequiredArgsConstructor
 public class EquipmentMapper {
     private final ModelMapper modelMapper;
 
-    // 1. mapper by manual
+    /**
+     * Manual mapping: chuyển đổi EquipmentEntity sang EquipmentResponse.
+     *
+     * @param entity EquipmentEntity nguồn.
+     * @return EquipmentResponse
+     */
     public EquipmentResponse toResponse(EquipmentEntity entity) {
         EquipmentResponse equipmentResponse = new EquipmentResponse();
         equipmentResponse.setId(entity.getId());
@@ -28,7 +50,12 @@ public class EquipmentMapper {
         return equipmentResponse;
     }
 
-    // 2. mapper by library
+    /**
+     * Mapping bằng ModelMapper: chuyển đổi EquipmentEntity sang EquipmentResponse.
+     *
+     * @param entity EquipmentEntity nguồn.
+     * @return EquipmentResponse
+     */
     public EquipmentResponse toEquipmentResponse(EquipmentEntity entity) {
         EquipmentResponse equipmentResponse = new EquipmentResponse();
         modelMapper.map(entity, equipmentResponse);
@@ -36,18 +63,32 @@ public class EquipmentMapper {
         return equipmentResponse;
     }
 
-    // 1. Using toResponse List at manual mapper
+    /**
+     * Manual mapping: chuyển đổi list EquipmentEntity sang list EquipmentResponse.
+     *
+     * @param entities danh sách EquipmentEntity.
+     * @return danh sách EquipmentResponse.
+     */
     public List<EquipmentResponse> toResponseList(List<EquipmentEntity> entities){
-        return entities.stream().map(this::toEquipmentResponse).toList();
+        return entities.stream().map(this::toResponse).toList();
     }
 
-    // 2. Using toEquipmentResponseList List at manual library
+    /**
+     * Mapping bằng ModelMapper: chuyển đổi list EquipmentEntity sang list EquipmentResponse.
+     *
+     * @param entities danh sách EquipmentEntity.
+     * @return danh sách EquipmentResponse.
+     */
     public List<EquipmentResponse> toEquipmentResponseList(List<EquipmentEntity> entities) {
         return entities.stream().map(this::toEquipmentResponse).toList();
     }
 
-
-    // New mapper: EquipmentEntity → BudgetViewResponse
+    /**
+     * Mapping sang BudgetResponse (dùng cho thống kê chi tiêu từ mua thiết bị).
+     *
+     * @param entity EquipmentEntity nguồn.
+     * @return BudgetResponse
+     */
     public BudgetResponse toBudgetDto(EquipmentEntity entity) {
         if (entity == null) {
             return null;

@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/login")
 public class AuthController {
 
-    // AuthService để xử lý business logic authentication nếu cần
+    // AuthService để xử lý business logic authentication
     private final AuthService authService;
 
     /**

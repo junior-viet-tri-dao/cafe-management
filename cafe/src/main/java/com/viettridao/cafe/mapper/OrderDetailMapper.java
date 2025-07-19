@@ -10,14 +10,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Mapper chuyển đổi entity sang OrderDetailRessponse cho màn hình xem
- * bàn, thanh toán, chọn món.
+ * OrderDetailMapper
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
+ * Mapper chuyển đổi entity sang OrderDetailRessponse cho màn hình xem bàn, thanh toán, chọn món.
  */
 @Component
 public class OrderDetailMapper {
     /**
-     * Mapping entity sang OrderDetailRessponse (response chi tiết
-     * order/bàn)
+     * Mapping entity sang OrderDetailRessponse (response chi tiết order/bàn).
+     * - Gồm thông tin bàn, hóa đơn, đặt bàn, danh sách món và tổng tiền.
+     *
+     * @param table Bàn
+     * @param invoice Hóa đơn (nếu có)
+     * @param reservation Đặt bàn (nếu có)
+     * @param invoiceDetails Danh sách chi tiết hóa đơn
+     * @return OrderDetailRessponse
      */
     public OrderDetailRessponse toOrderDetailResponse(
             TableEntity table,

@@ -223,7 +223,7 @@
 
             <!-- Lương -->
             <div class="info-field">
-              <label for="salary" class="font-semibold mb-1 block">LƯƠNG</label>
+              <label id="salary" class="font-semibold mb-1 block">LƯƠNG</label>
               <input
                 type="text"
                 th:value="${account.salary != null ? #numbers.formatDecimal(account.salary, 0, 'POINT', 0, 'COMMA') : 'Chưa có thông tin'}"

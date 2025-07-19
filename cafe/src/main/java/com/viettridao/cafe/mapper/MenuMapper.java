@@ -15,6 +15,19 @@ import com.viettridao.cafe.model.MenuItemEntity;
 import com.viettridao.cafe.mapper.ProductMapper;
 
 /**
+ * MenuMapper
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Mapper cho thực thể MenuItem và MenuDetail cho Menu Management.
  * Chuyển đổi dữ liệu giữa Entity và DTO cho quản lý thực đơn.
  */
@@ -25,6 +38,9 @@ public class MenuMapper {
 
     /**
      * Chuyển đổi CreateMenuItemRequest sang MenuItemEntity
+     *
+     * @param request request tạo mới thực đơn
+     * @return MenuItemEntity
      */
     public MenuItemEntity toEntity(CreateMenuItemRequest request) {
         if (request == null)
@@ -39,6 +55,9 @@ public class MenuMapper {
 
     /**
      * Chuyển đổi MenuItemEntity sang MenuItemResponse (với menuDetails)
+     *
+     * @param entity entity thực đơn
+     * @return MenuItemResponse
      */
     public MenuItemResponse toResponse(MenuItemEntity entity) {
         if (entity == null)
@@ -55,6 +74,9 @@ public class MenuMapper {
 
     /**
      * Chuyển đổi danh sách MenuItemEntity sang danh sách MenuItemResponse
+     *
+     * @param entities danh sách entity thực đơn
+     * @return danh sách MenuItemResponse
      */
     public List<MenuItemResponse> toResponseList(List<MenuItemEntity> entities) {
         if (entities == null)
@@ -66,6 +88,9 @@ public class MenuMapper {
 
     /**
      * Cập nhật MenuItemEntity từ UpdateMenuItemRequest
+     *
+     * @param request request cập nhật thực đơn
+     * @param entity entity thực đơn cần cập nhật
      */
     public void updateEntityFromRequest(UpdateMenuItemRequest request, MenuItemEntity entity) {
         if (request == null || entity == null)
@@ -80,6 +105,9 @@ public class MenuMapper {
 
     /**
      * Chuyển đổi CreateMenuItemDetailRequest sang MenuDetailEntity
+     *
+     * @param request request tạo mới chi tiết thực đơn
+     * @return MenuDetailEntity
      */
     public MenuDetailEntity toMenuDetailEntity(CreateMenuItemDetailRequest request) {
         if (request == null)
@@ -94,7 +122,7 @@ public class MenuMapper {
     }
 
     /**
-     * Chuyển đổi MenuDetailEntity sang MenuItemDetailResponse
+     * Inject ProductMapper cho mapping product bên chi tiết thực đơn.
      */
     private final ProductMapper productMapper;
 
@@ -102,6 +130,12 @@ public class MenuMapper {
         this.productMapper = productMapper;
     }
 
+    /**
+     * Chuyển đổi MenuDetailEntity sang MenuItemDetailResponse
+     *
+     * @param entity entity chi tiết thực đơn
+     * @return MenuItemDetailResponse
+     */
     public MenuItemDetailResponse toMenuDetailResponse(MenuDetailEntity entity) {
         if (entity == null)
             return null;
@@ -119,6 +153,9 @@ public class MenuMapper {
 
     /**
      * Chuyển đổi danh sách MenuDetailEntity sang danh sách MenuItemDetailResponse
+     *
+     * @param entities danh sách entity chi tiết thực đơn
+     * @return danh sách MenuItemDetailResponse
      */
     public List<MenuItemDetailResponse> toMenuDetailResponseList(List<MenuDetailEntity> entities) {
         if (entities == null)
@@ -130,16 +167,17 @@ public class MenuMapper {
     }
 
     /**
-     * Chuyển đổi MenuItemDetailResponse sang CreateMenuItemDetailRequest (để
-     * populate form)
+     * Chuyển đổi MenuItemDetailResponse sang CreateMenuItemDetailRequest (để populate form)
+     *
+     * @param response response chi tiết thực đơn
+     * @return CreateMenuItemDetailRequest
      */
     public CreateMenuItemDetailRequest toMenuDetailRequest(MenuItemDetailResponse response) {
         if (response == null)
             return null;
 
         CreateMenuItemDetailRequest request = new CreateMenuItemDetailRequest();
-        // Note: MenuItemDetailResponse không có ID, nên sẽ null khi populate form (sẽ
-        // được xử lý như tạo mới)
+        // Note: MenuItemDetailResponse không có ID, nên sẽ null khi populate form (sẽ được xử lý như tạo mới)
         if (response.getProduct() != null) {
             request.setProductId(response.getProduct().getId());
         }
@@ -149,8 +187,10 @@ public class MenuMapper {
     }
 
     /**
-     * Chuyển đổi danh sách MenuItemDetailResponse sang danh sách
-     * CreateMenuItemDetailRequest
+     * Chuyển đổi danh sách MenuItemDetailResponse sang danh sách CreateMenuItemDetailRequest
+     *
+     * @param responses danh sách response chi tiết thực đơn
+     * @return danh sách CreateMenuItemDetailRequest
      */
     public List<CreateMenuItemDetailRequest> toMenuDetailRequestList(List<MenuItemDetailResponse> responses) {
         if (responses == null)

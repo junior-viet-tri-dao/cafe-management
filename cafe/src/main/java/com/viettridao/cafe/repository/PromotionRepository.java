@@ -1,6 +1,5 @@
 package com.viettridao.cafe.repository;
 
-// Import các thư viện cần thiết
 import com.viettridao.cafe.model.PromotionEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,14 +9,23 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 
 /**
+ * PromotionRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Repository cho thực thể PromotionEntity.
- * Chịu trách nhiệm truy vấn dữ liệu liên quan đến khuyến mãi (Promotion) từ cơ
- * sở dữ liệu.
+ * Chịu trách nhiệm truy vấn dữ liệu liên quan đến khuyến mãi (Promotion) từ cơ sở dữ liệu.
  */
 public interface PromotionRepository extends JpaRepository<PromotionEntity, Integer> {
-
-    // @Query("select e from PromotionEntity e where e.isDeleted = false")
-    // Page<PromotionEntity> getAllPromotionByPage(Pageable pageable);
 
     /**
      * Lấy tất cả các khuyến mãi chưa bị xóa.

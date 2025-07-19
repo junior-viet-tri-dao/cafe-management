@@ -9,9 +9,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
+ * PositionRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Repository cho thực thể PositionEntity.
- * Chịu trách nhiệm truy vấn dữ liệu liên quan đến vị trí (Position) từ cơ sở dữ
- * liệu.
+ * Chịu trách nhiệm truy vấn dữ liệu liên quan đến vị trí (Position) từ cơ sở dữ liệu.
  */
 @Repository
 public interface PositionRepository extends JpaRepository<PositionEntity, Integer> {

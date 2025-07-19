@@ -1,4 +1,3 @@
-
 package com.viettridao.cafe.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,11 +9,30 @@ import com.viettridao.cafe.model.InvoiceKey;
 import java.util.List;
 
 /**
- * Repository thao tác với chi tiết hóa đơn (InvoiceDetailEntity)
+ * InvoiceDetailRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
+ * Repository thao tác với chi tiết hóa đơn (InvoiceDetailEntity).
  */
 @Repository
 public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetailEntity, InvoiceKey> {
 
+    /**
+     * Lấy danh sách chi tiết hóa đơn chưa bị xóa mềm theo id hóa đơn.
+     *
+     * @param invoiceId id của hóa đơn
+     * @return List<InvoiceDetailEntity>
+     */
     List<InvoiceDetailEntity> findAllByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
 
 }

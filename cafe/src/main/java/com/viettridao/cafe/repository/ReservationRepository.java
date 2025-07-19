@@ -1,7 +1,5 @@
 package com.viettridao.cafe.repository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,23 +13,65 @@ import org.springframework.stereotype.Repository;
 import com.viettridao.cafe.model.ReservationEntity;
 import com.viettridao.cafe.model.ReservationKey;
 
+/**
+ * ReservationRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
+ * Repository thao tác với thực thể ReservationEntity.
+ */
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, ReservationKey> {
 
     /**
-     * Tìm reservation hiện tại (chưa xóa) theo tableId - lấy record mới nhất
+     * Tìm danh sách reservation hiện tại (chưa xóa) theo tableId, lấy các record mới nhất theo phân trang.
+     *
+     * @param tableId id của bàn
+     * @param pageable thông tin phân trang
+     * @return List<ReservationEntity>
      */
     @Query("SELECT r FROM ReservationEntity r WHERE r.table.id = :tableId AND r.isDeleted = false ORDER BY r.reservationDate DESC")
     List<ReservationEntity> findCurrentReservationsByTableId(@Param("tableId") Integer tableId, Pageable pageable);
 
+    /**
+     * Tìm reservation gần nhất (chưa xóa) theo tableId.
+     *
+     * @param tableId id của bàn
+     * @return Optional<ReservationEntity>
+     */
     Optional<ReservationEntity> findTopByTable_IdAndIsDeletedFalseOrderByReservationDateDesc(Integer tableId);
 
+    /**
+     * Kiểm tra bàn đã có reservation tại thời điểm xác định chưa (chưa xóa).
+     *
+     * @param tableId id của bàn
+     * @param reservationDate thời gian đặt bàn
+     * @return true nếu tồn tại reservation, ngược lại false
+     */
     boolean existsByTableIdAndReservationDateAndIsDeletedFalse(Integer tableId, LocalDateTime reservationDate);
 
+    /**
+     * Lấy danh sách reservation theo invoiceId (chưa xóa mềm).
+     *
+     * @param invoiceId id hóa đơn
+     * @return List<ReservationEntity>
+     */
     List<ReservationEntity> findByInvoice_IdAndIsDeletedFalse(Integer invoiceId);
 
     /**
-     * Helper method để lấy reservation mới nhất
+     * Helper method để lấy reservation mới nhất theo tableId.
+     *
+     * @param tableId id của bàn
+     * @return Optional<ReservationEntity>
      */
     default Optional<ReservationEntity> findCurrentReservationByTableId(Integer tableId) {
         List<ReservationEntity> reservations = findCurrentReservationsByTableId(tableId,

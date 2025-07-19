@@ -7,14 +7,28 @@ import com.viettridao.cafe.dto.response.sales.MenuItemResponse;
 import com.viettridao.cafe.model.MenuItemEntity;
 
 /**
- * Mapper cho Sales - chuyển đổi MenuItemEntity sang MenuItemResponse cho nghiệp
- * vụ bán hàng/chọn món
- * Chỉ mapping các trường cơ bản: id, itemName, price
+ * MenuItemMapper
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
+ * Mapper cho Sales - chuyển đổi MenuItemEntity sang MenuItemResponse cho nghiệp vụ bán hàng/chọn món.
+ * Chỉ mapping các trường cơ bản: id, itemName, price.
  */
 public class MenuItemMapper {
     /**
-     * Chuyển đổi MenuItemEntity sang MenuItemResponse cho Sales (chỉ cần id, tên,
-     * giá)
+     * Chuyển đổi MenuItemEntity sang MenuItemResponse cho Sales (chỉ cần id, tên, giá).
+     *
+     * @param entity MenuItemEntity nguồn
+     * @return MenuItemResponse
      */
     public static MenuItemResponse toMenuItemResponse(MenuItemEntity entity) {
         if (entity == null)
@@ -27,7 +41,10 @@ public class MenuItemMapper {
     }
 
     /**
-     * Chuyển đổi danh sách MenuItemEntity sang danh sách MenuItemResponse cho Sales
+     * Chuyển đổi danh sách MenuItemEntity sang danh sách MenuItemResponse cho Sales.
+     *
+     * @param entities danh sách MenuItemEntity
+     * @return danh sách MenuItemResponse
      */
     public static List<MenuItemResponse> toMenuItemResponseList(List<MenuItemEntity> entities) {
         if (entities == null)

@@ -1,6 +1,19 @@
 package com.viettridao.cafe.repository;
 
 /**
+ * ProductRepository
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Repository cho thực thể ProductEntity.
  * Chịu trách nhiệm truy vấn dữ liệu liên quan đến sản phẩm (Product) từ cơ sở dữ liệu.
  */
@@ -16,27 +29,51 @@ import com.viettridao.cafe.model.ProductEntity;
 
 import java.util.List;
 
-/**
- * Repository cho thực thể ProductEntity.
- * Chịu trách nhiệm truy vấn dữ liệu liên quan đến sản phẩm (Product) từ cơ sở
- * dữ liệu.
- */
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
+
+    /**
+     * Lấy danh sách hàng hóa không bị xóa mềm và tìm kiếm theo từ khóa trong tên.
+     *
+     * @param keyword từ khóa tìm kiếm (tên hàng hóa)
+     * @param pageable thông tin phân trang
+     * @return Page<ProductEntity>
+     */
     @Query("select p from ProductEntity p where p.isDeleted = false and lower(p.productName) like lower(CONCAT('%', :keyword, '%')) ")
-    // Lấy danh sách hàng hóa không bị xóa mềm và tìm kiếm theo từ khóa trong tên
     Page<ProductEntity> getAllProductBySearch(@Param("keyword") String keyword, Pageable pageable);
 
+    /**
+     * Lấy danh sách tất cả hàng hóa không bị xóa mềm.
+     *
+     * @return List<ProductEntity>
+     */
     List<ProductEntity> findAllByIsDeletedFalse();
 
+    /**
+     * Lấy danh sách tất cả hàng hóa không bị xóa mềm với phân trang.
+     *
+     * @param pageable thông tin phân trang
+     * @return Page<ProductEntity>
+     */
     @Query("select p from ProductEntity p where p.isDeleted = false")
-    // Lấy danh sách tất cả hàng hóa không bị xóa mềm
     Page<ProductEntity> getAllProducts(Pageable pageable);
 
+    /**
+     * Kiểm tra tên hàng hóa đã tồn tại (không bị xóa mềm).
+     *
+     * @param productName tên hàng hóa
+     * @return true nếu tên đã tồn tại, ngược lại false
+     */
     boolean existsByProductNameAndIsDeletedFalse(String productName);
 
-    // Kiểm tra trùng tên, loại trừ chính nó (không tính sản phẩm đang cập nhật)
+    /**
+     * Kiểm tra trùng tên hàng hóa, loại trừ chính nó (không tính sản phẩm đang cập nhật).
+     *
+     * @param productName tên hàng hóa
+     * @param productId id sản phẩm đang cập nhật
+     * @return true nếu tên đã tồn tại cho sản phẩm khác, ngược lại false
+     */
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM ProductEntity p WHERE p.isDeleted = false AND lower(p.productName) = lower(:productName) AND p.id <> :productId")
     boolean existsByProductNameAndIsDeletedFalseAndIdNot(@Param("productName") String productName,
-            @Param("productId") Integer productId);
+                                                         @Param("productId") Integer productId);
 }

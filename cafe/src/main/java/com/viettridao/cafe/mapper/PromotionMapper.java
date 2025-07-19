@@ -9,6 +9,19 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
+ * PromotionMapper
+ *
+ * Version 1.0
+ *
+ * Date: 19-07-2025
+ *
+ * Copyright
+ *
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * -------------------------------------------------------
+ * 19-07-2025   mirodoan    Create
+ *
  * Mapper cho thực thể Promotion và DTO PromotionResponse.
  * Chuyển đổi dữ liệu giữa PromotionEntity và PromotionResponse.
  */
