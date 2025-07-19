@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.viettridao.cafe.dto.response.sales.MenuItemResponse;
 import com.viettridao.cafe.model.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -123,20 +124,20 @@ public class SalesController {
             return "sales/sales";
         }
 
-        var reservation = reservationService.findCurrentReservationByTableId(tableId);
+        ReservationEntity reservation = reservationService.findCurrentReservationByTableId(tableId);
         if (reservation == null) {
             model.addAttribute("tables", tableRepository.findAll());
             model.addAttribute("errorMessage", "Không có thông tin đặt bàn để thanh toán!");
             return "sales/sales";
         }
 
-        var invoice = reservation.getInvoice();
+        InvoiceEntity invoice = reservation.getInvoice();
         if (invoice == null) {
             model.addAttribute("tables", tableRepository.findAll());
             model.addAttribute("errorMessage", "Không có hóa đơn để thanh toán!");
             return "sales/sales";
         }
-        var invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
+        List<InvoiceDetailEntity> invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
 
         OrderDetailRessponse orderDetail = orderDetailMapper.toOrderDetailResponse(table, invoice, reservation, invoiceDetails);
 
@@ -152,15 +153,15 @@ public class SalesController {
     @PostMapping("/pay-invoice")
     public String payInvoice(@RequestParam Integer tableId, Model model, RedirectAttributes redirectAttributes) {
         try {
-            var table = tableRepository.findById(tableId)
+            TableEntity table = tableRepository.findById(tableId)
                     .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
-            var reservation = reservationService.findCurrentReservationByTableId(tableId);
+            ReservationEntity reservation = reservationService.findCurrentReservationByTableId(tableId);
             if (reservation == null) {
                 model.addAttribute("tables", tableRepository.findAll());
                 model.addAttribute("errorMessage", "Không có thông tin đặt bàn để thanh toán!");
                 return "sales/sales";
             }
-            var invoice = reservation.getInvoice();
+            InvoiceEntity invoice = reservation.getInvoice();
             if (invoice == null) {
                 model.addAttribute("tables", tableRepository.findAll());
                 model.addAttribute("errorMessage", "Không có hóa đơn để thanh toán!");
@@ -193,7 +194,7 @@ public class SalesController {
             model.addAttribute("tables", tableRepository.findAll());
             return "sales/sales";
         }
-        var table = tableRepository.findById(tableId)
+        TableEntity table = tableRepository.findById(tableId)
                 .orElse(null);
         if (table == null) {
             model.addAttribute("errorMessage", "Không tìm thấy bàn với ID: " + tableId);
@@ -207,7 +208,7 @@ public class SalesController {
         // Pre-fill thông tin khách hàng nếu có reservation
         if (table.getStatus().name().equals("RESERVED") || table.getStatus().name().equals("OCCUPIED")) {
             try {
-                var reservation = reservationService.findCurrentReservationByTableId(tableId);
+                ReservationEntity reservation = reservationService.findCurrentReservationByTableId(tableId);
                 if (reservation != null) {
                     selectMenuRequest.setCustomerName(reservation.getCustomerName());
                     selectMenuRequest.setCustomerPhone(reservation.getCustomerPhone());
@@ -217,7 +218,7 @@ public class SalesController {
             }
         }
 
-        var menuItems = selectMenuService.getMenuItems();
+        List<MenuItemResponse> menuItems = selectMenuService.getMenuItems();
 
         model.addAttribute("tables", tableRepository.findAll());
         model.addAttribute("selectMenuRequest", selectMenuRequest);
@@ -260,7 +261,7 @@ public class SalesController {
             if (request.getItems() == null || request.getItems().isEmpty()) {
                 bindingResult.reject("error.items", "Vui lòng chọn ít nhất một món");
             } else {
-                var validItems = request.getItems().stream()
+                List<CreateSelectMenuRequest.MenuOrderItem> validItems = request.getItems().stream()
                         .filter(item -> item.getMenuItemId() != null && item.getQuantity() != null && item.getQuantity() > 0)
                         .toList();
                 if (validItems.isEmpty()) {
@@ -366,9 +367,9 @@ public class SalesController {
      */
     @GetMapping("/show-cancel-reservation-form")
     public String showCancelReservationForm(@RequestParam Integer tableId, Model model) {
-        var table = tableRepository.findById(tableId)
+        TableEntity table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bàn với ID: " + tableId));
-        var reservation = reservationService.findCurrentReservationByTableId(tableId);
+        ReservationEntity reservation = reservationService.findCurrentReservationByTableId(tableId);
         if (reservation == null || Boolean.TRUE.equals(reservation.getIsDeleted())) {
             model.addAttribute("tables", tableRepository.findAll());
             model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn để hủy!");
@@ -391,7 +392,7 @@ public class SalesController {
      */
     @PostMapping("/cancel-reservation")
     public String cancelReservation(@RequestParam Integer tableId, Model model) {
-        var reservation = reservationService.findCurrentReservationByTableId(tableId);
+        ReservationEntity reservation = reservationService.findCurrentReservationByTableId(tableId);
         if (reservation == null || Boolean.TRUE.equals(reservation.getIsDeleted())) {
             model.addAttribute("tables", tableRepository.findAll());
             model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn để hủy!");
@@ -405,18 +406,18 @@ public class SalesController {
             return "sales/sales";
         }
         reservation.setIsDeleted(true);
-        var invoice = reservation.getInvoice();
+        InvoiceEntity invoice = reservation.getInvoice();
         if (invoice != null) {
             invoice.setIsDeleted(true);
             if (invoice.getId() != null) {
-                var invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
-                for (var detail : invoiceDetails) {
+                List<InvoiceDetailEntity> invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(invoice.getId());
+                for (InvoiceDetailEntity detail : invoiceDetails) {
                     detail.setIsDeleted(true);
                 }
                 invoiceDetailRepository.saveAll(invoiceDetails);
             }
         }
-        var table = reservation.getTable();
+        TableEntity table = reservation.getTable();
         table.setStatus(TableStatus.AVAILABLE);
         reservationService.saveReservationAndRelated(reservation, invoice, table);
         model.addAttribute("tables", tableRepository.findAll());
@@ -431,23 +432,23 @@ public class SalesController {
     @GetMapping("/show-move-table-form")
     public String showMoveTableForm(@RequestParam Integer selectedTableId, Model model) {
         try {
-            var sourceTableOpt = tableRepository.findById(selectedTableId);
+            Optional<TableEntity> sourceTableOpt = tableRepository.findById(selectedTableId);
             if (sourceTableOpt.isEmpty()) {
                 model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn với ID: " + selectedTableId);
                 return "sales/sales";
             }
-            var sourceTable = sourceTableOpt.get();
+            TableEntity sourceTable = sourceTableOpt.get();
             if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
                 model.addAttribute("errorMessage", "Chỉ có thể chuyển từ bàn đang sử dụng (OCCUPIED). Bàn hiện tại: " + sourceTable.getStatus());
                 return "sales/sales";
             }
-            var sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
+            ReservationEntity sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
             if (sourceReservation == null) {
                 model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn cho bàn nguồn");
                 return "sales/sales";
             }
-            var allTables = tableRepository.findAll();
-            var availableTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.AVAILABLE).toList();
+            List<TableEntity> allTables = tableRepository.findAll();
+            List<TableEntity> availableTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.AVAILABLE).toList();
             if (availableTables.isEmpty()) {
                 model.addAttribute("errorMessage", "Không có bàn trống nào để chuyển đến");
                 return "sales/sales";
@@ -540,7 +541,7 @@ public class SalesController {
                               RedirectAttributes redirectAttributes) {
         try {
             if (bindingResult.hasErrors()) {
-                var occupiedTables = tableRepository.findAll().stream()
+                List<TableEntity> occupiedTables = tableRepository.findAll().stream()
                         .filter(table -> table.getStatus() == TableStatus.OCCUPIED)
                         .toList();
                 model.addAttribute("tables", tableRepository.findAll());
@@ -566,7 +567,7 @@ public class SalesController {
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Đã xảy ra lỗi hệ thống: " + e.getMessage());
         }
-        var occupiedTables = tableRepository.findAll().stream()
+        List<TableEntity> occupiedTables = tableRepository.findAll().stream()
                 .filter(table -> table.getStatus() == TableStatus.OCCUPIED)
                 .toList();
         model.addAttribute("tables", tableRepository.findAll());
@@ -583,17 +584,17 @@ public class SalesController {
     @GetMapping("/show-split-table-form")
     public String showSplitTableForm(@RequestParam Integer selectedTableId, Model model) {
         try {
-            var sourceTableOpt = tableRepository.findById(selectedTableId);
+            Optional<TableEntity> sourceTableOpt = tableRepository.findById(selectedTableId);
             if (sourceTableOpt.isEmpty()) {
                 model.addAttribute("errorMessage", "Không tìm thấy bàn nguồn với ID: " + selectedTableId);
                 return "sales/sales";
             }
-            var sourceTable = sourceTableOpt.get();
+            TableEntity sourceTable = sourceTableOpt.get();
             if (sourceTable.getStatus() != TableStatus.OCCUPIED) {
                 model.addAttribute("errorMessage", "Chỉ có thể tách từ bàn đang sử dụng (OCCUPIED). Bàn hiện tại: " + sourceTable.getStatus());
                 return "sales/sales";
             }
-            var sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
+            ReservationEntity sourceReservation = reservationService.findCurrentReservationByTableId(selectedTableId);
             if (sourceReservation == null) {
                 model.addAttribute("errorMessage", "Không tìm thấy thông tin đặt bàn cho bàn nguồn");
                 return "sales/sales";
@@ -602,14 +603,16 @@ public class SalesController {
                 model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho bàn nguồn");
                 return "sales/sales";
             }
-            var invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(sourceReservation.getInvoice().getId());
+            List<InvoiceDetailEntity> invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(sourceReservation.getInvoice().getId());
             if (invoiceDetails.isEmpty()) {
                 model.addAttribute("errorMessage", "Bàn nguồn không có món nào để tách");
                 return "sales/sales";
             }
-            var allTables = tableRepository.findAll();
-            var availableTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.AVAILABLE).toList();
-            var occupiedTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.OCCUPIED && !table.getId().equals(selectedTableId)).toList();
+            List<TableEntity> allTables = tableRepository.findAll();
+            List<TableEntity> availableTables = allTables.stream()
+                    .filter(table -> table.getStatus() == TableStatus.AVAILABLE)
+                    .toList();
+            List<TableEntity> occupiedTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.OCCUPIED && !table.getId().equals(selectedTableId)).toList();
             if (availableTables.isEmpty() && occupiedTables.isEmpty()) {
                 model.addAttribute("errorMessage", "Không có bàn nào khả dụng để tách đến");
                 return "sales/sales";
@@ -617,7 +620,7 @@ public class SalesController {
             SplitTableRequest splitRequest = new SplitTableRequest();
             splitRequest.setSourceTableId(selectedTableId);
             List<SplitTableRequest.SplitItemRequest> items = new ArrayList<>();
-            for (var detail : invoiceDetails) {
+            for (InvoiceDetailEntity detail : invoiceDetails) {
                 SplitTableRequest.SplitItemRequest item = new SplitTableRequest.SplitItemRequest();
                 item.setMenuItemId(detail.getMenuItem().getId());
                 item.setQuantity(0);
@@ -656,7 +659,7 @@ public class SalesController {
             if (request.getItems() == null || request.getItems().isEmpty()) {
                 return setupSplitModalOnError(request, model, bindingResult, "Vui lòng chọn ít nhất một món để tách");
             }
-            var validItems = request.getItems().stream()
+            List<SplitTableRequest.SplitItemRequest> validItems = request.getItems().stream()
                     .filter(item -> item.getMenuItemId() != null && item.getQuantity() != null && item.getQuantity() > 0)
                     .toList();
 
@@ -699,11 +702,11 @@ public class SalesController {
     private String setupSplitModalOnError(SplitTableRequest request, Model model,
                                           BindingResult bindingResult, String errorMessage) {
         try {
-            var allTables = tableRepository.findAll();
-            var availableTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.AVAILABLE).toList();
-            var occupiedTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.OCCUPIED && !table.getId().equals(request.getSourceTableId())).toList();
-            var sourceTable = tableRepository.findById(request.getSourceTableId()).orElse(null);
-            var sourceReservation = reservationService.findCurrentReservationByTableId(request.getSourceTableId());
+            List<TableEntity> allTables = tableRepository.findAll();
+            List<TableEntity> availableTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.AVAILABLE).toList();
+            List<TableEntity> occupiedTables = allTables.stream().filter(table -> table.getStatus() == TableStatus.OCCUPIED && !table.getId().equals(request.getSourceTableId())).toList();
+            TableEntity sourceTable = tableRepository.findById(request.getSourceTableId()).orElse(null);
+            ReservationEntity sourceReservation = reservationService.findCurrentReservationByTableId(request.getSourceTableId());
             List<com.viettridao.cafe.model.InvoiceDetailEntity> invoiceDetails = new ArrayList<>();
             if (sourceReservation != null && sourceReservation.getInvoice() != null) {
                 invoiceDetails = invoiceDetailRepository.findAllByInvoice_IdAndIsDeletedFalse(sourceReservation.getInvoice().getId());
