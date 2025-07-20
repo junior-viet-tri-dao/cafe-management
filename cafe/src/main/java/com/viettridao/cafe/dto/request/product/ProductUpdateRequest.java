@@ -19,9 +19,5 @@ public class ProductUpdateRequest {
     @Min(value = 0, message = "Số lượng không được âm")
     private Integer quantity;
 
-    @NotNull(message = "Giá không được để trống")
-    @Positive(message = "Giá phải lớn hơn 0")
-    private Double price;
-
     private Integer unitId;
 }

@@ -136,7 +136,6 @@ public class TableServiceImpl implements ITableService {
                 sourceDetail.setQuantity(remain);
                 invoiceDetailRepository.save(sourceDetail);
             } else {
-                sourceDetail.setDeleted(true);
                 invoiceDetailRepository.delete(sourceDetail);
                 invoiceDetailRepository.save(sourceDetail);
             }

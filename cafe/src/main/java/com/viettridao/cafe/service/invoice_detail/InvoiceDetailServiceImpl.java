@@ -49,13 +49,15 @@ public class InvoiceDetailServiceImpl implements IInvoiceDetailService {
 
     private InvoiceEntity findOrCreateInvoice(TableEntity table) {
         if (table.getStatus() == TableStatus.OCCUPIED || table.getStatus() == TableStatus.RESERVED) {
-            return table.getReservations().stream()
-                    .filter(res -> Boolean.FALSE.equals(res.getDeleted()))
-                    .map(ReservationEntity::getInvoice)
-                    .filter(inv -> inv.getStatus() == InvoiceStatus.PENDING_PAYMENT)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn đang chờ thanh toán."));
+            for (ReservationEntity res : table.getReservations()) {
+                InvoiceEntity inv = res.getInvoice();
+                if (!Boolean.TRUE.equals(res.getDeleted()) && inv != null && inv.getStatus() == InvoiceStatus.PENDING_PAYMENT) {
+                    return inv;
+                }
+            }
+            throw new RuntimeException("Không tìm thấy hóa đơn đang chờ thanh toán.");
         }
+
 
         // Tạo mới nếu bàn trống
         InvoiceEntity invoice = new InvoiceEntity();
@@ -90,7 +92,8 @@ public class InvoiceDetailServiceImpl implements IInvoiceDetailService {
 
     private EmployeeEntity getCurrentEmployee() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AccountEntity account = accountRepository.getAccountByUsername(auth.getName());
+        AccountEntity account = accountRepository.findByUsernameAndDeletedFalse(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với usernam "));
 
         if (account == null || account.getEmployee() == null) {
             throw new IllegalStateException("Không thể lấy thông tin nhân viên hiện tại.");
@@ -126,10 +129,13 @@ public class InvoiceDetailServiceImpl implements IInvoiceDetailService {
     }
 
     private void updateInvoiceTotal(InvoiceEntity invoice) {
-        double total = invoiceDetailRepository.findByInvoiceId(invoice.getId())
-                .stream()
-                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
-                .sum();
+        double total = 0;
+        List<InvoiceDetailEntity> details = invoiceDetailRepository.findByInvoiceId(invoice.getId());
+
+        for (InvoiceDetailEntity detail : details) {
+            total += detail.getQuantity() * detail.getPrice();
+        }
+
 
         invoice.setTotalAmount(total);
         invoiceRepository.save(invoice);

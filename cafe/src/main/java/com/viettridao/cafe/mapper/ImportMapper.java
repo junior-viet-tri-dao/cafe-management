@@ -16,7 +16,6 @@ import com.viettridao.cafe.model.ProductEntity;
 @Mapper(componentModel = "spring")
 public interface ImportMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "employee", source = "employeeId", qualifiedByName = "mapEmployeeId")
     @Mapping(target = "product", source = "productId", qualifiedByName = "mapProductId")
@@ -24,6 +23,8 @@ public interface ImportMapper {
 
     ImportResponse toResponse(ImportEntity entity);
 
+    @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "employee.id", target = "employeeId")
     ImportUpdateRequest toUpdateRequest(ImportEntity entity);
 
     @Mapping(target = "id", ignore = true)

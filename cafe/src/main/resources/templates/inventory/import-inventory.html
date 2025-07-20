@@ -25,7 +25,9 @@
 
         <div class="mb-3">
             <label for="importDate" class="form-label">Ngày nhập</label>
-            <input type="date" class="form-control" id="importDate" th:field="*{importDate}" required>
+            <input type="date" class="form-control" id="importDate"
+                   th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                   th:field="*{importDate}" required>
             <div class="text-danger small" th:if="${#fields.hasErrors('importDate')}" th:errors="*{importDate}"></div>
         </div>
 
@@ -37,7 +39,10 @@
 
         <div class="mb-3">
             <label for="totalAmount" class="form-label">Tổng tiền</label>
-            <input type="number" class="form-control" id="totalAmount" th:field="*{totalAmount}" required>
+            <div class="input-group">
+                <input type="number" class="form-control" id="totalAmount" th:field="*{totalAmount}" required>
+                <span class="input-group-text">VND</span>
+            </div>
             <div class="text-danger small" th:if="${#fields.hasErrors('totalAmount')}" th:errors="*{totalAmount}"></div>
         </div>
 

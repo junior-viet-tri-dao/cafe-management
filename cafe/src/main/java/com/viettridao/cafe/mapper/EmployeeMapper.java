@@ -13,13 +13,9 @@ import com.viettridao.cafe.service.position.IPositionService;
 @Mapper(componentModel = "spring", uses = {AccountMapper.class})
 public interface EmployeeMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "account", source = "accountId", qualifiedByName = "mapAccountId")
     @Mapping(target = "position", source = "positionId", qualifiedByName = "mapPositionId")
-    @Mapping(target = "imports", ignore = true)
-    @Mapping(target = "exports", ignore = true)
-    @Mapping(target = "reservations", ignore = true)
     EmployeeEntity toEntity(EmployeeCreateRequest request, @Context IPositionService positionService);
 
 

@@ -32,6 +32,14 @@ public class AccountServiceImpl implements IAccountService{
                 .stream()
                 .map(accountMapper::toResponse)
                 .toList();
+
+        // Hoặc cách viết bth
+//        List<AccountEntity> entities = accountRepository.findAllByDeletedFalse();
+//        List<AccountResponse> accountResponses = new ArrayList<>();
+//        for (AccountEntity entity : entities) {
+//            accountResponses.add(accountMapper.toResponse(entity));
+//        }
+//        return accountResponses;
     }
 
     @Override

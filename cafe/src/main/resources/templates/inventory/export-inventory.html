@@ -25,7 +25,9 @@
 
         <div class="mb-3">
             <label for="exportDate" class="form-label">Ngày xuất</label>
-            <input type="date" class="form-control" id="exportDate" th:field="*{exportDate}" required>
+            <input type="date" class="form-control" id="exportDate"
+                   th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                   th:field="*{exportDate}" required>
             <div class="text-danger small" th:if="${#fields.hasErrors('exportDate')}" th:errors="*{exportDate}"></div>
         </div>
 
@@ -37,7 +39,10 @@
 
         <div class="mb-3">
             <label for="totalExportAmount" class="form-label">Tổng tiền</label>
-            <input type="number" class="form-control" id="totalExportAmount" th:field="*{totalExportAmount}" required>
+            <div class="input-group">
+                <input type="number" class="form-control" id="totalExportAmount" th:field="*{totalExportAmount}" required>
+                <span class="input-group-text">VND</span>
+            </div>
             <div class="text-danger small" th:if="${#fields.hasErrors('totalExportAmount')}" th:errors="*{totalExportAmount}"></div>
         </div>
 

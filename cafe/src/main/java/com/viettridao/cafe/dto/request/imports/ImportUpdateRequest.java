@@ -26,7 +26,6 @@ public class ImportUpdateRequest {
     @Min(value = 1, message = "Số lượng tối thiểu là 1")
     private Integer quantity;
 
-    @NotNull(message = "Nhân viên không được để trống")
     private Integer employeeId;
 
     @NotNull(message = "Sản phẩm không được để trống")

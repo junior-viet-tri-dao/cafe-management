@@ -18,7 +18,6 @@ import com.viettridao.cafe.model.ProductEntity;
 @Mapper(componentModel = "spring")
 public interface ExportMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "employee", source = "employeeId", qualifiedByName = "mapEmployeeId")
     @Mapping(target = "product", source = "productId", qualifiedByName = "mapProductId")
@@ -52,9 +51,5 @@ public interface ExportMapper {
         ProductEntity product = new ProductEntity();
         product.setId(productId);
         return product;
-    }
-
-    default LocalDate map(java.util.Date date) {
-        return date == null ? null : date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }

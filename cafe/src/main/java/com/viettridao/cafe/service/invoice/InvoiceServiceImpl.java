@@ -36,7 +36,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
             throw new RuntimeException("Chỉ có bàn đang sử dụng mới được thanh toán");
         }
 
-        InvoiceEntity invoice = invoiceRepository.findInvoiceByTableIdForPay(tableId);
+        InvoiceEntity invoice = invoiceRepository.findInvoiceByTableId(tableId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn cần thanh toán"));
 
         if (invoice.getStatus() == InvoiceStatus.PAID) {
             throw new RuntimeException("Hóa đơn đã thanh toán rồi!");

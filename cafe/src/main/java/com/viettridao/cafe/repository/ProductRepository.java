@@ -11,4 +11,6 @@ import com.viettridao.cafe.model.ProductEntity;
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
 
     List<ProductEntity> findProductByDeletedFalse();
+
+    ProductEntity findProductById(Integer id);
 }

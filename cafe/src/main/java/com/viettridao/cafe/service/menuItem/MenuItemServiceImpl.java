@@ -46,21 +46,30 @@ public class MenuItemServiceImpl implements IMenuItemService{
     public void createMenuItem(MenuItemCreateRequest request) {
 
         MenuItemEntity temp = menuItemMapper.toEntity(request);
+        temp.setMenuDetails(null);
         MenuItemEntity savedMenuItem = menuItemRepository.save(temp);
 
-        if (request.getMenuDetails() != null && !request.getMenuDetails().isEmpty()) {
-            List<MenuDetailEntity> details = new ArrayList<>();
-            for (MenuDetailCreateRequest detailRequest : request.getMenuDetails()) {
-                details.add(menuDetailMapper.toEntity(detailRequest, savedMenuItem));
-            }
-            savedMenuItem.setMenuDetails(details);
-            menuItemRepository.save(savedMenuItem);
+        List<MenuDetailEntity> details = new ArrayList<>();
+        for (MenuDetailCreateRequest detailRequest : request.getMenuDetails()) {
+            ProductEntity product = productRepository.findById(detailRequest.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Nguyên liệu không tồn tại: " + detailRequest.getProductId()));
+
+            MenuDetailEntity detail = new MenuDetailEntity();
+            detail.setMenuItem(savedMenuItem);
+            detail.setProduct(product);
+
+            MenuKey key = new MenuKey(savedMenuItem.getId(), product.getId());
+            detail.setId(key);
+
+            detail.setQuantity(detailRequest.getQuantity());
+            detail.setUnitName(detailRequest.getUnitName());
+            detail.setDeleted(false);
+
+            details.add(detail);
         }
-        System.out.println("Tên món: " + request.getItemName());
-        System.out.println("Chi tiết món:");
-        for (MenuDetailCreateRequest d : request.getMenuDetails()) {
-            System.out.println(" - " + d.getProductId() + ", " + d.getQuantity() + ", " + d.getUnitName());
-        }
+
+        savedMenuItem.setMenuDetails(details);
+        menuItemRepository.save(savedMenuItem);
 
     }
 
@@ -69,22 +78,23 @@ public class MenuItemServiceImpl implements IMenuItemService{
         MenuItemEntity entity = findMenuItemOrThrow(id);
         MenuItemUpdateRequest dto = menuItemMapper.toUpdateRequest(entity);
 
-        // Map thêm menuDetails thủ công
-        List<MenuDetailUpdateRequest> detailDtos = entity.getMenuDetails()
-                .stream()
-                .filter(detail -> !Boolean.TRUE.equals(detail.getDeleted()))
-                .map(detail -> {
-                    MenuDetailUpdateRequest d = new MenuDetailUpdateRequest();
-                    d.setProductId(detail.getProduct().getId());
-                    d.setQuantity(detail.getQuantity());
-                    d.setUnitName(detail.getUnitName());
-                    d.setDeleted(detail.getDeleted());
-                    return d;
-                })
-                .toList();
+        // Map thêm menuDetails
+        List<MenuDetailUpdateRequest> detailDtos = new ArrayList<>();
+
+        for (MenuDetailEntity detail : entity.getMenuDetails()) {
+            if (!Boolean.TRUE.equals(detail.getDeleted())) {
+                MenuDetailUpdateRequest d = new MenuDetailUpdateRequest();
+                d.setProductId(detail.getProduct().getId());
+                d.setQuantity(detail.getQuantity());
+                d.setUnitName(detail.getUnitName());
+                d.setDeleted(detail.getDeleted());
+                detailDtos.add(d);
+            }
+        }
 
         dto.setMenuDetails(detailDtos);
         return dto;
+
     }
 
     @Override
@@ -92,19 +102,18 @@ public class MenuItemServiceImpl implements IMenuItemService{
     public void updateMenuItem(Integer id, MenuItemUpdateRequest request) {
         MenuItemEntity entity = findMenuItemOrThrow(id);
 
-        // Cập nhật thông tin cơ bản
         entity.setItemName(request.getItemName());
         entity.setCurrentPrice(request.getCurrentPrice());
 
         List<MenuDetailEntity> currentDetails = entity.getMenuDetails();
 
-        // 1. XÓA những MenuDetailEntity không còn trong danh sách mới
+        // 1. XÓA những MenuDetailEntity không còn trong danh sách mới (AI)
         currentDetails.removeIf(existing ->
                 request.getMenuDetails().stream()
                         .noneMatch(incoming -> incoming.getProductId().equals(existing.getProduct().getId()))
         );
 
-        // 2. CẬP NHẬT hoặc THÊM MỚI
+        // Cập nhật só
         for (MenuDetailUpdateRequest incomingDetail : request.getMenuDetails()) {
             Integer incomingProductId = incomingDetail.getProductId();
 

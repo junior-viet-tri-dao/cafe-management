@@ -125,10 +125,17 @@ public class InventoryController {
                                @ModelAttribute("import") @Valid ImportUpdateRequest request,
                                BindingResult result,
                                Model model) {
+
         if (result.hasErrors()) {
             model.addAttribute("products", productRepository.findProductByDeletedFalse());
             return "inventory/form-import-edit";
         }
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Integer employeeId = employeeRepository.findByAccount_Username(username)
+                .map(EmployeeEntity::getId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với username: " + username));
+        request.setEmployeeId(employeeId);
 
         importService.updateImport(id, request);
         return "redirect:/inventory";

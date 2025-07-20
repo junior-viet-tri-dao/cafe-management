@@ -35,6 +35,8 @@ public class ProductController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("product", new ProductCreateRequest());
+        List<UnitEntity> units = unitRepository.findByDeletedFalse();
+        model.addAttribute("units", units);
         return "product/form-create";
     }
 
@@ -62,7 +64,7 @@ public class ProductController {
         ProductUpdateRequest updateRequest = productService.getUpdateForm(id);
         model.addAttribute("product", updateRequest);
         model.addAttribute("productId", id);
-        List<UnitEntity> units = unitRepository.findByDeletedFalse(); // bạn cần tạo method này
+        List<UnitEntity> units = unitRepository.findByDeletedFalse();
         model.addAttribute("units", units);
         return "product/form-edit";
     }

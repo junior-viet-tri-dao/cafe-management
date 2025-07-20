@@ -1,5 +1,6 @@
 package com.viettridao.cafe.service.imports;
 
+import com.viettridao.cafe.model.ProductEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class ImportServiceImpl implements IImportService {
     @Override
     @Transactional
     public void createImport(ImportCreateRequest request) {
+
+        if (request.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Số lượng nhập phải lớn hơn 0");
+        }
+
         ImportEntity entity = importMapper.toEntity(request);
 
         entity.setEmployee(
@@ -37,6 +43,10 @@ public class ImportServiceImpl implements IImportService {
                 productRepository.findById(request.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found"))
         );
+
+        ProductEntity product = productRepository.findProductById(entity.getProduct().getId());
+        product.setQuantity(product.getQuantity() + entity.getQuantity());
+        productRepository.save(product);
 
         importRepository.save(entity);
     }
@@ -52,12 +62,21 @@ public class ImportServiceImpl implements IImportService {
 
         ImportEntity existing = findImportOrThrow(id);
 
+        int oldQuantity = existing.getQuantity();
+        int newQuantity = request.getQuantity();
+        int delta = newQuantity - oldQuantity;
+
         importMapper.updateEntityFromRequest(request, existing);
 
         existing.setProduct(
                 productRepository.findById(request.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found"))
         );
+
+        ProductEntity product = productRepository.findProductById(request.getProductId());
+        product.setQuantity(product.getQuantity() + delta);
+
+        productRepository.save(product);
 
         importRepository.save(existing);
     }
@@ -69,6 +88,10 @@ public class ImportServiceImpl implements IImportService {
         ImportEntity entity = findImportOrThrow(id);
 
         entity.setDeleted(true);
+
+        ProductEntity product = productRepository.findProductById(entity.getProduct().getId());
+        product.setQuantity(product.getQuantity() + entity.getQuantity());
+        productRepository.save(product);
 
         importRepository.save(entity);
     }

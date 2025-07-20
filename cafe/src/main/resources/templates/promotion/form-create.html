@@ -27,7 +27,9 @@
 
                 <div class="col-md-6">
                     <label for="startDate" class="form-label">* Ngày bắt đầu:</label>
-                    <input type="date" id="startDate" th:field="*{startDate}" class="form-control" required>
+                    <input type="date" id="startDate"
+                           th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                           th:field="*{startDate}" class="form-control" required>
                     <div class="text-danger" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
                 </div>
 

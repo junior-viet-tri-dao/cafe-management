@@ -12,14 +12,8 @@ import com.viettridao.cafe.model.AccountEntity;
 @Repository
 public interface AccountRepository extends JpaRepository<AccountEntity, Integer> {
 
-    Optional<AccountEntity> findByUsername(String username);
-
     Optional<AccountEntity> findByUsernameAndDeletedFalse(String username);
 
     List<AccountEntity> findAllByDeletedFalse();
 
-    @EntityGraph(attributePaths = {"employee", "employee.position"})
-    Optional<AccountEntity> findById(Integer id);
-
-    AccountEntity getAccountByUsername(String username);
 }

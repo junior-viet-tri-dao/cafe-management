@@ -34,8 +34,11 @@
 
         <div class="mb-3">
             <label class="form-label">* Giá</label>
-            <input type="number" th:field="*{purchasePrice}" class="form-control" required>
-            <div class="text-danger small" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
+            <div class="input-group">
+                <input type="number" th:field="*{purchasePrice}" class="form-control" required>
+                <div class="text-danger small" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
+                <span class="input-group-text">VND</span>
+            </div>
         </div>
 
         <div class="mb-3">

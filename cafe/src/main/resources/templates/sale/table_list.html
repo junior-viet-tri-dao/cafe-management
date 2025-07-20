@@ -47,28 +47,26 @@
         </div>
       </div>
 
-      <!-- Các nút thao tác -->
-      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-        <button type="button" class="btn btn-outline-primary px-4" onclick="submitViewDetail()">Xem bàn</button>
-        <button type="button" class="btn btn-outline-secondary px-4" onclick="submitSwitchTable()">Chuyển bàn</button>
-        <button type="button" class="btn btn-outline-warning px-4" onclick="submitSplitTable()">Tách bàn</button>
-        <button type="button" class="btn btn-outline-success px-4" onclick="submitMergeTable()">Gộp bàn</button>
-        <button type="button" class="btn btn-outline-danger px-4" onclick="confirmCancel()">Hủy bàn</button>
-        <button type="button" class="btn btn-dark px-4" onclick="submitReservation()">Đặt bàn</button>
+      <!-- Các nút thao tác chính -->
+      <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+        <button type="button" class="btn btn-outline-primary px-4 py-2" style="min-width: 140px" onclick="submitViewDetail()">👁️ Xem bàn</button>
+        <button type="button" class="btn btn-outline-secondary px-4 py-2" style="min-width: 140px" onclick="submitSwitchTable()">🔄 Chuyển bàn</button>
+        <button type="button" class="btn btn-outline-warning px-4 py-2" style="min-width: 140px" onclick="submitSplitTable()">🔀 Tách bàn</button>
+        <button type="button" class="btn btn-outline-success px-4 py-2" style="min-width: 140px" onclick="submitMergeTable()">➕ Gộp bàn</button>
+        <button type="button" class="btn btn-outline-danger px-4 py-2" style="min-width: 140px" onclick="confirmCancel()">❌ Hủy bàn</button>
+        <button type="button" class="btn btn-dark px-4 py-2" style="min-width: 140px" onclick="submitReservation()">📅 Đặt bàn</button>
       </div>
 
       <!-- Các thao tác bổ sung -->
-      <div class="row g-3 mb-3">
-        <div class="col-md-4">
-          <button type="button" class="btn btn-outline-secondary w-100" onclick="submitSelectMenu()">Chọn món</button>
+      <div class="row g-3 mb-3 justify-content-center">
+        <div class="col-md-4 col-lg-3">
+          <button type="button" class="btn btn-outline-secondary w-100 py-2" onclick="submitSelectMenu()">📋 Chọn món</button>
         </div>
-        <div class="col-md-4">
-          <button type="button" class="btn btn-outline-success w-100" onclick="submitPayment()">Thanh toán</button>
-        </div>
-        <div class="col-md-4">
-          <button type="button" class="btn btn-outline-primary w-100">In ấn</button>
+        <div class="col-md-4 col-lg-3">
+          <button type="button" class="btn btn-outline-success w-100 py-2" onclick="submitPayment()">💰 Thanh toán</button>
         </div>
       </div>
+
 
       <!-- Thông báo -->
       <div th:if="${successMessage}" class="alert alert-success text-center" th:text="${successMessage}"></div>

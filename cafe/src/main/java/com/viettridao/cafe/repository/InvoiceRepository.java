@@ -20,9 +20,6 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer>
     List<InvoiceEntity> findByCreatedAtBetweenAndDeletedFalse(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT i FROM InvoiceEntity i JOIN ReservationEntity r ON r.invoice.id = i.id WHERE r.table.id = :tableId AND i.deleted = false AND i.status = 'PENDING_PAYMENT'")
-    InvoiceEntity findInvoiceByTableIdForPay(@Param("tableId") Integer tableId);
-
-    @Query("SELECT i FROM InvoiceEntity i JOIN ReservationEntity r ON r.invoice.id = i.id WHERE r.table.id = :tableId AND i.deleted = false AND i.status = 'PENDING_PAYMENT'")
     Optional<InvoiceEntity> findInvoiceByTableId(@Param("tableId") Integer tableId);
 
     List<InvoiceEntity> findAllByReservations_Table_IdAndStatusInAndDeletedFalse(Integer tableId, List<InvoiceStatus> status);

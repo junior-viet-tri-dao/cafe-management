@@ -19,7 +19,6 @@ public class PromotionCreateRequest {
     private LocalDate startDate;
 
     @NotNull(message = "Ngày kết thúc không được để trống")
-    @PastOrPresent(message = "Ngày kết thúc không được vượt quá ngày hiện tại")
     private LocalDate endDate;
 
     @NotNull(message = "Giá trị giảm không được để trống")

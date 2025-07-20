@@ -12,9 +12,7 @@ import com.viettridao.cafe.model.PositionEntity;
 @Mapper(componentModel = "spring")
 public interface PositionMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    @Mapping(target = "employees", ignore = true)
     PositionEntity toEntity(PositionCreateRequest request);
 
     PositionResponse toResponse(PositionEntity entity);

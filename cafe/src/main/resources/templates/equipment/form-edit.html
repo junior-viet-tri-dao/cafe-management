@@ -29,19 +29,20 @@
         <div class="mb-3">
             <label class="form-label">Đơn giá</label>
             <div class="input-group">
-                <input type="text" name="purchasePrice"
-                       th:value="${#numbers.formatDecimal(equipment.purchasePrice, 0, 'POINT', 0, 'COMMA')}"
-                       class="form-control" pattern="[0-9.,]*" placeholder="VD: 1.000.000" required />
+                <input type="number" step="0.1" min="0"
+                       th:field="*{purchasePrice}"
+                       class="form-control" placeholder="VD: 1000000" required />
                 <span class="input-group-text">VND</span>
-                <div class="text-danger small" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
             </div>
+
         </div>
 
         <div class="mb-3">
             <label class="form-label">Ngày mua</label>
-            <input type="date" name="purchaseDate"
+            <input type="date"
+                   name="purchaseDate"
                    th:field="*{purchaseDate}"
-                   th:attr="max=${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                   th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                    class="form-control" required />
             <div class="text-danger small" th:if="${#fields.hasErrors('purchaseDate')}" th:errors="*{purchaseDate}"></div>
         </div>

@@ -1,5 +1,6 @@
 package com.viettridao.cafe.service.exports;
 
+import com.viettridao.cafe.model.ProductEntity;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ExportServiceImpl implements IExportService {
     @Transactional
     public void createExport(ExportCreateRequest request) {
         ExportEntity entity = exportMapper.toEntity(request);
+
         entity.setEmployee(
                 employeeRepository.findById(request.getEmployeeId())
                         .orElseThrow(() -> new RuntimeException("Employee not found"))
@@ -35,6 +37,16 @@ public class ExportServiceImpl implements IExportService {
                 productRepository.findById(request.getProductId())
                         .orElseThrow(() -> new RuntimeException("Product not found"))
         );
+
+        ProductEntity product = productRepository.findProductById(entity.getProduct().getId());
+
+        if(product.getQuantity() < entity.getQuantity())
+            new RuntimeException("Không thể xuất quá số lượng có trong kho");
+
+        product.setQuantity(product.getQuantity() - entity.getQuantity());
+
+        productRepository.save(product);
+
         exportRepository.save(entity);
     }
 
@@ -50,12 +62,19 @@ public class ExportServiceImpl implements IExportService {
     @Override
     @Transactional
     public void updateExport(Integer id, ExportUpdateRequest request) {
-        System.out.println("Updating export with ID: " + id);
-        System.out.println("Request: " + request);
+
+        ExportEntity existing = findExportOrThrow(id);
+
+        int oldQuantity = existing.getQuantity();
+
+        int newQuantity = request.getQuantity();
+
+        int delta = newQuantity - oldQuantity;
+
         if (id == null) {
             throw new IllegalArgumentException("Export ID must not be null");
         }
-        ExportEntity existing = findExportOrThrow(id);
+
         exportMapper.updateEntityFromRequest(request, existing);
         existing.setProduct(
                 productRepository.findById(request.getProductId())
@@ -65,6 +84,13 @@ public class ExportServiceImpl implements IExportService {
                 employeeRepository.findById(request.getEmployeeId())
                         .orElseThrow(() -> new RuntimeException("Employee not found"))
         );
+
+        ProductEntity product = productRepository.findProductById(request.getProductId());
+
+        product.setQuantity(product.getQuantity() + delta );
+
+        productRepository.save(product);
+
         exportRepository.save(existing);
     }
 
@@ -76,6 +102,11 @@ public class ExportServiceImpl implements IExportService {
         }
         ExportEntity entity = findExportOrThrow(id);
         entity.setDeleted(true);
+
+        ProductEntity product = productRepository.findProductById(entity.getProduct().getId());
+
+        product.setQuantity(product.getQuantity() + entity.getQuantity());
+
         exportRepository.save(entity);
     }
 

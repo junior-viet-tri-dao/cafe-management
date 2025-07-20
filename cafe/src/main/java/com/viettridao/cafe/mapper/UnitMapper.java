@@ -10,7 +10,6 @@ import com.viettridao.cafe.model.UnitEntity;
 @Mapper(componentModel = "spring")
 public interface UnitMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     UnitEntity toEntity(UnitRequest request);
 

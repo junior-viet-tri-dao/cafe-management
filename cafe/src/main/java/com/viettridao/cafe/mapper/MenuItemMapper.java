@@ -12,10 +12,7 @@ import com.viettridao.cafe.model.MenuItemEntity;
 @Mapper(componentModel = "spring")
 public interface MenuItemMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    @Mapping(target = "menuDetails", ignore = true)
-    @Mapping(target = "invoiceDetails", ignore = true)
     MenuItemEntity toEntity(MenuItemCreateRequest request);
 
     MenuItemResponse toResponse(MenuItemEntity entity);

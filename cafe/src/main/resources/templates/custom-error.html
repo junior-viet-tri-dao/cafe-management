@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}"> <!-- Đường dẫn layout bạn đang dùng -->
+
+<head>
+  <title>Lỗi hệ thống</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+  <div class="container py-5 text-center">
+    <h1 class="display-4 text-danger">⚠️ Lỗi hệ thống</h1>
+    <p class="lead mt-3 mb-4 text-muted" th:text="${errorMessage} ?: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.'">
+      Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.
+    </p>
+    <a th:href="@{/home}" class="btn btn-primary">⬅️ Quay về trang chủ</a>
+  </div>
+</main>
+</body>
+</html>

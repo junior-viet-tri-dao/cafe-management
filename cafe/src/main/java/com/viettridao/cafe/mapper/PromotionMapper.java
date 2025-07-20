@@ -15,9 +15,7 @@ import com.viettridao.cafe.model.PromotionEntity;
 @Mapper(componentModel = "spring")
 public interface PromotionMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    @Mapping(target = "invoices", ignore = true)
     PromotionEntity toEntity(PromotionCreateRequest request);
 
     PromotionResponse toResponse(PromotionEntity entity);
@@ -27,8 +25,4 @@ public interface PromotionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
     void updateEntityFromRequest(PromotionUpdateRequest request, @MappingTarget PromotionEntity entity);
-
-    default LocalDate map(java.util.Date date) {
-        return date == null ? null : date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    }
 }

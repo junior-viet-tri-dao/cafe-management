@@ -13,10 +13,7 @@ import com.viettridao.cafe.model.AccountEntity;
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    @Mapping(target = "employee", ignore = true)
-    @Mapping(target = "expenses", ignore = true)
     AccountEntity toEntity(AccountCreateRequest request);
 
     AccountResponse toResponse(AccountEntity entity);

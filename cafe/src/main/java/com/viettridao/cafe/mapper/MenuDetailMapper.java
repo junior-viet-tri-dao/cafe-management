@@ -13,11 +13,10 @@ import com.viettridao.cafe.model.ProductEntity;
 @Mapper(componentModel = "spring")
 public interface MenuDetailMapper {
 
-    @Mapping(target = "id", expression = "java(new com.viettridao.cafe.model.MenuKey(detailRequest.getProductId(), menuItem.getId()))")
-    @Mapping(target = "product", source = "detailRequest.productId", qualifiedByName = "mapProductId")
-    @Mapping(target = "menuItem", source = "menuItem")
+    @Mapping(target = "product", source = "request.productId", qualifiedByName = "mapProductId")
+    @Mapping(target = "menuItem", source = "request.menuItemId", qualifiedByName = "mapMenuItemId")
     @Mapping(target = "deleted", constant = "false")
-    MenuDetailEntity toEntity(MenuDetailCreateRequest detailRequest, MenuItemEntity menuItem);
+    MenuDetailEntity toEntity(MenuDetailCreateRequest request);
 
     MenuDetailResponse toResponse(MenuDetailEntity entity);
 
@@ -29,11 +28,11 @@ public interface MenuDetailMapper {
         return product;
     }
 
-//    @Named("mapMenuItemId")
-//    default MenuItemEntity mapMenuItemId(Integer menuItemId) {
-//        if (menuItemId == null) return null;
-//        MenuItemEntity menuItem = new MenuItemEntity();
-//        menuItem.setId(menuItemId);
-//        return menuItem;
-//    }
+    @Named("mapMenuItemId")
+    default MenuItemEntity mapMenuItemId(Integer menuItemId) {
+        if (menuItemId == null) return null;
+        MenuItemEntity menuItem = new MenuItemEntity();
+        menuItem.setId(menuItemId);
+        return menuItem;
+    }
 }

@@ -67,7 +67,7 @@ public class ProductService implements IProductService{
 
         ProductEntity existing = findProductOrThrow(id);
 
-        productMapper.toUpdateRequest(existing);
+        productMapper.updateFromRequest(request,existing);
 
         if (request.getUnitId() != null) {
             UnitEntity unit = unitRepository.findById(request.getUnitId())
@@ -87,7 +87,7 @@ public class ProductService implements IProductService{
         productRepository.save(entity);
     }
 
-    //Kiểm tra xem có hàng hóa có tồn tại theo id không
+    // Kiểm tra xem có hàng hóa có tồn tại theo id không
     private ProductEntity findProductOrThrow(Integer id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa với id = " + id));

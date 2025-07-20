@@ -22,10 +22,21 @@
       <div class="text-danger" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
     </div>
     <div class="mb-3">
-      <label for="price" class="form-label">Đơn giá</label>
-      <input type="number" class="form-control" id="price" th:field="*{price}" required>
-      <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+      <label for="unitId" class="form-label">Đơn vị</label>
+      <select th:field="*{unitId}" id="unitId" class="form-select" required>
+        <option value="" disabled>-- Chọn đơn vị --</option>
+        <option th:each="unit : ${units}"
+                th:value="${unit.id}"
+                th:text="${unit.unitName}"
+                th:selected="${unit.id == product.unitId}">
+        </option>
+      </select>
     </div>
+<!--    <div class="mb-3">-->
+<!--      <label for="price" class="form-label">Đơn giá</label>-->
+<!--      <input type="number" class="form-control" id="price" th:field="*{price}" required>-->
+<!--      <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>-->
+<!--    </div>-->
     <button type="submit" class="btn btn-primary">Tiếp tục</button>
   </form>
 </div>

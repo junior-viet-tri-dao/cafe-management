@@ -23,16 +23,18 @@
                     <label for="startDate" class="form-label">Từ ngày:</label>
                     <input type="date" id="startDate" name="startDate"
                            class="form-control"
+                           th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                            th:value="${filter.startDate != null ? #temporals.format(filter.startDate, 'yyyy-MM-dd') : ''}">
-                    <div class="text-danger" th:if="${#fields.hasErrors('startDate')}"></div>
                 </div>
+<!--                <p class="text-danger" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></p>-->
                 <div class="col-md-4">
                     <label for="endDate" class="form-label">Đến ngày:</label>
                     <input type="date" id="endDate" name="endDate"
                            class="form-control"
+                           th:max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
                            th:value="${filter.endDate != null ? #temporals.format(filter.endDate, 'yyyy-MM-dd') : ''}">
-                    <div class="text-danger" th:if="${#fields.hasErrors('endDate')}"></div>
                 </div>
+<!--                <p class="text-danger" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></p>-->
                 <div class="col-md-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-success w-100">🔍 Xem</button>
                 </div>
@@ -66,12 +68,28 @@
                 </table>
             </div>
 
-            <div class="col-12">
-                <div class="text-danger" th:if="${#fields.hasGlobalErrors()}"
-                     th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
-            </div>
         </div>
     </div>
+    <!-- Thêm vào trong <head> nếu chưa có Bootstrap JS -->
+    <script>
+        function validateForm() {
+            const start = document.getElementById("startDate").value;
+            const end = document.getElementById("endDate").value;
+            const now = new Date().toISOString().split("T")[0];
+
+            if (start > end) {
+                alert("⚠️ Từ ngày phải nhỏ hơn hoặc bằng đến ngày.");
+                return false;
+            }
+
+            if (start > now || end > now) {
+                alert("⚠️ Ngày không được vượt quá ngày hiện tại.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 </div>
 </body>
 </html>

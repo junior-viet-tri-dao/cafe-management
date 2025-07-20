@@ -3,109 +3,100 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
-    <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Chỉnh Sửa Nhân Viên</title>
+    <title layout:title-pattern="Cafe Management">Chỉnh sửa nhân viên</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
     <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
     <script th:src="@{/js/alert-utils.js}"></script>
+    <script th:src="@{/js/employee_salary.js}"></script>
 </head>
 
 <body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+
 <header th:replace="~{layout :: header}"></header>
 
 <div class="flex flex-1">
     <aside th:replace="~{layout :: aside}"></aside>
 
     <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
-        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold text-[#4e342e] mb-4 text-center">Chỉnh sửa nhân viên</h2>
-            <form th:action="@{/employee/{id}(id=${employeeId})}" method="post" th:object="${employee}" class="space-y-4" enctype="multipart/form-data">
+        <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-[#4e342e] mb-6 text-center">📝 Cập nhật thông tin nhân viên</h2>
+
+            <form th:action="@{'/employee/' + ${employeeId}}" th:object="${employee}" method="post" class="space-y-5">
                 <input type="hidden" th:field="*{id}" />
 
+                <!-- Họ và tên -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">* Họ và tên:</label>
                     <input type="text" th:field="*{fullName}"
-                           required minlength="2" maxlength="100"
-                           pattern="^[^\d]+$"
-                           title="Họ tên không chứa số, từ 2 đến 100 ký tự"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('fullName')}"
-                       th:errors="*{fullName}">Lỗi</p>
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                           required minlength="5"
+                           pattern="^(?!\s*$).{5,}$"
+                           title="Tên nhân viên phải có ít nhất 5 ký tự và không được để trống hoặc toàn dấu cách">
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
                 </div>
 
+                <!-- Địa chỉ -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">* Địa chỉ:</label>
-                    <input type="text" th:field="*{address}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('address')}"
-                       th:errors="*{address}">Lỗi</p>
+                    <label class="block text-sm font-medium text-gray-700">Địa chỉ:</label>
+                    <input type="text" th:field="*{address}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></p>
                 </div>
 
-                <div class="flex items-center space-x-4">
-                    <div class="w-1/2">
-                        <label class="block text-sm font-medium text-gray-700">* Chức vụ:</label>
-                        <select id="positionSelect"
-                                th:field="*{positionId}"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                onchange="updateSalary()" required>
-                        <option th:each="p : ${positions}"
-                                th:value="${p.id}"
-                                data-salary="${p.salary}"
-                                th:text="${p.positionName}">
-                            </option>
-                        </select>
-                    </div>
+                <!-- Chức vụ và Lương -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">* Chức vụ:</label>
+                    <select th:field="*{positionId}" id="positionSelect" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="" disabled selected>-- Chọn chức vụ --</option>
+                        <option th:each="pos : ${positions}" th:value="${pos.id}" th:data-luong="${pos.salary}"
+                                th:text="${pos.positionName}"></option>
+                    </select>
+                    <p class="text-sm text-red-500" th:if="${#fields.hasErrors('positionId')}" th:errors="*{positionId}"></p>
 
-                    <div class="w-1/2">
-                        <label class="block text-sm font-medium text-gray-700">* Lương:</label>
-                        <input type="text"
-                               id="salaryInput"
-                               readonly
-                               th:value="${#numbers.formatDecimal(employee.salary, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                    <div class="mt-2 text-sm text-gray-700 flex items-center gap-2">
+                        <span class="font-medium">💰 Lương:</span>
+                        <input type="hidden" id="salaryInput" name="luong">
+                        <span id="salaryDisplay" class="text-green-600 font-semibold"></span>
                     </div>
                 </div>
 
+                <!-- Số điện thoại -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">* Số điện thoại:</label>
                     <input type="tel" th:field="*{phoneNumber}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                            required pattern="^0\d{9,10}$"
-                           title="Số điện thoại phải bắt đầu bằng 0, gồm 10–11 số"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                           title="Số điện thoại phải bắt đầu bằng 0 và dài 10-11 chữ số">
                     <p class="text-sm text-red-500" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></p>
-
                 </div>
 
-                <div class="flex justify-center space-x-4">
-                    <button type="submit" class="px-4 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">💾 Lưu</button>
-                    <a th:href="@{/employee}" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">❌ Hủy</a>
+                <!-- Nút thao tác -->
+                <div class="flex justify-center space-x-4 pt-4">
+                    <button type="submit"
+                            class="px-5 py-2 bg-[#4e342e] text-white rounded-md hover:bg-[#3e2723]">
+                        💾 Cập nhật
+                    </button>
+                    <a th:href="@{/employee}" class="px-5 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">
+                        ❌ Hủy
+                    </a>
                 </div>
 
-                <p class="text-sm text-red-500 mt-2">(*): Các trường bắt buộc nhập</p>
+                <p class="text-sm text-red-500 text-center pt-2">(*): Các trường bắt buộc nhập</p>
             </form>
         </div>
+
     </main>
 </div>
 
 <footer th:replace="~{layout :: footer}"></footer>
 <div th:replace="~{/alert :: alerts}"></div>
-</body>
-<script>
-    function updateSalary() {
-        const select = document.getElementById("positionSelect");
-        const selectedOption = select.options[select.selectedIndex];
-        const salary = selectedOption.getAttribute("data-salary");
-        const formattedSalary = new Intl.NumberFormat('vi-VN').format(Number(salary || 0)) + " VNĐ";
-        document.getElementById("salaryInput").value = formattedSalary;
-    }
 
-    window.addEventListener("DOMContentLoaded", () => {
-        const select = document.getElementById("positionSelect");
-        select.addEventListener("change", updateSalary);
-        updateSalary(); // gọi khi vừa load trang
-    });
-</script>
+</body>
 </html>

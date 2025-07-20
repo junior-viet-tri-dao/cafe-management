@@ -13,7 +13,6 @@ import com.viettridao.cafe.model.MenuItemEntity;
 @Mapper(componentModel = "spring")
 public interface InvoiceDetailMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "invoice", source = "invoiceId", qualifiedByName = "mapInvoiceId")
     @Mapping(target = "menuItem", source = "menuItemId", qualifiedByName = "mapMenuItemId")

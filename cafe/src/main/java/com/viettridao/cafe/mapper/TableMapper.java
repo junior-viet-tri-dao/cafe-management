@@ -10,9 +10,7 @@ import com.viettridao.cafe.model.TableEntity;
 @Mapper(componentModel = "spring")
 public interface TableMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", constant = "false")
-    @Mapping(target = "reservations", ignore = true)
     TableEntity toEntity(TableCreateRequest request);
 
     TableResponse toResponse(TableEntity entity);

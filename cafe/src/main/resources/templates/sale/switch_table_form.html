@@ -1,26 +1,48 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
 <head>
-    <title>Chuyển bàn</title>
+    <title layout:title-pattern="Cafe Management">Chuyển bàn</title>
 </head>
+
 <body>
-<h2>Chuyển bàn</h2>
+<div layout:fragment="content" class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center text-primary fw-bold mb-4">🔄 Chuyển bàn</h2>
 
-<form th:action="@{/sale/switch}" method="post" onsubmit=" return validateSwitchForm()">
-    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                    <form th:action="@{/sale/switch}" method="post" onsubmit="return validateSwitchForm()">
+                        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-    <label for="targetTableId">Chọn bàn đích:</label>
-    <select name="targetTableId" id="targetTableId" class="form-control">
-        <option value="">-- Chọn bàn --</option>
-        <option th:each="table : ${tables}" th:value="${table.id}" th:text="${table.tableName}"
-                th:if="${table.id != currentTableId}"></option>
-    </select>
+                        <div class="mb-3">
+                            <label for="targetTableId" class="form-label">Chọn bàn đích:</label>
+                            <select name="targetTableId" id="targetTableId" class="form-select" required>
+                                <option value="">-- Chọn bàn --</option>
+                                <option th:each="table : ${tables}"
+                                        th:value="${table.id}"
+                                        th:text="${table.tableName}"
+                                        th:if="${table.id != currentTableId}">
+                                </option>
+                            </select>
+                        </div>
 
-    <input type="hidden" name="sourceTableId" th:value="${currentTableId}"/>
+                        <input type="hidden" name="sourceTableId" th:value="${currentTableId}"/>
 
-    <button type="submit" class="btn btn-primary mt-2">Chuyển bàn</button>
-</form>
-<a href="/sale">← Quay lại danh sách bàn</a>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">✅ Xác nhận chuyển</button>
+                            <a th:href="@{/sale}" class="btn btn-outline-secondary">← Quay lại danh sách bàn</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

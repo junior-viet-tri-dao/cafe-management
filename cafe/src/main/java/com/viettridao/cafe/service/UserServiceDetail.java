@@ -19,7 +19,7 @@ public class UserServiceDetail implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AccountEntity account = accountRepository.findByUsername(username)
+        AccountEntity account = accountRepository.findByUsernameAndDeletedFalse(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         if (account.getEmployee() == null) {
             throw new RuntimeException("No Employee associated with account: " + username);

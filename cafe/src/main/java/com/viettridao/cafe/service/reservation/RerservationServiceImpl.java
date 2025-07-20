@@ -75,11 +75,6 @@ public class RerservationServiceImpl implements IReservationService{
             table.setStatus(TableStatus.RESERVED);
             tableRepository.save(table);
 
-            System.out.println("Username: " + username);
-            System.out.println("Employee: " + employee);
-            System.out.println("Invoice ID: " + invoice.getId());
-
-
         } catch (Exception ex) {
             throw new RuntimeException("Tạo đặt bàn thất bại: " + ex.getMessage(), ex);
         }

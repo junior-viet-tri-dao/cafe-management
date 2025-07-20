@@ -1,5 +1,7 @@
 package com.viettridao.cafe.controller;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+
 import java.util.ArrayList;
 
 import com.viettridao.cafe.dto.request.revenue.RevenueFilterRequest;
@@ -23,6 +26,7 @@ public class RevenueController {
 
     @GetMapping
     public String viewRevenue(
+            @Valid
             @RequestParam(value = "startDate", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 
@@ -31,7 +35,7 @@ public class RevenueController {
 
             Model model
     ) {
-        // Nếu chưa nhập thì lấy cố định là đầu năm 2025
+        // Nếu chưa nhập thì mặc định lấy đầu năm 2025
         if (startDate == null) {
             startDate = LocalDate.of(2025, 1, 1);
         }

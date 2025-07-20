@@ -45,7 +45,7 @@ public class IventoryServiceImpl implements IInventoryService {
                     }
                 });
 
-        // Sắp xếp theo ngày gần nhất
+        // Sắp xếp theo ngày gần nhất (AI)
         result.sort(Comparator.comparing(
                 tx -> tx.getImportDate() != null ? tx.getImportDate() : tx.getExportDate(),
                 Comparator.reverseOrder())

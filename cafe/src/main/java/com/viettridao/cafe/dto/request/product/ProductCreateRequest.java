@@ -16,10 +16,6 @@ public class ProductCreateRequest {
     @Min(value = 0, message = "Số lượng không được âm")
     private Integer quantity = 0;
 
-    @NotNull(message = "Giá không được để trống")
-    @Positive(message = "Giá phải lớn hơn 0")
-    private Double price;
-
     private Integer unitId;
 
 }
