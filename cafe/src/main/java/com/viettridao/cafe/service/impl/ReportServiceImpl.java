@@ -18,7 +18,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
-
     private final ImportRepository importRepository;
     private final ExportRepository exportRepository;
     private final InvoiceRepository invoiceRepository;

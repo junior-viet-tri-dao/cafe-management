@@ -51,11 +51,11 @@ public class PromotionController {
 
     @PostMapping("/delete/{id}")
     public String deletePromotion(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes){
-        try{
+        try {
             promotionService.deletePromotion(id);
             redirectAttributes.addFlashAttribute("success", "Xoá khuyến mãi thành công");
             return "redirect:/promotion";
-        }catch (Exception e){
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/promotion";
         }
