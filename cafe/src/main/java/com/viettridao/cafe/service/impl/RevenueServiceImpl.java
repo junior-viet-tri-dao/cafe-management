@@ -28,6 +28,7 @@ public class RevenueServiceImpl implements RevenueService {
     private final EquipmentRepository equipmentRepository;
     private final ExpenseRepository expenseRepository;
 
+
     @Override
     public RevenueResponse getRevenueSummary(RevenueFilterRequest request) {
         LocalDate start = request.getStartDate();
@@ -40,7 +41,9 @@ public class RevenueServiceImpl implements RevenueService {
         Map<LocalDate, RevenueItemResponse> dailyMap = new TreeMap<>();
 
         for (InvoiceEntity invoice : invoiceRepository.findByCreatedAtBetweenAndIsDeletedFalse(start.atStartOfDay(), end.plusDays(1).atStartOfDay())) {
-            if (invoice.getStatus() != InvoiceStatus.PAID) continue;
+            if (invoice.getStatus() != InvoiceStatus.PAID) {
+                continue;
+            }
             LocalDate date = invoice.getCreatedAt().toLocalDate();
             dailyMap.putIfAbsent(date, new RevenueItemResponse());
             RevenueItemResponse item = dailyMap.get(date);

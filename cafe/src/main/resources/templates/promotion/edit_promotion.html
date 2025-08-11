@@ -174,7 +174,7 @@
             <div class="form-left">
                 <div class="form-group">
                     <label for="namepromotion">Tên Khuyến Mãi</label>
-                    <input type="text" id="namepromotion" th:field="*{promotionName}" >
+                    <input type="text" id="namepromotion" th:field="*{promotionName}" minlength="3" maxlength="100" >
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('promotionName')}" th:errors="*{promotionName}"></p>
                 </div>
                 <div class="form-group">
@@ -189,7 +189,7 @@
                 </div>
                 <div class="form-group">
                     <label for="percentdiscount">% giảm giá</label>
-                    <input type="text" id="percentdiscount" th:field="*{discountValue}">
+                    <input type="text" id="percentdiscount" th:field="*{discountValue}" minlength="1" maxlength="100">
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('discountValue')}" th:errors="*{discountValue}"></p>
                 </div>
             </div>

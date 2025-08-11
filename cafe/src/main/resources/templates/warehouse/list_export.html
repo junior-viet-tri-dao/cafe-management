@@ -4,80 +4,121 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Trang Danh Sách Đơn Xuất </title>
+    <title>Trang Danh Sách Đơn Xuất</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+        /* Tùy chỉnh chiều rộng cột cho giao diện desktop */
+        .grid-cols-custom {
+            grid-template-columns: 1fr 2fr 1.5fr 1fr 1fr 1.5fr 1fr;
+        }
+
+        /* Ẩn tiêu đề cột và chuyển sang dạng thẻ trên mobile */
+        @media (max-width: 767px) {
+            .table-header {
+                display: none;
+            }
+            .table-row {
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                background-color: white;
+            }
+            /* Đã loại bỏ .table-cell::before vì chúng ta sẽ sử dụng cấu trúc div mới */
+        }
+    </style>
 </head>
 <body class="p-6 font-sans bg-gray-50 text-gray-800">
 
 <div layout:fragment="content">
 
-    <form method="get" th:action="@{/warehouse/list_export}" class="flex items-center gap-2 mb-4">
-        <input type="text" name="keyword" placeholder="Tìm theo tổng tiền"
-               th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-72">
+    <form method="get" th:action="@{/warehouse/insert_export}" class="flex items-center gap-2 mb-4 w-full">
+        <input type="text" name="keyword" placeholder="Tìm theo Số lượng"
+               th:value="${param.keyword}" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full sm:w-72">
         <button type="submit"
                 class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow transition">
             🔍 Tìm
         </button>
     </form>
 
-    <!-- Hiển thị thông báo tìm kiếm nếu có -->
     <div class="mb-4 text-sm text-gray-600 italic" th:if="${param.keyword}">
-        Đang tìm với tổng tiền: "<span th:text="${param.keyword}"></span>"
+        Đang tìm với Số lượng: "<span th:text="${param.keyword}"></span>"
     </div>
 
+    <a th:href="@{/warehouse/insert_export}" class="text-blue-600 hover:underline inline-block mb-4">Thêm Đơn xuất</a>
 
-    <a th:href="@{/warehouse/insert_export}" class="text-blue-600 hover:underline">Thêm Đơn Xuất</a>
-
-
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto w-full">
         <div class="overflow-x-auto shadow border border-gray-200 rounded-lg">
             <div class="min-w-full divide-y divide-gray-200">
-                <!-- Table Header -->
-                <div class="flex bg-gray-100 font-semibold text-sm uppercase tracking-wide text-gray-700">
-                    <div class="flex-2 px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="namePromotion">
+                <div class="table-header hidden md:grid grid-cols-custom gap-4 bg-gray-100 font-semibold text-sm uppercase tracking-wide text-gray-700">
+                    <div class="px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="id">
                         Id Đơn Xuất <span class="sort-arrow inline-block ml-1"></span>
                     </div>
-                    <div class="flex-2 px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="namePromotion">
+                    <div class="px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="productName">
                         Tên hàng hoá<span class="sort-arrow inline-block ml-1"></span>
                     </div>
-                    <div class="flex-1.5 px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="DateStart">
-                        Ngày Xuất <span class="sort-arrow inline-block ml-1"></span>
+                    <div class="px-4 py-3 cursor-pointer hover:bg-gray-200" data-sort-by="importDate">
+                        Ngày xuất <span class="sort-arrow inline-block ml-1"></span>
                     </div>
-                    <div class="flex-1 px-4 py-3 cursor-pointer text-right hover:bg-gray-200" data-sort-by="DataEnd">
+                    <div class="px-4 py-3 cursor-pointer text-right hover:bg-gray-200" data-sort-by="quantity">
                         Số lượng <span class="sort-arrow inline-block ml-1"></span>
                     </div>
-                    <div class="flex-1 px-4 py-3 cursor-pointer text-right hover:bg-gray-200" data-sort-by="percentDiscount">
+                    <div class="px-4 py-3 cursor-pointer text-right hover:bg-gray-200" data-sort-by="totalAmount">
                         Tổng tiền<span class="sort-arrow inline-block ml-1"></span>
                     </div>
-                    <div class="flex-1 px-4 py-3">Action</div>
+<!--                    <div class="px-4 py-3">Action</div>-->
                 </div>
 
-                <div th:each="export : ${exports.exportPage}" class="flex items-center border-t border-gray-200 hover:bg-gray-50">
-                    <div class="flex-2 px-4 py-3" th:text="${export.id}"></div>
-                    <div class="flex-2 px-4 py-3" th:text="${export.product.productName}"></div>
-                    <div class="flex-1.5 px-4 py-3"  th:text="${#temporals.format(export.exportDate, 'dd/MM/yyyy')}"></div>
-                    <div class="flex-2 px-4 py-3" th:text="${export.quantity}"></div>
-                    <div class="flex-2 px-4 py-3" th:text="${export.totalExportAmount}"></div>
-                    <div class="flex-1 px-4 py-3 space-x-2">
-<!--                        <a th:href="@{/warehouse/edit_export/{id}(id=${export.id})}" class="text-blue-600 hover:underline">Edit</a>-->
-<!--                        <a th:href="@{/warehouse/edit_export/{id}(id=${export.id})}" class="text-red-600 hover:underline">Delete</a>-->
+                <div th:each="export : ${exports.exportPage}" class="hidden md:grid grid-cols-custom gap-4 items-center border-t border-gray-200 hover:bg-gray-50">
+                    <div class="px-4 py-3" th:text="${export.id}"></div>
+                    <div class="px-4 py-3" th:text="${export.product.productName}"></div>
+                    <div class="px-4 py-3" th:text="${#temporals.format(export.exportDate, 'dd/MM/yyyy')}"></div>
+                    <div class="px-4 py-3 text-right" th:text="${export.quantity}"></div>
+                    <div class="px-4 py-3 text-right" th:text="${export.totalExportAmount}"></div>
+<!--                    <div class="px-4 py-3 space-x-2">-->
+                    </div>
+                </div>
+
+                <div class="md:hidden flex flex-col space-y-4 p-4">
+                    <div th:each="export : ${exports.exportPage}" class="table-row flex flex-col gap-2 bg-white rounded-lg shadow-md border-gray-200">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Id Đơn Nhập:</span>
+                            <span th:text="${export.id}"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Tên hàng hoá:</span>
+                            <span th:text="${export.product.productName}"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Ngày nhập:</span>
+                            <span th:text="${#temporals.format(export.exportDate, 'dd/MM/yyyy')}"></span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Số lượng:</span>
+                            <span th:text="${export.quantity}"></span>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-gray-600">Tổng tiền:</span>
+                            <span th:text="${export.totalExportAmount}"></span>
+                        </div>
+                        <div class="mobile-actions">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Phân trang -->
         <div class="flex items-center justify-between mt-8">
-            <!-- Hiển thị số lượng -->
             <div class="text-sm text-gray-600" th:if="${exports.totalPages > 0}">
                 <span th:text="'Trang ' + (${exports.pageNumber + 1}) + ' / ' + ${exports.totalPages}">Trang 1 / 5</span> |
                 <span th:text="'Tổng: ' + ${exports.totalElements} + ' đơn nhập'">Tổng: 25 nhân viên</span>
             </div>
 
-            <!-- Danh sách nút phân trang -->
             <nav>
                 <ul class="inline-flex items-center space-x-1">
-                    <!-- Nút Trước -->
                     <li>
                         <a th:href="@{/warehouse/list_export(page=${exports.pageNumber - 1}, keyword=${param.keyword})}"
                            th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${exports.pageNumber == 0} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
@@ -85,7 +126,6 @@
                         </a>
                     </li>
 
-                    <!-- Các số trang -->
                     <li th:if="${exports.totalPages > 0}"
                         th:each="pageNum : ${#numbers.sequence(0, exports.totalPages - 1)}">
                         <a th:href="@{/warehouse/list_export(page=${pageNum}, keyword=${param.keyword})}"
@@ -97,7 +137,6 @@
                         </a>
                     </li>
 
-                    <!-- Nút Tiếp -->
                     <li>
                         <a th:href="@{/warehouse/list_export(page=${exports.pageNumber + 1}, keyword=${param.keyword})}"
                            th:class="'flex items-center px-3 py-2 rounded-lg border text-sm transition ' + (${exports.pageNumber + 1 >= exports.totalPages} ? 'text-gray-300 border-gray-300 bg-gray-100 cursor-not-allowed pointer-events-none' : 'text-blue-600 border-blue-300 hover:bg-blue-50')">
@@ -107,52 +146,8 @@
                 </ul>
             </nav>
         </div>
-
-
     </div>
-
-    <!-- Sort Script giữ nguyên -->
-    <script>
-        const employeeTable = document.getElementById('employeeTable') || document.querySelector('.min-w-full');
-        const headerCells = document.querySelectorAll('[data-sort-by]');
-        let currentSortColumn = null;
-        let currentSortDirection = 'asc';
-
-        function getCellValue(row, columnIndex) {
-            const cells = Array.from(row.querySelectorAll('div'));
-            const cell = cells[columnIndex];
-            if (cell.classList.contains('text-right')) {
-                return parseFloat(cell.dataset.value);
-            }
-            return cell.textContent.trim();
-        }
-
-        function sortDivTable(columnIndex, direction) {
-            const tableRows = Array.from(document.querySelectorAll('.flex.items-center'));
-            tableRows.sort((a, b) => {
-                let valA = getCellValue(a, columnIndex);
-                let valB = getCellValue(b, columnIndex);
-                if (typeof valA === 'string') {
-                    valA = valA.toLowerCase();
-                    valB = valB.toLowerCase();
-                }
-                return direction === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
-            });
-            const container = tableRows[0].parentElement;
-            tableRows.forEach(row => container.appendChild(row));
-        }
-
-        headerCells.forEach((header, index) => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.sortBy;
-                currentSortDirection = (currentSortColumn === column && currentSortDirection === 'asc') ? 'desc' : 'asc';
-                currentSortColumn = column;
-                document.querySelectorAll('.sort-arrow').forEach(a => a.textContent = '');
-                header.querySelector('.sort-arrow').textContent = currentSortDirection === 'asc' ? '▲' : '▼';
-                sortDivTable(index, currentSortDirection);
-            });
-        });
-    </script>
 </div>
+
 </body>
 </html>

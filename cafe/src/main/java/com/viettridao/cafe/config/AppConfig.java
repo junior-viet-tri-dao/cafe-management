@@ -21,9 +21,11 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+    // Cấu hình các đường dẫn công khai
     private static final String[] AUTH_WHITELIST = {
             "/login", "/js/**", "/css/**"
     };
+    // khai báo và sử dụng lơ đối tượng UserServiceDetail
     private final UserServiceDetail userServiceDetail;
 
     @Bean
@@ -49,6 +51,7 @@ public class AppConfig {
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

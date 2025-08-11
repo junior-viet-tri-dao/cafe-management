@@ -1,7 +1,179 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:fragment="title">Thêm món mới</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for the menu item form */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 900px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 50px; /* Thêm margin-top để căn giữa tốt hơn */
+            margin-bottom: 50px; /* Thêm margin-bottom */
+        }
+
+        h2 {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        h5 {
+            color: #343a40;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 5px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control, .form-select {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table-bordered th, .table-bordered td {
+            border-color: #dee2e6;
+        }
+
+        .btn-outline-primary {
+            color: #007bff;
+            border-color: #007bff;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: background-color 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            transition: background-color 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Tùy chỉnh cho các thông báo lỗi */
+        .text-danger {
+            margin-top: 5px;
+        }
+
+        /* Hiệu ứng di chuột cho hàng trong bảng */
+        #ingredientsTable tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 767.98px) {
+            .container {
+                padding: 15px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            .row.mb-3 > div {
+                margin-bottom: 15px; /* Add space between fields on mobile */
+            }
+
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table thead th,
+            .table tbody td {
+                white-space: nowrap; /* Prevent text wrapping in table cells */
+            }
+
+            .table thead th:last-child,
+            .table tbody td:last-child {
+                display: table-cell; /* Ensure action column is visible on mobile */
+                width: 80px; /* Adjust width for action button */
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .d-flex.justify-content-between .btn {
+                width: 100%;
+            }
+
+            .btn-outline-primary {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .btn-danger.btn-sm {
+                display: block;
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
 <main layout:fragment="content">
@@ -12,7 +184,7 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="itemName" class="form-label">Tên món</label>
-                    <input type="text" th:field="*{itemName}" id="itemName" class="form-control" placeholder="Nhập tên món" required />
+                    <input type="text" th:field="*{itemName}" minlength="3" maxlength="100" id="itemName" class="form-control" placeholder="Nhập tên món" required />
                 </div>
                 <div class="col-md-6">
                     <label for="currentPrice" class="form-label">Giá tiền</label>
@@ -20,38 +192,42 @@
                 </div>
             </div>
             <h5>Danh sách nguyên liệu</h5>
-            <table class="table table-bordered align-middle" id="ingredientsTable">
-                <thead class="table-primary">
-                <tr>
-                    <th>Nguyên liệu</th>
-                    <th>Số lượng</th>
-                    <th>Đơn vị</th>
-                    <th>Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <select name="menuItemDetail[0].productId" class="form-select" required>
-                            <option value="">-- Chọn nguyên liệu --</option>
-                            <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.productName}"> </option>
-                        </select>
-                        <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].productId')}" th:errors="*{menuItemDetail[0].productId}"></div>
-                    </td>
-                    <td><input type="number" name="menuItemDetail[0].quantity" class="form-control" required /></td>
-                    <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].quantity')}" th:errors="*{menuItemDetail[0].quantity}"></div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" id="ingredientsTable">
+                    <thead class="table-primary">
+                    <tr>
+                        <th>Nguyên liệu</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <select name="menuItemDetail[0].productId" class="form-select" required>
+                                <option value="">-- Chọn nguyên liệu --</option>
+                                <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.productName}"> </option>
+                            </select>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].productId')}" th:errors="*{menuItemDetail[0].productId}"></div>
+                        </td>
+                        <td><input type="number" name="menuItemDetail[0].quantity" class="form-control" required /></td>
+                        <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].quantity')}" th:errors="*{menuItemDetail[0].quantity}"></div>
 
-                    <td>
-                        <select name="menuItemDetail[0].unitName" class="form-select" required>
-                            <option value="">-- Chọn đơn vị --</option>
-                            <option th:each="Unit : ${Units}" th:value="${Unit.unitName}" th:text="${Unit.unitName}"> </option>
-                        </select>
-                        <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].productId')}" th:errors="*{menuItemDetail[0].productId}"></div>
-                    </td>
-                    <!--                        <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button>-->
-                </tr>
-                </tbody>
-            </table>
+                        <td>
+                            <select name="menuItemDetail[0].unitName" class="form-select" required>
+                                <option value="">-- Chọn đơn vị --</option>
+                                <option th:each="Unit : ${Units}" th:value="${Unit.unitName}" th:text="${Unit.unitName}"> </option>
+                            </select>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('menuItemDetail[0].unitName')}" th:errors="*{menuItemDetail[0].unitName}"></div>
+                        </td>
+                        <td>
+                            <!-- No remove button for the first row initially, or add if desired -->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <button type="button" class="btn btn-outline-primary mb-3" onclick="addIngredientRow()">+ Thêm nguyên liệu</button>
 
@@ -62,28 +238,32 @@
         </form>
     </div>
 
+    <!-- Bootstrap JS (bundle includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let rowIndex = 1;
 
         function addIngredientRow() {
             const tbody = document.getElementById("ingredientsTable").getElementsByTagName("tbody")[0];
-            const selectHTML = document.querySelector('select[name="menuItemDetail[0].productId"]').innerHTML;
-            const selectUnitHTML = document.querySelector('select[name="menuItemDetail[0].unitName"]').innerHTML;
+            // Get the options from the first row's select elements
+            const selectProductOptionsHTML = document.querySelector('select[name="menuItemDetail[0].productId"]').innerHTML;
+            const selectUnitOptionsHTML = document.querySelector('select[name="menuItemDetail[0].unitName"]').innerHTML;
+
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
-        <td>
-            <select name="menuItemDetail[${rowIndex}].productId" class="form-select" required>
-                ${selectHTML}
-            </select>
-        </td>
-        <td><input type="number" name="menuItemDetail[${rowIndex}].quantity" class="form-control" required></td>
-        <td>
-            <select name="menuItemDetail[${rowIndex}].unitName" class="form-select" required>
-                ${selectUnitHTML}
-            </select>
-        </td>
-        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
-    `;
+                <td>
+                    <select name="menuItemDetail[${rowIndex}].productId" class="form-select" required>
+                        ${selectProductOptionsHTML}
+                    </select>
+                </td>
+                <td><input type="number" name="menuItemDetail[${rowIndex}].quantity" class="form-control" required></td>
+                <td>
+                    <select name="menuItemDetail[${rowIndex}].unitName" class="form-select" required>
+                        ${selectUnitOptionsHTML}
+                    </select>
+                </td>
+                <td><button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
+            `;
             tbody.appendChild(newRow);
             rowIndex++;
         }

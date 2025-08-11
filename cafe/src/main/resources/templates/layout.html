@@ -4,62 +4,109 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
+    <!-- Essential for responsive design: tells the browser to set the viewport width to the device's width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title layout:title-pattern="$CONTENT_TITLE - Cafe Management">Cafe Management</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Alpine.js for dynamic UI components -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <!-- Load SweetAlert2 for custom alerts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Load Flowbite CSS and JS for UI components -->
     <link href="https://unpkg.com/flowbite@2.3.0/dist/flowbite.min.css" rel="stylesheet" />
     <script src="https://unpkg.com/flowbite@2.3.0/dist/datepicker.js"></script>
+    <!-- Custom alert utilities -->
     <script th:src="@{/js/alert-utils.js}"></script>
+    <!-- Use Inter font for better readability across devices -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen">
+<!-- Alpine.js x-data moved to body to make 'open' state globally accessible -->
+<body class="bg-[#fdf6e3] text-gray-800 font-sans flex flex-col min-h-screen" x-data="{ open: false }">
 
 <header class="bg-gradient-to-r from-[#4e342e] to-[#3e2723] text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center gap-2">
-            <span class="text-2xl font-bold">☕ Cafe Management</span>
+            <span class="text-xl sm:text-2xl font-bold">☕ Cafe Management</span>
         </div>
 
         <div class="flex items-center gap-4">
+            <!-- User info, hidden on small screens -->
             <div class="hidden sm:block text-sm text-right">
                 <div class="font-semibold" th:text="${user.username}">Tên đăng nhập</div>
                 <div class="text-gray-300 text-xs" th:text="'Chức vụ: ' + ${user.permission}">Chức vụ</div>
             </div>
+            <!-- User avatar -->
             <img th:src="${user.imageUrl}" alt="avatar" class="w-8 h-8 rounded-full border"/>
 
+            <!-- Logout button -->
             <form th:action="@{/logout}" method="post">
                 <button type="submit" class="px-3 py-1 text-sm text-white bg-red-500 rounded shadow hover:bg-red-600">
                     Đăng xuất
                 </button>
             </form>
+
+            <!-- Hamburger menu button for mobile -->
+            <!-- This button now correctly toggles the 'open' state defined on the body -->
+            <button @click="open = !open" class="sm:hidden text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </div>
     </div>
 </header>
 
+<!-- Main content area with sidebar -->
 <div class="flex flex-1">
-    <aside class="w-64 bg-white border-r p-4">
+    <!-- Overlay for mobile menu -->
+    <!-- This overlay appears when the sidebar is open on mobile, preventing interaction with main content -->
+    <div x-show="open" @click="open = false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+    <!-- Sidebar -->
+    <!-- Sidebar is hidden by default on mobile and slides in when 'open' is true -->
+    <aside class="fixed inset-y-0 left-0 w-64 bg-white border-r p-4 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out"
+           :class="{ 'translate-x-0': open }">
         <div class="flex flex-col space-y-2 h-full">
-            <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">🏠 Trang chủ</a>
-            <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">👤 Trang cá nhân</a>
-            <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">💵 Quản lý bán hàng</a>
+            <!-- Close button for mobile menu, only visible on mobile when menu is open -->
+            <div class="md:hidden flex justify-end mb-4">
+                <button @click="open = false" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navigation Links -->
+            <!-- Added @click="open = false" to close menu when a link is clicked on mobile -->
+            <a th:href="@{/home}" th:classappend="${currentPath == '/home'} ? 'bg-gray-200 font-bold' : ''" class="block py-2 rounded hover:bg-gray-100" @click="open = false">🏠 Trang chủ</a>
+            <a th:href="@{/account}" th:classappend="${currentPath == '/account'} ? 'bg-gray-200 font-bold' : ''" class="block py-2 rounded hover:bg-gray-100" @click="open = false">👤 Trang cá nhân</a>
+            <a th:href="@{/sale}" th:classappend="${currentPath == '/sale'} ? 'bg-gray-200 font-bold' : ''" class="block py-2 rounded hover:bg-gray-100" @click="open = false">💵 Quản lý bán hàng</a>
+
+            <!-- Admin specific links -->
             <div th:if="${user.permission == 'ADMIN'}">
-                <div x-data="{ open: false }" class="space-y-1">
-                    <button @click="open = !open"
+                <div x-data="{ openSubMenu: false }" class="space-y-1">
+                    <button @click="openSubMenu = !openSubMenu"
                             class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
-                            :class="{ 'bg-gray-200 font-bold': open }">
+                            :class="{ 'bg-gray-200 font-bold': openSubMenu }">
                         👥 Quản lý nhân viên
-                        <span x-text="open ? '▲' : '▼'" class="text-sm"></span>
+                        <span x-text="openSubMenu ? '▲' : '▼'" class="text-sm"></span>
                     </button>
-                    <div x-show="open" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/staff}" class="block py-1 hover:underline">Danh sách nhân viên</a>
-                        <a th:href="@{/staff/insert}" class="block py-1 hover:underline">Thêm nhân viên</a>
-                        <a th:href="@{/staff/edit}" class="block py-1 hover:underline">Chỉnh Sửa nhân viên</a>
-                        <a th:href="@{/staff/delete}" class="block py-1 hover:underline">Xóa nhân viên</a>
-                        <a th:href="@{/staff/search}" class="block py-1 hover:underline">Tìm Kiếm nhân viên</a>
+                    <div x-show="openSubMenu" x-transition class="pl-4 space-y-1">
+                        <a th:href="@{/staff}" class="block py-1 hover:underline" @click="open = false">Danh sách nhân viên</a>
+                        <a th:href="@{/staff/insert}" class="block py-1 hover:underline" @click="open = false">Thêm nhân viên</a>
                     </div>
                 </div>
-                <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Quản lý thiết bị</a>
+                <a th:href="@{/equipment}" th:classappend="${currentPath == '/equipment'} ? 'bg-gray-200 font-bold' : ''" class="block py-2 rounded hover:bg-gray-100" @click="open = false">📈 Quản lý thiết bị</a>
                 <div x-data="{ openCommodity: false }" class="space-y-1">
                     <button @click="openCommodity = !openCommodity"
                             class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"
@@ -68,9 +115,9 @@
                         <span x-text="openCommodity ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openCommodity" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/product}" th:classappend="${currentPath == '/product'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách hàng hóa</a>
-                        <a th:href="@{/warehouse/list_import}" th:classappend="${currentPath == '/warehouse/list_import'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách Nhập hàng hóa</a>
-                        <a th:href="@{/warehouse/list_export}" th:classappend="${currentPath == '/warehouse/list_export'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách Xuất hàng hóa</a>
+                        <a th:href="@{/product}" th:classappend="${currentPath == '/product'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Danh sách hàng hóa</a>
+                        <a th:href="@{/warehouse/list_import}" th:classappend="${currentPath == '/warehouse/list_import'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Danh sách Nhập hàng hóa</a>
+                        <a th:href="@{/warehouse/list_export}" th:classappend="${currentPath == '/warehouse/list_export'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Danh sách Xuất hàng hóa</a>
                     </div>
                 </div>
                 <div x-data="{ openMenu: false }" class="space-y-1">
@@ -81,8 +128,8 @@
                         <span x-text="openMenu ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openMenu" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline'" class="block py-1 hover:underline">Danh sách món</a>
-                        <a th:href="@{/menu/insert}" th:classappend="${currentPath == '/menu/insert'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm món</a>
+                        <a th:href="@{/menu}" th:classappend="${currentPath == '/menu'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Danh sách món</a>
+                        <a th:href="@{/menu/insert}" th:classappend="${currentPath == '/menu/insert'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Thêm món</a>
                     </div>
                 </div>
                 <div x-data="{ openMarketing: false }" class="space-y-1">
@@ -93,8 +140,8 @@
                         <span x-text="openMarketing ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openMarketing" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem danh sách khuyến mãi</a>
-                        <a th:href="@{/promotion/insert}" th:classappend="${currentPath == '/promotiond/insert'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm khuyến mãi</a>
+                        <a th:href="@{/promotion}" th:classappend="${currentPath == '/promotion'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Xem danh sách khuyến mãi</a>
+                        <a th:href="@{/promotion/insert}" th:classappend="${currentPath == '/promotiond/insert'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Thêm khuyến mãi</a>
                     </div>
                 </div>
                 <div x-data="{ openBudget: false }" class="space-y-1">
@@ -105,47 +152,35 @@
                         <span x-text="openBudget ? '▲' : '▼'" class="text-sm"></span>
                     </button>
                     <div x-show="openBudget" x-transition class="pl-4 space-y-1">
-                        <a th:href="@{/revenue}" th:classappend="${currentPath == '/revenue'} ? 'font-semibold underline'" class="block py-1 hover:underline">Xem thu chi</a>
-<!--                        <a th:href="@{/budget/create}" th:classappend="${currentPath == '/budget/create'} ? 'font-semibold underline'" class="block py-1 hover:underline">Thêm chi tiêu</a>-->
+                        <a th:href="@{/revenue}" th:classappend="${currentPath == '/revenue'} ? 'font-semibold underline' : ''" class="block py-1 hover:underline" @click="open = false">Xem thu chi</a>
                     </div>
-
-
-<!--                    <div x-data="{ openData: false }" class="space-y-1">-->
-<!--                        <button @click="openData = !openData"-->
-<!--                                class="w-full text-left block py-2 rounded hover:bg-gray-100 flex justify-between items-center"-->
-<!--                                :class="{ 'bg-gray-200 font-bold': openData }">-->
-<!--                            💾 Quản lý dữ liệu-->
-<!--                            <span x-text="openData ? '▲' : '▼'" class="text-sm"></span>-->
-<!--                        </button>-->
-<!--                        <div x-show="openData" x-transition class="pl-4 space-y-1">-->
-<!--                            <a th:href="@{/data/backup}" th:classappend="${currentPath == '/data/backup'} ? 'font-semibold underline'" class="block py-1 hover:underline">Sao lưu dữ liệu</a>-->
-<!--                            <a th:href="@{/data/restore}" th:classappend="${currentPath == '/data/restore'} ? 'font-semibold underline'" class="block py-1 hover:underline">Khôi phục dữ liệu</a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-                    <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">📈 Thống kê</a>
-                    <hr class="my-3">
-<!--                    <a th:href="@{/about}" th:classappend="${currentPath == '/about'} ? 'bg-gray-200 font-bold'" class="block py-2 rounded hover:bg-gray-100">ℹ️ Giới thiệu</a>-->
                 </div>
+
+                <a th:href="@{/report}" th:classappend="${currentPath == '/report'} ? 'bg-gray-200 font-bold' : ''" class="block py-2 rounded hover:bg-gray-100" @click="open = false">📈 Thống kê</a>
+                <hr class="my-3">
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 p-10 bg-[#e0f7fa]" layout:fragment="content">
-        <div class="text-center mt-20">
-            <h2 class="text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.username}">
+    <!-- Main content area -->
+    <main class="flex-1 p-4 md:p-10 bg-[#e0f7fa]" layout:fragment="content">
+        <div class="text-center mt-10 md:mt-20 px-4">
+            <h2 class="text-3xl sm:text-5xl font-bold text-[#4e342e] drop-shadow" th:text="'Xin chào, ' + ${user.username}">
             </h2>
-            <p class="mt-4 text-lg text-gray-600">
+            <p class="mt-4 text-base sm:text-lg text-gray-600">
                 Chúc bạn một ngày quản lý hiệu quả và tràn đầy năng lượng ☕✨
             </p>
         </div>
     </main>
 </div>
 
+<!-- Footer -->
 <footer class="bg-[#3e2723] text-white text-center py-4 shadow-inner">
     <p>2025 Cafe Management | Junior Việt Trí Đạo</p>
 </footer>
+<!-- Thymeleaf fragment for alerts -->
 <div th:replace="~{/alert :: alerts}"></div>
+<!-- Custom global JavaScript -->
 <script th:src="@{/js/global.js}"></script>
 </body>
 </html>

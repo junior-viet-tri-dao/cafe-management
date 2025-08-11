@@ -4,66 +4,82 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
+    <!-- Essential for responsive design: tells the browser to set the viewport width to the device's width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang cá nhân</title>
+    <!-- Use Inter font for better readability across devices -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
 <body>
+<!-- This heading might be from a previous example, consider removing if not needed -->
 <h1>Ví dụ về kế thừa layout nó đang lỗi chưa làm chức năng</h1>
 <div layout:fragment="content">
 
-    <form th:action="@{/account/update}"  method="post" class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-10 p-6">
+    <form th:action="@{/account/update}"  method="post" class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg mt-5 p-4 sm:p-6 md:mt-10">
         <input type="hidden" name="id" th:value="${user.id}"/>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Responsive grid layout: 1 column on small/medium screens, 3 columns on large screens -->
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div class="flex flex-col items-center justify-between space-y-4">
-                <img th:src="${user.imageUrl != null} ? ${user.imageUrl} : 'https://via.placeholder.com/100x120'"
+            <!-- Left column: Avatar and actions -->
+            <div class="flex flex-col items-center justify-between space-y-4 p-4 border-b md:border-b-0 lg:border-r border-gray-200">
+                <img th:src="${user.imageUrl != null} ? ${user.imageUrl} : 'https://placehold.co/100x120/E0F7FA/4E342E?text=Avatar'"
                      alt="avatar"
-                     class="w-36 h-36 rounded-full border-4 border-[#4e342e] shadow-md"/>
-                <label class="text-sm font-medium text-gray-700">
+                     class="w-36 h-36 rounded-full border-4 border-[#4e342e] shadow-md object-cover"/>
+                <label class="text-sm font-medium text-gray-700 text-center">
                     Thay ảnh đại diện:
-                    <input type="file" name="avatar" accept="image/*"
-                           onchange="previewAvatar(event)"
+                    <input type="text" name="avatar"
+
+
                            class="mt-1 block w-full text-sm file:mr-2 file:py-1 file:px-2
                                   file:rounded file:border-0 file:bg-yellow-500 file:text-white
-                                  hover:file:bg-yellow-600">
+                                  hover:file:bg-yellow-600 cursor-pointer">
                 </label>
+                <p id="validationMessage"></p>
                 <button type="submit"
                         formaction="/logout"
-                        class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow">
+                        class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded shadow w-full max-w-xs">
                     🚪 Đăng xuất
                 </button>
             </div>
 
-            <!-- Form thông tin cá nhân -->
-            <div class="md:col-span-2 space-y-4">
-                <h2 class="text-2xl font-bold text-[#4e342e] border-b pb-2">Thông tin cá nhân</h2>
+            <!-- Right column: Personal information form -->
+            <div class="md:col-span-2 space-y-4 p-4">
+                <h2 class="text-2xl font-bold text-[#4e342e] border-b pb-2 mb-4">Thông tin cá nhân</h2>
 
-                <div class="grid grid-cols-2 gap-4 text-sm">
+                <!-- Grid for form fields: 1 column on small screens, 2 columns on medium/large screens -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
-                        <label class="font-semibold">Họ và tên:</label>
+                        <label class="font-semibold block mb-1">Họ và tên:</label>
                         <input type="text" name="fullName" th:field="${user.employee.fullName}"
                                class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
 
                     <div>
-                        <label class="font-semibold">Chức vụ:</label>
+                        <label class="font-semibold block mb-1">Chức vụ:</label>
                         <input type="text" name="position" th:field="${user.employee.position.positionName}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
 
-                    <div class="col-span-2">
-                        <label class="font-semibold">Địa chỉ:</label>
+                    <div class="col-span-1 sm:col-span-2">
+                        <label class="font-semibold block mb-1">Địa chỉ:</label>
                         <input type="text" name="address" th:field="${user.employee.address}"
                                class="mt-1 w-full px-3 py-2 border rounded">
                     </div>
 
                     <div>
-                        <label class="font-semibold">Số điện thoại:</label>
+                        <label class="font-semibold block mb-1">Số điện thoại:</label>
                         <input type="text" name="phone" th:field="${user.employee.phoneNumber}"
                                class="mt-1 w-full px-3 py-2 border rounded">
                     </div>
 
                     <div>
-                        <label class="font-semibold">Lương:</label>
+                        <label class="font-semibold block mb-1">Lương:</label>
                         <input type="text"
                                th:value="${#numbers.formatDecimal(user.employee.position.salary, 0, 'POINT', 0, 'COMMA')}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
@@ -71,21 +87,21 @@
                     </div>
 
                     <div>
-                        <label class="font-semibold">Tài khoản:</label>
+                        <label class="font-semibold block mb-1">Tài khoản:</label>
                         <input type="text" name="username" th:field="${user.username}"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
 
                     <div>
-                        <label class="font-semibold">Mật khẩu:</label>
+                        <label class="font-semibold block mb-1">Mật khẩu:</label>
                         <input type="password" name="password" value="********"
                                class="mt-1 w-full px-3 py-2 border rounded bg-gray-100" readonly>
                     </div>
                 </div>
 
-                <div class="pt-4">
+                <div class="pt-4 flex justify-center sm:justify-start">
                     <button type="submit"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded font-semibold shadow">
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded font-semibold shadow w-full sm:w-auto">
                         💾 Lưu thông tin
                     </button>
                 </div>
@@ -93,5 +109,25 @@
         </div>
     </form>
 </div>
+
+<script>
+    function validateLink(inputElement) {
+      let link = inputElement.value.toLowerCase();
+      let messageElement = document.getElementById('validationMessage');
+
+      if (link.endsWith('.jpg') || link.endsWith('.jpeg') || link.endsWith('.png')) {
+        messageElement.textContent = 'Link ảnh hợp lệ! 👍';
+        messageElement.style.color = 'green';
+      } else {
+        messageElement.textContent = 'Link không hợp lệ. Vui lòng nhập link ảnh .jpg hoặc .png. 👎';
+        messageElement.style.color = 'red';
+      }
+
+      // Xóa thông báo nếu input trống
+      if (link === '') {
+        messageElement.textContent = '';
+      }
+    }
+</script>
 </body>
 </html>

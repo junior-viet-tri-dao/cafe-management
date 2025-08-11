@@ -72,6 +72,7 @@ public class SaleController {
         return response;
     }
 
+
     @GetMapping("/reservation")
     public String showReservationForm(@RequestParam("tableId") Integer tableId, Model model) {
         CreateReservationRequest request = new CreateReservationRequest();

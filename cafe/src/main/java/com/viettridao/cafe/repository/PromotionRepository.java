@@ -19,6 +19,6 @@ public interface PromotionRepository extends JpaRepository<PromotionEntity, Inte
     @Query("Select p from PromotionEntity p where p.isDeleted = false and LOWER(p.promotionName) like lower(CONCAT('%', :namePromotion, '%'))")
     Page<PromotionEntity> getAllPromotionPageSearch(@Param("namePromotion") String namePromotion, Pageable pageable);
 
-    @Query("Select p from PromotionEntity p where p.isDeleted = false ")
+    @Query("Select p from PromotionEntity p where p.isDeleted = false" )
     Page<PromotionEntity> getAllPromotionPage(Pageable pageable);
 }

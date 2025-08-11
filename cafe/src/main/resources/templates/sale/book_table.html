@@ -4,7 +4,16 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt bàn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content" class="bg-[#fefae0] min-h-screen w-full flex justify-center items-start py-12 px-4">
@@ -13,7 +22,6 @@
 
         <input type="hidden" th:field="*{tableId}" />
 
-        <!-- Tên khách hàng -->
         <div>
             <label class="block text-base font-medium text-gray-700 mb-1">Tên khách hàng</label>
             <input type="text"
@@ -27,7 +35,6 @@
 
         </div>
 
-        <!-- Số điện thoại -->
         <div>
             <label class="block text-base font-medium text-gray-700 mb-1">Số điện thoại</label>
             <input type="tel"
@@ -42,7 +49,6 @@
             <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('customerPhone')}" th:errors="*{customerPhone}"></p>
         </div>
 
-        <!-- Thời gian đặt -->
         <div>
             <label class="block text-base font-medium text-gray-700 mb-1">Thời gian đặt</label>
             <input type="datetime-local"

@@ -177,7 +177,7 @@
 
                 <div class="form-group">
                     productName: <label for="productName" th:text="*{product.productName}"></label>
-                    <input type="text" hidden id="productName" th:field="*{product.productName}" >
+                    <input type="text" hidden id="productName" th:field="*{product.productName}" minlength="3" maxlength="100">
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('product.productName')}" th:errors="*{product.productName}"></p>
                 </div>
 
@@ -189,7 +189,7 @@
 
                 <div class="form-group">
                     <label for="quantity">Quantity</label>
-                    <input type="text" id="quantity"  th:field="*{quantity}">
+                    <input type="text" id="quantity"  th:field="*{quantity}" minlength="1" maxlength="10000">
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
                 </div>
             </div>

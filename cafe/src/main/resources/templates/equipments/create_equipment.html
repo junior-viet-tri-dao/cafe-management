@@ -31,7 +31,7 @@
 
   <form th:action="@{/equipment/create}" method="post">
     <label for="equipmentName">Tên thiết bị</label>
-    <input type="text" id="equipmentName" name="equipmentName" required />
+    <input type="text" id="equipmentName" name="equipmentName" required minlength="3" maxlength="100"  />
 
     <label for="quantity">Số lượng</label>
     <input type="number" id="quantity" name="quantity"  min="1" required />

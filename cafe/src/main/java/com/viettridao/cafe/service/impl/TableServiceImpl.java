@@ -92,109 +92,6 @@ public class TableServiceImpl implements TableService {
         }
     }
 
-    @Transactional
-    @Override
-    public void selectMenusForTable(Integer tableId, List<Integer> menuIds, List<Integer> quantities) {
-        if (menuIds.size() != quantities.size()) {
-            throw new IllegalArgumentException("Số lượng menu và số lượng món không khớp!");
-        }
-
-        TableEntity table = getTableById(tableId);
-        ReservationEntity reservation;
-
-        if (table.getStatus().equals(TableStatus.AVAILABLE)) {
-            // 1. Tạo hóa đơn mới
-            InvoiceEntity invoice = new InvoiceEntity();
-            invoice.setStatus(InvoiceStatus.UNPAID);
-            invoice.setIsDeleted(false);
-            invoice.setTotalAmount(0.0);
-            invoice.setCreatedAt(LocalDateTime.now());
-            invoiceRepository.save(invoice);
-
-            // 2. Tạo Reservation mới
-            reservation = new ReservationEntity();
-            ReservationKey key = new ReservationKey();
-            key.setIdTable(table.getId());
-            key.setIdInvoice(invoice.getId());
-
-            // Giả sử bạn có thông tin nhân viên đang đăng nhập
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            AccountEntity account = accountService.getAccountByUsername(auth.getName());
-
-            if (account.getEmployee() == null) {
-                throw new IllegalStateException("Bạn phải cập nhật thông tin nhân viên.");
-            }
-
-            key.setIdEmployee(account.getEmployee().getId());
-
-            reservation.setId(key);
-            reservation.setInvoice(invoice);
-            reservation.setTable(table);
-            reservation.setEmployee(account.getEmployee());
-            reservation.setReservationDate(LocalDateTime.now());
-            reservation.setIsDeleted(false);
-            reservationRepository.save(reservation);
-
-            // 3. Cập nhật trạng thái bàn
-            table.setStatus(TableStatus.OCCUPIED);
-            tableRepository.save(table);
-        } else {
-            // Nếu bàn không trống thì lấy Reservation hiện tại
-            Optional<ReservationEntity> reservationOpt = reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(table.getId(), false);
-            if (!reservationOpt.isPresent()) {
-                throw new RuntimeException("Bàn chưa có chi tiết đặt bàn");
-            }
-            reservation = reservationOpt.get();
-        }
-
-        InvoiceEntity invoice = reservation.getInvoice();
-        if (invoice == null) {
-            throw new RuntimeException("Bàn chưa có hóa đơn");
-        }
-
-        // 4. Thêm món
-        for (int i = 0; i < menuIds.size(); i++) {
-            Integer menuId = menuIds.get(i);
-            Integer quantity = quantities.get(i);
-
-            if (quantity <= 0) continue;
-
-            MenuItemEntity menuItem = menuItemService.getMenuItemById(menuId);
-
-            InvoiceKey key = new InvoiceKey(invoice.getId(), menuItem.getId());
-
-            Optional<InvoiceDetailEntity> existingDetailOpt = invoiceDetailRepository.findById(key);
-
-            if (existingDetailOpt.isPresent()) {
-                // Món đã tồn tại => cộng dồn
-                InvoiceDetailEntity existingDetail = existingDetailOpt.get();
-                existingDetail.setQuantity(existingDetail.getQuantity() + quantity);
-                existingDetail.setIsDeleted(false);
-                invoiceDetailRepository.save(existingDetail);
-            } else {
-                // Món mới => thêm mới
-                InvoiceDetailEntity newDetail = new InvoiceDetailEntity();
-                newDetail.setId(key);
-                newDetail.setMenuItem(menuItem);
-                newDetail.setQuantity(quantity);
-                newDetail.setInvoice(invoice);
-                newDetail.setPrice(menuItem.getCurrentPrice());
-                newDetail.setIsDeleted(false);
-                invoiceDetailRepository.save(newDetail);
-            }
-        }
-        double totalAmount = invoiceDetailRepository
-                .findAllByInvoice_Id(invoice.getId())
-                .stream()
-                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
-                .sum();
-
-        invoice.setTotalAmount(totalAmount);
-        invoiceRepository.save(invoice);
-
-        table.setStatus(TableStatus.OCCUPIED);
-        tableRepository.save(table);
-    }
 
     @Transactional
     @Override
@@ -346,6 +243,14 @@ public class TableServiceImpl implements TableService {
 
         // Gộp từ các bàn nguồn
         for (Integer sourceId : sourceTableIds) {
+            try{
+                var sourceOptt = reservationRepository
+                        .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(sourceId, false);
+            }
+            catch (Exception e){
+                var h = ";";
+            }
+
             Optional<ReservationEntity> sourceOpt = reservationRepository
                     .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(sourceId, false);
             if (!sourceOpt.isPresent()) continue;
@@ -386,6 +291,140 @@ public class TableServiceImpl implements TableService {
         tableRepository.save(tableTarget);
     }
 
+    private double mergeItemToMainInvoice(InvoiceEntity mainInvoice, InvoiceDetailEntity sourceItem) {
+        if (mainInvoice.getInvoiceDetails() == null) {
+            mainInvoice.setInvoiceDetails(new ArrayList<>());
+        }
+
+
+        for (InvoiceDetailEntity item : mainInvoice.getInvoiceDetails()) {
+            if (item.getMenuItem().getId().equals(sourceItem.getMenuItem().getId())) {
+                item.setQuantity(item.getQuantity() + sourceItem.getQuantity());
+                return sourceItem.getQuantity() * sourceItem.getPrice();
+            }
+        }
+
+        InvoiceDetailEntity newItem = new InvoiceDetailEntity();
+        InvoiceKey newKey = new InvoiceKey(mainInvoice.getId(), sourceItem.getMenuItem().getId());
+
+        newItem.setId(newKey);
+        newItem.setInvoice(mainInvoice);
+        newItem.setMenuItem(sourceItem.getMenuItem());
+        newItem.setQuantity(sourceItem.getQuantity());
+        newItem.setPrice(sourceItem.getPrice());
+        newItem.setIsDeleted(false);
+
+        mainInvoice.getInvoiceDetails().add(newItem);
+        return newItem.getQuantity() * newItem.getPrice();
+    }
+
+
+    @Transactional
+    @Override
+    public void selectMenusForTable(Integer tableId, List<Integer> menuIds, List<Integer> quantities) {
+        if (menuIds.size() != quantities.size()) {
+            throw new IllegalArgumentException("Số lượng menu và số lượng món không khớp!");
+        }
+
+        TableEntity table = getTableById(tableId);
+        ReservationEntity reservation;
+
+        if (table.getStatus().equals(TableStatus.AVAILABLE)) {
+            // 1. Tạo hóa đơn mới
+            InvoiceEntity invoice = new InvoiceEntity();
+            invoice.setStatus(InvoiceStatus.UNPAID);
+            invoice.setIsDeleted(false);
+            invoice.setTotalAmount(0.0);
+            invoice.setCreatedAt(LocalDateTime.now());
+            invoiceRepository.save(invoice);
+
+            // 2. Tạo Reservation mới
+            reservation = new ReservationEntity();
+            ReservationKey key = new ReservationKey();
+            key.setIdTable(table.getId());
+            key.setIdInvoice(invoice.getId());
+
+            // Giả sử bạn có thông tin nhân viên đang đăng nhập
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            AccountEntity account = accountService.getAccountByUsername(auth.getName());
+
+            if (account.getEmployee() == null) {
+                throw new IllegalStateException("Bạn phải cập nhật thông tin nhân viên.");
+            }
+
+            key.setIdEmployee(account.getEmployee().getId());
+
+            reservation.setId(key);
+            reservation.setInvoice(invoice);
+            reservation.setTable(table);
+            reservation.setEmployee(account.getEmployee());
+            reservation.setReservationDate(LocalDateTime.now());
+            reservation.setIsDeleted(false);
+            reservationRepository.save(reservation);
+
+            // 3. Cập nhật trạng thái bàn
+            table.setStatus(TableStatus.OCCUPIED);
+            tableRepository.save(table);
+        } else {
+            // Nếu bàn không trống thì lấy Reservation hiện tại
+            Optional<ReservationEntity> reservationOpt = reservationRepository.findTopByTableIdAndIsDeletedOrderByReservationDateDesc(table.getId(), false);
+            if (!reservationOpt.isPresent()) {
+                throw new RuntimeException("Bàn chưa có chi tiết đặt bàn");
+            }
+            reservation = reservationOpt.get();
+        }
+
+        InvoiceEntity invoice = reservation.getInvoice();
+        if (invoice == null) {
+            throw new RuntimeException("Bàn chưa có hóa đơn");
+        }
+
+        // 4. Thêm món
+        for (int i = 0; i < menuIds.size(); i++) {
+            Integer menuId = menuIds.get(i);
+            Integer quantity = quantities.get(i);
+
+            if (quantity <= 0) continue;
+
+            MenuItemEntity menuItem = menuItemService.getMenuItemById(menuId);
+
+            InvoiceKey key = new InvoiceKey(invoice.getId(), menuItem.getId());
+
+            Optional<InvoiceDetailEntity> existingDetailOpt = invoiceDetailRepository.findById(key);
+
+            if (existingDetailOpt.isPresent()) {
+                // Món đã tồn tại => cộng dồn
+                InvoiceDetailEntity existingDetail = existingDetailOpt.get();
+                existingDetail.setQuantity(existingDetail.getQuantity() + quantity);
+                existingDetail.setIsDeleted(false);
+                invoiceDetailRepository.save(existingDetail);
+            } else {
+                // Món mới => thêm mới
+                InvoiceDetailEntity newDetail = new InvoiceDetailEntity();
+                newDetail.setId(key);
+                newDetail.setMenuItem(menuItem);
+                newDetail.setQuantity(quantity);
+                newDetail.setInvoice(invoice);
+                newDetail.setPrice(menuItem.getCurrentPrice());
+                newDetail.setIsDeleted(false);
+                invoiceDetailRepository.save(newDetail);
+            }
+        }
+        double totalAmount = invoiceDetailRepository
+                .findAllByInvoice_Id(invoice.getId())
+                .stream()
+                .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+                .sum();
+
+        invoice.setTotalAmount(totalAmount);
+        invoiceRepository.save(invoice);
+
+        table.setStatus(TableStatus.OCCUPIED);
+        tableRepository.save(table);
+    }
+
+
+
     @Transactional
     @Override
     public void splitTable(Integer fromTableId, Integer toTableId, List<SplitItemRequest> items) {
@@ -402,6 +441,13 @@ public class TableServiceImpl implements TableService {
 
         if (!toTable.getStatus().equals(TableStatus.AVAILABLE)) {
             throw new RuntimeException("Bàn đích phải đang trống.");
+        }
+
+        try{
+            Optional<ReservationEntity> fromReservationOptt = reservationRepository
+                    .findTopByTableIdAndIsDeletedOrderByReservationDateDesc(fromTableId, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         Optional<ReservationEntity> fromReservationOpt = reservationRepository
@@ -502,12 +548,27 @@ public class TableServiceImpl implements TableService {
         }
 
         // Cập nhật tổng tiền
+        try{
+            double newFromTotall = invoiceDetailRepository
+                    .findAllByInvoice_Id(fromInvoice.getId())
+                    .stream()
+                    .filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()))
+                    .mapToDouble(d -> d.getQuantity() * d.getPrice())
+                    .sum();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
         double newFromTotal = invoiceDetailRepository
                 .findAllByInvoice_Id(fromInvoice.getId())
                 .stream()
                 .filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()))
                 .mapToDouble(d -> d.getQuantity() * d.getPrice())
                 .sum();
+
+
+
         fromInvoice.setTotalAmount(newFromTotal);
         invoiceRepository.save(fromInvoice);
 
@@ -524,29 +585,5 @@ public class TableServiceImpl implements TableService {
         tableRepository.save(toTable);
     }
 
-    private double mergeItemToMainInvoice(InvoiceEntity mainInvoice, InvoiceDetailEntity sourceItem) {
-        if (mainInvoice.getInvoiceDetails() == null) {
-            mainInvoice.setInvoiceDetails(new ArrayList<>());
-        }
 
-        for (InvoiceDetailEntity item : mainInvoice.getInvoiceDetails()) {
-            if (item.getMenuItem().getId().equals(sourceItem.getMenuItem().getId())) {
-                item.setQuantity(item.getQuantity() + sourceItem.getQuantity());
-                return sourceItem.getQuantity() * sourceItem.getPrice();
-            }
-        }
-
-        InvoiceDetailEntity newItem = new InvoiceDetailEntity();
-        InvoiceKey newKey = new InvoiceKey(mainInvoice.getId(), sourceItem.getMenuItem().getId());
-
-        newItem.setId(newKey);
-        newItem.setInvoice(mainInvoice);
-        newItem.setMenuItem(sourceItem.getMenuItem());
-        newItem.setQuantity(sourceItem.getQuantity());
-        newItem.setPrice(sourceItem.getPrice());
-        newItem.setIsDeleted(false);
-
-        mainInvoice.getInvoiceDetails().add(newItem);
-        return newItem.getQuantity() * newItem.getPrice();
-    }
 }

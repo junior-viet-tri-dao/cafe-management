@@ -2,6 +2,7 @@ package com.viettridao.cafe.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,9 +16,11 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InvoiceKey {
+    @NotNull(message = "ID hóa đơn không được để trống")
     @Column(name = "invoice_id")
     private Integer idInvoice;
 
+    @NotNull(message = "ID món ăn không được để trống")
     @Column(name = "menu_item_id")
     private Integer idMenuItem;
 

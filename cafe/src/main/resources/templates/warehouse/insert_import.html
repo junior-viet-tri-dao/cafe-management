@@ -184,12 +184,12 @@
                 </div>
                 <div class="form-group">
                     <label for="quantity">Số Lượng</label>
-                    <input type="text" id="quantity" th:field="*{quantity}">
+                    <input type="text" id="quantity" th:field="*{quantity}" minlength="1" maxlength="10000">
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
                 </div>
                 <div class="form-group">
                     <label for="price">Đơn Giá</label>
-                    <input type="text" id="price"  th:field="*{price}">
+                    <input type="text" id="price"  th:field="*{price}" minlength="1" maxlength="1000000000000">
                     <p class="text-red-500 text-sm mt-1" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></p>
                 </div>
                 <div class="form-group">
@@ -207,7 +207,7 @@
 
         <div class="form-buttons">
             <button type="submit">Thêm</button>
-            <a th:href="@{/promotion}">Huỷ</a>
+            <a th:href="@{/warehouse/list_import}">Huỷ</a>
         </div>
 
         <p class="required-note"><span class="required-star">(*)</span> : Các trường bắt buộc nhập</p>

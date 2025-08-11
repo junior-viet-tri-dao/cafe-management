@@ -4,90 +4,22 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report</title>
-</head>
-<body>
-
-<div layout:fragment="content">
-
-
+    <!-- Thêm Tailwind CSS CDN và font Inter để đồng bộ với các trang khác -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Sử dụng font Inter cho toàn bộ trang */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
 
-
-
-        .report-container {
-            width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            margin-right: 10px;
-        }
-        .radio-group label {
-            margin-right: 20px;
-        }
-        .date-selection {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .date-selection label {
-            margin-right: 10px;
-        }
-        .date-selection input[type="date"] {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-        .date-selection button {
-            padding: 8px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        /* Các kiểu CSS cũ đã được chuyển đổi thành lớp Tailwind, nhưng giữ lại một số để đảm bảo tính năng sắp xếp của bảng */
+        .sortable-header {
             cursor: pointer;
-        }
-        .date-selection button:hover {
-            background-color: #45a049;
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        .report-table th, .report-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .report-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            position: relative; /* For sort arrows */
-        }
-        .report-table .text-right {
-            text-align: right;
-        }
-        .report-table tfoot td {
-            font-weight: bold;
-            background-color: #e9e9e9;
+            padding-right: 20px; /* Tạo khoảng trống cho mũi tên */
+            position: relative;
         }
         .sort-arrow {
             position: absolute;
@@ -97,132 +29,118 @@
             font-size: 0.8em;
             color: #888;
         }
-        .sortable-header {
-            cursor: pointer;
-            padding-right: 20px; /* Make space for arrow */
-        }
-
-        .action-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-        .export-section, .print-section {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            width: 48%; /* Adjust as needed */
-        }
-        .export-section label, .print-section label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        .export-section input[type="radio"] {
-            margin-right: 5px;
-        }
-        .export-section button, .print-section button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-        .export-section button:hover, .print-section button:hover {
-            background-color: #0056b3;
-        }
-        .print-section select, .print-section input[type="number"] {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: calc(100% - 18px); /* Adjust for padding/border */
-            margin-bottom: 10px;
-        }
-        .print-section .form-field {
-            margin-bottom: 10px;
-        }
     </style>
+</head>
+<body>
 
-    <form id="reportForm" action="/report" method="GET">
-        <div class="form-group radio-group">
-            <label><input type="radio" name="reportType" value="all" checked>Tất cả</label>
-            <label><input type="radio" name="reportType" value="import-export">Nhập-xuất</label>
-            <label><input type="radio" name="reportType" value="import">Nhập</label>
-            <label><input type="radio" name="reportType" value="sales">Bán hàng</label>
-            <label><input type="radio" name="reportType" value="salary">Lương</label>
-            <label><input type="radio" name="reportType" value="employee">TT nhân viên</label>
-            <label><input type="radio" name="reportType" value="export">Xuất</label>
-            <label><input type="radio" name="reportType" value="other-fees">Phí khác</label>
-        </div>
+<div layout:fragment="content" class="p-4 md:p-8 bg-gray-50 min-h-screen">
 
-        <div class="date-selection">
-            <label for="fromDate">Từ ngày</label>
-            <input type="date" id="fromDate" name="fromDate" value="2014-12-23">
-            <label for="toDate">đến ngày</label>
-            <input type="date" id="toDate" name="toDate" value="2014-12-25">
-            <button type="submit">Xem</button>
-        </div>
-    </form>
+    <div class="max-w-7xl mx-auto space-y-6">
 
-    <div class="report-results">
-        <table class="report-table" id="reportDataTable">
-            <thead>
-            <tr>
-                <th class="sortable-header" data-sort-by="date">Ngày <span class="sort-arrow"></span></th>
-                <th class="sortable-header" data-sort-by="thu">Thu <span class="sort-arrow"></span></th>
-                <th class="sortable-header" data-sort-by="chi">Chi <span class="sort-arrow"></span></th>
-            </tr>
-            </thead>
-            <tbody>
-
-            <tr th:each="report : ${reports}">
-                <td th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}"></td>
-                <td th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
-                <td th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}"></td>
-            </tr>
-
-            </tbody>
-        </table>
-    </div>
-
-    <div class="action-group">
-        <div class="export-section">
-            <h3>Xuất file</h3>
-            <form id="exportForm" action="/api/report/export" method="POST">
-                <label><input type="radio" name="exportFormat" value="txt" checked> .txt - Text File</label>
-                <label><input type="radio" name="exportFormat" value="xls"> .xls - Excel File</label>
-                <label><input type="radio" name="exportFormat" value="sql"> .sql - SQL File</label>
-                <button type="submit">Xuất file</button>
-            </form>
-        </div>
-
-        <div class="print-section">
-            <h3>In file</h3>
-            <form id="printForm" action="/api/report/print" method="POST">
-                <div class="form-field">
-                    <label for="paperSize">Khổ giấy:</label>
-                    <select id="paperSize" name="paperSize">
-                        <option value="A4">A4</option>
-                        <option value="A3">A3</option>
-                        <option value="Letter">Letter</option>
-                    </select>
+        <!-- Form chọn loại báo cáo và ngày -->
+        <form id="reportForm" action="/report" method="GET">
+            <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                <h3 class="text-xl font-bold text-gray-700">Lựa chọn báo cáo</h3>
+                <div class="flex flex-wrap gap-4 radio-group">
+                    <label class="flex items-center"><input type="radio" name="reportType" value="all" class="mr-2" checked>Tất cả</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="import-export" class="mr-2">Nhập-xuất</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="import" class="mr-2">Nhập</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="sales" class="mr-2">Bán hàng</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="salary" class="mr-2">Lương</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="employee" class="mr-2">TT nhân viên</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="export" class="mr-2">Xuất</label>
+                    <label class="flex items-center"><input type="radio" name="reportType" value="other-fees" class="mr-2">Phí khác</label>
                 </div>
-                <div class="form-field">
-                    <label for="printer">Máy in:</label>
-                    <select id="printer" name="printer">
-                        <option value="Hp Laser">Hp Laser</option>
-                        <option value="Epson Inkjet">Epson Inkjet</option>
-                        <option value="Canon Pixma">Canon Pixma</option>
-                    </select>
+
+                <div class="flex flex-col md:flex-row items-center gap-4 date-selection">
+                    <div class="flex items-center w-full md:w-auto">
+                        <label for="fromDate" class="shrink-0 mr-2">Từ ngày</label>
+                        <input type="date" id="fromDate" name="fromDate" value="2014-12-23"
+                               class="w-full md:w-auto p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="flex items-center w-full md:w-auto">
+                        <label for="toDate" class="shrink-0 mr-2">đến ngày</label>
+                        <input type="date" id="toDate" name="toDate" value="2014-12-25"
+                               class="w-full md:w-auto p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <button type="submit"
+                            class="w-full md:w-auto px-4 py-2 bg-green-600 text-white font-semibold rounded-md shadow-sm hover:bg-green-700 transition">
+                        Xem
+                    </button>
                 </div>
-                <div class="form-field">
-                    <label for="copies">Số lượng:</label>
-                    <input type="number" id="copies" name="copies" value="3" min="1">
-                </div>
-                <button type="submit">In</button>
-            </form>
+            </div>
+        </form>
+
+        <!-- Bảng kết quả báo cáo, sử dụng overflow-x-auto để cuộn ngang trên mobile -->
+        <div class="report-results overflow-x-auto">
+            <table class="report-table w-full border-collapse bg-white shadow-md rounded-lg" id="reportDataTable">
+                <thead class="bg-gray-100">
+                <tr>
+                    <th class="sortable-header p-4 border text-left font-semibold" data-sort-by="date">Ngày <span class="sort-arrow"></span></th>
+                    <th class="sortable-header p-4 border text-left font-semibold" data-sort-by="thu">Thu <span class="sort-arrow"></span></th>
+                    <th class="sortable-header p-4 border text-left font-semibold" data-sort-by="chi">Chi <span class="sort-arrow"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="report : ${reports}">
+                    <td th:text="${report.date != null ? #temporals.format(report.date, 'dd/MM/yyyy') : ''}" class="p-4 border"></td>
+                    <td th:text="${report.revenue != null ? #numbers.formatDecimal(report.revenue, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}" class="p-4 border text-right"></td>
+                    <td th:text="${report.expense != null ? #numbers.formatDecimal(report.expense, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}" class="p-4 border text-right"></td>
+                </tr>
+
+                </tbody>
+            </table>
         </div>
+
+<!--        &lt;!&ndash; Các nút hành động (Xuất file, In file) &ndash;&gt;-->
+<!--        <div class="flex flex-col md:flex-row justify-between gap-6 action-group">-->
+<!--            <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2">-->
+<!--                <h3 class="text-lg font-bold mb-4">Xuất file</h3>-->
+<!--                <form id="exportForm" action="/api/report/export" method="POST" class="space-y-3">-->
+<!--                    <label class="flex items-center"><input type="radio" name="exportFormat" value="txt" class="mr-2" checked> .txt - Text File</label>-->
+<!--                    <label class="flex items-center"><input type="radio" name="exportFormat" value="xls" class="mr-2"> .xls - Excel File</label>-->
+<!--                    <label class="flex items-center"><input type="radio" name="exportFormat" value="sql" class="mr-2"> .sql - SQL File</label>-->
+<!--                    <button type="submit"-->
+<!--                            class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition">-->
+<!--                        Xuất file-->
+<!--                    </button>-->
+<!--                </form>-->
+<!--            </div>-->
+
+<!--            <div class="bg-white p-6 rounded-lg shadow-md w-full md:w-1/2">-->
+<!--                <h3 class="text-lg font-bold mb-4">In file</h3>-->
+<!--                <form id="printForm" action="/api/report/print" method="POST" class="space-y-3">-->
+<!--                    <div class="form-field">-->
+<!--                        <label for="paperSize" class="block mb-1">Khổ giấy:</label>-->
+<!--                        <select id="paperSize" name="paperSize"-->
+<!--                                class="w-full p-2 border border-gray-300 rounded-md">-->
+<!--                            <option value="A4">A4</option>-->
+<!--                            <option value="A3">A3</option>-->
+<!--                            <option value="Letter">Letter</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                    <div class="form-field">-->
+<!--                        <label for="printer" class="block mb-1">Máy in:</label>-->
+<!--                        <select id="printer" name="printer"-->
+<!--                                class="w-full p-2 border border-gray-300 rounded-md">-->
+<!--                            <option value="Hp Laser">Hp Laser</option>-->
+<!--                            <option value="Epson Inkjet">Epson Inkjet</option>-->
+<!--                            <option value="Canon Pixma">Canon Pixma</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                    <div class="form-field">-->
+<!--                        <label for="copies" class="block mb-1">Số lượng:</label>-->
+<!--                        <input type="number" id="copies" name="copies" value="3" min="1"-->
+<!--                               class="w-full p-2 border border-gray-300 rounded-md">-->
+<!--                    </div>-->
+<!--                    <button type="submit"-->
+<!--                            class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 transition">-->
+<!--                        In-->
+<!--                    </button>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 </div>
 
@@ -461,8 +379,5 @@
     });
 </script>
 
-
-
-</div>
 </body>
 </html>

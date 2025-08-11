@@ -33,7 +33,7 @@
         <input type="hidden" name="id" th:value="${equipment.id}"/>
 
         <label for="equipmentName">Tên thiết bị</label>
-        <input type="text" id="equipmentName" name="equipmentName" th:value="${equipment.equipmentName}" required />
+        <input type="text" id="equipmentName" name="equipmentName"  minlength="3" maxlength="100" th:value="${equipment.equipmentName}" required />
 
         <label for="quantity">Số lượng</label>
         <input type="number" id="quantity" name="quantity" th:value="${equipment.quantity}"  min="1" required />
